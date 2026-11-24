@@ -261,3 +261,5 @@ Gemini's feedback: "PropApp — v3 Roadmap & Architecture Brief" (owner's Drive,
 - **V3-03:** the evidence pack (the inspector pack is deferred).
 - **V3-04:** the multi-pharmacy summary (deferred).
 - **V3-05:** clinical content; it needs the pages read first.
+
+**Full run on build 76de97c792:** 12 suites, 202 checks, all pass with no console errors. check-procgen-all: all 17 services identical.
