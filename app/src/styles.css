@@ -159,3 +159,5 @@ body:has(#uat-btn) #app.has-nav{padding-bottom:calc(132px + env(safe-area-inset-
 .day i{position:absolute;right:3px;bottom:2px;font-style:normal;font-size:10px;line-height:1;color:var(--accent)}.day.bad i{color:var(--bad)}.day.sel i{color:var(--on-primary)}
 table.yearplan{border-collapse:collapse;font-size:13px;min-width:560px}.yearplan th,.yearplan td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:center}.yearplan th[scope=row]{text-align:left;font-weight:600;min-width:150px;position:sticky;left:0;background:var(--bg)}
 .yearplan td.done{color:var(--ok)}.yearplan td.due{color:var(--accent);font-weight:700}.yearplan td.bad{color:var(--bad);font-weight:700}.yearplan td.rep{color:var(--muted)}
+.btnrow.pad{padding:0 14px 14px}
+.uatq{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px;border:1px dashed var(--warn);border-radius:10px;background:var(--warnbg);font-size:13px}

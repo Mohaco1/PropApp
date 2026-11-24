@@ -96,6 +96,7 @@ register('service-setup', {
     else input = h`${textInput('d', v === NV ? '' : v, { placeholder: 'Type your answer' })}<label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`;
     const maxQ = (C.services.setupFields[id] || []).length;
     return screen({ title: serviceName(id), back: true, saved: 'Saved', body: h`${prog}<p class="steps">Question ${idx + 1}${maxQ > fs.length ? ' · more may follow, depending on your answers' : ' of ' + fs.length}</p>
+      ${window.PROPAPP_UAT ? h`<div class="uatq"><span>UAT · this question:</span>${['Could be usual', 'Must always ask', 'No opinion'].map(x => h`<button class="chip ${window.uatMarkOf?.(id + '/' + f.key) === x ? 'on' : ''}" data-act="uatq" data-k="${id + '/' + f.key}" data-v="${x}">${x}</button>`)}</div>` : ''}
       <form class="form" data-form="next" data-change="ans"><p class="qtext">${procWord(label)}</p>${m.note ? h`<p class="muted">${procWord(m.note)}</p>` : ''}${input}</form>
       ${c.ui.returnTo?.id === id ? h`<div class="btnrow">${btn('Save and back to the procedure', 'ret', { kind: 'primary', cls: 'block' })}</div>` : h`<div class="btnrow">${btn('Previous', 'step', { data: { s: idx - 1 }, disabled: idx === 0 })}${btn(idx === fs.length - 1 ? 'Finish' : 'Next', 'step', { kind: 'primary', data: { s: idx + 1 } })}</div>`}` });
   },
@@ -116,7 +117,8 @@ register('service-setup', {
     c.ui['ss:' + id] = idx; if (before !== v) c.rerender(); } },
 
   forms: { fin: (c, f, el, r) => finishService(c, r.id, f) },
-  acts: { vall: (c, d, el) => { const fs = el.closest('fieldset'); fs.querySelectorAll('input[type=checkbox]').forEach(i => { i.checked = true; }); fs.closest('form').dispatchEvent(new Event('change', { bubbles: true })); },
+  acts: { uatq: async (c, d) => { await window.uatMark?.(d.k, d.v); c.rerender(); },
+    vall: (c, d, el) => { const fs = el.closest('fieldset'); fs.querySelectorAll('input[type=checkbox]').forEach(i => { i.checked = true; }); fs.closest('form').dispatchEvent(new Event('change', { bubbles: true })); },
     step: (c, d, el, r) => { const s = Math.max(0, +d.s); c.ui['ss:' + r.id] = s; c.change(ph => { ph.services[r.id].pos = s; }); window.scrollTo(0, 0); },
     recnow: (c, d, el, r) => c.change(ph => { ph.services[r.id].recIntro = 'now'; }),
     recskip: (c, d, el, r) => { const fs = fieldsFor(c.ph, r.id); c.change(ph => { const s = ph.services[r.id]; s.recIntro = 'skipped'; for (const f of fs.filter(x => isLoc(r.id, x))) if (!answered(s.answers, f.key)) s.answers[f.key] = NV; s.pos = fs.length; if (s.setup === 'todo') s.setup = 'doing'; }, 'Skipped. They are on Today under “To confirm”.'); c.ui['ss:' + r.id] = fs.length; c.rerender(); },

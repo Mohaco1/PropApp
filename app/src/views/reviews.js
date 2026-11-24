@@ -8,6 +8,7 @@ import { catalog, reviewById, applies, suggestedNext, s8Limit, LEGAL, serviceNam
 import { reviewDue, bucket } from '../summary.js';
 import { fmt, today, addDays, dueText, isDate } from '../dates.js';
 import { addRecord, newAction, note as log } from '../model.js';
+import { saveFile } from '../ics.js';
 // Review-specific fields, from the current app's forms.
 const EXTRA = {
   B1: [['stockDate', 'Date the pharmacist did the stock check', 'date', true], ['stockBy', 'Pharmacist who did the stock check', 'text']],
@@ -124,10 +125,16 @@ function saveReview(c, id) {
   }, 'Review saved');
   c.saveDraft(dkey(id), null); c.back();
 }
+// A readable summary of one record, for an inspector or your own files.
+export function recordText(ph, rec) { const a = reviewById(rec.type), acts = (rec.actionIds || []).map(id => ph.actions[id]).filter(Boolean);
+  return [ph.name + (ph.address ? ' · ' + ph.address : ''), (rec.extra ? 'Extra site visit' : a?.name || rec.title), 'Date: ' + fmt(rec.date) + ' · recorded by ' + (rec.by || '—'), '',
+    ...rec.answers.map(x => '• ' + x.text + ': ' + x.answer + (x.note ? ' (' + x.note + ')' : '')),
+    ...Object.entries(rec.fields?.serviceEvidence || {}).map(([s, e]) => '• ' + serviceName(s) + ' evidence: ' + e.status + (e.ref ? ' (' + e.ref + ')' : '')),
+    rec.notes ? '\nNote: ' + rec.notes : '', acts.length ? '\nActions:\n' + acts.map(x => '• ' + x.title + ' · ' + (x.status === 'closed' ? 'closed ' + fmt(x.closed?.date) + (x.closed?.what ? ': ' + x.closed.what : '') : 'open, due ' + fmt(x.due))).join('\n') : '', '', 'From R.Pharmacy. Records stay in the pharmacy’s own systems; no patient details.'].join('\n'); }
 register('record', {
   tab: 'reviews',
-  acts: { copyrec: async (c, d) => { const rec = c.ph.records.find(x => x.id === d.id), a = reviewById(rec.type);
-    const t = [c.ph.name, (rec.extra ? 'Extra site visit' : a?.name || rec.title) + ' · ' + fmt(rec.date) + ' · recorded by ' + rec.by, '', ...rec.answers.map(x => x.text + ': ' + x.answer + (x.note ? ' (' + x.note + ')' : '')), rec.notes ? '\nNote: ' + rec.notes : ''].join('\n');
+  acts: { dlrec: (c, d) => { const rec = c.ph.records.find(x => x.id === d.id); const ok = saveFile((c.ph.name + ' ' + (reviewById(rec.type)?.name || rec.title) + ' ' + rec.date).replace(/[^\w]+/g, '-') + '.txt', recordText(c.ph, rec)); c.toast(ok ? 'Summary ready' : 'Downloads are blocked here. Use Copy as text.'); },
+    copyrec: async (c, d) => { const rec = c.ph.records.find(x => x.id === d.id); const t = recordText(c.ph, rec);
     try { await navigator.clipboard.writeText(t); c.toast('Copied'); } catch { c.toast('Copy didn’t work here.'); } } },
   render(c, r) {
     const rec = c.ph.records.find(x => x.id === r.id); if (!rec) return screen({ title: 'Record', back: true, body: empty('Not found.') });
@@ -139,7 +146,7 @@ register('record', {
       ${!rec.answers.length ? note('Recorded on ' + fmt(rec.date) + ' in the earlier app. Its details are kept with the record.', 'info') : ''}<section class="sec" ${rec.answers.length ? '' : h`hidden`}><h2 class="sec-title">Answers</h2><div class="list">${rec.answers.map(x => h`<div class="row static"><span class="row-main"><span class="row-title">${x.text}</span>${x.note ? h`<span class="row-sub">${x.note}</span>` : ''}</span><span class="row-right ${/Issue|Outstanding|Yes|Gap|Incomplete/.test(x.answer) && !/^No/.test(x.answer) ? 'bad' : ''}">${x.answer}</span></div>`)}</div></section>
       ${Object.keys(rec.fields?.serviceEvidence || {}).length ? h`<section class="sec"><h2 class="sec-title">Service evidence</h2><div class="list">${Object.entries(rec.fields.serviceEvidence).map(([s, e]) => h`<div class="row static"><span class="row-main"><span class="row-title">${serviceName(s)}</span>${e.ref ? h`<span class="row-sub">${e.ref}</span>` : ''}</span><span class="row-right ${/Gap|Issue|Unable/.test(e.status) ? 'bad' : ''}">${e.status}</span></div>`)}</div></section>` : ''}
       ${rec.fields?.vacc?.sighted ? h`<p class="meta">Vaccine storage self-audit ${rec.fields.vacc.sighted === 'yes' ? 'seen' + (rec.fields.vacc.auditDate ? ' · dated ' + fmt(rec.fields.vacc.auditDate) : '') : 'not seen yet'} · cold-chain breach since last visit: ${rec.fields.vacc.event || '—'}</p>` : ''}
-      ${rec.notes ? h`<div class="card"><p class="eyebrow">Note</p><p>${rec.notes}</p></div>` : ''}${btn('Copy this record as text', 'copyrec', { kind: 'link', data: { id: rec.id } })}
+      ${rec.notes ? h`<div class="card"><p class="eyebrow">Note</p><p>${rec.notes}</p></div>` : ''}<div class="btnrow">${btn('Download summary', 'dlrec', { data: { id: rec.id } })}${btn('Copy as text', 'copyrec', { data: { id: rec.id } })}</div>
       ${Object.entries(rec.fields || {}).filter(([k, v]) => v && typeof v !== 'object' && !['date', 'notes', 'next', 'personId'].includes(k)).length ? h`<div class="card">${Object.entries(rec.fields).filter(([k, v]) => v && typeof v !== 'object' && !['date', 'notes', 'next', 'personId'].includes(k)).map(([k, v]) => h`<p class="meta">${label(rec.type, k)}: ${isDate(v) ? fmt(v) : v}</p>`)}</div>` : ''}` });
   },
 });

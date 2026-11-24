@@ -6,6 +6,7 @@ import { actionCounts } from '../summary.js';
 import { dueText, fmt, today, addDays, isDate } from '../dates.js';
 import { newAction, closeAction, reopenAction, updateAction, waitOn, stopWaiting } from '../model.js';
 import { otpPartsLeft } from './services.js';
+import { saveFile } from '../ics.js';
 const F = [['open', 'Open'], ['overdue', 'Overdue'], ['closed', 'Closed'], ['all', 'All']];
 register('actions', {
   tab: 'actions',
@@ -30,6 +31,7 @@ register('action-new', {
     <div class="dock-inline">${btn('Save action', null, { kind: 'primary', type: 'submit' })}</div></form>` }),
   forms: { new: (c, f) => { let id; c.change(ph => { id = newAction(ph, { title: f.title.trim(), due: f.due }).id; }, 'Action saved'); c.replace('action', { id }); } },
 });
+const histText = (ph, a) => [ph.name, 'Action: ' + a.title, a.source?.label ? 'From: ' + a.source.label : '', 'Due: ' + (fmt(a.due) || 'no date') + ' · ' + (a.status === 'closed' ? 'closed ' + fmt(a.closed?.date) : 'open'), '', ...(a.log || []).map(e => fmt(String(e.at).slice(0, 10)) + (e.by ? ' · ' + e.by : '') + ' · ' + e.text), a.closed?.what ? '\nWhat was seen: ' + a.closed.what : ''].filter(x => x !== '').join('\n');
 const CHIPS = [['In 3 days', 3], ['In a week', 7], ['In 2 weeks', 14]];
 register('action', {
   tab: 'actions',
@@ -56,11 +58,13 @@ register('action', {
     if (open && !mode && /Finish your OTP procedure|documented OTP procedures/.test(a.title) && c.ph.services.otp) { const o = otpPartsLeft(c.ph); body = h`${body}<div class="card"><p>${o.left} of ${o.total} OTP Standards parts to write.</p>${btn('Mark the parts', 'go', { data: { to: 'otp-parts' } })}</div>`; }
     const hist = [...(a.log || [])].reverse();
     return screen({ title: 'Action', back: true, right: open && !mode ? h`<button class="btn link" data-act="mode" data-m="edit">Edit</button>` : '', body: h`${body}
-      <details class="why"><summary>Full history · ${hist.length}</summary><ol class="timeline">${hist.map(e => h`<li><span class="muted">${fmt(String(e.at).slice(0, 10))}${e.by ? ' · ' + e.by : ''}</span><span>${e.text}</span></li>`)}</ol></details>` });
+      <details class="why"><summary>Full history · ${hist.length}</summary><ol class="timeline">${hist.map(e => h`<li><span class="muted">${fmt(String(e.at).slice(0, 10))}${e.by ? ' · ' + e.by : ''}</span><span>${e.text}</span></li>`)}</ol><div class="btnrow pad">${btn('Copy full history', 'cphist')}${btn('Download', 'dlhist')}</div></details>` });
   },
   acts: {
     mode: (c, d, el, r) => { c.ui.actMode = { ...(c.ui.actMode || {}), [r.id]: d.m }; c.rerender(); setTimeout(() => document.querySelector('form textarea, form input')?.focus(), 0); },
     reopen: (c, d, el, r) => c.change(ph => reopenAction(ph, r.id), 'Action reopened'),
+    cphist: async (c, d, el, r) => { try { await navigator.clipboard.writeText(histText(c.ph, c.ph.actions[r.id])); c.toast('Copied'); } catch { c.toast('Copy didn’t work here.'); } },
+    dlhist: (c, d, el, r) => { const a = c.ph.actions[r.id]; c.toast(saveFile(('Action ' + a.title).replace(/[^\w]+/g, '-').slice(0, 60) + '.txt', histText(c.ph, a)) ? 'History ready' : 'Downloads are blocked here.'); },
     unwait: (c, d, el, r) => c.change(ph => stopWaiting(ph, r.id, 'Not waiting any more'), 'Saved'),
   },
   forms: {

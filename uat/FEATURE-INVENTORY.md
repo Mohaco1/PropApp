@@ -1,23 +1,23 @@
 # Feature inventory of the current app (v41.1)
 
-Re-audited 24 Nov 2026 against rebuild build 81a46c3cfa, after Gemini's review: every [x] was checked in the app at phone size. The main flows have their own tests in app/tests (core, sprint1, sprint2, setup-questions, extras); screens.js opens every screen but only checks that it works and fits.
+Re-audited 25 Nov 2026 against rebuild build 383803d03e (overnight Sprints 3–5). Every [x] was checked in the app at phone size; main flows are covered by tests in app/tests: core, sprint1–sprint5, setup-questions, extras; screens.js opens every screen and checks fit, repeats and 44 px targets (plus 320×568).
 
 This is the checklist the rebuild must match before the old app is retired (rule in `/CLAUDE.md`). Each line is something the current app does, sourced from the layers, the engine and the 25 Nov audit. `[ ]` means not yet in the rebuild. Tick it only when it works in the new app at phone size and has a test.
 
 ## 1. First use and setup
 - [x] Welcome screen. Rebuild: wordmark, one line and one button (owner's note).
 - [x] Core setup: pharmacy details (name, address, region, identifier) → proprietors (one or more, with financial-interest holders) → services.
-- [ ] Setup can be stopped and resumed (fresh-resume).
-- [ ] Express setup: assumed standard answers are marked "Assumed – confirm". Evidence and record questions default to "Needs verification".
+- [x] Setup can be stopped and resumed (fresh-resume). · test: sprint3
+- [ ] (Deferred by the overnight brief: replaced by “Check later” on every question and the optional records step) Express setup: assumed standard answers are marked "Assumed – confirm". Evidence and record questions default to "Needs verification".
 - [x] Detailed setup per service: question cards with single choice, multi-tick (with Select all) and "Other (describe)". Free text up to 220 characters.
 - [x] "Draft it for me" vs "We have our own procedure (where kept)".
 - [x] Record locations: multi-tick (paper, electronic, both, other) plus detail. "Mark as needs verification" on any answer.
 - [x] The "Who runs your services day to day" lead question, asked once and reused.
 - [x] Vaccines offered: 21 vaccines in 4 groups with Select all; government-funded vaccines.
-- [ ] Optional evidence and record questions, now or later.
+- [x] Optional evidence and record questions, now or later. · test: sprint3 (S3-04: optional records step)
 - [x] Per-service "what happens next": its reviews, how often, a suggested first due date ("Save these dates"), its procedure (Create this draft, Preview), and what's left to check.
 - [x] Service checklist after core setup (rebuild: To do / In progress / Done).
-- [ ] Today setup checklist ("Finish setting up · N left") and a one-time "set up" message.
+- [x] Today setup checklist ("Finish setting up · N left") and a one-time "set up" message. · test: sprint3
 - [x] Review due dates screen: set or change first dates; moving a date needs a reason.
 - [x] Review intervals (Adjust intervals), with the S8 legal limit enforced (s 111: 3 months after the latest stock-check date, unless NSW Health approved otherwise).
 - [x] Setup answers to verify: a list on Policies and Today ("to check later").
@@ -37,7 +37,7 @@ This is the checklist the rebuild must match before the old app is retired (rule
 - [x] Before you start: open items from earlier visits. Last time: the previous issue and when its fix closed.
 - [x] Still open from an earlier visit: "Seen the fix? Close it".
 - [x] Vaccination panel: cold-chain or equipment event, self-audit sighted plus its date.
-- [ ] Service evidence: DAA operational sample (verified review), staged and vaccination evidence status plus reference.
+- [x] Service evidence: DAA operational sample (verified review), staged and vaccination evidence status plus reference. · test: sprint3 (S3-05)
 - [x] Visit note and next visit date.
 - [x] Finish review lists every item still needed, with "Go to".
 - [x] Draft saves as you go. Resume. Drafts never overwrite newer copies (conflict copy kept).
@@ -47,7 +47,7 @@ This is the checklist the rebuild must match before the old app is retired (rule
 ## 4. Reviews (33 types in the catalog)
 - [x] S8 stock check · proprietor review (B1): the underlying stock-check date and pharmacist; exceptions; the storage construction checks only every 12 months or after a change; register, keys and codes every quarter; the s 111 rule.
 - [x] Meetings: Staff safety meeting (M1), Proprietor check-in (M2), Proprietor governance meeting (Q4). Attendees, minutes, pre-fill of the next meeting, schedule the next one.
-- [ ] Staff assurance (A1): see Staff.
+- [x] Staff assurance (A1): see Staff. · test: extras, sprint1 (annual check, leaving, locum)
 - [x] Governance, access and continuity (A3). Premises registration renewal (CO-P, with Council receipt). Financial interest declaration (CO-F).
 - [x] Service reviews:
   - OTP monthly check-in;
@@ -77,7 +77,7 @@ This is the checklist the rebuild must match before the old app is retired (rule
 - [x] Issues raise actions linked to the review. Review results show "N open actions" or "follow-up closed".
 - [x] Event-only (extra) reviews.
 - [x] Review history (Completed tab) and review detail with a download.
-- [ ] Reviews list: filters (All / Overdue / Due soon / On track / No date / Required by law / Completed), search, include inactive, detail pane (how often, last done, set by, why it's here).
+- [x] Reviews list: filters (All / Overdue / Due soon / On track / No date / Required by law / Completed), search, include inactive, detail pane (how often, last done, set by, why it's here). · test: sprint4 (S4-02)
 
 ## 5. Actions
 - [x] List: Open / Overdue / Completed / All, plus search.
@@ -108,29 +108,29 @@ This is the checklist the rebuild must match before the old app is retired (rule
 
 ## 7. Procedures (Policies)
 - [x] Generated SOP drafts from setup answers for DAA, OTP, vaccination, staged supply, delivery and the other services, citing sources. "[Confirm: …]" markers are listed.
-- [ ] Versions (0.1, 0.2, -r2…), local amendment, "Edit draft wording", "Record that I reviewed", Adopt (blocked while markers remain), annual policy reviews, linked actions.
-- [ ] Template library and document references (title, link, reference, version, owner, review date).
+- [x] Versions (0.1, 0.2, -r2…), local amendment, "Edit draft wording", "Record that I reviewed", Adopt (blocked while markers remain), annual policy reviews, linked actions. · test: sprint4 (S4-01)
+- [x] Template library and document references (title, link, reference, version, owner, review date). · test: sprint4 (S4-01)
 - [x] Policy status in plain words. Procedures speak to "the pharmacist on duty".
 
 ## 8. Calendar
 - [x] This week and next (overdue from earlier weeks, this week, next week).
-- [ ] Year plan with expected repeats and completed marks. Month view. Plan in plain words (find a date).
+- [x] Year plan with expected repeats and completed marks. Month view. Plan in plain words (find a date). · test: sprint4 (S4-03)
 - [x] Includes dated open actions, staff annual checks and (rebuild) credential expiries.
-- [ ] Schedule a meeting.
+- [x] Schedule a meeting. · test: sprint4 (S4-03)
 - [x] Rebuild: calendar feed (.ics) — owner decision.
 
 ## 9. History and exports
 - [x] History: every record (reviews, actions, meetings, setup changes), filters (pharmacy, search, source, record type, review, from and through dates), page through. Rebuild: search, record type, from and through dates; one pharmacy at a time.
 - [x] Print or save a filtered PDF. Download a filtered CSV. Rebuild: readable rows with title, status, due date, resolution and who. Rebuild: print or save as PDF from the filtered list (not available inside the claude.ai preview).
-- [ ] Review detail download. Full history text per action.
+- [x] Review detail download. Full history text per action. · test: sprint5 (S5-01)
 - [x] My log: what the owner reported or sent (date, what, to whom, reference).
 
 ## 10. Law and inspections
 - [x] S8 at a glance: inventory (s 111), who the law puts it on (s 108, s 122), where records are, S8 setup answers, open S8 actions, last checks, last sighted.
 - [x] Legal obligations: one line per Regulation section that applies, with where the evidence is kept and when last sighted.
 - [x] NSW Health dates and contacts. Sources screen (every rule's source).
-- [ ] Incident steps (lost or stolen drugs, S8 destruction) from NSW Health pages.
-- [ ] Evidence locations.
+- [x] Incident steps (lost or stolen drugs, S8 destruction) from NSW Health pages. · test: sprint4 (S4-04)
+- [x] Evidence locations. · test: sprint4 (S4-05)
 
 ## 11. Pharmacy setup (settings)
 - [x] Pharmacy details. Proprietors and oversight (recording as …, switch reviewer). Services and configuration.
@@ -138,15 +138,15 @@ This is the checklist the rebuild must match before the old app is retired (rule
 - [x] Tell me once: a change to how DAAs are packed (in-house / outside packer / another pharmacy) shows only the dependent items, each Done or Later.
 - [x] Settings: last backup and changes since; backup download; restore with a receipt. (Storage status is not shown yet.)
 - [x] More than one pharmacy on a device (switch, add). Directory of sites.
-- [ ] Account or sign-in placeholders (not live).
+- [ ] (Deferred by the overnight brief: out of scope until sign-in, D3) Account or sign-in placeholders (not live).
 
 ## 12. Data protection
 - [x] Local storage (IndexedDB) and flush before reload. Cross-tab sync.
 - [x] Strict backup validation. Restore never silently replaces another pharmacy.
-- [ ] Draft integrity: no overwrite by stale copies, conflict copies kept, an untouched session writes nothing.
+- [x] Draft integrity: no overwrite by stale copies, conflict copies kept, an untouched session writes nothing. · test: sprint5 (S5-02: newer copy kept, conflict copy listed and dismissible)
 - [x] Every change goes to history (who, when, what). Configuration history.
 
 ## 13. UAT-only (not in the real app)
-- [ ] UAT notes (page notes, setup question marks, synced to the UAT page). Rebuild has page notes saved to the UAT page; the setup-question marks, Copy all and Clear all are not built yet.
+- [x] UAT notes (page notes, setup question marks, synced to the UAT page). · test: sprint5 (S5-03: notes, question marks, Copy all, Clear all)
 - [x] Example pharmacy (Wattle Grove, fictional), dates shifted to today.
-- [ ] Reset test data.
+- [x] Reset test data. · test: sprint5 (S5-03)
