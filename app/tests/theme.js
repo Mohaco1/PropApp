@@ -9,7 +9,7 @@ const rgb = hex => 'rgb(' + hex.match(/\w\w/g).map(x => parseInt(x, 16)).join(',
   const { b, p, errors } = await phone({ time: '2026-11-24T10:00:00+11:00', scale: 2 });
   await p.addInitScript(() => { try { delete Navigator.prototype.clipboard; } catch {} Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
     window.__legacy = []; const orig = document.execCommand.bind(document);
-    document.execCommand = (cmd, ...a) => { if (cmd === 'copy') { const el = document.activeElement; window.__legacy.push(el && el.tagName === 'TEXTAREA' ? el.value.slice(el.selectionStart, el.selectionEnd) : String(getSelection())); orig(cmd, ...a); return true; } return orig(cmd, ...a); }; });
+    document.execCommand = (cmd, ...a) => { if (cmd === 'copy') { const el = document.activeElement; window.__legacy.push(el && el.tagName === 'TEXTAREA' ? el.value.slice(el.selectionStart, el.selectionEnd) : String(getSelection())); if (el && el.tagName === 'TEXTAREA') { const cs = getComputedStyle(el); window.__legacyStyle = { left: cs.left, font: cs.fontSize, opacity: cs.opacity, w: el.getBoundingClientRect().width, ro: el.readOnly }; } orig(cmd, ...a); return true; } return orig(cmd, ...a); }; });
   await p.reload(); await p.waitForTimeout(400);
   await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(600);
   // 1. tokens, header strip, monogram badge
@@ -37,6 +37,12 @@ const rgb = hex => 'rgb(' + hex.match(/\w\w/g).map(x => parseInt(x, 16)).join(',
   const heavy = await p.evaluate(() => [...document.querySelectorAll('body *')].filter(e => e.offsetParent && +getComputedStyle(e).fontWeight >= 700 && e.childNodes.length && [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())).map(e => e.className || e.tagName).slice(0, 4));
   ok(heavy.length === 0, 'P-06 no text heavier than 600 on Today' + (heavy.length ? ' (' + heavy.join(', ') + ')' : ''));
   await p.waitForFunction(() => !document.querySelector('.toast'), null, { timeout: 5000 }); await p.screenshot({ path: path.join(OUT, '01_today_390px.png') });
+  // F-P06-03: night mode tokens and screenshot
+  await p.emulateMedia({ colorScheme: 'dark' }); await p.waitForTimeout(150);
+  const dk = await p.evaluate(() => { const r = getComputedStyle(document.documentElement), v = n => r.getPropertyValue(n).trim().toUpperCase();
+    return { bg: v('--bg'), surface: v('--surface'), primary: v('--primary'), on: v('--on-primary'), body: getComputedStyle(document.body).backgroundColor, over: document.documentElement.scrollWidth > innerWidth + 1 }; });
+  ok(dk.bg === '#0D151C' && dk.surface === '#15202B' && dk.primary === '#62B8F6' && dk.on === '#0D151C' && dk.body === rgb('0D151C') && !dk.over, 'F-P06-03 night mode: --bg #0D151C, --surface #15202B, --primary #62B8F6, --on-primary #0D151C');
+  await p.screenshot({ path: path.join(OUT, '05_today_dark_390px.png') }); await p.emulateMedia({ colorScheme: 'light' }); await p.waitForTimeout(100);
   // F-P06-01 on a real Copy button: review "Copy as text"
   await tap(p, 'Reviews'); await p.locator('.chip', { hasText: /^Completed/ }).click(); await p.locator('.row', { hasText: 'Proprietor site visit' }).first().click();
   ok(await p.evaluate(() => navigator.clipboard === undefined), 'F-P06-01 the clipboard API is absent in this test');
@@ -45,6 +51,8 @@ const rgb = hex => 'rgb(' + hex.match(/\w\w/g).map(x => parseInt(x, 16)).join(',
   ok(/Proprietor site visit/.test(leg) && /Checked/.test(leg), 'F-P06-01 fallback selected the full summary in a hidden text box and ran the copy command');
   ok(/Copied/.test(await p.evaluate(() => document.querySelector('.toast')?.innerText || '')), 'F-P06-01 “Copied” shows after the fallback');
   ok(await p.evaluate(() => !document.querySelector('body > textarea')), 'F-P06-01 the hidden text box is removed afterwards');
+  const st = await p.evaluate(() => window.__legacyStyle || {});
+  ok(st.left === '-9999px' && st.font === '16px' && st.opacity === '1' && st.w > 1 && st.ro === false, 'F-P06-02 the copy box is off-screen at 16 px, not transparent or 1 px, and editable while copying');
   // 04: Actions with rails
   await tap(p, 'Actions'); await p.waitForTimeout(150); await p.screenshot({ path: path.join(OUT, '04_actions_view.png') });
   // 03: Year plan
