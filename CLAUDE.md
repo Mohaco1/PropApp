@@ -25,10 +25,10 @@ Read this before any work. These are the owner's instructions and decisions. Don
 - **Staff checks:** they live in Staff and show as one Today row per person.
 - **Meeting minutes:** they pre-fill the next meeting.
 - **Deferred:**
-  - inspector pack;
-  - multi-store summary;
   - push notifications;
   - Monday plan.
+- **Un-deferred (25 Nov, owner):** build the inspector evidence pack (printable, no patient data) and the multi-pharmacy view (only shown with 2+ pharmacies).
+- **Hosting (25 Nov, owner):** prepare the installable-app files (manifest, offline worker, icons) and test them locally, but don't deploy. D3 stays the hosting plan.
   Buyer features stay as they are.
 - **Leave as it is:** the vaccination "record the GP" wording.
 - **Sign-in and hosting (D3):** a managed back end in Sydney, emailed-link sign-in. Not yet built.
