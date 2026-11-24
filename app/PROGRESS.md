@@ -162,7 +162,7 @@ Elsewhere in the old app the phrase was on the task form and the task filter. Th
 - airplane-mode reload.
 Gate 6 (archive v41) follows those.
 
-## P-06 E+++ Coastal Precision and F-P06-01 · 25 Nov 2026 · build 8973bcb25d
+## P-06 E+++ Coastal Precision and F-P06-01 · 25 Nov 2026 · build e6d038b7c7
 Brief: "PropApp — P-06 E+++ Coastal Precision & Final Lock-In Brief (For Claude)" (owner's Drive, read only). It confirms gate 1 of the v41 retirement gate is met for build 246a96f3c1.
 
 | ID | Status | What was done | Test |
