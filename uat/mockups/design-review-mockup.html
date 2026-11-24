@@ -1,0 +1,261 @@
+<title>Design Review Mock-up</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: eight numbered fixes in priority order; each a "now" phone beside a "proposed" phone in the app's Concept D palette. */
+:root{
+ --page:#f3f4f7;--page-fg:#0c111c;--page-muted:#5b6476;--page-line:#dfe2e9;
+ --ink:#0c111c;--muted:#5b6476;--faint:#687083;--line:#e6e8ee;--soft:#f6f7f9;--bg:#fff;--accent:#2f5bea;
+ --red:#c0281b;--amber:#a35a00;--amber-soft:#fff3e0;--green:#1c7a3e;--green-soft:#e9f6ee;--blue-soft:#eef2fd;
+ --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#11141b;--page-fg:#eef0f4;--page-muted:#a3aab8;--page-line:#2a2f3a;color-scheme:dark}}
+:root[data-theme="dark"]{--page:#11141b;--page-fg:#eef0f4;--page-muted:#a3aab8;--page-line:#2a2f3a;color-scheme:dark}
+body{background:var(--page);color:var(--page-fg);font:15px/1.5 var(--sans);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:900px;margin:0 auto;display:grid;gap:46px}
+h1{font-size:25px;margin:0 0 4px;text-wrap:balance}
+.lede{color:var(--page-muted);margin:0;max-width:66ch}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+nav.toc a{font-size:13px;font-weight:600;color:var(--accent);background:var(--blue-soft);border-radius:99px;padding:5px 11px;text-decoration:none}
+section{display:grid;gap:4px;scroll-margin-top:16px}
+section h2{font-size:19px;margin:0;text-wrap:balance}
+section>p{color:var(--page-muted);margin:0 0 14px;max-width:66ch}
+.row{display:flex;flex-wrap:wrap;gap:22px}
+figure{margin:0;display:grid;gap:8px;flex:1 1 280px;min-width:0;max-width:330px;align-content:start}
+figcaption{font-size:13px;color:var(--page-muted)}
+figcaption b{display:block;color:var(--page-fg);font-size:14px}
+.tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--page-muted)}
+.tag.new{color:var(--accent)}
+.ph *,.ph{box-sizing:border-box}
+.ph{background:var(--bg);color:var(--ink);border:1px solid var(--page-line);border-radius:26px;overflow:hidden;height:580px;display:flex;flex-direction:column;position:relative;box-shadow:0 1px 2px rgba(12,17,28,.06),0 8px 24px rgba(12,17,28,.08);font-size:13px}
+.ph.short{height:400px}
+.top{display:flex;align-items:center;gap:8px;padding:12px 14px 8px;border-bottom:1px solid var(--line);font-size:12px;min-width:0}
+.top b{font-size:14px}.top .st{color:var(--muted);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.top .od{color:var(--red);font-weight:600;white-space:nowrap}
+.me{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font-size:10px;font-weight:700;flex:none}
+.srch{width:34px;height:22px;border:1px solid var(--line);border-radius:99px;flex:none}
+.body{flex:1;overflow:hidden;padding:12px 14px 72px;display:flex;flex-direction:column;gap:9px;min-width:0}
+h3{font-size:20px;margin:0;line-height:1.2}
+.sub{color:var(--muted);font-size:12px;line-height:1.45;margin:0}
+.card{border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:var(--soft)}
+.card.blue{background:var(--blue-soft)}
+.card.amber{background:var(--amber-soft);border-color:#f3dfbf}
+.card b{font-size:13.5px}
+.line{display:flex;align-items:center;gap:10px;min-width:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 13px;border-radius:10px;border:1px solid var(--line);font-weight:600;font-size:13px;background:var(--bg);color:var(--ink);white-space:nowrap}
+.btn.pri{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.full{width:100%}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px}
+.seg span{text-align:center;font-size:11.5px;padding:5px 2px;border-radius:9px;color:var(--muted)}
+.seg span.on{background:var(--bg);color:var(--ink);font-weight:700;box-shadow:0 1px 2px rgba(12,17,28,.12)}
+.seg em{font-style:normal;display:block;font-size:15px;font-weight:700;line-height:1.2}
+.seg span.red em{color:var(--red)}
+.job{display:flex;gap:9px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line);min-width:0}
+.job:first-child{border-top:0}
+.dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex:none;background:var(--red)}
+.dot.a{background:var(--amber)}.dot.b{background:var(--accent)}
+.tx{flex:1;min-width:0}.tx b{display:block;font-size:13.5px}.tx small{display:block;color:var(--muted);font-size:11.5px}
+.due{font-size:12px;white-space:nowrap;flex:none;color:var(--muted)}.due.r{color:var(--red);font-weight:600}
+.th{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);border-bottom:1px solid var(--line);padding:4px 0}
+.mob{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:rgba(255,255,255,.97);padding:6px 4px 12px;font-size:11px;color:var(--faint);text-align:center}
+.mob span[aria-current]{color:var(--ink);font-weight:700}
+.toast{position:absolute;left:12px;right:12px;background:var(--ink);color:#fff;border-radius:12px;padding:10px 12px;font-size:13px;font-weight:600;z-index:3}
+.toast.topt{top:54px}.toast.bot{bottom:64px}
+.field{display:flex;flex-direction:column;gap:3px}
+.field span{font-size:12px;font-weight:600}
+.inp{border:1px solid var(--line);border-radius:9px;min-height:36px;display:flex;align-items:center;padding:0 10px;color:var(--ink);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gloss{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px;margin:0}
+.gloss dt{font-weight:700}.gloss dd{margin:0;color:var(--muted)}
+.cmp{width:100%;border-collapse:collapse;font-size:14px;max-width:640px}
+.cmp th,.cmp td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--page-line);vertical-align:top}
+.cmp th{font-size:12px;color:var(--page-muted);font-weight:600}
+.cmp td:first-child{color:var(--page-muted);text-decoration:line-through}
+.tblwrap{overflow-x:auto}
+.strike{text-decoration:line-through;color:var(--faint)}
+details.more{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px}
+.note{font-size:13px;color:var(--page-muted);max-width:68ch;margin:0}
+.note b{color:var(--page-fg)}
+</style>
+
+<div class="wrap">
+ <header>
+  <h1>Design review: eight fixes, current vs proposed</h1>
+  <p class="lede">In priority order. Fictional Harbourview Pharmacy. Nothing in the app has changed. Pick what you want built.</p>
+  <nav class="toc" aria-label="Fixes"><a href="#f1">1+3 Calm Today</a><a href="#f2">2 One way into a visit</a><a href="#f4">4 One set of words</a><a href="#f5">5 Lighter action screen</a><a href="#f6">6 Messages at the bottom</a><a href="#f7">7 Bottom bar</a><a href="#f8">8 Polish</a></nav>
+ </header>
+
+ <section id="f1">
+  <h2>1 + 3 · A calm Today: one card on top, numbers shown once</h2>
+  <p>Now, up to five cards sit above the first job and “3 overdue” appears four times. Proposed: one top card that shows only the most important thing (setup unfinished → visit in progress → backup old). The counts live on the four buttons, and the status line becomes the date plus one sentence.</p>
+  <div class="row">
+   <figure><span class="tag">Now</span>
+    <div class="ph"><div class="top"><b>R.</b><span class="st">Harbourview Phar…</span><span class="od">3 overdue</span><span class="srch"></span><span class="me">AO</span></div>
+     <div class="body">
+      <h3>Today</h3>
+      <p class="sub">Tue, 24 Nov · <b>29 open jobs</b> · <span style="color:var(--red);font-weight:600">3 overdue</span> (1 review, 1 policy, 1 staff) · <span style="color:var(--amber);font-weight:600">6 due soon</span> · 3 need a date</p>
+      <div class="card amber"><b>No backup file yet.</b><span class="sub">Keep a copy off this phone in case it’s lost.</span></div>
+      <div class="card"><b>Finish setting up · 4 left</b><span class="sub">✓ Details ✓ Owners ✓ Services · DAA next…</span></div>
+      <div class="card blue"><span class="sub">How this app works</span><span class="sub">Today · What to do next… Reviews · … Actions · … Policies · …</span></div>
+      <div class="card blue"><b>Start a visit</b><span class="sub">12 things worth seeing while you’re there…</span></div>
+      <div class="card"><span class="sub">Start with these 3</span><span class="sub">1 Proprietor site visit · Overdue 10 days</span></div>
+     </div>
+     <div class="mob"><span aria-current="page">Today</span><span>Reviews</span><span>Actions</span><span>Calendar</span><span>More</span></div></div>
+    <figcaption><b>Five cards before any work</b>And “3” overdue in the header, status line, buttons and the start list.</figcaption>
+   </figure>
+   <figure><span class="tag new">Proposed</span>
+    <div class="ph"><div class="top"><b>R.</b><span class="st">Harbourview Pharmacy</span><span class="srch"></span><span class="me">AO</span></div>
+     <div class="body">
+      <h3>Today</h3>
+      <p class="sub">Tue 24 Nov · 3 things are overdue. Start with the site visit.</p>
+      <div class="card"><div class="line"><span class="tx"><b>Finish setting up · 4 left</b><small>Next: Dose administration aids</small></span><span class="btn pri">Start</span></div></div>
+      <div class="seg"><span class="on red"><em>3</em>Overdue</span><span><em>4</em>Today</span><span><em>0</em>Started</span><span><em>29</em>All</span></div>
+      <div>
+       <div class="job"><span class="dot"></span><span class="tx"><b>Proprietor site visit</b><small>Review</small></span><span class="due r">10 days late</span></div>
+       <div class="job"><span class="dot"></span><span class="tx"><b>Annual review · Cold chain</b><small>Policy</small></span><span class="due r">3 days late</span></div>
+       <div class="job"><span class="dot"></span><span class="tx"><b>Jordan Lee’s checks</b><small>Staff · 3 due now</small></span><span class="due r">2 days late</span></div>
+      </div>
+     </div>
+     <div class="mob"><span aria-current="page">Today</span><span>Reviews</span><span>Actions</span><span>Staff</span><span>More</span></div></div>
+    <figcaption><b>One card, then the work</b>The other cards wait their turn. “How this app works” moves to Help after the first week. The full pharmacy name fits because the header count is gone.</figcaption>
+   </figure>
+  </div>
+ </section>
+
+ <section id="f2">
+  <h2>2 · One way into a site visit</h2>
+  <p>Now, “Start with these 3 → Proprietor site visit → Start” skips the prepare screen that the “Start a visit” card shows. Proposed: every route into a site visit opens the same prepare screen first.</p>
+  <div class="row">
+   <figure><span class="tag">Now</span>
+    <div class="ph short"><div class="body" style="padding-bottom:14px">
+     <div class="card"><span class="sub">Start with these 3</span><div class="line"><span class="tx"><b>Proprietor site visit</b><small>Review · Overdue 10 days</small></span><span class="btn pri">Start</span></div></div>
+     <p class="sub" style="text-align:center">↓ goes straight to Check 1 of 13</p>
+     <div class="card"><span class="sub">Check 1 of 13</span><b style="font-size:17px">Premises, security &amp; equipment</b><span class="sub">○ Satisfactory ○ Issue ○ Check later ○ N/A</span></div>
+    </div></div>
+    <figcaption><b>Two doors, two experiences</b>The suggestions and “Copy a list for the pharmacist on duty” are missed.</figcaption>
+   </figure>
+   <figure><span class="tag new">Proposed</span>
+    <div class="ph short"><div class="body" style="padding-bottom:14px">
+     <div class="card"><span class="sub">Start with these 3</span><div class="line"><span class="tx"><b>Proprietor site visit</b><small>Review · Overdue 10 days</small></span><span class="btn pri">Start visit</span></div></div>
+     <p class="sub" style="text-align:center">↓ always opens</p>
+     <div class="card"><b style="font-size:17px">Start a visit</b><span class="sub">Quarterly visit · 3 things worth seeing · Copy a list for the pharmacist on duty</span><span class="btn pri full">Start the checks</span></div>
+    </div></div>
+    <figcaption><b>One door</b>Same screen from Today, Reviews and the Calendar.</figcaption>
+   </figure>
+  </div>
+ </section>
+
+ <section id="f4">
+  <h2>4 · One set of words</h2>
+  <p>Now: jobs, actions, tasks, reviews, checks and items, and four ways to say “not sure yet”. Proposed: three words for the work and one for “not sure yet”, used everywhere, including the screens that still say “Task”.</p>
+  <div class="row">
+   <figure style="max-width:420px"><span class="tag new">Proposed glossary</span>
+    <div class="card" style="background:var(--bg)"><dl class="gloss">
+     <dt>Job</dt><dd>Anything on Today. A review, an action or a staff check.</dd>
+     <dt>Review</dt><dd>A regular check you do, like the S8 inventory or site visit.</dd>
+     <dt>Action</dt><dd>A fix to finish. Only you close it.</dd>
+     <dt>Check later</dt><dd>An answer you’re not sure of yet. Shown under “To check”.</dd>
+    </dl></div>
+   </figure>
+   <figure style="max-width:420px"><span class="tag new">What changes</span>
+    <div class="tblwrap"><table class="cmp"><thead><tr><th>Now</th><th>Proposed</th></tr></thead><tbody>
+     <tr><td>Task details</td><td>Action</td></tr>
+     <tr><td>Needs verification</td><td>Check later</td></tr>
+     <tr><td>Inherited · check later</td><td>Check later · from previous owner</td></tr>
+     <tr><td>items · tap to see</td><td>3 checks · tap to see</td></tr>
+     <tr><td>Corrective Task created</td><td>Action raised</td></tr>
+    </tbody></table></div>
+   </figure>
+  </div>
+ </section>
+
+ <section id="f5">
+  <h2>5 · A lighter action screen on a phone</h2>
+  <p>Now, opening an action shows the whole form: a cut-off title box, “Responsible person or role” (always you), due date and status. Proposed: the title as text, the three things you actually do as buttons, and the form under “Edit details”.</p>
+  <div class="row">
+   <figure><span class="tag">Now</span>
+    <div class="ph"><div class="top"><b style="font-size:16px">Action details</b><span class="st"></span><span class="sub">Close</span></div>
+     <div class="body">
+      <div class="field"><span>Title</span><span class="inp">Premises, security &amp; equipment · Back door…</span></div>
+      <div class="field"><span>Responsible person or role</span><span class="inp">You</span></div>
+      <div class="field"><span>Due date</span><span class="inp">29/11/2026</span></div>
+      <div class="field"><span>Status</span><span class="inp">Outstanding</span></div>
+      <div class="field"><span>Progress note</span><span class="inp"></span></div>
+      <div class="field"><span>Evidence</span><span class="inp"></span></div>
+      <span class="btn pri" style="align-self:flex-start">Save action</span>
+     </div></div>
+    <figcaption><b>A form first</b>Closing it means finding the status field and changing it.</figcaption>
+   </figure>
+   <figure><span class="tag new">Proposed</span>
+    <div class="ph"><div class="top"><b style="font-size:16px">Action</b><span class="st"></span><span class="sub">Close</span></div>
+     <div class="body">
+      <h3 style="font-size:18px">Back door closer is broken</h3>
+      <p class="sub">Found at the 16 Aug site visit · Premises · <b style="color:var(--red)">due Sat 29 Nov</b></p>
+      <span class="btn pri full">Seen the fix · close it</span>
+      <span class="btn full">Waiting on someone</span>
+      <span class="btn full">Full history</span>
+      <details class="more"><summary>Edit details</summary><span class="sub">Title, due date, note, evidence</span></details>
+     </div></div>
+    <figcaption><b>The job first</b>Closing still asks what you saw, as it does now. Nothing closes itself.</figcaption>
+   </figure>
+  </div>
+ </section>
+
+ <section id="f6">
+  <h2>6 · Messages at the bottom, not over the title</h2>
+  <p>Now, “Saved proprietors” and similar messages cover the screen title. Proposed: they slide up just above the bottom bar and leave after 3 seconds.</p>
+  <div class="row">
+   <figure><span class="tag">Now</span>
+    <div class="ph short"><div class="top"><b>R.</b><span class="st">Pharmacy setup</span></div><div class="toast topt">Saved proprietors</div>
+     <div class="body"><h3>Services provided</h3><p class="sub">Step 3 of 4 · needed to start</p><p class="sub">Select the services provided at this location.</p></div></div>
+    <figcaption><b>Covers the heading</b>You lose your place for a moment.</figcaption>
+   </figure>
+   <figure><span class="tag new">Proposed</span>
+    <div class="ph short"><div class="top"><b>R.</b><span class="st">Pharmacy setup</span></div>
+     <div class="body"><h3>Services provided</h3><p class="sub">Step 3 of 4 · needed to start</p><p class="sub">Select the services provided at this location.</p></div>
+     <div class="toast bot">✓ Saved proprietors</div>
+     <div class="mob"><span aria-current="page">Today</span><span>Reviews</span><span>Actions</span><span>Staff</span><span>More</span></div></div>
+    <figcaption><b>Out of the way</b>Where your thumb already is.</figcaption>
+   </figure>
+  </div>
+ </section>
+
+ <section id="f7">
+  <h2>7 · A bottom bar that matches an owner’s week</h2>
+  <p>Now, Staff is hidden under More while Calendar takes a main spot. Proposed: Staff on the bar, Calendar under More (it’s still one tap away, and Today already shows what’s due). This one is your call from how you work.</p>
+  <div class="row">
+   <figure><span class="tag">Now</span>
+    <div class="ph" style="height:90px"><div class="mob"><span aria-current="page">Today</span><span>Reviews</span><span>Actions</span><span>Calendar</span><span>More</span></div></div>
+   </figure>
+   <figure><span class="tag new">Proposed</span>
+    <div class="ph" style="height:90px"><div class="mob"><span aria-current="page">Today</span><span>Reviews</span><span>Actions</span><span>Staff</span><span>More</span></div></div>
+   </figure>
+  </div>
+ </section>
+
+ <section id="f8">
+  <h2>8 · Smaller polish</h2>
+  <p>Four small things that add up.</p>
+  <div class="row">
+   <figure><span class="tag">Now</span>
+    <div class="ph"><div class="top"><b>R.</b><span class="st">Harbourview Phar…</span><span class="od">3 overdue</span><span class="srch"></span><span class="me">AO</span></div>
+     <div class="body">
+      <div class="th"><span>Item</span><span>Due</span></div>
+      <div class="job"><span class="dot a"></span><span class="tx"><b>Confirm where OTP approvals are filed</b><small>Action</small></span><span class="due">Due 25 Nov 2026</span></div>
+      <div class="job"><span class="dot a"></span><span class="tx"><b>Fix fridge log gaps</b><small>Action</small></span><span class="due">Due 29 Nov 2026</span></div>
+      <div class="card" style="margin-top:10px"><span class="sub">Site visit</span><b>Before you start · 25 open Actions · 0 to check</b></div>
+     </div></div>
+    <figcaption><b>Year on every date, a header row, a cut-off name, “25 open Actions” at the door</b></figcaption>
+   </figure>
+   <figure><span class="tag new">Proposed</span>
+    <div class="ph"><div class="top"><b>R.</b><span class="st">Harbourview Pharmacy</span><span class="srch"></span><span class="me">AO</span></div>
+     <div class="body">
+      <div class="job"><span class="dot a"></span><span class="tx"><b>Confirm where OTP approvals are filed</b><small>Action</small></span><span class="due">Tomorrow</span></div>
+      <div class="job"><span class="dot a"></span><span class="tx"><b>Fix fridge log gaps</b><small>Action</small></span><span class="due">Sat 29 Nov</span></div>
+      <div class="card" style="margin-top:10px"><span class="sub">Site visit</span><b>Before you start · 2 open from earlier visits</b><span class="sub">Back door closer · Fridge log gaps</span></div>
+     </div></div>
+    <figcaption><b>Short dates, no header row, the full name, only what matters at the door</b>The year shows only when it isn’t this year.</figcaption>
+   </figure>
+  </div>
+ </section>
+
+ <p class="note"><b>Not touched:</b> the colours and type, the one-question-at-a-time site visit, the filter buttons, the setup list, and the Required by law / Recommended tags. Dates show day first (24/11/2026) on an Australian phone; the “Now” screenshots came from a browser set to US format.</p>
+</div>

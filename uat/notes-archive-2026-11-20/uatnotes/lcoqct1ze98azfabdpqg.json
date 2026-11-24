@@ -1,0 +1,10 @@
+{
+  "by": "u_oB_xmELmgbegLcH3_Zwv8w",
+  "createdAt": "2026-11-19T22:56:57.486Z",
+  "fix": "Setup steps now open as one full-screen page (white background, centred, nothing from the app showing behind). Close is top right.",
+  "kind": "note",
+  "page": "Today",
+  "status": "Fixed – retest",
+  "text": "The multi page setup looks a little off , like for example when adding propiters or selecting services that should the only page open , i can see the rest of the app behind is that how it actually functions or just on testing",
+  "type": "Looks wrong"
+}

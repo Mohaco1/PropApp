@@ -1,0 +1,10 @@
+{
+  "by": "u_oB_xmELmgbegLcH3_Zwv8w",
+  "createdAt": "2026-11-20T05:52:32.932Z",
+  "fix": "The services step now has a tick box: 'Also answer evidence and record questions now'. Ticked, setup asks them; unticked, they go to 'to check later'.",
+  "kind": "note",
+  "page": "Setup · Vaccination · Step 4 of 4 · Service 4 of 16 · Usual arrangements",
+  "status": "Fixed – retest",
+  "text": "for the evidence checks stuff , maybe on the first page after we select servies there should be an option to fill these with the onboarding",
+  "type": ""
+}

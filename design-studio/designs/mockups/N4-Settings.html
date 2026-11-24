@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+body{margin:0;background:#f3f4f6;font-family:Inter,system-ui,sans-serif;color:#111827}
+button{font-family:inherit;cursor:pointer}
+.group{background:#fff;border-radius:14px;margin:0 16px;overflow:hidden}
+.gh{margin:18px 32px 6px;font-size:14px;font-weight:600;color:#4b5563}
+.r{min-height:52px;display:flex;align-items:center;gap:12px;padding:0 14px;border:0;background:#fff;width:100%;text-align:left;font-size:16px;color:#111827;border-bottom:1px solid #eef0f3}
+.group .r:last-child{border-bottom:0}
+.r .v{margin-left:auto;color:#4b5563;font-size:15px}
+.chev{color:#9ca3af}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);background:#f3f4f6;border-radius:10px;padding:3px;margin:10px 14px 12px}
+.seg button{min-height:44px;border:0;border-radius:8px;background:transparent;font-size:14px;font-weight:600;color:#4b5563}
+.seg button[aria-pressed=true]{background:#fff;color:#111827;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+body>div>*{flex-shrink:0}
+</style>
+</head>
+<body>
+<div style="width:390px;height:844px;box-sizing:border-box;display:flex;flex-direction:column;overflow:auto">
+  <h1 style="margin:16px 16px 0;font-size:30px;font-weight:800;letter-spacing:-.02em">Settings</h1>
+
+  <div class="group" style="margin-top:14px;padding:14px;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="width:40px;height:40px;border-radius:12px;background:#fff6e5;color:#8a4b00;display:grid;place-items:center;flex:0 0 auto"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></span>
+      <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:700">Last backup 9 days ago</span><span style="font-size:14px;color:#4b5563">Records live only on this device. A backup file keeps them safe.</span></span>
+    </div>
+    <button type="button" style="min-height:48px;border:0;border-radius:12px;background:#111827;color:#fff;font-size:15px;font-weight:700">Save backup now</button>
+  </div>
+
+  <div class="gh">Pharmacy</div>
+  <div class="group">
+    <button type="button" class="r">Pharmacy details<span class="v">Harbourview</span><span class="chev">›</span></button>
+    <button type="button" class="r">Proprietors<span class="v">1</span><span class="chev">›</span></button>
+    <button type="button" class="r">Services you offer<span class="v">5</span><span class="chev">›</span></button>
+  </div>
+
+  <div class="gh">Your routine</div>
+  <div class="group">
+    <button type="button" class="r">Site visit<span class="v">Every 8 weeks</span><span class="chev">›</span></button>
+    <button type="button" class="r">Proprietor check-in<span class="v">Monthly</span><span class="chev">›</span></button>
+    <button type="button" class="r">Reminders<span class="v">Morning, 8am</span><span class="chev">›</span></button>
+  </div>
+
+  <div class="gh">Appearance</div>
+  <div class="group">
+    <div class="seg" role="group" aria-label="Theme"><button type="button" aria-pressed="false">Light</button><button type="button" aria-pressed="false">Dark</button><button type="button" aria-pressed="true">After 6pm</button></div>
+    <button type="button" class="r">Text size<span class="v">Larger</span><span class="chev">›</span></button>
+  </div>
+
+  <div class="gh">Records</div>
+  <div class="group">
+    <button type="button" class="r">Restore from a backup file<span class="chev" style="margin-left:auto">›</span></button>
+    <button type="button" class="r">Inspection pack<span class="chev" style="margin-left:auto">›</span></button>
+  </div>
+  <p style="margin:14px 32px 24px;font-size:13px;line-height:1.45;color:#4b5563">R.Pharmacy is for proprietors only. Nothing is sent anywhere unless you save or share a file yourself.</p>
+</div>
+<script>document.querySelectorAll('.seg button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.seg button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))})}})</script>
+</body>
+</html>

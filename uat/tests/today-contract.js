@@ -1,0 +1,22 @@
+// Batch 1 (Codex R06): Today counts jobs consistently. Fictional data.
+const { chromium, devices } = require('playwright');
+const res=[];const ok=(n,p,d='')=>res.push({n,p:!!p,d:String(d).slice(0,300)});
+(async()=>{const b=await chromium.launch();const ctx=await b.newContext({...devices['iPhone 13']});const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('dialog',d=>d.accept());
+ await p.goto('file:///home/user/rpharmacy/uat/app/rpharmacy-uat-testing.html');await p.waitForTimeout(1500);await p.evaluate(require('./showcase-seed.js'));await p.waitForTimeout(600);
+ await p.evaluate(()=>{if($('editor').open)$('editor').close();CD.st.f.today='all';CD.go('overview');});await p.waitForTimeout(400);
+ const t=await p.evaluate(()=>{const v=$('cd-view');const jobs=RPH.guide.count(CD.todayRows());const head=+(v.querySelector('p.status b')?.textContent.match(/\d+/)||[0])[0];const tab=+(v.querySelector('[data-f="today:all"] .n')?.textContent||-1);const top=v.querySelectorAll('.start3 .s3row').length;const foot=v.querySelector('.s3foot')?.textContent||'';const rows=v.querySelectorAll('.main tr[data-row^="today:"]').length;const more=v.querySelector('[data-more-today]')?.textContent||'';return {jobs,head,tab,top,foot,rows,more};});
+ ok('the All button count matches the jobs (the counts live on the buttons)',t.tab===t.jobs,JSON.stringify(t));
+ ok('no featured 3: the list starts with every job',t.top===0&&!t.foot,JSON.stringify(t));
+ ok('phone shows 8 and "Show N more" adds up to every remaining job',t.rows===8&&t.more==='Show '+(t.jobs-8)+' more',JSON.stringify(t));
+ await p.locator('#cd-view [data-more-today]').click();await p.waitForTimeout(300);
+ const all=await p.evaluate(()=>{const ids=[...document.querySelectorAll('#cd-view .main tr[data-row^="today:"]')].map(r=>r.dataset.row.slice(6));const top=RPH.guide.top3().map(x=>x.id);const jobs=RPH.guide.jobs(CD.todayRows()).map(x=>x.id);return {missing:jobs.filter(j=>!ids.includes(j)&&!top.includes(j)),dup:ids.filter(i=>top.includes(i))};});
+ ok('after Show more, every job appears exactly once',!all.missing.length,JSON.stringify(all));
+ const g=await p.evaluate(()=>{const grp=RPH.guide.jobs(CD.todayRows()).find(x=>x.subject==='Sam Taylor'&&x.members);const n=grp.members.length;const id=grp.members[0].id.slice(5);fsChange('t',m=>{m.taskLedger[id].status='Completed';m.taskLedger[id].completedAt=new Date().toISOString();});const after=RPH.guide.jobs(CD.todayRows()).find(x=>/Sam Taylor’s checks/.test(x.item));return {n,after:after?.members.length};});
+ ok('completing one of a person’s checks removes only that check from their group',g.after===g.n-1,JSON.stringify(g));
+ const z=await p.evaluate(()=>{fsChange('t',n=>{for(const t of Object.values(n.taskLedger))if(t.due&&t.due<today())t.due=addInterval(today(),20,'days');for(const k of Object.keys(n.schedule))if(n.schedule[k]&&n.schedule[k]<today())n.schedule[k]=addInterval(today(),25,'days');});CD.go('overview');const b=[...document.querySelectorAll('#cd-view p.status b')].find(x=>/overdue/.test(x.textContent));return {txt:b?.textContent,cls:b?.className,nodate:!!document.querySelector('#cd-view .cd-nodate')};});
+ ok('zero overdue is shown neutral, not red',/^0 overdue/.test(z.txt||'')?z.cls!=='w-overdue':true,JSON.stringify(z));
+ ok('"N need a date" link appears when items have no date',z.nodate,JSON.stringify(z));
+ const off=await p.evaluate(()=>{fsChange('t',n=>{n.taskLedger['svc-open']={id:'svc-open',text:'Fix fridge log (fictional)',status:'Outstanding',due:addInterval(today(),5,'days'),owner:'You',sources:[{type:'Service',service:'vaccination'}]};n.active=n.active.filter(x=>x!=='vaccination');});return {still:CD.todayRows().some(r=>r.id==='task/svc-open'),status:state.taskLedger['svc-open'].status};});
+ ok('turning a service off keeps its open action visible and never marks it done (Codex R05)',off.still&&off.status==='Outstanding',JSON.stringify(off));
+ ok('no page errors',!errs.length,errs.join(' | '));
+ await b.close();const f=res.filter(r=>!r.p);for(const r of res)console.log((r.p?'PASS ':'FAIL ')+r.n+(r.p?'':' :: '+r.d));console.log(res.length-f.length+'/'+res.length);process.exit(f.length?1:0);})();

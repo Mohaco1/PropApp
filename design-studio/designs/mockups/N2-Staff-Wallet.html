@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staff · credential wallet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+body{margin:0;background:#fff;font-family:Inter,system-ui,sans-serif;color:#111827}
+button{font-family:inherit;cursor:pointer}
+.card{border:0;border-radius:20px;text-align:left;width:100%;padding:16px;color:#fff;display:flex;flex-direction:column;gap:6px;box-shadow:0 8px 20px rgba(17,24,39,.18);position:relative}
+.stack .card+.card{margin-top:-64px}
+.row{display:flex;align-items:center;gap:12px;min-height:56px;border-bottom:1px solid #eef0f3}
+.pill{font-size:13px;font-weight:700;border-radius:999px;padding:3px 9px;white-space:nowrap}
+</style>
+</head>
+<body>
+<div style="width:390px;height:844px;box-sizing:border-box;display:flex;flex-direction:column">
+  <div style="padding:14px 16px 6px;display:flex;align-items:center;justify-content:space-between">
+    <h1 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-.02em">Staff</h1>
+    <button type="button" style="min-height:44px;border:0;background:transparent;color:#1d4ed8;font-size:15px;font-weight:600">Add person</button>
+  </div>
+  <p style="margin:0 16px 12px;font-size:15px;color:#374151">One renewal soon. Everyone else is current.</p>
+
+  <div class="stack" style="padding:0 16px;display:flex;flex-direction:column">
+    <button type="button" class="card" style="background:#334155;padding-bottom:70px"><span style="font-size:13px;opacity:.8">Pharmacy assistant</span><span style="font-size:18px;font-weight:700">Jordan Lee</span></button>
+    <button type="button" class="card" style="background:#1e3a5f;padding-bottom:70px"><span style="font-size:13px;opacity:.8">Pharmacist</span><span style="font-size:18px;font-weight:700">Priya Nair</span></button>
+    <button type="button" class="card" aria-expanded="true" style="background:#111827;min-height:180px">
+      <span style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;opacity:.8">Pharmacist in charge</span><span class="pill" style="background:#fde68a;color:#422006">Renewal in 12 days</span></span>
+      <span style="font-size:22px;font-weight:800">Sam Taylor</span>
+      <span style="font-size:14px;opacity:.85">Registration checked on the public register · 2 Nov</span>
+      <span style="margin-top:auto;display:flex;justify-content:space-between;font-size:13px;opacity:.75"><span>Fictional person</span><span>Tap to collapse</span></span>
+    </button>
+  </div>
+
+  <div style="flex:1;overflow:auto;padding:14px 16px 12px">
+    <h2 style="margin:0 0 4px;font-size:17px;font-weight:700">Sam’s credentials</h2>
+    <div class="row"><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:600">Pharmacist registration</span><span style="font-size:14px;color:#4b5563">Renewal date from your record: 30 Nov</span></span><span class="pill" style="background:#fff6e5;color:#7a4500">Check soon</span></div>
+    <div class="row"><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:600">Immunisation training</span><span style="font-size:14px;color:#4b5563">Certificate on file · added 14 Mar</span></span><span class="pill" style="background:#ecf8f0;color:#166534">Current</span></div>
+    <div class="row"><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:600">First aid and CPR</span><span style="font-size:14px;color:#4b5563">Next refresher in your record: Jun</span></span><span class="pill" style="background:#ecf8f0;color:#166534">Current</span></div>
+    <div class="row" style="border:0"><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:600">Performance and development review</span><span style="font-size:14px;color:#4b5563">Last held 9 Jul, as your local policy sets</span></span><span class="pill" style="background:#f3f4f6;color:#374151">Recorded</span></div>
+  </div>
+  <div style="padding:0 16px 18px;display:grid;grid-template-columns:1fr 1.4fr;gap:10px">
+    <button type="button" style="min-height:56px;border:1px solid #d1d5db;border-radius:14px;background:#fff;font-size:16px;font-weight:600">Add record</button>
+    <button type="button" style="min-height:56px;border:0;border-radius:14px;background:#111827;color:#fff;font-size:16px;font-weight:700">Register checked</button>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "by": "u_oB_xmELmgbegLcH3_Zwv8w",
+  "createdAt": "2026-11-24T06:12:48.217Z",
+  "fix": "",
+  "kind": "note",
+  "page": "Setup · Dose administration aids · Step 4 of 4 · Service 1 of 17 · Question 1 of 12",
+  "status": "Open",
+  "text": "The screen shows “Step 4 of 4 · Service 1 of 17 · Question 1 of 12.” “Step 4 of 4” makes onboarding feel almost finished, then the two counters reveal there’s a lot more to do. It’s hard to tell how much work is actually left.\n\nSuggested change: Give service setup its own screen after the core pharmacy setup. Show the selected services in a checklist with To do, In progress and Complete statuses, and let the proprietor pick up where they left off. If some services can be configured later, make that clear on the checklist.\n\nInside each service, show just the service name and its own progress:\nD",
+  "type": ""
+}

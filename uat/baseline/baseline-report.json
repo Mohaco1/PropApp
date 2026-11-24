@@ -1,0 +1,532 @@
+{
+ "desktop:overview": {
+  "h1": "Your oversight",
+  "buttons": [
+   "Continue setup",
+   "0Overdue",
+   "0Upcoming",
+   "0Open Tasks",
+   "11Need a date",
+   "7To verify",
+   "All (12)",
+   "Overdue (0)",
+   "Next 30 days (0)",
+   "DAA in-house packingNever reviewed · first due dat",
+   "Governance, access and continuityNever reviewed · ",
+   "Home deliveryNever reviewed · first due date neede",
+   "OTP comprehensive reviewNever reviewed · first due",
+   "OTP daily-volume threshold reviewNever reviewed · ",
+   "OTP monthly check-inNever reviewed · first due dat",
+   "Pharmacist prescribingNever reviewed · first due d",
+   "Pharmacy premises registration renewalDate from Ph",
+   "Proprietor financial interest declarationDate from",
+   "Proprietor site visitNever reviewed · first due da",
+   "S8 stock check · proprietor reviewNever reviewed ·",
+   "Vaccine storage self-auditNeeds verification · no "
+  ],
+  "inputs": [
+   "Filter checks",
+   "AreaAll areasAuditsServices"
+  ],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "desktop:audits": {
+  "h1": "Audits & reviews",
+  "buttons": [
+   "Due Now",
+   "Upcoming",
+   "Completed",
+   "All Audits",
+   "Calendar",
+   "DAA in-house packingNever reviewed · first due dat",
+   "Governance, access and continuityNever reviewed · ",
+   "Home deliveryNever reviewed · first due date neede",
+   "OTP comprehensive reviewNever reviewed · first due",
+   "OTP daily-volume threshold reviewNever reviewed · ",
+   "OTP monthly check-inNever reviewed · first due dat",
+   "Pharmacist prescribingNever reviewed · first due d",
+   "Pharmacy premises registration renewalDate from Ph",
+   "Proprietor financial interest declarationDate from",
+   "Proprietor site visitNever reviewed · first due da",
+   "S8 stock check · proprietor reviewNever reviewed ·",
+   "Adjust audit intervals"
+  ],
+  "inputs": [
+   "Search reviews",
+   "Include inactive services in All Audits"
+  ],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "desktop:actions": {
+  "h1": "Tasks",
+  "buttons": [
+   "Add Task",
+   "Outstanding tasks · 0",
+   "Overdue tasks · 0",
+   "Completed tasks · 0"
+  ],
+  "inputs": [
+   "Search title",
+   "ViewOutstandingCompletedAllOverdue",
+   "Responsible person or roleAll",
+   "SourceAll"
+  ],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "desktop:staff": {
+  "h1": "Staff & credentials",
+  "buttons": [
+   "Active staff · 0",
+   "Needs Review · 0",
+   "Coming up · 0",
+   "Locum · 0",
+   "Former · 0",
+   "Add staff member"
+  ],
+  "inputs": [
+   "Find staff"
+  ],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "desktop:documents": {
+  "h1": "Policies, procedures & documents",
+  "buttons": [
+   "Policies & procedures",
+   "Forms & templates",
+   "Official guidance",
+   "Audit evidence",
+   "My Procedures",
+   "Template Library",
+   "Procedure checklist",
+   "Supporting records",
+   "Add Policy",
+   "Annual policy reviews",
+   "All",
+   "Needs Attention",
+   "Drafts",
+   "In review",
+   "Approved",
+   "Archived"
+  ],
+  "inputs": [
+   "Search",
+   "CategoryAll categoriesClinical governanc"
+  ],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "desktop:meetings": {
+  "h1": "Meetings",
+  "buttons": [
+   "Add Meeting"
+  ],
+  "inputs": [
+   "Search meetings"
+  ],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "desktop:services": {
+  "h1": "Services",
+  "buttons": [
+   "Opioid Treatment Program · Setup incomplete",
+   "Disable Opioid Treatment Program",
+   "Dose administration aids · Setup incomplete",
+   "Disable Dose administration aids",
+   "Staged supply · Inactive",
+   "Simple compounding · Inactive",
+   "Complex compounding · Inactive",
+   "Residential aged care supply · Inactive",
+   "Home delivery · Setup incomplete",
+   "Disable Home delivery",
+   "Therapeutic vaping supply · Inactive",
+   "Medicinal cannabis supply · Inactive",
+   "Vaccination · Setup incomplete",
+   "Disable Vaccination",
+   "Medicines reviews · Inactive",
+   "Screening and risk assessment · Inactive",
+   "Medicine adherence support · Inactive",
+   "Pharmacist prescribing · Setup incomplete",
+   "Disable Pharmacist prescribing",
+   "Needle and syringe program · Inactive",
+   "Absence from work certificates · Inactive",
+   "Other funded programs · Inactive"
+  ],
+  "inputs": [],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "desktop:history": {
+  "h1": "History",
+  "buttons": [
+   "All Activity",
+   "Audits",
+   "Tasks",
+   "Meetings",
+   "Staff",
+   "Print / save filtered PDF",
+   "Download filtered CSV",
+   "baseline test setup (fictional)",
+   "Download current pharmacy backup",
+   "Restore selected pharmacy backup",
+   "Save to my account",
+   "Restore from my account"
+  ],
+  "inputs": [
+   "Search history",
+   "Pharmacy",
+   "SourceAllSetup",
+   "Record typeAllConfiguration",
+   "AuditAll",
+   "From",
+   "Through",
+   "Choose a backup to restore"
+  ],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "desktop:errors": [
+  "The Content Security Policy 'default-src 'none'; script-src 'unsafe-inline'; script-src-attr 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; f"
+ ],
+ "mobile:overview": {
+  "h1": "Your oversight",
+  "buttons": [
+   "Continue setup",
+   "0Overdue",
+   "0Upcoming",
+   "0Open Tasks",
+   "11Need a date",
+   "7To verify",
+   "All (12)",
+   "Overdue (0)",
+   "Next 30 days (0)",
+   "DAA in-house packingNever reviewed · first due dat",
+   "Governance, access and continuityNever reviewed · ",
+   "Home deliveryNever reviewed · first due date neede",
+   "OTP comprehensive reviewNever reviewed · first due",
+   "OTP daily-volume threshold reviewNever reviewed · ",
+   "OTP monthly check-inNever reviewed · first due dat",
+   "Pharmacist prescribingNever reviewed · first due d",
+   "Pharmacy premises registration renewalDate from Ph",
+   "Proprietor financial interest declarationDate from",
+   "Proprietor site visitNever reviewed · first due da",
+   "S8 stock check · proprietor reviewNever reviewed ·",
+   "Vaccine storage self-auditNeeds verification · no "
+  ],
+  "inputs": [
+   "Filter checks",
+   "AreaAll areasAuditsServices"
+  ],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "mobile:audits": {
+  "h1": "Audits & reviews",
+  "buttons": [
+   "Due Now",
+   "Upcoming",
+   "Completed",
+   "All Audits",
+   "Calendar",
+   "DAA in-house packingNever reviewed · first due dat",
+   "Governance, access and continuityNever reviewed · ",
+   "Home deliveryNever reviewed · first due date neede",
+   "OTP comprehensive reviewNever reviewed · first due",
+   "OTP daily-volume threshold reviewNever reviewed · ",
+   "OTP monthly check-inNever reviewed · first due dat",
+   "Pharmacist prescribingNever reviewed · first due d",
+   "Pharmacy premises registration renewalDate from Ph",
+   "Proprietor financial interest declarationDate from",
+   "Proprietor site visitNever reviewed · first due da",
+   "S8 stock check · proprietor reviewNever reviewed ·",
+   "Adjust audit intervals"
+  ],
+  "inputs": [
+   "Search reviews",
+   "Include inactive services in All Audits"
+  ],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "mobile:actions": {
+  "h1": "Tasks",
+  "buttons": [
+   "Add Task",
+   "Outstanding tasks · 0",
+   "Overdue tasks · 0",
+   "Completed tasks · 0"
+  ],
+  "inputs": [
+   "Search title",
+   "ViewOutstandingCompletedAllOverdue",
+   "Responsible person or roleAll",
+   "SourceAll"
+  ],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "mobile:staff": {
+  "h1": "Staff & credentials",
+  "buttons": [
+   "Active staff · 0",
+   "Needs Review · 0",
+   "Coming up · 0",
+   "Locum · 0",
+   "Former · 0",
+   "Add staff member"
+  ],
+  "inputs": [
+   "Find staff"
+  ],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "mobile:documents": {
+  "h1": "Policies, procedures & documents",
+  "buttons": [
+   "Policies & procedures",
+   "Forms & templates",
+   "Official guidance",
+   "Audit evidence",
+   "My Procedures",
+   "Template Library",
+   "Procedure checklist",
+   "Supporting records",
+   "Add Policy",
+   "Annual policy reviews",
+   "All",
+   "Needs Attention",
+   "Drafts",
+   "In review",
+   "Approved",
+   "Archived"
+  ],
+  "inputs": [
+   "Search",
+   "CategoryAll categoriesClinical governanc"
+  ],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "mobile:meetings": {
+  "h1": "Meetings",
+  "buttons": [
+   "Add Meeting"
+  ],
+  "inputs": [
+   "Search meetings"
+  ],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "mobile:services": {
+  "h1": "Services",
+  "buttons": [
+   "Opioid Treatment Program · Setup incomplete",
+   "Disable Opioid Treatment Program",
+   "Dose administration aids · Setup incomplete",
+   "Disable Dose administration aids",
+   "Staged supply · Inactive",
+   "Simple compounding · Inactive",
+   "Complex compounding · Inactive",
+   "Residential aged care supply · Inactive",
+   "Home delivery · Setup incomplete",
+   "Disable Home delivery",
+   "Therapeutic vaping supply · Inactive",
+   "Medicinal cannabis supply · Inactive",
+   "Vaccination · Setup incomplete",
+   "Disable Vaccination",
+   "Medicines reviews · Inactive",
+   "Screening and risk assessment · Inactive",
+   "Medicine adherence support · Inactive",
+   "Pharmacist prescribing · Setup incomplete",
+   "Disable Pharmacist prescribing",
+   "Needle and syringe program · Inactive",
+   "Absence from work certificates · Inactive",
+   "Other funded programs · Inactive"
+  ],
+  "inputs": [],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "mobile:history": {
+  "h1": "History",
+  "buttons": [
+   "All Activity",
+   "Audits",
+   "Tasks",
+   "Meetings",
+   "Staff",
+   "Print / save filtered PDF",
+   "Download filtered CSV",
+   "baseline test setup (fictional)",
+   "Download current pharmacy backup",
+   "Restore selected pharmacy backup",
+   "Save to my account",
+   "Restore from my account"
+  ],
+  "inputs": [
+   "Search history",
+   "Pharmacy",
+   "SourceAllSetup",
+   "Record typeAllConfiguration",
+   "AuditAll",
+   "From",
+   "Through",
+   "Choose a backup to restore"
+  ],
+  "nav": [
+   "Overview",
+   "Audits",
+   "Tasks",
+   "Staff & credentials",
+   "Policies & documents",
+   "Meetings",
+   "Services",
+   "History",
+   "Pharmacy setup"
+  ]
+ },
+ "mobile:errors": [
+  "The Content Security Policy 'default-src 'none'; script-src 'unsafe-inline'; script-src-attr 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; f"
+ ]
+}

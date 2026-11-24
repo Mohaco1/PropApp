@@ -1,0 +1,102 @@
+<title>What's New Walkthrough</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one column of feature sections; each shows real phone screenshots in a horizontally scrolling strip with a short caption. */
+:root{
+ --bg:#f3f4f7;--fg:#0c111c;--muted:#5b6476;--line:#dfe2e9;--card:#ffffff;--accent:#2f5bea;--chip:#eef2fd;
+ --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11141b;--fg:#eef0f4;--muted:#a3aab8;--line:#2a2f3a;--card:#191d26;--accent:#7d9bff;--chip:#1f2740;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#11141b;--fg:#eef0f4;--muted:#a3aab8;--line:#2a2f3a;--card:#191d26;--accent:#7d9bff;--chip:#1f2740;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--sans);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:920px;margin:0 auto;display:grid;gap:40px}
+h1{font-size:26px;line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:62ch}
+.meta{font-size:13px;color:var(--muted);margin-top:8px}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+nav.toc a{font-size:13px;font-weight:600;color:var(--accent);background:var(--chip);border-radius:99px;padding:5px 11px;text-decoration:none}
+section{display:grid;gap:10px;scroll-margin-top:16px}
+section h2{font-size:19px;margin:0;text-wrap:balance}
+section>p{margin:0;color:var(--muted);max-width:66ch}
+section>p b{color:var(--fg)}
+.strip{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+figure{margin:0;flex:0 0 min(78vw,270px);scroll-snap-align:start;display:grid;gap:7px;align-content:start}
+figure img{width:100%;height:auto;border-radius:22px;border:1px solid var(--line);background:var(--card);display:block}
+figcaption{font-size:13.5px;color:var(--muted);line-height:1.45}
+figcaption b{display:block;color:var(--fg);font-size:14px}
+.note{font-size:14px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;max-width:66ch}
+.note b{color:var(--fg)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+
+<div class="wrap">
+ <header>
+  <h1>What’s new in R.Pharmacy</h1>
+  <p class="lede">Phone screenshots of everything added since your last test, using the fictional Harbourview Pharmacy. Swipe sideways through each set. Leave notes in the app with the UAT notes button when you next open it.</p>
+  <p class="meta">App version 37 · 24 Nov 2026 · fictional data only</p>
+  <nav class="toc" aria-label="Sections">
+   <a href="#visit">Start a visit</a><a href="#today">Today filters</a><a href="#staff">Staff checks</a><a href="#waiting">Waiting on someone</a><a href="#setup">Setup and S8</a><a href="#change">Tell me once</a>
+  </nav>
+ </header>
+
+ <section id="visit">
+  <h2>Start a visit</h2>
+  <p>For when you walk into the pharmacy. <b>Today offers “Start a visit”</b>, then shows up to three things worth seeing while you’re there, each with a reason. You can copy a short list for the pharmacist on duty. Inside the visit, a check shows what happened <b>last time</b>, and anything <b>still open</b> from an earlier visit.</p>
+  <div class="strip">
+   <figure><img src="01-today-start-visit.jpg" alt="Today with the Start a visit card above Start with these 3" width="390" height="664" loading="lazy"><figcaption><b>On Today</b>“At Harbourview Pharmacy today? Start a visit.”</figcaption></figure>
+   <figure><img src="04-visit-prepare.jpg" alt="Start a visit screen with Quarterly or Extra visit and three suggestions" width="390" height="664" loading="lazy"><figcaption><b>Before you start</b>Quarterly or extra visit. An extra visit doesn’t move your quarterly date.</figcaption></figure>
+   <figure><img src="05-list-for-pharmacist-on-duty.jpg" alt="Editable message asking the pharmacist on duty to have items ready" width="390" height="664" loading="lazy"><figcaption><b>A list for the pharmacist on duty</b>Optional. You copy it and send it yourself, or not.</figcaption></figure>
+   <figure><img src="06-visit-last-time.jpg" alt="Medicine storage check showing Last time: fridge log gaps, follow-up closed" width="390" height="664" loading="lazy"><figcaption><b>Last time</b>What the previous visit found, and when the fix was closed. Your answer starts blank.</figcaption></figure>
+   <figure><img src="07-visit-still-open.jpg" alt="Premises check showing a still-open follow-up with Seen the fix? Close it" width="390" height="664" loading="lazy"><figcaption><b>Still open</b>An earlier finding, right where you’d check it. “Seen the fix? Close it.”</figcaption></figure>
+  </div>
+ </section>
+
+ <section id="today">
+  <h2>Today filters</h2>
+  <p>Four buttons with counts: <b>Overdue, Today, Started, All</b>. Everything else is under <b>More filters</b>, which slides up from the bottom.</p>
+  <div class="strip">
+   <figure><img src="02-today-filters.jpg" alt="Four filter buttons with counts above the job list" width="390" height="664" loading="lazy"><figcaption><b>Four buttons</b>The count on each matches what the list shows.</figcaption></figure>
+   <figure><img src="03-more-filters.jpg" alt="More filters panel with Upcoming, Actions only, No date yet, To check and Waiting on someone" width="390" height="664" loading="lazy"><figcaption><b>More filters</b>Upcoming shows the actual dates of the next 7 days.</figcaption></figure>
+  </div>
+ </section>
+
+ <section id="staff">
+  <h2>Staff checks</h2>
+  <p>A person’s checks are one job that says <b>how many are due now</b>. “Review the 5 due now” opens them one after another; a banner on Today says which is next. Nothing is ticked off for you.</p>
+  <div class="strip">
+   <figure><img src="08-staff-due-now.jpg" alt="Priya Nair's checks: 5 due now, listed under Due now" width="390" height="664" loading="lazy"><figcaption><b>One job per person</b>Due now and upcoming, listed separately.</figcaption></figure>
+   <figure><img src="09-staff-next-check.jpg" alt="Banner: Priya Nair's checks, 0 of 5 done, Next, Stop" width="390" height="664" loading="lazy"><figcaption><b>Work through them</b>“Next” opens the following check. “Stop” any time.</figcaption></figure>
+  </div>
+ </section>
+
+ <section id="waiting">
+  <h2>Waiting on someone, and an action’s full history</h2>
+  <p>On any action you can note <b>what you asked for and when to check back</b>. The due date never moves and the action stays open. <b>Full history</b> shows the whole story of one action, from the original finding to today, and can be copied.</p>
+  <div class="strip">
+   <figure><img src="10-action-waiting.jpg" alt="Action details: Waiting on someone, asked for locksmith quote, check back Friday" width="390" height="664" loading="lazy"><figcaption><b>Waiting on someone</b>“It’s arrived · record it”, “Still waiting · new date”, or “Not waiting any more”.</figcaption></figure>
+   <figure><img src="11-action-full-history.jpg" alt="Timeline: found at a visit, action raised, asked for locksmith quote" width="390" height="664" loading="lazy"><figcaption><b>Full history</b>Found, raised, asked, received, closed. Copy it to share.</figcaption></figure>
+  </div>
+ </section>
+
+ <section id="setup">
+  <h2>Setup and S8</h2>
+  <p>Pharmacy setup is a <b>tappable list</b>; a chip appears only where something needs attention. The pharmacist in charge isn’t asked for any more. S8 storage now reads as <b>your responsibility</b>, with the Regulation’s wording kept as a note.</p>
+  <div class="strip">
+   <figure><img src="12-setup-list.jpg" alt="Pharmacy setup list with icons and two attention chips" width="390" height="664" loading="lazy"><figcaption><b>Setup list</b>One tap opens a section.</figcaption></figure>
+   <figure><img src="17-s8-at-a-glance.jpg" alt="S8 at a glance: storage, you make sure it's done" width="390" height="664" loading="lazy"><figcaption><b>S8 at a glance</b>“You make sure it’s done · the Regulation names the pharmacist in charge on the day.”</figcaption></figure>
+  </div>
+ </section>
+
+ <section id="change">
+  <h2>Tell me once: DAA packing changes</h2>
+  <p>From Services → Dose administration aids. Record the change once, see before and after, then <b>only the things that depend on it</b>, each marked Required by law, Check or Recommended with its NSW source. Open actions, past reviews and dates stay as they are.</p>
+  <div class="strip">
+   <figure><img src="13-daa-how-it-runs.jpg" alt="DAA service showing How it runs and Change how this service runs" width="390" height="664" loading="lazy"><figcaption><b>How it runs</b>One button on the service.</figcaption></figure>
+   <figure><img src="14-daa-whats-changing.jpg" alt="What's changing: tick the new arrangement, packer, start date" width="390" height="664" loading="lazy"><figcaption><b>What’s changing</b>Arrangement, packer and start date.</figcaption></figure>
+   <figure><img src="15-daa-before-after.jpg" alt="Before and after table" width="390" height="664" loading="lazy"><figcaption><b>Before and after</b>Only the rows that change.</figcaption></figure>
+   <figure><img src="16-daa-what-depends.jpg" alt="Six things that depend on the change, each tagged and sourced" width="390" height="664" loading="lazy"><figcaption><b>What depends on it</b>Done, or Later (which adds one action).</figcaption></figure>
+  </div>
+ </section>
+
+ <p class="note"><b>Not shown:</b> the backup status in Setup and the one-time summary after a restore, the accessibility fixes (clearer grey text, filter buttons a screen reader understands), and the bug fixes from Codex’s retest. They’re all in the live app.</p>
+</div>

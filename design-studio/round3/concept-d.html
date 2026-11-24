@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concept D · Precision Command</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#0c111c;--muted:#5b6476;--faint:#8a92a3;--line:#e6e8ee;--soft:#f6f7f9;--sel:#f1f4fe;--bg:#fff;--accent:#2f5bea;
+--red:#c0281b;--red-soft:#fdeceb;--amber:#a35a00;--amber-soft:#fff3e0;--green:#1c7a3e;--green-soft:#e9f6ee;--blue-soft:#eef2fd}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+header.bar{position:sticky;top:0;z-index:6;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.row1{display:flex;align-items:center;gap:14px;padding:10px 20px}
+.brand{font-weight:700;font-size:16px}
+.scope{display:flex;gap:2px;background:var(--soft);border-radius:9px;padding:3px}
+.scope button{min-height:40px;padding:0 12px;border-radius:7px;font-size:14px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.scope button[aria-pressed=true]{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(12,17,28,.1)}
+.scope .c{font-size:12px;font-weight:700;color:var(--red)}
+.search{margin-left:auto;display:flex;align-items:center;gap:8px;min-height:40px;min-width:240px;padding:0 10px;border:1px solid var(--line);border-radius:9px;color:var(--faint);font-size:14px}
+.search kbd{margin-left:auto;font:500 12px Inter;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--muted)}
+.me{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font-size:12px;font-weight:700;flex:0 0 auto}
+nav.tabs{display:flex;gap:4px;padding:0 14px}
+nav.tabs button{min-height:42px;padding:0 10px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent}
+nav.tabs button[aria-current=page]{color:var(--ink);font-weight:600;border-color:var(--ink)}
+.work{display:grid;grid-template-columns:minmax(0,1fr) 400px;min-height:calc(100vh - 97px)}
+.main{padding:22px 24px 60px;min-width:0}
+.pane{border-left:1px solid var(--line);padding:22px 24px;position:sticky;top:101px;align-self:start;max-height:calc(100vh - 97px);overflow:auto}
+h1{margin:0;font-size:24px;letter-spacing:-.02em;font-weight:700}
+.status{margin:6px 0 0;color:var(--muted)}
+.status b{font-weight:700}
+.filters{display:flex;gap:18px;border-bottom:1px solid var(--line);margin-top:18px;overflow-x:auto;scrollbar-width:none}
+.filters button{min-height:42px;color:var(--muted);font-weight:500;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+.filters button[aria-pressed=true]{color:var(--ink);font-weight:600;border-color:var(--ink)}
+.filters .n{color:var(--faint);margin-left:4px}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;font-weight:600;color:var(--faint);text-align:left;padding:10px 10px 6px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:12px 10px 12px 0;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:#fafbfc}
+tr.sel td{background:var(--sel)}
+tr.sel td:first-child{box-shadow:inset 2px 0 0 var(--ink)}
+.nm{font-weight:600}
+.sub{font-size:13px;color:var(--muted)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 10px 0 4px;vertical-align:1px}
+.d-overdue{background:var(--red)}.d-soon{background:var(--amber)}.d-ok{background:var(--green)}.d-check{background:var(--accent)}.d-staff{background:#8a92a3}.d-legal{background:var(--ink)}
+.w{font-size:13px;font-weight:600;white-space:nowrap}
+.w-overdue{color:var(--red)}.w-soon{color:var(--amber)}.w-ok{color:var(--green)}.w-check{color:var(--accent)}.w-staff{color:var(--muted)}.w-legal{color:var(--ink)}
+.verb{color:var(--accent);font-weight:600;min-height:44px;display:inline-flex;align-items:center}
+.ph-table td{padding:10px 10px 10px 0}
+.meter{height:4px;background:var(--line);border-radius:2px;overflow:hidden;min-width:90px}
+.meter i{display:block;height:100%;background:var(--ink)}
+.sec{font-size:12px;font-weight:600;color:var(--faint);margin:26px 0 4px}
+.pane h2{margin:2px 0 6px;font-size:20px;letter-spacing:-.01em}
+.pane .lbl{font-size:12px;font-weight:600;color:var(--faint)}
+.pane .blk{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.kv{display:grid;grid-template-columns:96px 1fr;gap:6px 12px;font-size:14px}
+.kv span:nth-child(odd){color:var(--muted)}
+.trail{list-style:none;margin:0;padding:0}
+.trail li{display:flex;gap:12px;padding:5px 0;font-size:14px;color:var(--muted)}
+.trail b{width:48px;flex:0 0 auto;color:var(--ink);font-weight:600}
+.btn{min-height:44px;padding:0 16px;border-radius:9px;border:1px solid var(--line);font-weight:600;background:#fff}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.opt{display:flex;align-items:center;gap:14px;width:100%;min-height:54px;border-bottom:1px solid var(--line);text-align:left;font-size:16px}
+.opt .rad{width:20px;height:20px;border-radius:50%;border:2px solid var(--faint);display:grid;place-items:center;flex:0 0 auto}
+.opt[aria-checked=true]{font-weight:600}
+.opt[aria-checked=true] .rad{border-color:var(--ink)}
+.opt[aria-checked=true] .rad::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--ink)}
+.opt kbd{margin-left:auto;font:500 12px Inter;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:0 6px}
+.steps button{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}
+.steps button[aria-current=step]{font-weight:700}
+.steps .r{margin-left:auto}
+.chip{min-height:40px;padding:0 12px;border-radius:999px;border:1px solid var(--line);font-size:14px;font-weight:500;background:#fff}
+.chip[aria-pressed=true]{border-color:var(--ink);background:var(--ink);color:#fff}
+.box{width:20px;height:20px;border-radius:5px;border:2px solid var(--ink);display:grid;place-items:center;flex:0 0 auto;font-size:12px}
+.box.on{background:var(--ink);color:#fff}
+.chk{display:flex;align-items:center;gap:12px;min-height:46px;text-align:left}
+textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;min-height:76px;resize:vertical}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);margin-top:14px}
+.cal>div{min-height:92px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px;font-size:12px;text-align:left}
+.cal>button{min-height:92px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px;font-size:12px;text-align:left;display:flex;flex-direction:column;gap:3px;align-items:stretch}
+.cal .dn{font-weight:600;color:var(--muted)}
+.cal .o{color:#c2c7d2}
+.cal .today .dn{color:#fff;background:var(--ink);border-radius:999px;padding:0 6px;align-self:flex-start}
+.cal button[aria-pressed=true]{background:var(--sel)}
+.ev{display:block;font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:1px;background:var(--c,#8a92a3)}
+.doc p{margin:0 0 10px;font-size:15px}
+.doc mark{background:#fff1cc;padding:1px 3px;border-radius:3px}
+.palette{position:fixed;inset:0;background:rgba(12,17,28,.35);display:flex;align-items:flex-start;justify-content:center;padding-top:14vh;z-index:30}
+.palette .p{width:min(560px,92vw);background:#fff;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,.22);overflow:hidden}
+.palette input{width:100%;border:0;border-bottom:1px solid var(--line);padding:14px 16px;font-size:16px;outline:none}
+.palette .r{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:46px;padding:0 16px;text-align:left}
+.palette .r:hover,.palette .r:first-of-type{background:var(--sel)}
+.inline{display:none}
+nav.mob{display:none}
+@media (max-width:899px){
+  .row1{padding:10px 14px;gap:8px;flex-wrap:wrap}
+  .scope{order:3;flex-basis:100%;display:grid;grid-template-columns:repeat(3,1fr)}
+  .scope button{min-height:44px;justify-content:center}
+  .search{min-width:44px;min-height:44px;margin-left:auto;padding:0 12px;justify-content:center}
+  .me{width:40px;height:40px}
+  .chip{min-height:44px}
+  .inline td>h2,.inline td>.lbl:first-child{display:none}
+  .inline .blk:first-of-type{margin-top:8px}
+  .search span,.search kbd{display:none}
+  nav.tabs{display:none}
+  .scope button{padding:0 9px;font-size:13px}
+  .scope .full{display:none}
+  header.bar{position:sticky}
+  .work{grid-template-columns:1fr;min-height:0}
+  .pane{display:none}
+  .main{padding:16px 16px 100px}
+  .hide-m{display:none}
+  .inline{display:table-row}
+  .inline td{background:#fbfcfd;padding:14px 12px 18px 12px;cursor:default}
+  .inline td:hover{background:#fbfcfd}
+  nav.mob{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid var(--line);padding:4px 4px 10px;z-index:6}
+  nav.mob button{min-height:52px;font-size:12px;font-weight:500;color:var(--faint);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+  nav.mob button[aria-current=page]{color:var(--ink);font-weight:700}
+  .cal{display:none}
+  .split{grid-template-columns:1fr!important}
+  .steps{display:none}
+}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="row1">
+    <span class="brand">R.</span>
+    <div class="scope" id="scope" role="group" aria-label="Pharmacies"></div>
+    <button class="search" data-cmd aria-label="Search or jump to"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span>Search or jump to…</span><kbd>⌘K</kbd></button>
+    <span class="me" title="Alex Owner">AO</span>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+</header>
+<div id="view"></div>
+<nav class="mob" id="mob" aria-label="Sections"></nav>
+<script src="../round2/data.js"></script>
+<script>
+(function(){
+const D=window.RPH;
+const st={scope:'all',sel:{},f:{dashboard:'all',audits:'all'},v:{i:1,ans:{c1:'Satisfactory'},find:[],task:true},day:'unsched',expanded:true};
+const NAV=[['dashboard','Today'],['audits','Reviews'],['actions','Actions'],['calendar','Calendar'],['staff','Staff'],['policies','Policies']];
+const MOB=[['dashboard','Today'],['audits','Reviews'],['actions','Actions'],['calendar','Calendar'],['more','More']];
+const page=()=>location.hash.slice(1)||'dashboard';
+const go=p=>{location.hash=p};
+const isM=()=>window.matchMedia('(max-width:899px)').matches;
+const Q=[
+ {id:'q1',k:'overdue',type:'Review',item:'Site visit',ph:'hv',due:'Overdue 16 days',owner:'You',act:'Start',to:'audit',why:'Your plan sets a visit every 8 weeks. The last was 8 Sep, so it fell due on 3 Nov.',kv:[['Cadence','Every 8 weeks'],['Last done','8 Sep · all satisfactory'],['Checks','6 · about 10 minutes']]},
+ {id:'q2',k:'check',type:'Action',item:'Fix fridge log gaps',ph:'hv',due:'Your check',owner:'Sam Taylor',act:'Review',to:'actions',why:'You noted Sam’s fix on 12 Nov. It closes only after you’ve looked at this week’s log.',kv:[['Raised','Cold chain review · 30 Oct'],['Owner','Sam Taylor'],['Due','25 Nov']]},
+ {id:'q3',k:'soon',type:'Review',item:'Staff credentials review',ph:'hv',due:'Tomorrow',owner:'You',act:'Open',to:'staff',why:'Sam’s registration renewal date in your record is 30 Nov.',kv:[['Cadence','Every 3 months'],['Last done','20 Aug']]},
+ {id:'q4',k:'soon',type:'Review',item:'Cold chain review',ph:'ks',due:'26 Nov',owner:'You',act:'Open',to:'audits',why:'Monthly review at Kensal Street.',kv:[['Cadence','Monthly'],['Last done','26 Oct']]},
+ {id:'q5',k:'soon',type:'Review',item:'Cold chain review',ph:'hv',due:'30 Nov',owner:'You',act:'Open',to:'audits',why:'Monthly review. Last done 30 Oct, when the fridge log gaps were found.',kv:[['Cadence','Monthly'],['Source','Storage standards']]},
+ {id:'q6',k:'legal',type:'Legal',item:'S8 stock check',ph:'hv',due:'1 Dec',owner:'You',act:'Plan',to:'calendar',why:'Legal requirement. Not logged since 1 Sep.',kv:[['Source','§ Reg 2026 s 111'],['Last done','1 Sep']]},
+ {id:'q7',k:'staff',type:'Action',item:'Confirm where OTP approvals are filed',ph:'hv',due:'Fri 20 Nov',owner:'Sam Taylor',act:'Update',to:'actions',why:'Raised at your check-in on 21 Oct. Waiting on Sam.',kv:[['Owner','Sam Taylor'],['Due','Fri 20 Nov']]},
+ {id:'q8',k:'verify',type:'Verify',item:'7 setup answers',ph:'hv',due:'When you can',owner:'You',act:'Verify',to:'policies',why:'Marked “Needs verification” during setup. The DAA procedure can’t be approved until its 3 are confirmed.',kv:[['Services','OTP 2 · DAA 3 · Vaccination 1 · Delivery 1']]},
+ {id:'q9',k:'verify',type:'Verify',item:'2 setup answers',ph:'ks',due:'When you can',owner:'You',act:'Verify',to:'policies',why:'Marked “Needs verification” during setup at Kensal Street.',kv:[['Services','OTP 1 · Vaccination 1']]}
+];
+const KW={overdue:['overdue','Overdue'],check:['check','Your check'],soon:['soon','Due soon'],legal:['legal','§ Legal'],staff:['staff','With staff'],verify:['staff','To verify']};
+const phName=id=>D.pharmacies.find(p=>p.id===id).short;
+const inScope=x=>st.scope==='all'||x.ph===st.scope;
+function scopeBar(){
+  const all={id:'all',short:'All pharmacies',overdue:1};
+  return [all,...D.pharmacies].map(p=>`<button data-scope="${p.id}" aria-pressed="${st.scope===p.id}">${p.id==='all'?'<span>All</span><span class="full">pharmacies</span>':p.short}${p.overdue?`<span class="c" aria-label="${p.overdue} overdue">${p.overdue}</span>`:''}</button>`).join('');
+}
+function table(cols,rows,selId,detail){
+  // rows: [{id,cells:[html...]}]; on phone the selected row expands in place
+  return `<table><thead><tr>${cols.map(c=>`<th class="${c[1]||''}">${c[0]}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr data-row="${r.id}" class="${r.id===selId?'sel':''}" aria-selected="${r.id===selId}">${r.cells.map((c,i)=>`<td class="${cols[i][1]||''}">${c}</td>`).join('')}</tr>${r.id===selId&&st.expanded?`<tr class="inline"><td colspan="${cols.length}">${detail}</td></tr>`:''}`).join('')}</tbody></table>`;
+}
+function layout(main,pane){return `<div class="work"><div class="main">${main}</div><aside class="pane" aria-label="Details">${pane}</aside></div>`;}
+const filt=(key,opts)=>`<div class="filters" role="tablist">${opts.map(([k,l,n])=>`<button role="tab" data-f="${key}:${k}" aria-pressed="${st.f[key]===k}">${l}${n!=null?`<span class="n">${n}</span>`:''}</button>`).join('')}</div>`;
+
+const V={
+dashboard(){
+  const items=Q.filter(inScope), f=st.f.dashboard;
+  const list=items.filter(x=>f==='all'||x.k===f||(f==='soon'&&x.k==='legal'));
+  const sel=list.find(x=>x.id===st.sel.dashboard)||list[0]; if(sel)st.sel.dashboard=sel.id;
+  const c=k=>items.filter(x=>x.k===k).length;
+  const detail=sel?`<div class="lbl">${sel.type} · ${phName(sel.ph)}</div><h2>${sel.item}</h2><span class="w w-${KW[sel.k][0]}">${sel.due}</span>
+    <div class="blk kv">${sel.kv.map(([a,b])=>`<span>${a}</span><span>${b}</span>`).join('')}</div>
+    <div class="blk"><div class="lbl" style="margin-bottom:4px">Why it’s here</div><p style="margin:0">${sel.why}</p></div>
+    <div class="blk acts"><button class="btn primary" data-go="${sel.to}">${sel.act==='Start'?'Start site visit':sel.act==='Review'?'Check and close':sel.act==='Plan'?'Plan a date':sel.act==='Verify'?'Verify answers':sel.act==='Update'?'Record an update':'Open'}</button><button class="btn" data-go="calendar">Plan a date</button></div>`:'';
+  const phs=st.scope==='all'?`<div class="sec">Pharmacies</div><table class="ph-table"><tbody>${D.pharmacies.map(p=>`<tr data-scope="${p.id}"><td class="nm">${p.short}</td><td><span class="w ${p.overdue?'w-overdue':'w-staff'}">${p.overdue?p.overdue+' overdue':'Nothing overdue'}</span></td><td class="hide-m"><span class="w w-soon">${p.dueSoon} due soon</span></td><td class="hide-m sub">${p.verify} to verify</td><td style="width:30%"><div style="display:flex;align-items:center;gap:8px"><div class="meter" style="flex:1"><i style="width:${p.id==='hv'?50:83}%"></i></div><span class="sub">${p.id==='hv'?'3/6':'5/6'}</span></div></td></tr>`).join('')}</tbody></table><p class="sub" style="margin:6px 0 0">November reviews done per pharmacy.</p>`:`<div class="sec">November</div><div style="display:flex;align-items:center;gap:10px"><div class="meter" style="flex:1"><i style="width:${st.scope==='hv'?50:83}%"></i></div><span class="sub">${st.scope==='hv'?'3 of 6':'5 of 6'} reviews done</span></div>`;
+  const main=`<h1>Today</h1><p class="status">${D.todayShort} · <b class="w-overdue">${c('overdue')} overdue</b> · <b class="w-soon">${c('soon')+c('legal')} due within 14 days</b> · <b class="w-check">${c('check')} waiting for your check</b></p>
+  ${phs}
+  ${filt('dashboard',[['all','Needs you',items.length],['overdue','Overdue',c('overdue')],['soon','Due soon',c('soon')+c('legal')],['check','Your check',c('check')],['verify','To verify',c('verify')]])}
+  ${table([['Item'],['Pharmacy','hide-m'],['Due'],['Owner','hide-m'],['','hide-m']],list.map(x=>({id:x.id,cells:[`<span class="dot d-${KW[x.k][0]==='staff'?'staff':KW[x.k][0]}"></span><span class="nm">${x.item}</span><div class="sub" style="margin-left:22px">${x.type}${st.scope==='all'?' · '+phName(x.ph):''}</div>`,phName(x.ph),`<span class="w w-${KW[x.k][0]}">${x.due}</span>`,`<span class="sub">${x.owner}</span>`,`<span class="verb">${x.act}</span>`]})),sel&&sel.id,detail)}
+  <p class="sub" style="margin-top:14px">Keyboard: <b>J</b>/<b>K</b> move · <b>Enter</b> open · <b>⌘K</b> jump anywhere</p>`;
+  return layout(main,detail);
+},
+audits(){
+  const f=st.f.audits, all=D.audits, list=all.filter(a=>f==='all'||a.status===f||(f==='legal'&&a.legal));
+  const sel=list.find(a=>a.id===st.sel.audits)||list[0]; st.sel.audits=sel.id;
+  const detail=`<div class="lbl">${sel.area} · ${st.scope==='ks'?'Kensal Street':'Harbourview'}</div><h2>${sel.name}</h2><span class="w w-${sel.status}">${sel.dueLabel}</span>
+   <div class="blk kv"><span>Cadence</span><span>${sel.cadence}</span><span>Last done</span><span>${sel.last}</span><span>Checks</span><span>${sel.checks}</span><span>Source</span><span>${sel.source}</span></div>
+   <div class="blk"><div class="lbl" style="margin-bottom:4px">Last three results</div><ul class="trail"><li><b>${sel.last}</b>All satisfactory</li><li><b>Before</b>1 issue · action closed</li><li><b>Before</b>All satisfactory</li></ul></div>
+   <div class="blk acts"><button class="btn primary" data-go="audit">Start now</button><button class="btn" data-go="calendar">Plan a date</button></div>`;
+  const main=`<h1>Reviews</h1><p class="status">${all.length} in your plan for ${st.scope==='ks'?'Kensal Street':'Harbourview'}.</p>
+  ${filt('audits',[['all','All',all.length],['overdue','Overdue',1],['soon','Due soon',3],['ok','On track',4],['legal','Legal',1]])}
+  ${table([['Review'],['Cadence','hide-m'],['Last','hide-m'],['Next due'],['Source','hide-m']],list.map(a=>({id:a.id,cells:[`<span class="dot d-${a.legal?'legal':a.status}"></span><span class="nm">${a.name}</span>`,`<span class="sub">${a.cadence}</span>`,a.last,`<span class="w w-${a.status}">${a.dueLabel}</span>`,`<span class="sub">${a.source}</span>`]})),sel.id,detail)}`;
+  return layout(main,detail);
+},
+audit(){
+  const v=D.visit, s=st.v, c=v.checks[s.i], a=s.ans[c.id]||null, issue=a==='Issue'||a==='Needs verification';
+  const steps=`<div class="steps">${v.checks.map((x,i)=>{const r=s.ans[x.id];return `<button data-step="${i}" ${i===s.i?'aria-current="step"':''}><span class="sub" style="width:16px">${i+1}</span><span>${x.name}</span><span class="r w ${r==='Issue'?'w-overdue':r==='Satisfactory'?'w-ok':'w-staff'}">${r?(r==='Satisfactory'?'OK':r):''}</span></button>`}).join('')}</div>`;
+  const prog=`<div style="display:flex;gap:4px;margin:6px 0 14px">${v.checks.map((x,i)=>`<i style="flex:1;height:3px;border-radius:2px;background:${s.ans[x.id]?'var(--ink)':i===s.i?'var(--accent)':'var(--line)'}"></i>`).join('')}</div>`;
+  const form=`<div class="lbl">Check ${s.i+1} of 6${c.source?' · '+c.source:''} · last visit: ${c.last}</div><h1 style="margin-top:4px">${c.name}</h1><p class="status" style="margin-bottom:12px">${c.prompt}</p>
+   <div role="radiogroup" aria-label="Result" style="border-top:1px solid var(--line)">${v.answers.map((x,i)=>`<button class="opt" role="radio" aria-checked="${a===x}" data-ans="${x}"><span class="rad"></span>${x}<kbd class="hide-m">${i+1}</kbd></button>`).join('')}</div>
+   ${issue?`<div style="margin-top:16px"><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${v.findings.map(f=>`<button class="chip" data-find="${f}" aria-pressed="${s.find.includes(f)}">${f}</button>`).join('')}</div><textarea aria-label="Notes" placeholder="Add a sentence if it helps"></textarea><button class="chk" data-task><span class="box ${s.task?'on':''}">${s.task?'✓':''}</span>Raise an action · Sam Taylor · due 26 Nov</button></div>`:''}
+   <div class="acts" style="margin-top:20px"><button class="btn" data-prev>Previous</button><button class="btn primary" data-next>Save and next <span class="hide-m" style="opacity:.6;font-weight:500">↵</span></button></div>`;
+  const pane=`<div class="lbl">Site visit · Harbourview · started 2:10pm</div><h2>Progress</h2>${steps}<div class="blk"><div class="lbl" style="margin-bottom:6px">Open actions in this area</div><p style="margin:0;font-size:14px">Fix fridge log gaps · Sam · your check. You can close it here once you’ve seen the log.</p><button class="btn" style="margin-top:10px" data-go="actions">Open action</button></div>`;
+  return `<div class="work"><div class="main" style="max-width:760px"><div style="display:flex;justify-content:space-between;align-items:center"><button class="verb" data-go="audits">← Reviews</button><span class="sub">Saved as you go</span></div>${prog}${form}</div><aside class="pane">${pane}</aside></div>`;
+},
+actions(){
+  const list=D.actions, sel=list.find(a=>a.id===st.sel.actions)||list[0]; st.sel.actions=sel.id;
+  const detail=`<div class="lbl">${sel.from}</div><h2>${sel.title}</h2><span class="w ${sel.state==='check'?'w-check':sel.state==='staff'?'w-staff':'w-ok'}">${sel.state==='check'?'Ready for your check':sel.state==='staff'?'With '+sel.owner:'Closed '+sel.closed}</span>
+   <div class="blk kv"><span>Owner</span><span>${sel.owner}</span><span>Due</span><span>${sel.due}</span></div>
+   <div class="blk"><div class="lbl" style="margin-bottom:4px">Trail</div><ul class="trail">${sel.trail.map(([d,x])=>`<li><b>${d}</b>${x}</li>`).join('')||'<li>No further history.</li>'}</ul></div>
+   <div class="blk acts">${sel.state==='check'?'<button class="btn primary">Checked · close</button><button class="btn">Reopen</button>':sel.state==='staff'?'<button class="btn primary">Record an update</button><button class="btn">Change due date</button>':'<button class="btn">View record</button>'}</div>`;
+  const groups=[['check','Your check'],['staff','With staff'],['closed','Closed recently']];
+  const main=`<h1>Actions</h1><p class="status">Only you close an action, after you’ve seen the fix.</p>${groups.map(([k,l])=>`<div class="sec">${l} · ${list.filter(a=>a.state===k).length}</div>${table([['Action'],['Owner','hide-m'],['Due'],['From','hide-m']],list.filter(a=>a.state===k).map(a=>({id:a.id,cells:[`<span class="dot d-${k==='check'?'check':k==='staff'?'staff':'ok'}"></span><span class="nm">${a.title}</span>`,`<span class="sub">${a.owner}</span>`,`<span class="w ${k==='check'?'w-check':k==='closed'?'w-ok':'w-staff'}">${k==='closed'?'Closed '+a.closed:a.due}</span>`,`<span class="sub">${a.from}</span>`]})),sel.id,detail)}`).join('')}`;
+  return layout(main,detail);
+},
+calendar(){
+  const ev={20:[['Staff credentials','var(--amber)'],['OTP approvals (Sam)','#8a92a3']],25:[['Check-in with Sam','var(--accent)'],['Fridge log: your check','var(--accent)']],30:[['Cold chain review','var(--amber)']]};
+  const dec={1:[['§ S8 stock check','var(--ink)']],4:[['DAA packing','var(--green)']],6:[['Vaccination fridge','var(--green)']]};
+  let cells=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<div style="min-height:0;font-weight:600;color:var(--faint)">${d}</div>`).join('');
+  for(let i=0;i<6;i++)cells+=`<div class="o"><span class="dn" style="color:#c2c7d2">${26+i}</span></div>`;
+  for(let d=1;d<=30;d++)cells+=`<button data-day="${d}" aria-pressed="${st.day==d}" class="${d===19?'today':''}"><span class="dn">${d}</span>${(ev[d]||[]).map(([t,c])=>`<span class="ev" style="--c:${c}">${t}</span>`).join('')}${d===3?'<span class="ev" style="--c:var(--red);color:var(--red)">Site visit due</span>':''}</button>`;
+  for(let d=1;d<=6;d++)cells+=`<button data-day="d${d}" aria-pressed="${st.day==='d'+d}"><span class="dn" style="color:#aab1bf">${d} Dec</span>${(dec[d]||[]).map(([t,c])=>`<span class="ev" style="--c:${c}">${t}</span>`).join('')}</button>`;
+  const dayItems=st.day==='unsched'?null:D.upcoming.filter(u=>u.date===(String(st.day).startsWith('d')?st.day.slice(1)+' Dec':st.day+' Nov'));
+  const pane=st.day==='unsched'?`<div class="lbl">Not scheduled</div><h2>Site visit</h2><span class="w w-overdue">Overdue 16 days</span><div class="blk"><p style="margin:0 0 10px">Tue 24 Nov fits: you could also check the fridge log fix while you’re there.</p><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${['Mon 23','Tue 24','Wed 25','Thu 26'].map((d,i)=>`<button class="chip" aria-pressed="${i===1}">${d}</button>`).join('')}</div><button class="btn primary">Book Tue 24 Nov</button></div>`
+   :`<div class="lbl">${String(st.day).startsWith('d')?st.day.slice(1)+' December':st.day+' November'}</div><h2>${dayItems.length?dayItems.length+' due':'Nothing due'}</h2>${dayItems.map(u=>`<div class="blk"><span class="nm">${u.title}</span><div class="sub">${u.kind==='legal'?'§ Legal requirement · s 111':u.kind==='task'?'Action due':u.kind==='meeting'?'Meeting':'Review'}</div></div>`).join('')}<div class="blk"><button class="btn" data-day="unsched">Plan the site visit</button></div>`;
+  const agenda=`<div class="sec">Next four weeks</div>${table([['Date'],['Item'],['Type','hide-m']],D.upcoming.map((u,i)=>({id:'u'+i,cells:[`<b>${u.date}</b> <span class="sub">${u.dow}</span>`,`<span class="nm">${u.title}</span>`,`<span class="w ${u.kind==='legal'?'w-legal':'w-staff'}">${u.kind==='legal'?'§ Legal':u.kind[0].toUpperCase()+u.kind.slice(1)}</span>`]})),null,'')}`;
+  const main=`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>November 2026</h1><div class="acts"><button class="btn">‹</button><button class="btn">›</button><button class="btn primary" data-day="unsched">Plan site visit</button></div></div><p class="status"><b class="w-overdue">Site visit not booked</b> · 9 dates in the next four weeks</p><div class="cal">${cells}</div>${agenda}`;
+  return layout(main,pane);
+},
+staff(){
+  const sel=D.staff.find(x=>x.id===st.sel.staff)||D.staff[0]; st.sel.staff=sel.id;
+  const cols=['Registration','Immunisation','First aid','Training'];
+  const map=[/registration/i,/immunisation/i,/first aid/i,/training|review|sign-off/i];
+  const cell=(p,i)=>{const c=p.creds.find(x=>map[i].test(x[0]));return c?`<span class="w ${c[2]==='soon'?'w-soon':'w-ok'}">${c[2]==='soon'?'Check by 30 Nov':'Current'}</span>`:'<span class="sub">—</span>'};
+  const detail=`<div class="lbl">${sel.role}</div><h2>${sel.name}</h2><span class="w ${sel.status==='soon'?'w-soon':'w-ok'}">${sel.note}</span><div class="blk">${sel.creds.map(([n,m,s])=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span><span class="nm" style="font-weight:500">${n}</span><div class="sub">${m}</div></span><span class="w ${s==='soon'?'w-soon':'w-ok'}">${s==='soon'?'Check':'OK'}</span></div>`).join('')}</div><div class="blk acts"><button class="btn primary">Register checked</button><button class="btn">Add record</button></div>`;
+  const main=`<h1>Staff</h1><p class="status">${D.staff.length} people at Harbourview · <b class="w-soon">1 renewal to check by 30 Nov</b></p>${table([['Person'],...cols.map(c=>[c,'hide-m'])],D.staff.map(p=>({id:p.id,cells:[`<span class="dot d-${p.status==='soon'?'soon':'ok'}"></span><span class="nm">${p.name}</span><div class="sub" style="margin-left:22px">${p.role}</div>`,...cols.map((c,i)=>cell(p,i))]})),sel.id,detail)}<p class="sub" style="margin-top:12px">Dates come from your records. Check registrations yourself on the public register.</p>`;
+  return layout(main,detail);
+},
+policies(){
+  const sel=D.sops.find(x=>x.id===st.sel.policies)||D.sops[0]; st.sel.policies=sel.id;
+  const detail=sel.id==='p1'?`<div class="lbl">Draft · section 3 of 7 · Safeguards</div><h2>${sel.name}</h2><div class="blk doc">${D.sopPreview.lines.map(([l,t])=>`<p>${t==='Marked to verify'?`<mark>${l}</mark>`:l}<br><span class="sub">${t}</span></p>`).join('')}</div><div class="blk"><p class="sub" style="margin:0 0 10px">Approval opens once the 3 marked answers are verified.</p><div class="acts"><button class="btn primary">Verify 3 answers</button><button class="btn" disabled style="opacity:.45">Approve</button></div></div>`
+   :`<div class="lbl">${sel.version}</div><h2>${sel.name}</h2><span class="w ${sel.status==='review'?'w-check':'w-ok'}">${sel.note}</span><div class="blk acts"><button class="btn">Open procedure</button></div>`;
+  const main=`<h1>Policies</h1><p class="status">${D.sopTotals.total} procedures · ${D.sopTotals.approved} approved · <b class="w-soon">1 draft</b> · <b class="w-check">1 review due</b></p>${table([['Procedure'],['Status'],['Version','hide-m']],D.sops.map(s=>({id:s.id,cells:[`<span class="dot d-${s.status==='draft'?'soon':s.status==='review'?'check':'ok'}"></span><span class="nm">${s.name}</span><div class="sub" style="margin-left:22px">${s.note}</div>`,`<span class="w ${s.status==='draft'?'w-soon':s.status==='review'?'w-check':'w-ok'}">${s.status==='draft'?'Draft':s.status==='review'?'Review due':'Approved'}</span>`,`<span class="sub">${s.version}</span>`]})),sel.id,detail)}
+  <div class="sec">Setup answers to verify · ${D.verify.length}</div>${table([['Answer'],['Service'],['']],D.verify.map((v,i)=>({id:'v'+i,cells:[v.text,`<span class="sub">${v.service}</span>`,'<span class="verb">Verify</span>']})),null,'')}`;
+  return layout(main,detail);
+},
+more(){return `<div class="main"><h1>More</h1>${table([['Section']],[['staff','Staff','Credentials and training'],['policies','Policies','Procedures and answers to verify']].map(([k,n,m])=>({id:'m-'+k,cells:[`<button data-go="${k}" style="width:100%;text-align:left;min-height:44px"><span class="nm">${n}</span><div class="sub">${m}</div></button>`]})),null,'')}</div>`;}
+};
+function render(){
+  const p=page();
+  document.getElementById('scope').innerHTML=scopeBar();
+  document.getElementById('tabs').innerHTML=NAV.map(([k,l])=>`<button data-go="${k}" ${k===p||(p==='audit'&&k==='audits')?'aria-current="page"':''}>${l}</button>`).join('');
+  document.getElementById('mob').innerHTML=MOB.map(([k,l])=>`<button data-go="${k}" ${k===p||(p==='audit'&&k==='audits')||(k==='more'&&['staff','policies'].includes(p))?'aria-current="page"':''}>${l}</button>`).join('');
+  document.getElementById('view').innerHTML=(V[p]||V.dashboard)();
+}
+function palette(){
+  const items=[['Start site visit · Harbourview','audit'],['Fix fridge log gaps','actions'],['Sam Taylor · registration','staff'],['S8 stock check · plan a date','calendar'],['DAA procedure (draft)','policies'],['Kensal Street Pharmacy','dashboard']];
+  const el=document.createElement('div');el.className='palette';el.innerHTML=`<div class="p" role="dialog" aria-label="Search"><input aria-label="Search" placeholder="Search reviews, actions, people, procedures…">${items.map(([t,g])=>`<button class="r" data-go="${g}"><span>${t}</span><span class="sub">${g==='dashboard'?'Pharmacy':g[0].toUpperCase()+g.slice(1)}</span></button>`).join('')}</div>`;
+  el.addEventListener('click',e=>{if(e.target===el)el.remove();});document.body.appendChild(el);el.querySelector('input').focus();
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button,tr');if(!t)return;
+  if(t.closest('.palette')&&t.dataset.go){document.querySelector('.palette').remove();if(t.textContent.includes('Kensal'))st.scope='ks';go(t.dataset.go);render();return;}
+  if(t.hasAttribute('data-cmd')){palette();return;}
+  if(t.dataset.scope){st.scope=t.dataset.scope;render();return;}
+  if(t.dataset.go){go(t.dataset.go);return;}
+  if(t.dataset.f){const[k,v]=t.dataset.f.split(':');st.f[k]=v;render();return;}
+  if(t.dataset.row){const p=page();st.expanded=st.sel[p]===t.dataset.row?!st.expanded:true;st.sel[p]=t.dataset.row;render();return;}
+  if(t.dataset.day){st.day=isNaN(+t.dataset.day)?t.dataset.day:+t.dataset.day;render();return;}
+  if(t.dataset.step){st.v.i=+t.dataset.step;render();return;}
+  if(t.dataset.ans){st.v.ans[D.visit.checks[st.v.i].id]=t.dataset.ans;render();return;}
+  if(t.dataset.find){const f=st.v.find,i=f.indexOf(t.dataset.find);i<0?f.push(t.dataset.find):f.splice(i,1);render();return;}
+  if(t.hasAttribute('data-task')){st.v.task=!st.v.task;render();return;}
+  if(t.hasAttribute('data-next')){st.v.i=Math.min(5,st.v.i+1);render();return;}
+  if(t.hasAttribute('data-prev')){st.v.i=Math.max(0,st.v.i-1);render();return;}
+});
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();palette();return;}
+  if(e.key==='Escape'){document.querySelector('.palette')?.remove();return;}
+  if(e.target.matches('input,textarea,select'))return;
+  const p=page();
+  if(p==='audit'&&/^[1-4]$/.test(e.key)){st.v.ans[D.visit.checks[st.v.i].id]=D.visit.answers[+e.key-1];render();return;}
+  if(p==='audit'&&e.key==='Enter'){st.v.i=Math.min(5,st.v.i+1);render();return;}
+  const rows=[...document.querySelectorAll('.main tr[data-row]')].map(r=>r.dataset.row);if(!rows.length)return;
+  const i=rows.indexOf(st.sel[p]);
+  if(e.key==='j'){st.sel[p]=rows[Math.min(rows.length-1,i+1)];render();}
+  if(e.key==='k'){st.sel[p]=rows[Math.max(0,i-1)];render();}
+  if(e.key==='Enter'){const b=document.querySelector('.pane .btn.primary');b&&b.click();}
+});
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(render,120)});
+window.addEventListener('hashchange',render);render();
+})();
+</script>
+</body>
+</html>

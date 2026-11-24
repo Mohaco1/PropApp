@@ -1,0 +1,10 @@
+{
+  "by": "u_oB_xmELmgbegLcH3_Zwv8w",
+  "createdAt": "2026-11-20T05:47:53.877Z",
+  "fix": "Layout fixed: the 16 progress dots now wrap, so nothing runs off the screen. DAA's routine check now shows under 'Reviews for this service'. Reviews with no date get a suggested first date you can change and save here.",
+  "kind": "note",
+  "page": "Setup · Service setup complete",
+  "status": "Fixed – retest",
+  "text": "this screen is perfect but layout is broken \ni will attach screenshot in chat\n\nrewview date thing here or no ?",
+  "type": ""
+}

@@ -1,0 +1,38 @@
+// Onboarding: setup map on the first screen, step counter on steps 1–2, checklist on Today, one-time "set up" message. Fictional data.
+const { chromium, devices } = require('playwright');
+const res=[];const ok=(n,p,d='')=>res.push({n,p:!!p,d:String(d).slice(0,300)});
+(async()=>{const b=await chromium.launch();const p=await (await b.newContext({...devices['iPhone 13']})).newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('dialog',d=>d.accept());
+ await p.goto('file:///home/user/rpharmacy/uat/app/rpharmacy-uat-testing.html');await p.waitForTimeout(1800);
+ const land=await p.evaluate(()=>({t:document.querySelector('.ob-map')?.textContent||'',need:document.querySelectorAll('.ob-map .ob-need').length,wait:document.querySelectorAll('.ob-map .ob-wait').length,sw:document.documentElement.scrollWidth,cw:document.documentElement.clientWidth}));
+ ok('the first screen lists 4 setup steps: 3 needed to start, 1 can wait, with the time',/4 short steps/.test(land.t)&&/15–20 minutes/.test(land.t)&&/Only the first 3 are needed to start/.test(land.t)&&land.need===3&&land.wait===1,JSON.stringify(land));
+ ok('it fits a phone (no sideways scroll)',land.sw<=land.cw+1,JSON.stringify(land));
+ await p.locator('main button',{hasText:'Set up your pharmacy'}).click();await p.waitForTimeout(400);
+ ok('Pharmacy details shows "Step 1 of 4 · needed to start"',await p.evaluate(()=>/Step 1 of 4 · needed to start/i.test($('editor').querySelector('.ob-progstep')?.textContent||'')));
+ await p.fill('#editor input >> nth=0','Birch Test Pharmacy');await p.fill('#editor input >> nth=1','1 Test Street');await p.locator('#editor button',{hasText:'Continue'}).click();await p.waitForTimeout(500);
+ ok('the owners step shows "Step 2 of 4 · needed to start"',await p.evaluate(()=>/Step 2 of 4 · needed to start/i.test($('editor').querySelector('.ob-progstep')?.textContent||'')));
+ await p.fill('#editor input >> nth=0','Alex Owner');await p.locator('#editor button',{hasText:'Continue'}).click();await p.waitForTimeout(500);
+ ok('Services provided says "Step 3 of 4 · needed to start"',await p.evaluate(()=>/Step 3 of 4 · needed to start/i.test($('editor').textContent)));
+ await p.evaluate(()=>{$('editor').close();CD.go('overview');});await p.waitForTimeout(300);
+ const c1=await p.evaluate(()=>({items:[...document.querySelectorAll('#cd-view .ob-chk li')].map(li=>li.className+'|'+li.querySelector('.ob-t').firstChild.textContent),head:document.querySelector('#cd-view .ob-head b')?.textContent,start:!!document.querySelector('#cd-view .ob-next .btn')}));
+ ok('Today shows "Finish setting up · 1 left" with details and owners ticked and "Choose your services" next, with Start',c1.head==='Finish setting up · 1 left'&&c1.items[0].startsWith('ob-done')&&c1.items[1].startsWith('ob-done')&&/ob-next\|Choose your services/.test(c1.items[2])&&c1.start,JSON.stringify(c1));
+ await p.locator('#cd-view .ob-next .btn').click();await p.waitForTimeout(400);
+ ok('Start opens that step',await p.evaluate(()=>$('editor').open&&/Services provided/.test($('editor').textContent)));
+ for(const s of ['Dose administration aids','Home delivery'])await p.locator('#editor .d-tiles>label',{hasText:s}).first().click();
+ await p.locator('#editor button',{hasText:'Save service selection'}).click();await p.waitForTimeout(500);
+ await p.evaluate(()=>{if($('editor').open)$('editor').close();CD.go('overview');});await p.waitForTimeout(300);
+ const c2=await p.evaluate(()=>({head:document.querySelector('#cd-view .ob-head b')?.textContent,items:[...document.querySelectorAll('#cd-view .ob-chk li .ob-t')].map(x=>x.firstChild.textContent),next:document.querySelector('#cd-view .ob-next .ob-t')?.firstChild.textContent,sw:document.documentElement.scrollWidth,cw:document.documentElement.clientWidth}));
+ ok('after choosing services, each service is a checklist step and the next one is highlighted',c2.head==='Finish setting up · 2 left'&&c2.items.includes('Dose administration aids')&&c2.items.includes('Home delivery')&&!!c2.next,JSON.stringify(c2));
+ ok('the checklist fits a phone',c2.sw<=c2.cw+1,JSON.stringify(c2));
+ // later editing: no step counter
+ await p.evaluate(()=>{window.__fp=fsPending;fsPending=()=>[];});
+ await p.evaluate(()=>{const orig=state.freshSite;fsSite();});await p.waitForTimeout(300);
+ ok('opening Pharmacy details later to edit shows no step counter',await p.evaluate(()=>!$('editor').querySelector('.ob-progstep')));
+ await p.evaluate(()=>{$('editor').close();try{localStorage.removeItem(RPH.ob.readyKey());}catch{}CD.go('overview');});await p.waitForTimeout(300);
+ const r=await p.evaluate(()=>document.querySelector('#cd-view .ob-ready')?.textContent||'');
+ ok('when everything is set up, Today says "<pharmacy> is set up" once',/Birch Test Pharmacy is set up/.test(r),r);
+ await p.evaluate(()=>[...document.querySelectorAll('#cd-view .ob-ready button')].find(b=>b.textContent==='Got it').click());await p.waitForTimeout(250);
+ await p.evaluate(()=>CD.go('overview'));await p.waitForTimeout(200);
+ ok('"Got it" removes it for good',await p.evaluate(()=>!document.querySelector('#cd-view .ob-ready')&&!document.querySelector('#cd-view .ob-card')));
+ await p.evaluate(()=>{fsPending=window.__fp;});
+ ok('no page errors',!errs.length,errs.join(' | '));
+ await b.close();const f=res.filter(r=>!r.p);for(const r of res)console.log((r.p?'PASS ':'FAIL ')+r.n+(r.p?'':' :: '+r.d));console.log(res.length-f.length+'/'+res.length);process.exit(f.length?1:0);})();

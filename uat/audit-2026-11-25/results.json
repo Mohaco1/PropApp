@@ -1,0 +1,3195 @@
+[
+ {
+  "n": 1,
+  "group": "First use",
+  "name": "Welcome screen",
+  "file": "001.jpg",
+  "firstAt": 238,
+  "wordsBefore": 1,
+  "screens": 1.2,
+  "dups": [],
+  "misalign": "",
+  "small": [],
+  "smallCount": 0,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 154,
+  "title": "R.Pharmacy",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 2,
+  "group": "First use",
+  "name": "Setup step 1 · pharmacy details",
+  "file": "002.jpg",
+  "firstAt": 213,
+  "wordsBefore": 15,
+  "screens": 1,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "text",
+    "w": 350,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 350,
+    "h": 42
+   },
+   {
+    "t": "See what to do first",
+    "w": 161,
+    "h": 40
+   }
+  ],
+  "smallCount": 3,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 33,
+  "title": "Pharmacy details",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 3,
+  "group": "First use",
+  "name": "Setup step 2 · proprietors",
+  "file": "003.jpg",
+  "firstAt": 213,
+  "wordsBefore": 19,
+  "screens": 1,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "text",
+    "w": 303,
+    "h": 42
+   },
+   {
+    "t": "+",
+    "w": 39,
+    "h": 40
+   }
+  ],
+  "smallCount": 2,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 30,
+  "title": "Proprietors",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 4,
+  "group": "First use",
+  "name": "Setup step 3 · services",
+  "file": "004.jpg",
+  "firstAt": 441,
+  "wordsBefore": 104,
+  "screens": 2.4,
+  "dups": [],
+  "misalign": "headings at 35px, text at 20px",
+  "small": [
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   }
+  ],
+  "smallCount": 18,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 197,
+  "title": "Services provided",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 5,
+  "group": "Main pages",
+  "name": "Today",
+  "file": "005.jpg",
+  "firstAt": 161,
+  "wordsBefore": 18,
+  "screens": 1.8,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "2 need a date",
+    "w": 97,
+    "h": 23
+   }
+  ],
+  "smallCount": 1,
+  "overflow": false,
+  "saveMsgs": 1,
+  "words": 176,
+  "title": "Today",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 6,
+  "group": "Main pages",
+  "name": "Today · more filters",
+  "file": "006.jpg",
+  "firstAt": 161,
+  "wordsBefore": 18,
+  "screens": 1.8,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "2 need a date",
+    "w": 97,
+    "h": 23
+   }
+  ],
+  "smallCount": 1,
+  "overflow": false,
+  "saveMsgs": 1,
+  "words": 176,
+  "title": "Today",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 7,
+  "group": "Main pages",
+  "name": "Reviews",
+  "file": "007.jpg",
+  "firstAt": 120,
+  "wordsBefore": 0,
+  "screens": 1.3,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "Search reviews",
+    "w": 358,
+    "h": 41
+   },
+   {
+    "t": "All9",
+    "w": 32,
+    "h": 42
+   },
+   {
+    "t": "Overdue1",
+    "w": 72,
+    "h": 42
+   },
+   {
+    "t": "Due soon1",
+    "w": 78,
+    "h": 42
+   },
+   {
+    "t": "On track2",
+    "w": 74,
+    "h": 42
+   },
+   {
+    "t": "No date3",
+    "w": 69,
+    "h": 42
+   },
+   {
+    "t": "Required by law1",
+    "w": 125,
+    "h": 42
+   },
+   {
+    "t": "Completed34",
+    "w": 102,
+    "h": 42
+   }
+  ],
+  "smallCount": 9,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 109,
+  "title": "Reviews",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 8,
+  "group": "Main pages",
+  "name": "Actions",
+  "file": "008.jpg",
+  "firstAt": 120,
+  "wordsBefore": 0,
+  "screens": 1.5,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "Search actions",
+    "w": 358,
+    "h": 41
+   },
+   {
+    "t": "Open7",
+    "w": 52,
+    "h": 42
+   },
+   {
+    "t": "Overdue5",
+    "w": 75,
+    "h": 42
+   },
+   {
+    "t": "Completed27",
+    "w": 100,
+    "h": 42
+   },
+   {
+    "t": "All34",
+    "w": 41,
+    "h": 42
+   }
+  ],
+  "smallCount": 5,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 136,
+  "title": "Actions",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 9,
+  "group": "Main pages",
+  "name": "Staff",
+  "file": "009.jpg",
+  "firstAt": 120,
+  "wordsBefore": 0,
+  "screens": 1,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "Find staff",
+    "w": 358,
+    "h": 41
+   },
+   {
+    "t": "Active4",
+    "w": 60,
+    "h": 42
+   },
+   {
+    "t": "Needs review1",
+    "w": 108,
+    "h": 42
+   },
+   {
+    "t": "Coming up2",
+    "w": 91,
+    "h": 42
+   },
+   {
+    "t": "Locum0",
+    "w": 62,
+    "h": 42
+   },
+   {
+    "t": "Former0",
+    "w": 65,
+    "h": 42
+   }
+  ],
+  "smallCount": 6,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 75,
+  "title": "Staff",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 10,
+  "group": "Main pages",
+  "name": "More",
+  "file": "010.jpg",
+  "firstAt": 122,
+  "wordsBefore": 0,
+  "screens": 1,
+  "dups": [],
+  "misalign": "",
+  "small": [],
+  "smallCount": 0,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 52,
+  "title": "More",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 11,
+  "group": "Main pages",
+  "name": "Calendar · this week",
+  "file": "011.jpg",
+  "firstAt": 179,
+  "wordsBefore": 17,
+  "screens": 3.7,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "This week & next",
+    "w": 123,
+    "h": 42
+   },
+   {
+    "t": "Year plan",
+    "w": 67,
+    "h": 42
+   },
+   {
+    "t": "Month",
+    "w": 46,
+    "h": 42
+   }
+  ],
+  "smallCount": 3,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 391,
+  "title": "Calendar",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 12,
+  "group": "Main pages",
+  "name": "Calendar · Year plan",
+  "file": "012.jpg",
+  "firstAt": 81,
+  "wordsBefore": 0,
+  "screens": 2,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "This week & next",
+    "w": 122,
+    "h": 42
+   },
+   {
+    "t": "Year plan",
+    "w": 68,
+    "h": 42
+   },
+   {
+    "t": "Month",
+    "w": 46,
+    "h": 42
+   }
+  ],
+  "smallCount": 3,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 183,
+  "title": "Calendar",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 13,
+  "group": "Main pages",
+  "name": "Calendar · Month",
+  "file": "013.jpg",
+  "firstAt": 120,
+  "wordsBefore": 2,
+  "screens": 1.5,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "This week & next",
+    "w": 122,
+    "h": 42
+   },
+   {
+    "t": "Year plan",
+    "w": 67,
+    "h": 42
+   },
+   {
+    "t": "Month",
+    "w": 47,
+    "h": 42
+   }
+  ],
+  "smallCount": 3,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 127,
+  "title": "November 2026",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 14,
+  "group": "Main pages",
+  "name": "Policies",
+  "file": "014.jpg",
+  "firstAt": 120,
+  "wordsBefore": 1,
+  "screens": 1.8,
+  "dups": [
+   "draft updated 27 nov"
+  ],
+  "misalign": "",
+  "small": [
+   {
+    "t": "Search procedures",
+    "w": 358,
+    "h": 41
+   },
+   {
+    "t": "All4",
+    "w": 33,
+    "h": 42
+   },
+   {
+    "t": "Approved0",
+    "w": 84,
+    "h": 42
+   },
+   {
+    "t": "Draft4",
+    "w": 49,
+    "h": 42
+   },
+   {
+    "t": "In review0",
+    "w": 78,
+    "h": 42
+   },
+   {
+    "t": "Review due0",
+    "w": 96,
+    "h": 42
+   }
+  ],
+  "smallCount": 6,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 147,
+  "title": "Policies",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 15,
+  "group": "Main pages",
+  "name": "History",
+  "file": "015.jpg",
+  "firstAt": 132,
+  "wordsBefore": 1,
+  "screens": 6.7,
+  "dups": [
+   "service the dispensary fire ",
+   "review local induction confi",
+   "review s2s3 referral and pro",
+   "review home delivery assigne",
+   "review signed role descripti",
+   "otp monthly checkin",
+   "proprietor checkin",
+   "medicine storage stock fridg",
+   "proprietor site visit",
+   "s8 stock check proprietor re",
+   "records and reconciliation p",
+   "premises security equipment ",
+   "otp comprehensive review",
+   "review completed followup cl",
+   "proprietor governance meetin"
+  ],
+  "misalign": "",
+  "small": [
+   {
+    "t": "Search history",
+    "w": 243,
+    "h": 40
+   },
+   {
+    "t": "All209",
+    "w": 51,
+    "h": 42
+   },
+   {
+    "t": "Meetings7",
+    "w": 79,
+    "h": 42
+   },
+   {
+    "t": "Filters",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Source",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Record type",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Review",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "date",
+    "w": 358,
+    "h": 41
+   }
+  ],
+  "smallCount": 12,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 690,
+  "title": "History",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 16,
+  "group": "Main pages",
+  "name": "Pharmacy setup",
+  "file": "016.jpg",
+  "firstAt": null,
+  "wordsBefore": 912,
+  "screens": 1.7,
+  "dups": [],
+  "misalign": "headings at 16px, text at 29px",
+  "small": [],
+  "smallCount": 0,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 152,
+  "title": "Pharmacy setup",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 17,
+  "group": "Main pages",
+  "name": "Services",
+  "file": "017.jpg",
+  "firstAt": 241,
+  "wordsBefore": 27,
+  "screens": 2.1,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "All17",
+    "w": 37,
+    "h": 42
+   },
+   {
+    "t": "Active5",
+    "w": 59,
+    "h": 42
+   },
+   {
+    "t": "Inactive12",
+    "w": 76,
+    "h": 42
+   }
+  ],
+  "smallCount": 3,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 123,
+  "title": "Services",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 18,
+  "group": "Main pages",
+  "name": "Meetings",
+  "file": "018.jpg",
+  "firstAt": 120,
+  "wordsBefore": 1,
+  "screens": 1.5,
+  "dups": [
+   "proprietor governance meetin"
+  ],
+  "misalign": "headings at 16px, text at 134px",
+  "small": [
+   {
+    "t": "Search meetings",
+    "w": 358,
+    "h": 41
+   },
+   {
+    "t": "All10",
+    "w": 38,
+    "h": 42
+   },
+   {
+    "t": "Scheduled3",
+    "w": 90,
+    "h": 42
+   },
+   {
+    "t": "Recorded7",
+    "w": 82,
+    "h": 42
+   }
+  ],
+  "smallCount": 4,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 95,
+  "title": "Meetings",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 19,
+  "group": "Site visit",
+  "name": "Start a visit",
+  "file": "019.jpg",
+  "firstAt": 109,
+  "wordsBefore": 8,
+  "screens": 1,
+  "dups": [
+   "overdue since 6 nov"
+  ],
+  "misalign": "",
+  "small": [
+   {
+    "t": "View all 16",
+    "w": 101,
+    "h": 40
+   }
+  ],
+  "smallCount": 1,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 131,
+  "title": "Start a visit",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 20,
+  "group": "Site visit",
+  "name": "Extra visit (resumed)",
+  "file": "020.jpg",
+  "firstAt": 121,
+  "wordsBefore": 5,
+  "screens": 1,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "2026-11-22",
+    "w": 153,
+    "h": 42
+   },
+   {
+    "t": "Before you start · 1 ope",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "What to check",
+    "w": 111,
+    "h": 34
+   },
+   {
+    "t": "Visit note and next visi",
+    "w": 358,
+    "h": 40
+   }
+  ],
+  "smallCount": 4,
+  "overflow": false,
+  "saveMsgs": 1,
+  "words": 56,
+  "title": "Event-triggered site visit",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 21,
+  "group": "Site visit",
+  "name": "Quarterly visit · first check",
+  "file": "021.jpg",
+  "firstAt": 121,
+  "wordsBefore": 5,
+  "screens": 1,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 153,
+    "h": 42
+   },
+   {
+    "t": "Before you start · 1 ope",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "What to check",
+    "w": 111,
+    "h": 34
+   },
+   {
+    "t": "Visit note and next visi",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "2027-02-24",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 5,
+  "overflow": false,
+  "saveMsgs": 1,
+  "words": 57,
+  "title": "Proprietor site visit",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 22,
+  "group": "Review forms",
+  "name": "S8 stock check · proprietor review (B1)",
+  "file": "022.jpg",
+  "firstAt": 709,
+  "wordsBefore": 122,
+  "screens": 2.2,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Completed",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Completed with issues",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Incomplete",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "date",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Authority, applicability",
+    "w": 358,
+    "h": 40
+   }
+  ],
+  "smallCount": 21,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 241,
+  "title": "S8 stock check · proprietor review",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 23,
+  "group": "Review forms",
+  "name": "Staff safety meeting (M1)",
+  "file": "023.jpg",
+  "firstAt": 197,
+  "wordsBefore": 11,
+  "screens": 2.8,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Jordan Avery",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Select all",
+    "w": 91,
+    "h": 40
+   },
+   {
+    "t": "Clear",
+    "w": 66,
+    "h": 40
+   },
+   {
+    "t": "116d77cd-14be-4848-a28f-",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "b669f070-d582-4fec-aaf4-",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "7a873411-ef06-43a9-a57b-",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "a509d27b-5f5c-46c6-b85d-",
+    "w": 18,
+    "h": 18
+   }
+  ],
+  "smallCount": 31,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 88,
+  "title": "Staff safety meeting",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 24,
+  "group": "Review forms",
+  "name": "Proprietor check-in (M2)",
+  "file": "024.jpg",
+  "firstAt": 197,
+  "wordsBefore": 13,
+  "screens": 2.8,
+  "dups": [],
+  "misalign": "headings at 16px, text at 31px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Proprietor check-in",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Jordan Avery",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Select all",
+    "w": 91,
+    "h": 40
+   },
+   {
+    "t": "Clear",
+    "w": 66,
+    "h": 40
+   },
+   {
+    "t": "116d77cd-14be-4848-a28f-",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "b669f070-d582-4fec-aaf4-",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "7a873411-ef06-43a9-a57b-",
+    "w": 18,
+    "h": 18
+   }
+  ],
+  "smallCount": 32,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 87,
+  "title": "Proprietor check-in",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 25,
+  "group": "Review forms",
+  "name": "Proprietor governance meeting (Q4)",
+  "file": "025.jpg",
+  "firstAt": 221,
+  "wordsBefore": 14,
+  "screens": 2.8,
+  "dups": [],
+  "misalign": "headings at 16px, text at 31px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Proprietor governance me",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Jordan Avery",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Select all",
+    "w": 91,
+    "h": 40
+   },
+   {
+    "t": "Clear",
+    "w": 66,
+    "h": 40
+   },
+   {
+    "t": "116d77cd-14be-4848-a28f-",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "b669f070-d582-4fec-aaf4-",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "7a873411-ef06-43a9-a57b-",
+    "w": 18,
+    "h": 18
+   }
+  ],
+  "smallCount": 29,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 88,
+  "title": "Proprietor governance meeting",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 26,
+  "group": "Review forms",
+  "name": "Staff Assurance (A1)",
+  "file": "026.jpg",
+  "firstAt": 72,
+  "wordsBefore": 3,
+  "screens": 1,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "Priya Sharma · 2027-01-0",
+    "w": 213,
+    "h": 40
+   },
+   {
+    "t": "Tom Nguyen · 2026-12-03",
+    "w": 209,
+    "h": 40
+   },
+   {
+    "t": "Grace Li · 2027-03-24",
+    "w": 180,
+    "h": 40
+   },
+   {
+    "t": "Ben Carter · 2027-11-06",
+    "w": 192,
+    "h": 40
+   }
+  ],
+  "smallCount": 4,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 22,
+  "title": "Annual staff assurance",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 27,
+  "group": "Review forms",
+  "name": "Governance, access and continuity (A3)",
+  "file": "027.jpg",
+  "firstAt": 444,
+  "wordsBefore": 39,
+  "screens": 2.2,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "date",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 32,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 141,
+  "title": "Governance, access and continuity",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 28,
+  "group": "Review forms",
+  "name": "OTP monthly check-in (service-otp)",
+  "file": "028.jpg",
+  "firstAt": 347,
+  "wordsBefore": 38,
+  "screens": 2.3,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 354,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 354,
+    "h": 42
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 354,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 354,
+    "h": 42
+   },
+   {
+    "t": "2026-12-24",
+    "w": 354,
+    "h": 42
+   },
+   {
+    "t": "Operational review evide",
+    "w": 354,
+    "h": 40
+   },
+   {
+    "t": "No new verification\nVeri",
+    "w": 354,
+    "h": 42
+   },
+   {
+    "t": "OTP S8 oversight",
+    "w": 354,
+    "h": 40
+   }
+  ],
+  "smallCount": 51,
+  "overflow": false,
+  "saveMsgs": 1,
+  "words": 205,
+  "title": "OTP monthly check-in",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 29,
+  "group": "Review forms",
+  "name": "Staged supply (service-staged)",
+  "file": "029.jpg",
+  "firstAt": 546,
+  "wordsBefore": 71,
+  "screens": 1.8,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 9,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 148,
+  "title": "Staged supply",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 30,
+  "group": "Review forms",
+  "name": "Vaccination (service-vaccination)",
+  "file": "030.jpg",
+  "firstAt": 415,
+  "wordsBefore": 36,
+  "screens": 1.5,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Yes",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "No",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "2027-02-24",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 6,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 115,
+  "title": "Vaccination",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 31,
+  "group": "Review forms",
+  "name": "Pharmacist prescribing (service-prescribing)",
+  "file": "031.jpg",
+  "firstAt": 288,
+  "wordsBefore": 23,
+  "screens": 1.8,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "",
+    "w": 136,
+    "h": 19
+   },
+   {
+    "t": "",
+    "w": 263,
+    "h": 19
+   },
+   {
+    "t": "",
+    "w": 228,
+    "h": 19
+   },
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   }
+  ],
+  "smallCount": 12,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 133,
+  "title": "Pharmacist prescribing",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 32,
+  "group": "Review forms",
+  "name": "Medicines reviews (service-reviews)",
+  "file": "032.jpg",
+  "firstAt": 415,
+  "wordsBefore": 37,
+  "screens": 1.7,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 9,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 121,
+  "title": "Medicines reviews",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 33,
+  "group": "Review forms",
+  "name": "Home delivery (service-delivery)",
+  "file": "033.jpg",
+  "firstAt": 415,
+  "wordsBefore": 37,
+  "screens": 1.7,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 14,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 119,
+  "title": "Home delivery",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 34,
+  "group": "Review forms",
+  "name": "Standard compounding review (service-simple)",
+  "file": "034.jpg",
+  "firstAt": 444,
+  "wordsBefore": 38,
+  "screens": 1.6,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 9,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 114,
+  "title": "Standard compounding review",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 35,
+  "group": "Review forms",
+  "name": "Complex compounding (service-complex)",
+  "file": "035.jpg",
+  "firstAt": 415,
+  "wordsBefore": 37,
+  "screens": 1.6,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 9,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 116,
+  "title": "Complex compounding",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 36,
+  "group": "Review forms",
+  "name": "Residential aged care supply (service-aged)",
+  "file": "036.jpg",
+  "firstAt": 415,
+  "wordsBefore": 39,
+  "screens": 1.6,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 9,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 113,
+  "title": "Residential aged care supply",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 37,
+  "group": "Review forms",
+  "name": "Screening and risk assessment (service-screening)",
+  "file": "037.jpg",
+  "firstAt": 444,
+  "wordsBefore": 39,
+  "screens": 1.6,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 9,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 112,
+  "title": "Screening and risk assessment",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 38,
+  "group": "Review forms",
+  "name": "Medicine adherence support (annual-adherence)",
+  "file": "038.jpg",
+  "firstAt": 415,
+  "wordsBefore": 38,
+  "screens": 1.7,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "2027-11-24",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 8,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 119,
+  "title": "Medicine adherence support",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 39,
+  "group": "Review forms",
+  "name": "Needle and syringe program (service-nsp)",
+  "file": "039.jpg",
+  "firstAt": 415,
+  "wordsBefore": 39,
+  "screens": 1.6,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 9,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 114,
+  "title": "Needle and syringe program",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 40,
+  "group": "Review forms",
+  "name": "Absence from work certificates (service-certificates)",
+  "file": "040.jpg",
+  "firstAt": 444,
+  "wordsBefore": 39,
+  "screens": 1.6,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 9,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 114,
+  "title": "Absence from work certificates",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 41,
+  "group": "Review forms",
+  "name": "Therapeutic vaping supply (service-vaping)",
+  "file": "041.jpg",
+  "firstAt": 415,
+  "wordsBefore": 38,
+  "screens": 1.7,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 9,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 126,
+  "title": "Therapeutic vaping supply",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 42,
+  "group": "Review forms",
+  "name": "Medicinal cannabis supply (service-cannabis)",
+  "file": "042.jpg",
+  "firstAt": 415,
+  "wordsBefore": 38,
+  "screens": 1.7,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 10,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 124,
+  "title": "Medicinal cannabis supply",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 43,
+  "group": "Review forms",
+  "name": "Other funded programs (service-funding)",
+  "file": "043.jpg",
+  "firstAt": 415,
+  "wordsBefore": 38,
+  "screens": 1.6,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 9,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 112,
+  "title": "Other funded programs",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 44,
+  "group": "Review forms",
+  "name": "OTP comprehensive review (otp-full)",
+  "file": "044.jpg",
+  "firstAt": 460,
+  "wordsBefore": 42,
+  "screens": 3.1,
+  "dups": [
+   "medicines and equipment secu"
+  ],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "number",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "number",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "number",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Select\nYes\nNo",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "2026-11-23",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   }
+  ],
+  "smallCount": 42,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 292,
+  "title": "OTP comprehensive review",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 45,
+  "group": "Review forms",
+  "name": "OTP daily-volume threshold review (otp-amenity)",
+  "file": "045.jpg",
+  "firstAt": 350,
+  "wordsBefore": 27,
+  "screens": 1.4,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Yes",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "No",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Unknown",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "2026-12-24",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 7,
+  "overflow": false,
+  "saveMsgs": 1,
+  "words": 107,
+  "title": "OTP daily-volume threshold review",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 46,
+  "group": "Review forms",
+  "name": "DAA in-house packing (daa-house)",
+  "file": "046.jpg",
+  "firstAt": 415,
+  "wordsBefore": 38,
+  "screens": 2.1,
+  "dups": [
+   "procedures and staff compete"
+  ],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Procedures and staff com",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Packing environment and ",
+    "w": 358,
+    "h": 40
+   }
+  ],
+  "smallCount": 14,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 182,
+  "title": "DAA in-house packing",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 47,
+  "group": "Review forms",
+  "name": "External DAA · we dispense (daa-external)",
+  "file": "047.jpg",
+  "firstAt": 415,
+  "wordsBefore": 40,
+  "screens": 1.6,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 9,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 118,
+  "title": "External DAA · we dispense",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 48,
+  "group": "Review forms",
+  "name": "Vaccination readiness (vacc-ready)",
+  "file": "048.jpg",
+  "firstAt": 289,
+  "wordsBefore": 23,
+  "screens": 1.9,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "NSW pharmacist vaccinati",
+    "w": 314,
+    "h": 42
+   },
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   }
+  ],
+  "smallCount": 18,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 159,
+  "title": "Vaccination readiness",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 49,
+  "group": "Review forms",
+  "name": "Vaccine storage self-audit reference (vacc-storage)",
+  "file": "049.jpg",
+  "firstAt": 350,
+  "wordsBefore": 27,
+  "screens": 1.7,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "date",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 11,
+  "overflow": false,
+  "saveMsgs": 1,
+  "words": 115,
+  "title": "Vaccine storage self-audit reference",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 50,
+  "group": "Review forms",
+  "name": "External DAA · other pharmacy dispenses (daa-external-b)",
+  "file": "050.jpg",
+  "firstAt": 350,
+  "wordsBefore": 29,
+  "screens": 1.6,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Notes or evidence",
+    "w": 358,
+    "h": 40
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 9,
+  "overflow": false,
+  "saveMsgs": 1,
+  "words": 110,
+  "title": "External DAA · other pharmacy dispenses",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 51,
+  "group": "Review forms",
+  "name": "Pharmacist prescribing readiness (prescribing-ready)",
+  "file": "051.jpg",
+  "firstAt": 317,
+  "wordsBefore": 24,
+  "screens": 1.8,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "",
+    "w": 136,
+    "h": 19
+   },
+   {
+    "t": "",
+    "w": 263,
+    "h": 19
+   },
+   {
+    "t": "",
+    "w": 228,
+    "h": 19
+   },
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   }
+  ],
+  "smallCount": 12,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 141,
+  "title": "Pharmacist prescribing readiness",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 52,
+  "group": "Review forms",
+  "name": "Pharmacy premises registration renewal (CO-P)",
+  "file": "052.jpg",
+  "firstAt": 446,
+  "wordsBefore": 48,
+  "screens": 1.8,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Select\nDose administrati",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "date",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 19,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 129,
+  "title": "Pharmacy premises registration renewal",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 53,
+  "group": "Review forms",
+  "name": "Proprietor financial interest declaration (CO-F)",
+  "file": "053.jpg",
+  "firstAt": 383,
+  "wordsBefore": 32,
+  "screens": 2,
+  "dups": [],
+  "misalign": "headings at 0px, text at 16px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Checked",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "on",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "Issue",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "N/A",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Needs verification",
+    "w": 20,
+    "h": 20
+   },
+   {
+    "t": "Select\nJordan Avery",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "date",
+    "w": 358,
+    "h": 42
+   }
+  ],
+  "smallCount": 23,
+  "overflow": false,
+  "saveMsgs": 2,
+  "words": 133,
+  "title": "Proprietor financial interest declaration",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 54,
+  "group": "Actions",
+  "name": "Action · open (phone screen)",
+  "file": "054.jpg",
+  "firstAt": 176,
+  "wordsBefore": 26,
+  "screens": 1,
+  "dups": [
+   "21082026 1200 am jordan aver"
+  ],
+  "misalign": "",
+  "small": [
+   {
+    "t": "Medicine storage & stock",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "You",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "2026-09-25",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "Outstanding",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "submit",
+    "w": 109,
+    "h": 40
+   }
+  ],
+  "smallCount": 7,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 120,
+  "title": "Action",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 55,
+  "group": "Actions",
+  "name": "Action · Edit details expanded",
+  "file": "055.jpg",
+  "firstAt": 176,
+  "wordsBefore": 26,
+  "screens": 2,
+  "dups": [
+   "21082026 1200 am jordan aver"
+  ],
+  "misalign": "headings at 16px, text at 29px",
+  "small": [
+   {
+    "t": "Medicine storage & stock",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "You",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "2026-09-25",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "Outstanding\nCompleted",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "Save action",
+    "w": 109,
+    "h": 40
+   }
+  ],
+  "smallCount": 7,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 140,
+  "title": "Action",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 56,
+  "group": "Actions",
+  "name": "Add action",
+  "file": "056.jpg",
+  "firstAt": 93,
+  "wordsBefore": 3,
+  "screens": 1.1,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "text",
+    "w": 342,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 342,
+    "h": 42
+   },
+   {
+    "t": "date",
+    "w": 342,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 342,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 342,
+    "h": 42
+   },
+   {
+    "t": "Outstanding\nCompleted",
+    "w": 342,
+    "h": 42
+   },
+   {
+    "t": "Save action",
+    "w": 109,
+    "h": 40
+   }
+  ],
+  "smallCount": 7,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 28,
+  "title": "Add Action",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 57,
+  "group": "Actions",
+  "name": "Action · waiting on someone",
+  "file": "057.jpg",
+  "firstAt": 157,
+  "wordsBefore": 11,
+  "screens": 1.2,
+  "dups": [],
+  "misalign": "headings at 16px, text at 29px",
+  "small": [
+   {
+    "t": "Service the dispensary f",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "You",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "2026-12-03",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "Outstanding",
+    "w": 316,
+    "h": 42
+   },
+   {
+    "t": "submit",
+    "w": 109,
+    "h": 40
+   }
+  ],
+  "smallCount": 7,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 107,
+  "title": "Action",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 58,
+  "group": "Staff",
+  "name": "Staff profile · Tom",
+  "file": "058.jpg",
+  "firstAt": 166,
+  "wordsBefore": 5,
+  "screens": 1.6,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "Add one",
+    "w": 57,
+    "h": 22
+   },
+   {
+    "t": "Requirements7",
+    "w": 112,
+    "h": 42
+   },
+   {
+    "t": "Credentials0",
+    "w": 95,
+    "h": 42
+   },
+   {
+    "t": "History1",
+    "w": 62,
+    "h": 42
+   }
+  ],
+  "smallCount": 4,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 142,
+  "title": "Tom Nguyen",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 59,
+  "group": "Staff",
+  "name": "Annual check form · Tom",
+  "file": "059.jpg",
+  "firstAt": 117,
+  "wordsBefore": 7,
+  "screens": 4.9,
+  "dups": [
+   "last recorded verified 20251",
+   "verification method",
+   "physically sighted",
+   "authoritative register check",
+   "secure record reviewed",
+   "observed competency",
+   "discussion or attestation",
+   "applicability assessed",
+   "valid until leave blank for ",
+   "evidence reference optional"
+  ],
+  "misalign": "headings at 16px, text at 33px",
+  "small": [
+   {
+    "t": "2026-11-24",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Jordan Avery",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "2026-12-03",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Choose outcome\nVerified\n",
+    "w": 324,
+    "h": 42
+   },
+   {
+    "t": "Choose method\nPhysically",
+    "w": 324,
+    "h": 42
+   },
+   {
+    "t": "date",
+    "w": 324,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 324,
+    "h": 42
+   },
+   {
+    "t": "text",
+    "w": 324,
+    "h": 42
+   }
+  ],
+  "smallCount": 39,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 450,
+  "title": "Tom Nguyen · Annual assurance",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 60,
+  "group": "Staff",
+  "name": "Add staff member",
+  "file": "060.jpg",
+  "firstAt": 93,
+  "wordsBefore": 4,
+  "screens": 1.1,
+  "dups": [],
+  "misalign": "headings at 16px, text at 31px",
+  "small": [
+   {
+    "t": "text",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Select role\nPharmacist\nP",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Select engagement\nRegula",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "date",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "date",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "otp",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "daa",
+    "w": 18,
+    "h": 18
+   },
+   {
+    "t": "staged",
+    "w": 18,
+    "h": 18
+   }
+  ],
+  "smallCount": 11,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 62,
+  "title": "Add staff member",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 61,
+  "group": "Policies",
+  "name": "Procedure · DAA draft",
+  "file": "061.jpg",
+  "firstAt": 3007,
+  "wordsBefore": 735,
+  "screens": 4.5,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "Adopt v0.2 for use at th",
+    "w": 272,
+    "h": 40
+   },
+   {
+    "t": "Review comment",
+    "w": 358,
+    "h": 42
+   },
+   {
+    "t": "Record that I reviewed d",
+    "w": 242,
+    "h": 40
+   },
+   {
+    "t": "Review procedure",
+    "w": 152,
+    "h": 40
+   },
+   {
+    "t": "Add linked Action",
+    "w": 149,
+    "h": 40
+   },
+   {
+    "t": "Review service arrangeme",
+    "w": 231,
+    "h": 40
+   },
+   {
+    "t": "Save local amendment",
+    "w": 183,
+    "h": 40
+   },
+   {
+    "t": "Draft 0.2 · 2025-11-27",
+    "w": 358,
+    "h": 40
+   }
+  ],
+  "smallCount": 11,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 823,
+  "title": "Dose administration aids SOP",
+  "console": [],
+  "csp": false
+ },
+ {
+  "n": 62,
+  "group": "Other",
+  "name": "UAT notes window",
+  "file": "062.jpg",
+  "firstAt": 166,
+  "wordsBefore": 5,
+  "screens": 1.6,
+  "dups": [],
+  "misalign": "",
+  "small": [
+   {
+    "t": "Add one",
+    "w": 57,
+    "h": 22
+   },
+   {
+    "t": "Requirements7",
+    "w": 112,
+    "h": 42
+   },
+   {
+    "t": "Credentials0",
+    "w": 95,
+    "h": 42
+   },
+   {
+    "t": "History1",
+    "w": 62,
+    "h": 42
+   }
+  ],
+  "smallCount": 4,
+  "overflow": false,
+  "saveMsgs": 0,
+  "words": 261,
+  "title": "Tom Nguyen",
+  "console": [],
+  "csp": false
+ }
+]

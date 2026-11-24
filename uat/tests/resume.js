@@ -1,0 +1,22 @@
+// Batch 2 (Codex R04): resume at the first unanswered check; Today shows progress. Fictional data.
+const { chromium, devices } = require('playwright');
+const res=[];const ok=(n,p,d='')=>res.push({n,p:!!p,d:String(d).slice(0,300)});
+(async()=>{const b=await chromium.launch();const ctx=await b.newContext({...devices['iPhone 13']});const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('dialog',d=>d.accept());
+ await p.goto('file:///home/user/rpharmacy/uat/app/rpharmacy-uat-testing.html');await p.waitForTimeout(1500);await p.evaluate(require('./showcase-seed.js'));await p.waitForTimeout(600);
+ await p.evaluate(()=>{if($('editor').open)$('editor').close();setDraft('Q1',null);gotoPage('audits');RPH.sv.open(false);});await p.waitForTimeout(600);
+ const tap=async l=>{await l.click();await p.waitForTimeout(250);};
+ await tap(p.locator('#editor .sv-item.cd-cur .rph-seg button[data-value="ok"]').first());await tap(p.locator('#editor .cd-svnav button').nth(1));
+ await tap(p.locator('#editor .sv-item.cd-cur .rph-seg button[data-value="verify"]').first());
+ await p.evaluate(()=>{const t=[...document.querySelectorAll('#editor .sv-item.cd-cur textarea,#editor .sv-item.cd-cur input[type=text]')].find(e=>e.offsetParent);if(t){t.value='Fictional: confirm with PIC';t.dispatchEvent(new Event('input',{bubbles:true}));}});await p.waitForTimeout(200);
+ await p.evaluate(()=>document.querySelector('#close')?.click());await p.waitForTimeout(400);
+ await p.reload();await p.waitForTimeout(1500);
+ await p.evaluate(()=>{CD.st.f.today='all';CD.go('overview');});await p.waitForTimeout(300);
+ const row=await p.evaluate(()=>CD.todayRows().find(r=>r.id==='review/Q1'));
+ ok('after a reload Today shows the site visit as Resume with "2 of N checked"',row&&row.act==='Resume'&&/2 of \d+ checked/.test(row.type),JSON.stringify(row&&{act:row.act,type:row.type}));
+ await p.evaluate(()=>{gotoPage('audits');RPH.sv.open(false);});await p.waitForTimeout(600);
+ const cur=await p.evaluate(()=>{const its=[...document.querySelectorAll('#editor .sv-item')];const i=its.findIndex(x=>x.classList.contains('cd-cur'));return {i,answered:its.slice(0,i).every(x=>x.querySelector('[role=radio][aria-checked=true]')),thisAnswered:!!its[i]?.querySelector('[role=radio][aria-checked=true]')};});
+ ok('reopening jumps to the first unanswered check (answers before it kept)',cur.i===2&&cur.answered&&!cur.thisAnswered,JSON.stringify(cur));
+ const keep=await p.evaluate(()=>readDraft('Q1')?.items);
+ ok('the Verify answer and its note survived the reload',JSON.stringify(keep).includes('Fictional: confirm with PIC'),JSON.stringify(keep).slice(0,200));
+ ok('no page errors',!errs.length,errs.join(' | '));
+ await b.close();const f=res.filter(r=>!r.p);for(const r of res)console.log((r.p?'PASS ':'FAIL ')+r.n+(r.p?'':' :: '+r.d));console.log(res.length-f.length+'/'+res.length);process.exit(f.length?1:0);})();

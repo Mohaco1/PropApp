@@ -1,0 +1,7 @@
+{
+  "choice": "ask",
+  "key": "delivery/controlled",
+  "question": "Are controlled medicines delivered?",
+  "service": "Home delivery",
+  "updatedAt": "2026-11-19T23:20:25.012Z"
+}

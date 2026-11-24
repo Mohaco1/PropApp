@@ -1,0 +1,12 @@
+const { chromium } = require('playwright');const M=require('./make-demo.js');
+(async()=>{const b=await chromium.launch();const p=await (await b.newContext({viewport:{width:1280,height:900}})).newPage();p.on('dialog',d=>d.accept());
+ await p.clock.install({time:M.at(-365)});await p.addInitScript(`window.__tf=l=>'Fictional answer';`);await M.setup(p);
+ await p.clock.setFixedTime(M.at(-330));
+ await p.evaluate(()=>reviewEditor('service-otp'));await p.waitForTimeout(500);
+ console.log(await p.evaluate(()=>{const f=$('review-form');return JSON.stringify([...f.querySelectorAll('fieldset')].slice(0,3).map(fs=>({leg:fs.querySelector('legend')?.textContent.slice(0,50),radios:[...fs.querySelectorAll('input[type=radio]')].map(r=>r.value+(r.dataset.issue?'*':'')),texts:[...fs.querySelectorAll('input[type=text],textarea,select,input[type=date]')].map(i=>(i.name||i.id||i.tagName)+':'+(i.hidden||!i.offsetParent?'hidden':'shown'))})));}));
+ const r0=await p.evaluate(()=>state.reviews.length);
+ await p.evaluate(()=>{const f=$('review-form');$('review-date').value=today();for(const fs of f.querySelectorAll('fieldset')){const r=fs.querySelector('input[type=radio]');if(r&&!fs.disabled){r.click();}}});
+ await p.waitForTimeout(200);
+ await p.locator('#editor button',{hasText:'Complete review'}).first().click();await p.waitForTimeout(600);
+ console.log(await p.evaluate(r0=>JSON.stringify({added:state.reviews.length-r0,last:state.reviews.at(-1)&&{audit:state.reviews.at(-1).audit,date:state.reviews.at(-1).date,at:state.reviews.at(-1).at},next:state.schedule['service-otp'],open:$('editor').open,msg:$('editor').open?$('editor').innerText.slice(0,300):''}),r0));
+ await b.close();})();

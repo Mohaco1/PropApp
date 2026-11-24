@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tasks · who it’s waiting on</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+body{margin:0;background:#fff;font-family:Inter,system-ui,sans-serif;color:#111827}
+button{font-family:inherit;cursor:pointer}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);margin:0 16px;background:#f3f4f6;border-radius:12px;padding:4px}
+.tabs button{min-height:44px;border:0;border-radius:9px;background:transparent;font-size:14px;font-weight:600;color:#4b5563;display:flex;align-items:center;justify-content:center;gap:6px}
+.tabs button[aria-selected=true]{background:#fff;color:#111827;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.n{font-size:12px;font-weight:700;border-radius:999px;padding:1px 7px;background:#e5e7eb;color:#374151}
+.tabs button[aria-selected=true] .n{background:#111827;color:#fff}
+.card{border:1px solid #e5e7eb;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px}
+</style>
+</head>
+<body>
+<div style="width:390px;height:844px;box-sizing:border-box;display:flex;flex-direction:column">
+  <div style="padding:14px 16px 10px;display:flex;justify-content:space-between;align-items:center">
+    <h1 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-.02em">Tasks</h1>
+    <button type="button" style="min-height:44px;border:0;background:transparent;color:#1d4ed8;font-size:15px;font-weight:600">New Task</button>
+  </div>
+  <div class="tabs" role="tablist"><button role="tab" aria-selected="false" data-t="0">With staff <span class="n">2</span></button><button role="tab" aria-selected="true" data-t="1">Your check <span class="n">1</span></button><button role="tab" aria-selected="false" data-t="2">Closed <span class="n">9</span></button></div>
+  <div id="panel" style="flex:1;overflow:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px"></div>
+</div>
+<script>
+var P=[
+ '<p style="margin:0;font-size:14px;color:#4b5563">Waiting on someone else. You’ll see them again when you record an update.</p>'+
+ '<div class="card"><span style="font-size:16px;font-weight:700">Confirm where OTP approvals are filed</span><span style="font-size:14px;color:#4b5563">Sam · due Fri 27 Nov · from check-in 25 Nov</span><button style="align-self:flex-start;min-height:44px;border:1px solid #d1d5db;border-radius:12px;background:#fff;font-size:14px;font-weight:600;padding:0 14px">Record an update</button></div>'+
+ '<div class="card"><span style="font-size:16px;font-weight:700">Look at a second fridge thermometer</span><span style="font-size:14px;color:#4b5563">Priya · due 15 Dec · from check-in 25 Nov</span><button style="align-self:flex-start;min-height:44px;border:1px solid #d1d5db;border-radius:12px;background:#fff;font-size:14px;font-weight:600;padding:0 14px">Record an update</button></div>',
+ '<p style="margin:0;font-size:14px;color:#4b5563">Someone says it’s done. Only you can close it, after you’ve looked.</p>'+
+ '<div class="card" style="border:2px solid #111827"><span style="align-self:flex-start;font-size:12px;font-weight:700;color:#7a4500;background:#fff6e5;border-radius:999px;padding:3px 9px">Ready for your check</span><span style="font-size:17px;font-weight:700">Fix fridge log gaps</span><span style="font-size:14px;line-height:1.45;color:#374151">You noted Sam’s update on 21 Nov: “Reminders set for 9am and 5pm.” 1 photo.</span><div style="display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:4px"><button style="min-height:48px;border:1px solid #d1d5db;border-radius:12px;background:#fff;font-size:15px;font-weight:600">Reopen</button><button style="min-height:48px;border:0;border-radius:12px;background:#111827;color:#fff;font-size:15px;font-weight:700">Checked · close</button></div></div>',
+ '<p style="margin:0;font-size:14px;color:#4b5563">Closed by you, newest first. Each one keeps its full history.</p>'+
+ ['Replace expired stock on shelf 4|Closed 12 Nov','Update after-hours contact list|Closed 3 Nov','Re-label returns area|Closed 28 Oct'].map(function(x){x=x.split('|');return '<div class="card" style="flex-direction:row;align-items:center;gap:12px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">'+x[0]+'</span><span style="font-size:13px;color:#4b5563">'+x[1]+' · by you</span></span></div>'}).join('')+'<button style="min-height:44px;border:0;background:transparent;color:#1d4ed8;font-size:15px;font-weight:600">Show 6 more</button>'];
+function show(i){document.getElementById('panel').innerHTML=P[i];document.querySelectorAll('.tabs button').forEach(function(b){b.setAttribute('aria-selected',String(+b.dataset.t===i))})}
+document.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){show(+b.dataset.t)}});show(1);
+</script>
+</body>
+</html>

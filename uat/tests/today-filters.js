@@ -1,0 +1,23 @@
+// Today filters: Due today, In progress, empty messages, scroll kept. Fictional data.
+const { chromium, devices } = require('playwright');
+const res=[];const ok=(n,p,d='')=>res.push({n,p:!!p,d:String(d).slice(0,300)});
+(async()=>{const b=await chromium.launch();const ctx=await b.newContext({...devices['iPhone 13']});const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('dialog',d=>d.accept());
+ await p.goto('file:///home/user/rpharmacy/uat/app/rpharmacy-uat-testing.html');await p.waitForTimeout(1500);await p.evaluate(require('./showcase-seed.js'));await p.waitForTimeout(600);
+ await p.evaluate(()=>{if($('editor').open)$('editor').close();CD.go('overview');});await p.waitForTimeout(300);
+ const tabs=await p.evaluate(()=>[...document.querySelectorAll('#cd-view [data-f^="today:"]')].map(b=>b.dataset.f.slice(6)));
+ ok('Today has All open, Overdue, Due today, In progress, Upcoming and No date',['all','overdue','today','prog','soon','nodate'].every(k=>tabs.includes(k)),tabs.join(','));
+ await p.evaluate(()=>{CD.st.f.today='today';render();});await p.waitForTimeout(200);
+ const dt=await p.evaluate(()=>({rows:[...document.querySelectorAll('#cd-view .main tr[data-row^="today:"]')].map(r=>r.dataset.row.slice(6)),empty:document.querySelector('#cd-view .empty')?.textContent}));
+ const okToday=await p.evaluate(ids=>ids.every(id=>{const r=CD.todayRows().find(x=>x.id===id);return !r||r.date===today()||r.members;}),dt.rows);
+ ok('Due today shows only items due today, or says "Nothing due today."',dt.rows.length?okToday:dt.empty==='Nothing due today.',JSON.stringify(dt));
+ await p.evaluate(()=>{setDraft('Q1',{v:3,date:today(),items:{premises:{status:'ok'}},vacc:{},notes:'',nextDate:'',nextTouched:false});CD.st.f.today='prog';render();});await p.waitForTimeout(200);
+ const pr=await p.evaluate(()=>[...document.querySelectorAll('#cd-view .main tr[data-row^="today:"] .nm')].map(x=>x.textContent));
+ ok('In progress lists the unfinished site visit',pr.some(x=>/site visit/i.test(x)),JSON.stringify(pr));
+ await p.evaluate(()=>{CD.st.f.today='all';render();window.scrollTo(0,600);});await p.waitForTimeout(100);
+ const y0=await p.evaluate(()=>window.scrollY);await p.evaluate(()=>CD.go('audits'));await p.waitForTimeout(200);await p.evaluate(()=>CD.go('overview'));await p.waitForTimeout(300);
+ const y1=await p.evaluate(()=>window.scrollY);
+ ok('coming back to Today restores the scroll position',y0>0&&Math.abs(y1-y0)<40,y0+' → '+y1);
+ const dd=await p.evaluate(()=>{const r=state.reviews.find(x=>x.at&&x.at.slice(0,10)!==x.date);CD.go('audits');CD.st.sel.reviews=r.audit;CD.st.tapped={reviews:r.audit};CD.st.expanded=true;render();const h=historyEntries().find(e=>e.type==='Review'&&e.record?.id===r.id);return {res:document.querySelector('#cd-view .trail')?.textContent||'',verb:h?CD.histVerb(h):''};});
+ ok('a late entry shows both dates: "recorded <date>" on results and "done …, recorded …" in History',/recorded/.test(dd.res)&&/done .*recorded/.test(dd.verb),JSON.stringify(dd));
+ ok('no page errors',!errs.length,errs.join(' | '));
+ await b.close();const f=res.filter(r=>!r.p);for(const r of res)console.log((r.p?'PASS ':'FAIL ')+r.n+(r.p?'':' :: '+r.d));console.log(res.length-f.length+'/'+res.length);process.exit(f.length?1:0);})();

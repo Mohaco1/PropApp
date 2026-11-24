@@ -1,0 +1,13 @@
+const { chromium } = require('playwright');const M=require('./make-demo.js');
+(async()=>{const b=await chromium.launch();const p=await (await b.newContext({viewport:{width:1280,height:900}})).newPage();p.on('dialog',d=>d.accept());const errs=[];p.on('pageerror',e=>errs.push(e.message));
+ await p.clock.install({time:M.at(-365)});await p.addInitScript(`window.__tf=l=>'Fictional answer';`);await M.setup(p);
+ await p.evaluate(()=>{if($('editor').open)$('editor').close();staffEditor('');});await p.waitForTimeout(300);
+ await p.fill('#editor [name=person]','Tom Nguyen');await p.selectOption('#editor [name=role]','Pharmacist');await p.selectOption('#editor [name=engagement]','Regular');
+ await p.fill('#editor [name=start]',M.iso(-800));await p.fill('#editor [name=annualDue]',M.iso(12));
+ await p.evaluate(()=>{for(const c of $('editor').querySelectorAll('[name=service]'))if(/Vaccination|Opioid/.test(c.closest('label').textContent))c.click();});
+ await p.locator('#editor button',{hasText:'Save profile'}).click();await p.waitForTimeout(400);
+ const s=await p.evaluate(()=>JSON.stringify({staff:state.staff.map(x=>({id:x.id,person:x.person,role:x.role,start:x.start,annualDue:x.annualDue})),items:state.staff[0]?staffItems(state.staff[0]).map(i=>i.id+'|'+i.label+'|'+i.outcome+'|'+(i.expiry||'')):[] ,ed:$('editor').open?$('editor').innerText.slice(0,400):'closed'}));console.log(s);
+ const id=await p.evaluate(()=>state.staff[0].id);
+ await p.evaluate(id=>{if($('editor').open)$('editor').close();staffAssurance(false,id);},id);await p.waitForTimeout(400);
+ console.log(await p.evaluate(()=>{const ed=$('editor');return JSON.stringify({t:ed.querySelector('#dialog-title')?.textContent,txt:ed.innerText.slice(0,600),f:[...ed.querySelectorAll('input,select,textarea')].filter(i=>i.offsetParent).map(i=>(i.name||i.id)+':'+i.type+':'+(i.closest('label')?.textContent.trim().slice(0,40)||'')).slice(0,60),btns:[...ed.querySelectorAll('button')].filter(b=>b.offsetParent).map(b=>b.textContent.trim()).slice(0,15)});}));
+ console.log(errs);await b.close();})();

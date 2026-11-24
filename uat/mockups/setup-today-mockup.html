@@ -1,0 +1,186 @@
+<title>Setup and Today Mock-up</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: two comparisons, each a "now" phone beside a "proposed" phone; the phones keep the app's own light Concept D palette. */
+:root{
+ --page:#f3f4f7;--page-fg:#0c111c;--page-muted:#5b6476;--page-line:#dfe2e9;
+ --ink:#0c111c;--muted:#5b6476;--faint:#8a92a3;--line:#e6e8ee;--soft:#f6f7f9;--bg:#fff;--accent:#2f5bea;
+ --red:#c0281b;--red-soft:#fdeceb;--amber:#a35a00;--amber-soft:#fff3e0;--green:#1c7a3e;--green-soft:#e9f6ee;--blue-soft:#eef2fd;
+ --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#11141b;--page-fg:#eef0f4;--page-muted:#a3aab8;--page-line:#2a2f3a;color-scheme:dark}}
+:root[data-theme="dark"]{--page:#11141b;--page-fg:#eef0f4;--page-muted:#a3aab8;--page-line:#2a2f3a;color-scheme:dark}
+body{background:var(--page);color:var(--page-fg);font:15px/1.5 var(--sans);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:900px;margin:0 auto;display:grid;gap:40px}
+h1{font-size:24px;margin:0 0 4px;text-wrap:balance}
+.lede{color:var(--page-muted);margin:0;max-width:62ch}
+section>h2{font-size:18px;margin:0 0 4px}
+section>p{color:var(--page-muted);margin:0 0 16px;max-width:62ch}
+.pair{display:flex;flex-wrap:wrap;gap:24px}
+figure{margin:0;display:grid;gap:8px;flex:1 1 300px;min-width:0;max-width:360px}
+figcaption{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--page-muted)}
+figcaption.new{color:var(--accent)}
+/* phone */
+.ph{background:var(--bg);color:var(--ink);border:1px solid var(--page-line);border-radius:28px;overflow:hidden;height:600px;display:flex;flex-direction:column;position:relative;box-shadow:0 1px 2px rgba(12,17,28,.06),0 8px 24px rgba(12,17,28,.08)}
+.bar{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;border-bottom:1px solid var(--line);font-size:13px}
+.bar b{font-size:15px}.bar .st{color:var(--muted);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .od{color:var(--red);font-weight:600}
+.me{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+.body{flex:1;overflow:auto;padding:14px 16px 80px}
+.body h3{font-size:20px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:13px;margin:0 0 12px}
+.mob{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:rgba(255,255,255,.97);padding:6px 4px 12px;font-size:11px;color:var(--faint);text-align:center}
+.mob span[aria-current]{color:var(--ink);font-weight:700}
+/* setup: now */
+.gh{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin:14px 0 4px}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+th{text-align:left;font-size:11px;color:var(--faint);font-weight:600;padding:6px 4px;border-bottom:1px solid var(--line)}
+td{padding:9px 4px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
+td:nth-child(2){color:var(--muted);font-size:12px}
+td:nth-child(3){color:var(--accent);font-size:12px}
+/* setup: proposed */
+.grp{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:14px}
+.row{display:flex;align-items:center;gap:12px;padding:11px 12px;border-top:1px solid var(--line);min-height:48px}
+.row:first-child{border-top:0}
+.ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;background:var(--soft);color:var(--muted)}
+.ic svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ic.b{background:var(--blue-soft);color:var(--accent)}.ic.g{background:var(--green-soft);color:var(--green)}.ic.a{background:var(--amber-soft);color:var(--amber)}
+.tx{flex:1;min-width:0}.tx b{display:block;font-size:14px;font-weight:600}.tx small{display:block;color:var(--muted);font-size:12px;line-height:1.35}
+.chip{font-size:11px;font-weight:600;border-radius:99px;padding:2px 8px;flex:none}
+.chip.ok{background:var(--green-soft);color:var(--green)}.chip.todo{background:var(--amber-soft);color:var(--amber)}
+.chev{color:var(--faint);font-size:18px;flex:none}
+.pill{display:inline-flex;gap:6px;align-items:center;font-size:11px;font-weight:600;color:var(--muted);background:var(--soft);border:1px solid var(--line);border-radius:99px;padding:3px 10px;margin-bottom:8px}
+.pill i{font-style:normal;color:var(--accent)}
+/* today: now */
+.strip{display:flex;gap:18px;overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--line);font-size:14px;margin:0 -16px 10px;padding:0 16px}
+.strip span{padding:8px 0;color:var(--muted)}.strip span.on{color:var(--ink);font-weight:700;border-bottom:2px solid var(--ink)}
+.strip em{font-style:normal;color:var(--faint);margin-left:3px}
+.fade{position:relative}.fade::after{content:"";position:absolute;right:-16px;top:0;bottom:10px;width:40px;background:linear-gradient(90deg,rgba(255,255,255,0),#fff)}
+/* today: proposed */
+.seg{display:grid;grid-template-columns:repeat(4,1fr);background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;margin-bottom:12px}
+.seg span{text-align:center;font-size:12px;padding:7px 2px;border-radius:9px;color:var(--muted);white-space:nowrap}
+.seg span.on{background:var(--bg);color:var(--ink);font-weight:700;box-shadow:0 1px 2px rgba(12,17,28,.12)}
+.seg em{font-style:normal;display:block;font-size:15px;font-weight:700;line-height:1.2;color:inherit;font-variant-numeric:tabular-nums}
+.seg span.on em{color:var(--red)}
+.job{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line)}
+.dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex:none;background:var(--faint)}.dot.r{background:var(--red)}.dot.a{background:var(--amber)}
+.job .tx b{font-size:14px}
+.due{font-size:12px;color:var(--muted);white-space:nowrap;flex:none}.due.r{color:var(--red);font-weight:600}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);border-radius:18px 18px 0 0;box-shadow:0 -8px 24px rgba(12,17,28,.14);padding:10px 16px 18px;z-index:3}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 10px}
+.sheet h4{margin:0 0 4px;font-size:14px}
+.sheet .row{padding:10px 0;min-height:44px}
+.scrim{position:absolute;inset:0;background:rgba(12,17,28,.25);z-index:2}
+.more{font-size:12px;color:var(--accent);font-weight:600}
+.note{font-size:13px;color:var(--page-muted);margin:0;max-width:62ch}
+.note b{color:var(--page-fg)}
+</style>
+
+<div class="wrap">
+ <header>
+  <h1>Setup and Today: two small changes</h1>
+  <p class="lede">A mock-up with fictional data. Left is how the app looks now on a phone; right is the proposed version. Nothing in the app changes until you pick.</p>
+ </header>
+
+ <section>
+  <h2>1 · Pharmacy setup as a settings list</h2>
+  <p>Now it's a three-column table, and the columns squeeze on a phone. Proposed: one row per item, with an icon, a one-line summary, a clear status chip and a chevron, grouped the same way as today.</p>
+  <div class="pair">
+   <figure><figcaption>Now</figcaption>
+    <div class="ph" aria-label="Current setup page">
+     <div class="bar"><b>R.</b><span class="st">Harbourview Pharmacy</span><span class="od">3 overdue</span></div>
+     <div class="body">
+      <h3>Pharmacy setup</h3>
+      <div class="gh">Your pharmacy</div>
+      <table><thead><tr><th style="width:44%">Section</th><th>Status</th><th style="width:22%"></th></tr></thead><tbody>
+       <tr><td>Pharmacy details</td><td>Up to date</td><td>Open</td></tr>
+       <tr><td>Proprietors &amp; oversight</td><td>2 proprietors</td><td>Open</td></tr>
+       <tr><td>Pharmacist in charge</td><td>Sam Rivera (fictional) since 1 Jul</td><td>Open</td></tr>
+       <tr><td>Services &amp; configuration</td><td>6 services · 1 to check</td><td>Open</td></tr>
+       <tr><td>Review due dates</td><td>3 need a date</td><td>Open</td></tr>
+       <tr><td>Bought, selling or closing</td><td>Nothing in progress</td><td>Open</td></tr>
+      </tbody></table>
+      <div class="gh">Law and inspections</div>
+      <table><tbody>
+       <tr><td style="width:44%">S8 at a glance</td><td>Next stock check 12 Dec</td><td style="width:22%">Open</td></tr>
+       <tr><td>Legal obligations</td><td>2 to check</td><td>Open</td></tr>
+      </tbody></table>
+     </div>
+     <div class="mob"><span>Today</span><span>Reviews</span><span>Actions</span><span>Calendar</span><span aria-current="page">More</span></div>
+    </div>
+   </figure>
+   <figure><figcaption class="new">Proposed</figcaption>
+    <div class="ph" aria-label="Proposed setup page">
+     <div class="bar"><b>R.</b><span class="st">Harbourview Pharmacy</span><span class="od">3 overdue</span></div>
+     <div class="body">
+      <h3>Pharmacy setup</h3>
+      <p class="sub">2 things to check. Everything else is up to date.</p>
+      <div class="gh">Your pharmacy</div>
+      <div class="grp">
+       <div class="row"><span class="ic b"><svg viewBox="0 0 24 24"><path d="M3 10l9-6 9 6v10H3z"/><path d="M10 20v-6h4v6"/></svg></span><span class="tx"><b>Pharmacy details</b><small>1 Example Street, Testville</small></span><span class="chev">›</span></div>
+       <div class="row"><span class="ic b"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 015.5 5.5"/></svg></span><span class="tx"><b>Proprietors</b><small>2 proprietors</small></span><span class="chev">›</span></div>
+       <div class="row"><span class="ic b"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg></span><span class="tx"><b>Pharmacist in charge</b><small>Sam Rivera (fictional) · since 1 Jul</small></span><span class="chev">›</span></div>
+       <div class="row"><span class="ic a"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg></span><span class="tx"><b>Services</b><small>6 services</small></span><span class="chip todo">1 to check</span><span class="chev">›</span></div>
+       <div class="row"><span class="ic a"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span><span class="tx"><b>Review due dates</b><small>13 set</small></span><span class="chip todo">3 need a date</span><span class="chev">›</span></div>
+       <div class="row"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h7"/></svg></span><span class="tx"><b>Bought, selling or closing</b><small>Nothing in progress</small></span><span class="chev">›</span></div>
+      </div>
+      <div class="gh">Law and inspections</div>
+      <div class="grp">
+       <div class="row"><span class="ic g"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></span><span class="tx"><b>S8 at a glance</b><small>Next stock check 12 Dec</small></span><span class="chip ok">On track</span><span class="chev">›</span></div>
+       <div class="row"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V7z"/></svg></span><span class="tx"><b>Legal obligations</b><small>12 obligations</small></span><span class="chev">›</span></div>
+      </div>
+     </div>
+     <div class="mob"><span>Today</span><span>Reviews</span><span>Actions</span><span>Calendar</span><span aria-current="page">More</span></div>
+    </div>
+   </figure>
+  </div>
+ </section>
+
+ <section>
+  <h2>2 · Today filters as four segments</h2>
+  <p>Now there are eight tabs in a strip that runs off the screen, so most filters are hidden. Proposed: the four you'll use most as segments with their counts, and "More filters" opens the rest from the bottom.</p>
+  <div class="pair">
+   <figure><figcaption>Now</figcaption>
+    <div class="ph" aria-label="Current Today filters">
+     <div class="bar"><b>R.</b><span class="st">Harbourview Pharmacy</span><span class="od">3 overdue</span></div>
+     <div class="body">
+      <h3>Today</h3>
+      <p class="sub">21 open jobs · 3 overdue</p>
+      <div class="fade"><div class="strip"><span class="on">All open<em>21</em></span><span>Overdue<em>3</em></span><span>Due today<em>1</em></span><span>In progress<em>2</em></span><span>Upcoming<em>6</em></span></div></div>
+      <div class="job"><span class="dot r"></span><span class="tx"><b>S8 stock check</b><small>Review · every 3 months</small></span><span class="due r">9 days late</span></div>
+      <div class="job"><span class="dot r"></span><span class="tx"><b>Back door lock sticks</b><small>Action · from site visit</small></span><span class="due r">2 days late</span></div>
+      <div class="job"><span class="dot r"></span><span class="tx"><b>Review Rowan’s checks · 3 checks</b><small>Staff · CPR expires first</small></span><span class="due r">1 day late</span></div>
+      <div class="job"><span class="dot a"></span><span class="tx"><b>Proprietor site visit</b><small>Resume · 4 of 11 checked</small></span><span class="due">Today</span></div>
+      <div class="job"><span class="dot"></span><span class="tx"><b>Vaccination service review</b><small>Review · yearly</small></span><span class="due">28 Nov</span></div>
+     </div>
+     <div class="mob"><span aria-current="page">Today</span><span>Reviews</span><span>Actions</span><span>Calendar</span><span>More</span></div>
+    </div>
+   </figure>
+   <figure><figcaption class="new">Proposed · with "More filters" open</figcaption>
+    <div class="ph" aria-label="Proposed Today filters">
+     <div class="bar"><b>R.</b><span class="st">Harbourview Pharmacy</span><span class="od">3 overdue</span></div>
+     <div class="body">
+      <h3>Today</h3>
+      <p class="sub">21 open jobs</p>
+      <div class="seg" role="tablist"><span class="on" role="tab" aria-selected="true"><em>3</em>Overdue</span><span role="tab"><em>1</em>Today</span><span role="tab"><em>2</em>Started</span><span role="tab"><em>21</em>All</span></div>
+      <div class="job"><span class="dot r"></span><span class="tx"><b>S8 stock check</b><small>Review · every 3 months</small></span><span class="due r">9 days late</span></div>
+      <div class="job"><span class="dot r"></span><span class="tx"><b>Back door lock sticks</b><small>Action · from site visit</small></span><span class="due r">2 days late</span></div>
+      <div class="job"><span class="dot r"></span><span class="tx"><b>Review Rowan’s checks · 3 checks</b><small>Staff · CPR expires first</small></span><span class="due r">1 day late</span></div>
+      <p class="more">More filters</p>
+     </div>
+     <div class="scrim"></div>
+     <div class="sheet" aria-label="More filters">
+      <div class="grab"></div>
+      <h4>More filters</h4>
+      <div class="row"><span class="tx"><b>Upcoming</b><small>Next 7 days · 24–30 Nov</small></span><span class="chip ok">6</span><span class="chev">›</span></div>
+      <div class="row"><span class="tx"><b>Actions only</b><small>Fixes you close yourself</small></span><span class="chip ok">9</span><span class="chev">›</span></div>
+      <div class="row"><span class="tx"><b>No date yet</b><small>Set a date so they show up on time</small></span><span class="chip todo">3</span><span class="chev">›</span></div>
+      <div class="row"><span class="tx"><b>To check</b><small>Answers marked “check later”</small></span><span class="chip todo">2</span><span class="chev">›</span></div>
+     </div>
+    </div>
+   </figure>
+  </div>
+ </section>
+
+ <p class="note"><b>Also borrowed:</b> the small grey section pill (e.g. “Law and inspections · S8”) could sit above page titles to show where you are. It isn't drawn here to keep the comparison simple. Nothing else from the Musais site is used: no dark background, gradients or glow.</p>
+</div>

@@ -1,0 +1,10 @@
+{
+  "by": "u_oB_xmELmgbegLcH3_Zwv8w",
+  "createdAt": "2026-11-19T22:55:28.255Z",
+  "fix": "Parked for Phase 5 (hosting). Google address lookup needs the app online, a Google API key, and sends the typed address to Google. The app currently blocks all outside connections for privacy.",
+  "kind": "note",
+  "page": "Today",
+  "status": "Parked",
+  "text": "Need to add google address in the address box",
+  "type": "Idea"
+}

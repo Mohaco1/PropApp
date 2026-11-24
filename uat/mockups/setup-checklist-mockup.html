@@ -1,0 +1,201 @@
+<title>Setup Checklist Mock-up</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: two comparisons; each a row of phone screens (now, then proposed); phones keep the app's light Concept D palette. */
+:root{
+ --page:#f3f4f7;--page-fg:#0c111c;--page-muted:#5b6476;--page-line:#dfe2e9;
+ --ink:#0c111c;--muted:#5b6476;--faint:#687083;--line:#e6e8ee;--soft:#f6f7f9;--bg:#fff;--accent:#2f5bea;
+ --green:#1c7a3e;--green-soft:#e9f6ee;--amber:#a35a00;--amber-soft:#fff3e0;--blue-soft:#eef2fd;
+ --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#11141b;--page-fg:#eef0f4;--page-muted:#a3aab8;--page-line:#2a2f3a;color-scheme:dark}}
+:root[data-theme="dark"]{--page:#11141b;--page-fg:#eef0f4;--page-muted:#a3aab8;--page-line:#2a2f3a;color-scheme:dark}
+body{background:var(--page);color:var(--page-fg);font:15px/1.5 var(--sans);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1000px;margin:0 auto;display:grid;gap:44px}
+h1{font-size:24px;margin:0 0 4px;text-wrap:balance}
+.lede{color:var(--page-muted);margin:0;max-width:66ch}
+section>h2{font-size:19px;margin:0 0 4px}
+section>p{color:var(--page-muted);margin:0 0 16px;max-width:66ch}
+.row{display:flex;flex-wrap:wrap;gap:22px}
+figure{margin:0;display:grid;gap:8px;flex:1 1 260px;min-width:0;max-width:310px;align-content:start}
+figcaption{font-size:13px;color:var(--page-muted)}
+figcaption b{display:block;color:var(--page-fg);font-size:14px}
+.tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--page-muted)}
+.tag.new{color:var(--accent)}
+.ph *,.ph{box-sizing:border-box}
+.ph{background:var(--bg);color:var(--ink);border:1px solid var(--page-line);border-radius:26px;overflow:hidden;height:600px;display:flex;flex-direction:column;position:relative;box-shadow:0 1px 2px rgba(12,17,28,.06),0 8px 24px rgba(12,17,28,.08);font-size:13px}
+.top{display:flex;align-items:center;gap:8px;padding:12px 14px 8px;border-bottom:1px solid var(--line);font-size:12px}
+.top b{font-size:14px}.top .st{color:var(--muted);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .od{color:#c0281b;font-weight:600}
+.body{flex:1;overflow:hidden;padding:12px 14px 70px;display:flex;flex-direction:column;gap:10px}
+h3{font-size:19px;margin:0;line-height:1.25}
+h4{font-size:15px;margin:0}
+.sub{color:var(--muted);font-size:12px;line-height:1.45;margin:0}
+.card{border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--soft)}
+.meter{height:5px;border-radius:3px;background:var(--line);overflow:hidden;flex:1}
+.meter i{display:block;height:100%;background:var(--ink);border-radius:3px}
+.line{display:flex;align-items:center;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--line);font-weight:600;font-size:13px;background:var(--bg);color:var(--ink)}
+.btn.pri{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.full{width:100%}
+.chk{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.chk li{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);min-height:40px}
+.chk li:first-child{border-top:0}
+.box{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--faint);flex:none;display:grid;place-items:center;font-size:12px;font-weight:700}
+.done .box{background:var(--green);border-color:var(--green);color:#fff}
+.done .tx{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(91,100,118,.5)}
+.tx{flex:1;min-width:0}.tx small{display:block;color:var(--muted);font-size:11.5px;text-decoration:none}
+.next .tx b{font-weight:700}
+.go{font-size:12px;font-weight:600;color:var(--accent)}
+.mob{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:rgba(255,255,255,.97);padding:6px 4px 12px;font-size:11px;color:var(--faint);text-align:center}
+.mob span[aria-current]{color:var(--ink);font-weight:700}
+.job{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line)}
+.dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex:none;background:#c0281b}
+.ready{background:var(--green-soft);border:1px solid #cfe9d8;border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.ready b{color:var(--green);font-size:14px}
+.steps{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.steps li{display:flex;gap:10px;align-items:center;padding:9px 11px;border-top:1px solid var(--line)}
+.steps li:first-child{border-top:0}
+.n{width:22px;height:22px;border-radius:50%;background:var(--soft);border:1px solid var(--line);display:grid;place-items:center;font-size:11px;font-weight:700;flex:none;font-variant-numeric:tabular-nums}
+.pill{font-size:10.5px;font-weight:700;border-radius:99px;padding:1px 8px;flex:none}
+.pill.need{background:var(--blue-soft);color:var(--accent)}
+.pill.wait{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.prog{display:flex;gap:4px}
+.prog i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.prog i.on{background:var(--ink)}
+.prog i.cur{background:var(--accent)}
+.field{display:flex;flex-direction:column;gap:3px}
+.field span{font-size:12px;font-weight:600}
+.inp{border:1px solid var(--line);border-radius:9px;min-height:38px;display:flex;align-items:center;padding:0 10px;color:var(--muted);font-size:13px}
+.note{font-size:13px;color:var(--page-muted);max-width:70ch;margin:0}
+.note b{color:var(--page-fg)}
+</style>
+
+<div class="wrap">
+ <header>
+  <h1>Setup: a checklist on Today, and a clear start</h1>
+  <p class="lede">Two small changes from the Shopify and Duolingo onboarding reviews. Fictional Harbourview Pharmacy with 4 services: DAA, OTP, Vaccination and Home delivery. Nothing in the app has changed yet.</p>
+ </header>
+
+ <section>
+  <h2>1 · Today: show the steps left, not just a bar</h2>
+  <p>Now, Today shows a bar and “2 of 6 steps”, so the owner can’t tell what’s left or how long it takes. Proposed: a short checklist of the remaining steps with the next one highlighted, and a clear “you’re set up” moment at the end.</p>
+  <div class="row">
+   <figure><span class="tag">Now</span>
+    <div class="ph" aria-label="Current Today setup card">
+     <div class="top"><b>R.</b><span class="st">Harbourview Pharmacy</span><span class="od">3 overdue</span></div>
+     <div class="body">
+      <h3>Today</h3>
+      <p class="sub">Tue, 24 Nov · 29 open jobs · 3 overdue</p>
+      <div class="card"><div class="line"><b style="font-size:14px">Pharmacy setup</b><div class="meter"><i style="width:33%"></i></div><span class="sub">2 of 6 steps</span></div><span><span class="btn">Continue setup</span></span></div>
+      <div class="job"><span class="dot"></span><span class="tx"><b>Proprietor site visit</b><small>Review · Overdue 10 days</small></span></div>
+      <div class="job"><span class="dot"></span><span class="tx"><b>Annual review · Cold chain</b><small>Policy · Overdue 3 days</small></span></div>
+     </div>
+     <div class="mob"><span aria-current="page">Today</span><span>Reviews</span><span>Actions</span><span>Calendar</span><span>More</span></div>
+    </div>
+    <figcaption><b>“2 of 6 steps”</b>Which steps? How long? Does anything work yet?</figcaption>
+   </figure>
+
+   <figure><span class="tag new">Proposed · in progress</span>
+    <div class="ph" aria-label="Proposed setup checklist">
+     <div class="top"><b>R.</b><span class="st">Harbourview Pharmacy</span><span class="od">3 overdue</span></div>
+     <div class="body">
+      <h3>Today</h3>
+      <div class="card">
+       <div class="line"><h4 style="flex:1">Finish setting up · 4 left</h4><span class="sub">a few min each</span></div>
+       <ul class="chk">
+        <li class="done"><span class="box">✓</span><span class="tx">Pharmacy details</span></li>
+        <li class="done"><span class="box">✓</span><span class="tx">Choose your services</span></li>
+        <li class="next"><span class="box"></span><span class="tx"><b>Dose administration aids</b><small>Next · how packs are made and checked</small></span><span class="go">Start</span></li>
+        <li><span class="box"></span><span class="tx">Opioid Treatment Program</span></li>
+        <li><span class="box"></span><span class="tx">Vaccination</span></li>
+        <li><span class="box"></span><span class="tx">Home delivery</span></li>
+       </ul>
+       <p class="sub">Today already works. Each service you finish makes its reviews and procedures fit how you actually run it.</p>
+      </div>
+      <div class="job"><span class="dot"></span><span class="tx"><b>Proprietor site visit</b><small>Review · Overdue 10 days</small></span></div>
+     </div>
+     <div class="mob"><span aria-current="page">Today</span><span>Reviews</span><span>Actions</span><span>Calendar</span><span>More</span></div>
+    </div>
+    <figcaption><b>Named steps, the next one first</b>Done steps are ticked. “Start” opens that service’s setup.</figcaption>
+   </figure>
+
+   <figure><span class="tag new">Proposed · all done</span>
+    <div class="ph" aria-label="Proposed setup finished">
+     <div class="top"><b>R.</b><span class="st">Harbourview Pharmacy</span><span class="od">3 overdue</span></div>
+     <div class="body">
+      <h3>Today</h3>
+      <div class="ready"><b>✓ Harbourview Pharmacy is set up</b><p class="sub">All 4 services are configured. Your reviews and procedures now match how you run them. Start with the jobs below.</p><span><span class="btn">Got it</span></span></div>
+      <div class="job"><span class="dot"></span><span class="tx"><b>Proprietor site visit</b><small>Review · Overdue 10 days</small></span></div>
+      <div class="job"><span class="dot"></span><span class="tx"><b>Annual review · Cold chain</b><small>Policy · Overdue 3 days</small></span></div>
+      <div class="job"><span class="dot"></span><span class="tx"><b>Annual assurance · Jordan Lee</b><small>Staff · Overdue 2 days</small></span></div>
+     </div>
+     <div class="mob"><span aria-current="page">Today</span><span>Reviews</span><span>Actions</span><span>Calendar</span><span>More</span></div>
+    </div>
+    <figcaption><b>A clear finish</b>Shown once, then the card goes away for good.</figcaption>
+   </figure>
+  </div>
+ </section>
+
+ <section>
+  <h2>2 · Setup: say up front what’s needed to start</h2>
+  <p>Now, the first screen says “About 15–20 minutes” but not what the steps are or which can wait. Proposed: the steps listed before you begin, marked “Needed to start” or “Can wait”, and a thin progress bar at the top of every setup screen.</p>
+  <div class="row">
+   <figure><span class="tag">Now</span>
+    <div class="ph" aria-label="Current landing">
+     <div class="top"><b>R.</b></div>
+     <div class="body" style="padding-top:28px">
+      <h3 style="font-size:22px">R.Pharmacy</h3>
+      <span><span class="btn pri">Set up your pharmacy</span></span>
+      <b>What it does</b>
+      <p class="sub" style="font-size:13px">Helps you, the owner, keep on top of your legal and best-practice duties in one place…</p>
+      <b>How long setup takes</b>
+      <p class="sub" style="font-size:13px">About 15–20 minutes. You answer a few questions per service; anything you’re unsure of can wait.</p>
+      <b>Where your records are kept</b>
+      <p class="sub" style="font-size:13px">In this browser on this device…</p>
+     </div>
+    </div>
+    <figcaption><b>A time, but no map</b>The owner doesn’t know what’s coming or what’s optional.</figcaption>
+   </figure>
+
+   <figure><span class="tag new">Proposed · before you start</span>
+    <div class="ph" aria-label="Proposed setup overview">
+     <div class="top"><b>R.</b><span class="st">Set up your pharmacy</span></div>
+     <div class="body">
+      <h3>6 short steps · about 15 minutes</h3>
+      <p class="sub" style="font-size:13px">Only the first 2 are needed to start. The rest can wait, and Today works in the meantime. Anything you’re unsure of can be marked “Check later”.</p>
+      <ol class="steps">
+       <li><span class="n">1</span><span class="tx">Pharmacy details and owners</span><span class="pill need">Needed to start</span></li>
+       <li><span class="n">2</span><span class="tx">Choose your services</span><span class="pill need">Needed to start</span></li>
+       <li><span class="n">3</span><span class="tx">One short step per service you chose</span><span class="pill wait">Can wait</span></li>
+      </ol>
+      <p class="sub">The number of steps depends on your services: Harbourview has 4, so 6 in all.</p>
+      <div style="margin-top:auto;display:grid;gap:8px"><span class="btn pri full">Start with step 1</span><span class="btn full">Just bought this pharmacy? See what to do first</span></div>
+     </div>
+    </div>
+    <figcaption><b>A map before the first question</b>What’s needed, what can wait, and that you can stop any time.</figcaption>
+   </figure>
+
+   <figure><span class="tag new">Proposed · each setup screen</span>
+    <div class="ph" aria-label="Proposed setup screen with progress">
+     <div class="top"><span class="st">Pharmacy setup · Harbourview Pharmacy</span><span class="sub">Close</span></div>
+     <div class="body">
+      <div class="prog" aria-hidden="true"><i class="on"></i><i class="cur"></i><i></i><i></i><i></i><i></i></div>
+      <p class="sub">Step 2 of 6 · needed to start</p>
+      <h3>Which services do you offer?</h3>
+      <p class="sub" style="font-size:13px">Tick all that apply. You can add or remove one later.</p>
+      <div class="field"><span class="inp">✓ Dose administration aids</span></div>
+      <div class="field"><span class="inp">✓ Opioid Treatment Program</span></div>
+      <div class="field"><span class="inp">✓ Vaccination</span></div>
+      <div class="field"><span class="inp">✓ Home delivery</span></div>
+      <div class="field"><span class="inp">Staged supply</span></div>
+      <div style="margin-top:auto"><span class="btn pri full">Save and continue</span></div>
+     </div>
+    </div>
+    <figcaption><b>Always know where you are</b>A thin bar and “Step 2 of 6 · needed to start”.</figcaption>
+   </figure>
+  </div>
+ </section>
+
+ <p class="note"><b>Not changing:</b> the questions themselves, “That’s how we do it / Change / Check later”, the per-service “What happens next” screen, and the “Just bought?” option. This only adds a map at the start, a progress bar, and a checklist on Today.</p>
+</div>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laptop · Today</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+body{margin:0;background:#fff;font-family:Inter,system-ui,sans-serif;color:#111827}
+button{font-family:inherit;cursor:pointer}
+.nav button{width:100%;min-height:38px;border:0;border-radius:8px;background:transparent;text-align:left;padding:0 10px;font-size:14px;color:#374151;display:flex;align-items:center;gap:10px}
+.nav button[aria-current=true]{background:#e9ebf0;color:#111827;font-weight:600}
+.nav .c{margin-left:auto;font-size:12px;color:#6b7280}
+.it{width:100%;border:0;border-bottom:1px solid #eef0f3;background:#fff;text-align:left;padding:12px 16px;display:flex;gap:12px;align-items:flex-start;color:#111827}
+.it[aria-selected=true]{background:#f3f4f6;box-shadow:inset 3px 0 0 #111827}
+.tag{font-size:12px;font-weight:600;color:#1e3a8a;background:#eef2ff;border-radius:6px;padding:2px 7px}
+h3{margin:18px 16px 4px;font-size:13px;font-weight:700;color:#4b5563}
+</style>
+</head>
+<body>
+<div style="width:1280px;height:800px;display:grid;grid-template-columns:232px 420px 1fr">
+  <aside class="nav" style="background:#f6f7f9;border-right:1px solid #e5e7eb;padding:14px 10px;display:flex;flex-direction:column;gap:2px">
+    <div style="padding:4px 10px 14px;font-size:15px;font-weight:700">Harbourview Pharmacy</div>
+    <button aria-current="true">Today<span class="c">9</span></button>
+    <button>Audits<span class="c">8</span></button>
+    <button>Tasks<span class="c">2</span></button>
+    <button>Calendar</button>
+    <button>Staff</button>
+    <button>Meetings</button>
+    <button>Policies and SOPs</button>
+    <button>Documents</button>
+    <button>History</button>
+    <div style="margin-top:auto;padding:10px;font-size:13px;color:#4b5563;line-height:1.4">Last backup 9 days ago<br><a href="#" style="color:#1d4ed8;font-weight:600">Save backup now</a></div>
+  </aside>
+
+  <section style="border-right:1px solid #e5e7eb;overflow:auto">
+    <div style="padding:18px 16px 6px"><h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em">Today</h1><p style="margin:4px 0 0;font-size:14px;color:#4b5563">Wed 18 Nov · 1 overdue, 7 to check when you can, 2 coming up</p></div>
+    <h3>Overdue</h3>
+    <button class="it" aria-selected="true"><span style="width:10px;height:10px;border-radius:50%;background:#b42318;margin-top:6px;flex:0 0 auto"></span><span style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;font-weight:600">Site visit</span><span style="font-size:13px;color:#4b5563">16 days overdue · 6 checks</span></span></button>
+    <h3>Check when you can · 7</h3>
+    <button class="it"><span style="width:10px;height:10px;border-radius:50%;background:#e0a23b;margin-top:6px;flex:0 0 auto"></span><span style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;font-weight:600">PBS approval for this pharmacy</span><span><span class="tag">OTP</span></span></span></button>
+    <button class="it"><span style="width:10px;height:10px;border-radius:50%;background:#e0a23b;margin-top:6px;flex:0 0 auto"></span><span style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;font-weight:600">Written consent for PPA-funded packs</span><span><span class="tag">DAA · PPA rules</span></span></span></button>
+    <button class="it"><span style="width:10px;height:10px;border-radius:50%;background:#e0a23b;margin-top:6px;flex:0 0 auto"></span><span style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;font-weight:600">Where temperature records are kept</span><span><span class="tag">Vaccination</span></span></span></button>
+    <button class="it" style="color:#1d4ed8;font-size:14px;font-weight:600">Show 4 more</button>
+    <h3>Coming up</h3>
+    <button class="it"><span style="width:56px;font-size:13px;font-weight:700;flex:0 0 auto">25 Nov</span><span style="font-size:15px">Proprietor check-in</span></button>
+    <button class="it"><span style="width:56px;font-size:13px;font-weight:700;flex:0 0 auto">1 Dec</span><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px">S8 stock check</span><span style="font-size:13px;color:#4b5563">§ Legal requirement · s 111</span></span></button>
+  </section>
+
+  <section style="overflow:auto;padding:28px 36px;display:flex;flex-direction:column;gap:18px;max-width:640px">
+    <div style="display:flex;align-items:center;gap:10px"><span style="font-size:13px;font-weight:700;color:#111827;background:#fca5a5;border-radius:999px;padding:4px 10px">Overdue 16 days</span><span style="font-size:13px;color:#4b5563">Every 8 weeks, as your plan sets · last visit 23 Sep</span></div>
+    <h2 style="margin:0;font-size:32px;font-weight:800;letter-spacing:-.02em">Site visit</h2>
+    <p style="margin:0;font-size:16px;line-height:1.55;color:#374151">Six checks, about 10 minutes on site. You can also start it here and finish on your phone; answers save as you go.</p>
+    <div style="border:1px solid #e5e7eb;border-radius:14px;overflow:hidden">
+      <div style="padding:12px 16px;border-bottom:1px solid #eef0f3;display:flex;justify-content:space-between;font-size:15px"><span>1. Premises and security</span><span style="color:#4b5563">Last: Satisfactory</span></div>
+      <div style="padding:12px 16px;border-bottom:1px solid #eef0f3;display:flex;justify-content:space-between;font-size:15px"><span>2. Medicine storage and stock</span><span style="color:#b42318">Last: Issue (fixed)</span></div>
+      <div style="padding:12px 16px;border-bottom:1px solid #eef0f3;display:flex;justify-content:space-between;font-size:15px"><span>3. Records and registers</span><span style="color:#4b5563">Last: Satisfactory</span></div>
+      <div style="padding:12px 16px;display:flex;justify-content:space-between;font-size:15px;color:#4b5563"><span>+ 3 more checks</span></div>
+    </div>
+    <div style="display:flex;gap:10px"><button style="min-height:48px;border:0;border-radius:12px;background:#111827;color:#fff;font-size:15px;font-weight:700;padding:0 22px">Start site visit</button><button style="min-height:48px;border:1px solid #d1d5db;border-radius:12px;background:#fff;font-size:15px;font-weight:600;padding:0 18px">Plan a date</button></div>
+    <p style="margin:0;font-size:13px;color:#6b7280">Keyboard: J and K move through the list, Enter opens, S starts the visit.</p>
+  </section>
+</div>
+</body>
+</html>

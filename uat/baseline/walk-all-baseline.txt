@@ -1,0 +1,22 @@
+{
+ "daa": "OK 19 screens",
+ "otp": "OK 22 screens",
+ "delivery": "OK 9 screens",
+ "reviews": "OK 4 screens",
+ "staged": "OK 5 screens",
+ "vaccination": "OK 7 screens",
+ "prescribing": "OK 5 screens",
+ "simple": "OK 3 screens",
+ "complex": "OK 4 screens",
+ "aged": "OK 4 screens",
+ "screening": "OK 4 screens",
+ "adherence": "OK 3 screens",
+ "nsp": "OK 3 screens",
+ "certificates": "OK 3 screens",
+ "vaping": "OK 3 screens",
+ "cannabis": "OK 3 screens",
+ "funding": "OK 3 screens"
+}
+{
+ "tasks": [
+  "Confirm DAA labels and label records meet the 2026 Regulation · Dose administration aids",

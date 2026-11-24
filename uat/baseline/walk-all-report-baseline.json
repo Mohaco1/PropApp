@@ -1,0 +1,208 @@
+{
+ "daa": {
+  "complete": true,
+  "steps": 19,
+  "questions": [
+   "Start here · choose the arrangements that apply | How are your DAAs packed?",
+   "Question 1 of 16 | Packing method",
+   "Question 2 of 16 | Service population",
+   "Question 3 of 16 | Who prepares packs?",
+   "Question 4 of 16 | Medication list check",
+   "Question 5 of 16 | Final check of completed packs",
+   "Question 6 of 16 | How is the packing check recorded?",
+   "Question 7 of 16 | How do patients receive their packs?",
+   "Question 8 of 16 | Medication changes (including after hospital discharge)",
+   "Question 9 of 16 | Are Schedule 8 medicines packed in DAAs?",
+   "Question 10 of 18 | Who places S8 medicines into packs?",
+   "Question 11 of 18 | Storage of completed packs containing S8",
+   "Question 12 of 18 | How are DAAs funded?",
+   "Question 13 of 18 | Where are pack collection or delivery records kept? (location or system)",
+   "Question 14 of 18 | Who does the routine DAA check (sample of packs and records)?",
+   "Question 15 of 18 | How often is the routine DAA check done?",
+   "Question 16 of 18 | ",
+   "Question 17 of 18 | Patient or carer agreement to DAA supply",
+   "Question 18 of 18 | DAA labels and records · rules from 5 November 2026"
+  ]
+ },
+ "otp": {
+  "complete": true,
+  "steps": 22,
+  "questions": [
+   "Question 1 of 19 | Which OTP medicines do you supply?",
+   "Question 2 of 18 | Do pharmacists administer long-acting injectable buprenorphine (LAIB) here?",
+   "Question 3 of 22 | LAIB injection area",
+   "Question 4 of 22 | LAIB administration area · OTP Standards",
+   "Question 5 of 22 | Pharmacist LAIB training and competence",
+   "Question 6 of 22 | LAIB storage and handling",
+   "Question 7 of 22 | Do you also supply authorised take-away doses?",
+   "Question 8 of 23 | When are methadone take-away doses prepared?",
+   "Question 9 of 23 | Methadone measuring equipment",
+   "Question 10 of 23 | Where does supervised dosing happen?",
+   "Question 11 of 23 | Software used to record doses",
+   "Question 12 of 23 | Are OTP patient files on paper, electronic or both?",
+   "Question 13 of 22 | OTP registration and pharmacist training",
+   "Question 14 of 22 | Documented OTP procedures · OTP Standards",
+   "Question 15 of 22 | Process for missed doses and intoxicated patients",
+   "Question 16 of 22 | PBS approval for this pharmacy",
+   "Question 17 of 22 | ",
+   "Question 18 of 22 | How OTP incidents are reported and notified",
+   "Question 19 of 22 | ",
+   "Question 20 of 22 | Who reviews OTP patient files?",
+   "Question 21 of 22 | How often are OTP patient files reviewed?",
+   "Question 22 of 22 | Have 80 or more supervised patients been dosed on any one day?"
+  ]
+ },
+ "delivery": {
+  "complete": true,
+  "steps": 9,
+  "questions": [
+   "Question 1 of 7 | Who performs deliveries?",
+   "Question 2 of 7 | How is handover recorded?",
+   "Question 3 of 7 | What happens after a failed delivery?",
+   "Question 4 of 7 | What transport safeguards apply?",
+   "Question 5 of 7 | Are controlled medicines delivered?",
+   "Question 6 of 9 | Controlled-medicine procedure reference",
+   "Question 7 of 9 | S8 deliveries · rules from 5 November 2026",
+   "Question 8 of 9 | Delivery evidence location or system",
+   "Question 9 of 9 | Who receives delivery incidents?"
+  ]
+ },
+ "reviews": {
+  "complete": true,
+  "steps": 4,
+  "questions": [
+   "Question 1 of 1 | Which review programs are provided?",
+   "Question 2 of 4 | Who performs the review for HMR?",
+   "Question 3 of 4 | Who receives formal referrals for HMR?",
+   "Question 4 of 4 | Who submits PPA claims for HMR?"
+  ]
+ },
+ "staged": {
+  "complete": true,
+  "steps": 5,
+  "questions": [
+   "Question 1 of 5 | Is this a funded staged supply service?",
+   "Question 2 of 5 | Consent evidence location",
+   "Question 3 of 5 | Software or system for instalment records",
+   "Question 4 of 5 | Does staged supply include S8 medicines?",
+   "Question 5 of 5 | Who reviews missed collections?"
+  ]
+ },
+ "vaccination": {
+  "complete": true,
+  "steps": 7,
+  "questions": [
+   "Question 1 of 7 | Where is vaccination provided?",
+   "Question 2 of 7 | ",
+   "Question 3 of 7 | Screening and consent record system",
+   "Question 4 of 7 | Where is evidence of AIR reporting kept? (location)",
+   "Question 5 of 7 | Government-funded vaccines",
+   "Question 6 of 7 | Cold-chain monitoring evidence location",
+   "Question 7 of 7 | Emergency procedure location"
+  ]
+ },
+ "prescribing": {
+  "complete": true,
+  "steps": 5,
+  "questions": [
+   "Question 1 of 4 | Who is responsible for this service?",
+   "Question 2 of 4 | Where are this service’s records kept? (system or reference)",
+   "Question 3 of 4 | Which pharmacist prescribing services do you provide?",
+   "Question 4 of 5 | Approved pharmacy conditions · prescribing authorities",
+   "Question 5 of 5 | Pathway authority or protocol reference"
+  ]
+ },
+ "simple": {
+  "complete": true,
+  "steps": 3,
+  "questions": [
+   "Question 1 of 3 | Who is responsible for this service?",
+   "Question 2 of 3 | Where are this service’s records kept? (system or reference)",
+   "Question 3 of 3 | "
+  ]
+ },
+ "complex": {
+  "complete": true,
+  "steps": 4,
+  "questions": [
+   "Question 1 of 4 | Who is responsible for this service?",
+   "Question 2 of 4 | Where are this service’s records kept? (system or reference)",
+   "Question 3 of 4 | ",
+   "Question 4 of 4 | Facility and validation record location"
+  ]
+ },
+ "aged": {
+  "complete": true,
+  "steps": 4,
+  "questions": [
+   "Question 1 of 4 | Who is responsible for this service?",
+   "Question 2 of 4 | Where are this service’s records kept? (system or reference)",
+   "Question 3 of 4 | Facility agreement location",
+   "Question 4 of 4 | Handover and escalation procedure (reference)"
+  ]
+ },
+ "screening": {
+  "complete": true,
+  "steps": 4,
+  "questions": [
+   "Question 1 of 4 | Who is responsible for this service?",
+   "Question 2 of 4 | Where are this service’s records kept? (system or reference)",
+   "Question 3 of 4 | ",
+   "Question 4 of 4 | Equipment QC reference"
+  ]
+ },
+ "adherence": {
+  "complete": true,
+  "steps": 3,
+  "questions": [
+   "Question 1 of 3 | Who is responsible for this service?",
+   "Question 2 of 3 | Where are this service’s records kept? (system or reference)",
+   "Question 3 of 3 | Who handles interrupted support?"
+  ]
+ },
+ "nsp": {
+  "complete": true,
+  "steps": 3,
+  "questions": [
+   "Question 1 of 3 | Who is responsible for this service?",
+   "Question 2 of 3 | Where are this service’s records kept? (system or reference)",
+   "Question 3 of 3 | Sharps and exposure procedure location"
+  ]
+ },
+ "certificates": {
+  "complete": true,
+  "steps": 3,
+  "questions": [
+   "Question 1 of 3 | Who is responsible for this service?",
+   "Question 2 of 3 | Where are this service’s records kept? (system or reference)",
+   "Question 3 of 3 | Assessment and referral procedure (reference)"
+  ]
+ },
+ "vaping": {
+  "complete": true,
+  "steps": 3,
+  "questions": [
+   "Question 1 of 3 | Who is responsible for this service?",
+   "Question 2 of 3 | Where are this service’s records kept? (system or reference)",
+   "Question 3 of 3 | Supply pathway and procedure (reference)"
+  ]
+ },
+ "cannabis": {
+  "complete": true,
+  "steps": 3,
+  "questions": [
+   "Question 1 of 3 | Who is responsible for this service?",
+   "Question 2 of 3 | Where are this service’s records kept? (system or reference)",
+   "Question 3 of 3 | Access pathway reference"
+  ]
+ },
+ "funding": {
+  "complete": true,
+  "steps": 3,
+  "questions": [
+   "Question 1 of 3 | Who is responsible for this service?",
+   "Question 2 of 3 | Where are this service’s records kept? (system or reference)",
+   "Question 3 of 3 | "
+  ]
+ }
+}

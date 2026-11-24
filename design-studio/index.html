@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R.Pharmacy Design Studio</title>
+<style>
+:root{
+  --bg:#ffffff;--soft:#f6f7fb;--line:#e4e6ee;--ink:#1f2330;--muted:#5d6475;--accent:#5b6bd6;--accent-soft:#eef0fc;
+  --like:#15803d;--dislike:#b42318;--keep:#1d4ed8;--change:#a15c07;--remove:#6b2a8a;--comment:#475569;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 "Segoe UI",system-ui,-apple-system,sans-serif}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);height:100vh}
+aside{border-right:1px solid var(--line);background:var(--soft);display:flex;flex-direction:column;min-height:0}
+.brand{padding:14px 16px 10px;font-weight:700;font-size:15px}
+.brand small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+nav{flex:1;overflow:auto;padding:4px 8px}
+nav button{width:100%;display:flex;align-items:center;gap:8px;border:0;background:transparent;text-align:left;padding:7px 8px;border-radius:7px;min-height:34px}
+nav button:hover{background:#eceef6}
+nav button[aria-current=true]{background:var(--accent-soft);color:#2f3a99;font-weight:600}
+nav .count{margin-left:auto;font-size:12px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;background:#c8ccd8}
+.dot.s-progress{background:#e0a23b}.dot.s-decided{background:var(--accent)}.dot.s-final{background:var(--like)}
+nav hr{border:0;border-top:1px solid var(--line);margin:8px 4px}
+.navgroup{font-size:12px;font-weight:700;color:var(--muted);padding:8px 8px 4px}
+.navlink{display:block;margin:0 8px 6px;padding:7px 10px;border-radius:7px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;font-size:13px}
+.side-foot{padding:10px 12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 10px;min-height:32px}
+.btn:hover{border-color:#c9cde0}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.small{padding:3px 8px;min-height:26px;font-size:12px}
+.btn.link{border:0;background:transparent;color:var(--accent);padding:2px 4px;min-height:24px}
+main{overflow:auto;min-width:0}
+.head{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.head h1{margin:0;font-size:18px}
+.head .sub{color:var(--muted);font-size:13px}
+.head .grow{flex:1}
+label.inline{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+select{border:1px solid var(--line);border-radius:7px;padding:4px 8px;background:#fff;min-height:30px}
+.row{display:flex;gap:16px;overflow-x:auto;padding:16px 20px 8px;align-items:flex-start}
+.col{flex:0 0 auto;width:300px;display:flex;flex-direction:column;gap:8px}
+.col-title{display:flex;align-items:flex-start;gap:6px}
+.col-title b{font-size:13px;line-height:1.3;flex:1}
+.col-title .origin{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.frame{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;position:relative}
+.frame .inner{transform-origin:0 0;overflow:auto;background:#fff}
+.frame iframe{border:0;display:block;width:100%;height:100%}
+.frame img{display:block;width:100%}
+.notes{border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px;background:#fff}
+.types{display:flex;flex-wrap:wrap;gap:4px}
+.types button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:2px 9px;font-size:12px;min-height:26px}
+.types button[aria-pressed=true]{color:#fff;border-color:transparent}
+.t-like{--c:var(--like)}.t-dislike{--c:var(--dislike)}.t-keep{--c:var(--keep)}.t-change{--c:var(--change)}.t-remove{--c:var(--remove)}.t-comment{--c:var(--comment)}
+.types button[aria-pressed=true]{background:var(--c)}
+.notes textarea{width:100%;min-height:52px;border:1px solid var(--line);border-radius:7px;padding:6px 8px;resize:vertical}
+.notes .addline{display:flex;gap:6px;align-items:center}
+.notes .addline select{flex:1;min-width:0;font-size:12px}
+.note{border-top:1px solid var(--line);padding-top:6px;font-size:13px;display:flex;flex-direction:column;gap:3px}
+.note .meta{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.badge{color:#fff;background:var(--c);border-radius:999px;padding:0 7px;font-size:11px;font-weight:600}
+.note .meta .grow{flex:1}
+.note .text{white-space:pre-wrap}
+.empty{padding:40px 20px;color:var(--muted);max-width:640px}
+.super{margin:8px 20px 28px;border:1px solid var(--line);border-radius:12px;background:var(--soft);padding:14px 16px;max-width:1100px}
+.super h2{margin:0 0 4px;font-size:15px}
+.super p{margin:0 0 10px;color:var(--muted);font-size:13px}
+table{border-collapse:collapse;width:100%;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:top}
+th{background:#fafbfe;color:var(--muted);font-weight:600}
+td select,td input{width:100%;border:1px solid var(--line);border-radius:6px;padding:4px 6px;min-height:28px;background:#fff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.two label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600}
+.two textarea{min-height:80px;border:1px solid var(--line);border-radius:8px;padding:8px;font-weight:400;resize:vertical}
+.modal{position:fixed;inset:0;background:rgba(20,23,35,.55);z-index:50;display:flex}
+.modal .box{margin:auto;background:#fff;border-radius:14px;display:grid;grid-template-columns:auto 320px;max-height:94vh;max-width:96vw;overflow:hidden}
+.modal .stage{overflow:auto;background:#eef0f5;padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.modal .stage .bar{display:flex;gap:6px;align-items:center;align-self:stretch}
+.modal .stage .bar b{flex:1}
+.modal .side{border-left:1px solid var(--line);padding:12px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.big{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.big iframe{border:0;display:block}
+.final{padding:16px 20px 40px;max-width:1100px;display:flex;flex-direction:column;gap:16px}
+.final .exports{display:flex;flex-wrap:wrap;gap:8px}
+.final section{border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.final h3{margin:0 0 6px;font-size:15px;display:flex;align-items:center;gap:8px}
+.final ul{margin:4px 0 0;padding-left:18px}
+.final .muted{color:var(--muted)}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1f2330;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;z-index:60}
+@media (max-width:760px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr}aside{max-height:40vh}.two{grid-template-columns:1fr}.modal .box{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand">R.Pharmacy Design Studio<small>Compare, note, pick the best</small></div>
+    <nav id="nav" aria-label="Sections"></nav>
+    <div class="side-foot">
+      <span id="saved">Notes save automatically in this browser.</span>
+      <button class="btn small" id="exportJson">Save backup file (.json)</button>
+      <button class="btn small" id="importJson">Load backup file</button>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+<script src="catalogue.js"></script>
+<script src="studio.js"></script>
+</body>
+</html>

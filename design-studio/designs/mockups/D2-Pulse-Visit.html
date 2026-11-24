@@ -1,0 +1,53 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>2 Pulse Board · Site visit check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+body{margin:0}
+a{color:#2563eb}a:hover{color:#1d4ed8}
+button,textarea{font-family:inherit}
+</style>
+</head><body>
+
+<div style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px; padding: 16px; background: #f2f4f7; color: #0f172a; font-family: 'Plus Jakarta Sans', system-ui, sans-serif;">
+  <div style="display: flex; align-items: center; justify-content: space-between;">
+    <span style="font-size: 13px; font-weight: 700; color: #475569;">Harbourview · Site visit</span>
+    <span style="font-size: 13px; font-weight: 700; color: #1e3a8a; background: #eef2ff; border-radius: 999px; padding: 6px 10px;">Check 2 of 6</span>
+  </div>
+  <div style="border-radius: 24px; background: #ffffff; padding: 20px 18px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);">
+    <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em;">Medicine storage and stock</h1>
+    <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #475569;">Storage conditions, fridge exceptions, recalls and expired stock since your last visit (64 days ago).</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+    
+      <button type="button" aria-pressed="false" style="min-height: 96px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 14px; border-radius: 20px; text-align: left; color: #0f172a; background: #ffffff; border: 2px solid transparent; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);">
+        <span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; font-size: 16px; font-weight: 800; color: #15803d; background: #e7f5ec;">✓</span>
+        <span style="font-size: 15px; font-weight: 700;">Satisfactory</span>
+      </button>
+    
+      <button type="button" aria-pressed="true" style="min-height: 96px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 14px; border-radius: 20px; text-align: left; color: #0f172a; background: #fdecea; border: 2px solid #b42318; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);">
+        <span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; font-size: 16px; font-weight: 800; color: #ffffff; background: #b42318;">!</span>
+        <span style="font-size: 15px; font-weight: 700;">Issue</span>
+      </button>
+    
+      <button type="button" aria-pressed="false" style="min-height: 96px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 14px; border-radius: 20px; text-align: left; color: #0f172a; background: #ffffff; border: 2px solid transparent; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);">
+        <span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; font-size: 16px; font-weight: 800; color: #a15c07; background: #fff4db;">?</span>
+        <span style="font-size: 15px; font-weight: 700;">Needs verification</span>
+      </button>
+    
+      <button type="button" aria-pressed="false" style="min-height: 96px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 14px; border-radius: 20px; text-align: left; color: #0f172a; background: #ffffff; border: 2px solid transparent; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);">
+        <span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; font-size: 16px; font-weight: 800; color: #475569; background: #f1f5f9;">–</span>
+        <span style="font-size: 15px; font-weight: 700;">Not applicable</span>
+      </button>
+    
+  </div>
+
+  <div style="border-radius: 24px; background: #ffffff; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);">
+    <label for="finding2" style="font-size: 15px; font-weight: 700;">What did you find?</label>
+    <textarea id="finding2" rows="2" style="font-size: 15px; line-height: 1.45; border: 0; border-radius: 14px; background: #f8fafc; padding: 12px; resize: none; color: #0f172a;">Fridge log missed two readings last week.</textarea>
+    <label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; font-size: 15px; font-weight: 600;">Create a Task to follow it up<span aria-hidden="true" style="width: 50px; height: 30px; border-radius: 999px; background: #2563eb; position: relative; flex: 0 0 auto;"><span style="position: absolute; right: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: #ffffff;"></span></span></label>
+  </div>
+
+  <button type="button" style="margin-top: auto; height: 54px; border: 0; border-radius: 18px; background: #2563eb; color: #ffffff; font-size: 17px; font-weight: 700;">Save and next check</button>
+</div>
+</body></html>

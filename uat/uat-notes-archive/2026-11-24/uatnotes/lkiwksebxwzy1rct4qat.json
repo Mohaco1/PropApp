@@ -1,0 +1,10 @@
+{
+  "by": "u_oB_xmELmgbegLcH3_Zwv8w",
+  "createdAt": "2026-11-20T05:45:13.909Z",
+  "fix": "DAA packing method is now tick-more-than-one (e.g. machine plus manual packs).",
+  "kind": "note",
+  "page": "Setup · Dose administration aids · Step 4 of 4 · Service 1 of 16 · Question 1 of 9",
+  "status": "Fixed – retest",
+  "text": "Possible scenario where this could be a mutlichoice",
+  "type": ""
+}

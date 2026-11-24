@@ -1,0 +1,10 @@
+{
+  "by": "u_oB_xmELmgbegLcH3_Zwv8w",
+  "createdAt": "2026-11-24T06:09:11.683Z",
+  "fix": "",
+  "kind": "note",
+  "page": "Today",
+  "status": "Open",
+  "text": "The first screen feels too information-heavy. I get what it’s trying to do, but if I opened R.Pharmacy for the first time, I’d be unsure where to start.\n\nGive it a UI overhaul so it feels like a simple app welcome screen. Show the R.Pharmacy wordmark, one short line explaining what the app does, and one clear Set up your pharmacy button. Move setup instructions and detailed explanations into the steps where they’re relevant.\n\nA logo is worth exploring as part of the redesign. I’d judge the screen by whether a first-time proprietor can glance at it and know what to tap.",
+  "type": ""
+}

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concept D · Editorial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{--paper:#fbfaf6;--ink:#1a1712;--muted:#5d5649;--faint:#8b8475;--rule:#e2ddd1;--accent:#b5401d;--accent-soft:#f8e9e2;--blue:#1f4b99;
+--red:#b3261e;--amber:#94580a;--green:#2e6b3a;--hl:#fbedc4}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.serif{font-family:Newsreader,Georgia,serif}
+.mast{max-width:1120px;margin:0 auto;padding:18px 20px 0}
+.mast .line{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.mast .name{font-family:Newsreader,Georgia,serif;font-size:26px;font-weight:600;letter-spacing:-.01em}
+.mast .date{font-size:13px;color:var(--muted)}
+.mast .ph{font-size:14px;font-weight:600;min-height:44px;display:inline-flex;align-items:center;gap:4px}
+nav.sec{display:flex;gap:22px;overflow-x:auto;border-bottom:1px solid var(--rule);scrollbar-width:none}
+nav.sec button{min-height:46px;font-size:14px;font-weight:600;color:var(--muted);white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+nav.sec button[aria-current=page]{color:var(--ink);border-color:var(--accent)}
+main{max-width:1120px;margin:0 auto;padding:26px 20px 60px}
+.grid{display:grid;grid-template-columns:1fr;gap:34px}
+h1{font-family:Newsreader,Georgia,serif;font-weight:500;font-size:38px;line-height:1.08;letter-spacing:-.02em;margin:0}
+h2{font-family:Newsreader,Georgia,serif;font-weight:600;font-size:24px;line-height:1.2;margin:0}
+.stand{font-family:Newsreader,Georgia,serif;font-size:21px;line-height:1.45;color:var(--muted);margin:14px 0 0}
+.rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+.label{font-size:13px;font-weight:700;color:var(--ink);margin:0 0 8px;display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--ink);padding-top:8px}
+.label span{font-weight:500;color:var(--muted)}
+.figs{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1px solid var(--rule)}
+.fig{padding:14px 12px 14px 0;border-bottom:1px solid var(--rule);text-align:left}
+.fig b{font-family:Newsreader,Georgia,serif;font-size:46px;font-weight:500;line-height:1;display:block;font-variant-numeric:lining-nums tabular-nums}
+.fig span{font-size:14px;color:var(--muted)}
+.story{padding:16px 0;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:6px;text-align:left;width:100%}
+.story h3{font-family:Newsreader,Georgia,serif;font-size:22px;font-weight:600;margin:0;line-height:1.25}
+.story p{margin:0;color:var(--muted);font-size:15px}
+.more{color:var(--accent);font-weight:700;font-size:14px;min-height:44px;display:inline-flex;align-items:center}
+.st{font-size:13px;font-weight:700}
+.st-overdue{color:var(--red)}.st-soon{color:var(--amber)}.st-ok{color:var(--green)}.st-blue{color:var(--blue)}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:12px;font-weight:700;text-align:left;padding:8px 10px 8px 0;border-bottom:2px solid var(--ink);letter-spacing:.02em}
+td{padding:12px 10px 12px 0;border-bottom:1px solid var(--rule);vertical-align:top;font-size:15px}
+td .n{font-family:Newsreader,Georgia,serif;font-size:19px;font-weight:600}
+tr.click{cursor:pointer}
+tr.click:hover td{background:#f5f2ea}
+.filters{display:flex;gap:18px;margin:16px 0 4px;flex-wrap:wrap}
+.filters button{min-height:44px;font-size:15px;color:var(--muted);font-weight:600}
+.filters button[aria-pressed=true]{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:6px}
+.ans{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--rule);margin-top:18px}
+.ans button{flex:1 1 50%;min-height:64px;text-align:left;padding:12px 14px 12px 0;border-bottom:1px solid var(--rule);font-family:Newsreader,Georgia,serif;font-size:21px;display:flex;align-items:center;gap:12px}
+.ans button .r{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--ink);flex:0 0 auto;display:grid;place-items:center}
+.ans button[aria-pressed=true] .r::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.ans button[aria-pressed=true]{color:var(--accent)}
+.lined{width:100%;min-height:110px;border:0;border-bottom:1px solid var(--rule);background:repeating-linear-gradient(transparent 0 31px,var(--rule) 31px 32px);line-height:32px;font-family:Newsreader,Georgia,serif;font-size:19px;padding:0;resize:vertical;outline:none}
+.box{width:22px;height:22px;border:1.5px solid var(--ink);display:grid;place-items:center;flex:0 0 auto;font-size:14px}
+.box.on{background:var(--ink);color:var(--paper)}
+.chk{display:flex;align-items:center;gap:12px;min-height:48px;text-align:left}
+.btn{min-height:50px;padding:0 22px;font-weight:700;border:1.5px solid var(--ink);background:transparent}
+.btn.solid{background:var(--ink);color:var(--paper)}
+.margin{font-size:13px;color:var(--muted);border-left:2px solid var(--accent);padding-left:12px}
+.cal-row{display:grid;grid-template-columns:76px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.cal-row .d{font-family:Newsreader,Georgia,serif;font-size:34px;line-height:1;font-weight:500}
+.cal-row .d small{display:block;font-family:Inter,sans-serif;font-size:12px;font-weight:600;color:var(--muted);margin-top:4px}
+.doc{background:#fff;border:1px solid var(--rule);padding:24px 26px;box-shadow:0 1px 0 var(--rule),0 12px 30px rgba(26,23,18,.06)}
+.doc p{font-family:Newsreader,Georgia,serif;font-size:19px;line-height:1.55;margin:0 0 12px}
+.doc mark{background:var(--hl);padding:1px 2px}
+.person{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:14px 0;border-bottom:1px solid var(--rule);text-align:left;width:100%}
+.person .nm{font-family:Newsreader,Georgia,serif;font-size:23px;font-weight:600}
+@media (min-width:900px){
+  .grid{grid-template-columns:minmax(0,1fr) 300px;gap:56px}
+  h1{font-size:54px}
+  .figs{grid-template-columns:repeat(4,1fr)}
+  .ans button{flex:1 1 25%}
+  .split2{display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
+}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="line"><span class="name">R.Pharmacy</span><span class="date" id="date"></span></div>
+  <div style="display:flex;justify-content:space-between;align-items:center"><button class="ph" id="ph"></button><span style="font-size:13px;color:var(--muted)">For Alex Owner</span></div>
+  <nav class="sec" id="nav" aria-label="Sections"></nav>
+</header>
+<main id="main"></main>
+<script src="data.js"></script>
+<script>
+(function(){
+const D=window.RPH; let ph=D.pharmacies[0];
+const st={f:'all',ans:null,i:1,task:true,open:null,sop:'p1',staff:'s1'};
+const NAV=[['dashboard','The brief'],['audits','Register'],['actions','Follow-ups'],['calendar','Dates'],['staff','Team'],['policies','Library']];
+const page=()=>location.hash.slice(1)||'dashboard';
+const go=p=>{location.hash=p};
+const word={overdue:'Overdue',soon:'Due soon',ok:'On track'};
+const V={
+dashboard(){
+  return `<div class="grid"><div>
+  <h1>The site visit is overdue. The rest of Harbourview is in hand.</h1>
+  <p class="stand">Your eight-weekly visit fell due on 3 November. Three more reviews come up in the next fortnight, including the S8 stock check on 1 December. Sam has fixed the fridge log and is waiting on your check.</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px"><button class="btn solid" data-go="audit">Begin the site visit</button><button class="btn" data-go="actions">Check the fridge log</button></div>
+  <hr class="rule">
+  <div class="figs">${[[1,'review overdue','st-overdue'],[3,'due in two weeks',''],[1,'fix awaiting your check',''],[7,'answers to verify','']].map(([n,l,c])=>`<div class="fig"><b class="${c}">${n}</b><span>${l}</span></div>`).join('')}</div>
+  <hr class="rule">
+  <p class="label">Worth your attention <span>3 items</span></p>
+  ${[['actions','Sam says the fridge log is fixed','Reminders are now set for 9am and 5pm. Look at this week’s log before you close it.','Your check'],['staff','Sam’s registration renews on 30 November','The staff credentials review is due tomorrow. A quick look at the public register is enough.','Due tomorrow'],['policies','Three DAA answers still need verifying','The DAA procedure can’t be approved until they’re confirmed.','When you can']].map(([g,h,p,s])=>`<button class="story" data-go="${g}"><span class="st st-soon">${s}</span><h3>${h}</h3><p>${p}</p></button>`).join('')}
+  </div>
+  <aside>
+    <p class="label">Dates to keep</p>
+    ${D.upcoming.filter(u=>u.kind!=='task').slice(0,5).map(u=>`<div class="cal-row" style="grid-template-columns:60px 1fr"><span class="d" style="font-size:26px">${u.date.split(' ')[0]}<small>${u.date.split(' ')[1]} · ${u.dow}</small></span><span><b style="font-weight:600">${u.title}</b>${u.kind==='legal'?'<br><span class="st st-overdue">Legal requirement · s 111</span>':''}</span></div>`).join('')}
+    <p class="label" style="margin-top:26px">Elsewhere</p>
+    <button class="story" data-ph="ks" style="padding-top:6px"><h3 style="font-size:19px">Kensal Street</h3><p>Nothing overdue. Two answers to verify; cold chain review on 26 November.</p></button>
+  </aside></div>`;
+},
+audits(){
+  const f=st.f, list=D.audits.filter(a=>f==='all'||a.status===f);
+  return `<h1>The register</h1><p class="stand">Every review in your plan for ${ph.short}, with when it was last done and when it’s next due.</p>
+  <div class="filters">${[['all','All eight'],['overdue','Overdue'],['soon','Due soon'],['ok','On track']].map(([k,l])=>`<button aria-pressed="${f===k}" data-f="${k}">${l}</button>`).join('')}</div>
+  <table><thead><tr><th>Review</th><th>Last done</th><th>Next due</th><th style="display:none" class="dsk">Source</th></tr></thead><tbody>
+  ${list.map(a=>`<tr class="click" data-go="${a.id==='visit'?'audit':'audits'}"><td><span class="n">${a.name}</span><br><span style="font-size:13px;color:var(--muted)">${a.cadence} · ${a.source}</span></td><td>${a.last}</td><td><span class="st st-${a.status}">${a.dueLabel}</span></td></tr>`).join('')}</tbody></table>`;
+},
+audit(){
+  const v=D.visit, c=v.checks[st.i], issue=st.ans==='Issue'||st.ans==='Needs verification';
+  return `<div class="grid"><div>
+  <p style="font-size:13px;color:var(--muted);margin:0 0 6px">Site visit · ${v.pharmacy} · ${D.today} · check ${st.i+1} of 6</p>
+  <h1>${c.name}</h1><p class="stand">${c.prompt}</p>
+  <div class="ans" role="radiogroup" aria-label="Result">${v.answers.map(a=>`<button aria-pressed="${st.ans===a}" data-ans="${a}"><span class="r"></span>${a}</button>`).join('')}</div>
+  ${issue?`<div style="margin-top:22px"><label for="obs" style="font-weight:700;font-size:14px">Your observation</label><textarea id="obs" class="lined">Out-of-date stock found in the returns area.</textarea>
+  <button class="chk" data-task style="margin-top:12px"><span class="box ${st.task?'on':''}">${st.task?'✓':''}</span><span><b>Raise a follow-up for this</b><br><span style="font-size:14px;color:var(--muted)">Owner Sam Taylor · due 26 November · closes only when you check it</span></span></button></div>`:''}
+  <div style="display:flex;gap:12px;margin-top:26px;flex-wrap:wrap"><button class="btn" data-prev>Previous</button><button class="btn solid" data-next>Record and continue</button></div>
+  </div><aside><p class="label">This visit</p>${v.checks.map((x,i)=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--rule);font-size:15px;${i===st.i?'font-weight:700':''}"><span>${x.name}</span><span class="st ${i<st.i?'st-ok':''}" style="${i<st.i?'':'color:var(--faint)'}">${i<st.i?'Satisfactory':i===st.i?'Now':'—'}</span></div>`).join('')}
+  <p class="margin" style="margin-top:18px">${c.source||'Your plan'}. Last visit (8 Sep): ${c.last}.</p></aside></div>`;
+},
+actions(){
+  const list=D.actions;
+  return `<h1>Follow-ups</h1><p class="stand">Everything raised at reviews and check-ins. Nothing closes until you’ve seen the fix yourself.</p>
+  <div class="split2" style="margin-top:20px">${[['check','Awaiting your check'],['staff','With the team'],['closed','Closed this month']].map(([k,l])=>`<div><p class="label" style="margin-top:20px">${l} <span>${list.filter(a=>a.state===k).length}</span></p>${list.filter(a=>a.state===k).map(a=>`<div class="story"><h3>${a.title}</h3><p>${a.state==='closed'?'Closed by you on '+a.closed+'.':a.owner+', due '+a.due+'.'} Raised at ${a.from.replace(' · ',' on ')}.</p>${a.trail.length>1?`<p class="margin" style="margin-top:6px">${a.trail.slice(-2).map(([d,x])=>d+': '+x).join('<br>')}</p>`:''}${a.state==='check'?`<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px"><button class="btn solid">Close it</button><button class="btn">Reopen</button></div>`:''}</div>`).join('')}</div>`).join('')}</div>`;
+},
+calendar(){
+  return `<div class="grid"><div><h1>Dates to keep</h1><p class="stand">The next four weeks for ${ph.short}. One date needs choosing: the overdue site visit.</p>
+  <div class="cal-row" style="background:var(--accent-soft);padding-left:12px;margin-top:20px"><span class="d" style="color:var(--accent)">?<small>Not set</small></span><span><b style="font-family:Newsreader,serif;font-size:21px">Site visit</b><br><span style="font-size:15px;color:var(--muted)">Overdue since 3 November.</span> <button class="more">Choose Tue 24 Nov</button></span></div>
+  ${D.upcoming.map(u=>`<div class="cal-row"><span class="d">${u.date.split(' ')[0]}<small>${u.date.split(' ')[1]} · ${u.dow}</small></span><span><b style="font-family:Newsreader,serif;font-size:20px;font-weight:600">${u.title}</b><br><span class="st ${u.kind==='legal'?'st-overdue':'st-blue'}" style="font-weight:600">${u.kind==='legal'?'Legal requirement · § Reg 2026 s 111':u.kind==='task'?'Follow-up due':u.kind==='meeting'?'Meeting':'Review'}</span></span></div>`).join('')}</div>
+  <aside><p class="label">November at a glance</p><p style="font-family:Newsreader,serif;font-size:19px;margin:0">Three of six reviews done this month. The cold chain review and your check-in with Sam are still to come.</p></aside></div>`;
+},
+staff(){
+  return `<h1>The team</h1><p class="stand">Four people at ${ph.short}. One registration renews this month.</p><div style="margin-top:18px">${D.staff.map(p=>{const o=st.staff===p.id;return `<button class="person" data-staff="${p.id}"><span class="nm">${p.name}</span><span class="st st-${p.status==='soon'?'soon':'ok'}" style="align-self:center">${p.status==='soon'?'Check by 30 Nov':'Current'}</span><span style="color:var(--muted);font-size:15px">${p.role} · ${p.note}</span></button>${o?`<table style="margin:4px 0 18px"><tbody>${p.creds.map(([n,m,s])=>`<tr><td><b style="font-weight:600">${n}</b><br><span style="font-size:13px;color:var(--muted)">${m}</span></td><td style="text-align:right"><span class="st st-${s==='soon'?'soon':'ok'}">${s==='soon'?'Check soon':'Current'}</span></td></tr>`).join('')}</tbody></table><div style="display:flex;gap:10px;margin-bottom:18px"><button class="btn solid">Register checked</button><button class="btn">Add a record</button></div>`:''}`}).join('')}</div>`;
+},
+policies(){
+  const s=D.sops.find(x=>x.id===st.sop);
+  return `<div class="grid"><div><h1>The library</h1><p class="stand">Seventeen procedures, written from your setup answers. Fifteen are approved; one is a draft; one is due for its yearly review.</p>
+  ${s.id==='p1'?`<div class="doc" style="margin-top:24px"><p style="font-family:Inter,sans-serif;font-size:13px;color:var(--muted)">Dose administration aids · draft · section 3, Safeguards</p>${D.sopPreview.lines.map(([l,t])=>`<p>${t==='Marked to verify'?`<mark>${l}</mark>`:l}</p>`).join('')}<p class="margin" style="font-family:Inter,sans-serif;font-size:13px">The highlighted line comes from an answer marked “Needs verification”. Approval opens once it’s confirmed.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn solid">Verify the answers</button><button class="btn" disabled style="opacity:.45">Approve</button></div></div>`:`<div class="doc" style="margin-top:24px"><p style="font-family:Inter,sans-serif;font-size:13px;color:var(--muted)">${s.name} · ${s.version}</p><p>${s.note}. Opens the full procedure.</p></div>`}</div>
+  <aside><p class="label">Contents <span>${D.sopTotals.total}</span></p>${D.sops.map(x=>`<button class="story" data-sop="${x.id}" style="padding:10px 0;${x.id===st.sop?'':''}"><span style="font-family:Newsreader,serif;font-size:19px;font-weight:${x.id===st.sop?700:500}">${x.name}</span><span class="st ${x.status==='draft'?'st-soon':x.status==='review'?'st-blue':'st-ok'}">${x.status==='draft'?'Draft':x.status==='review'?'Review due':'Approved'}</span></button>`).join('')}</aside></div>`;
+}};
+function render(){
+  const p=page();
+  document.getElementById('main').innerHTML=(V[p]||V.dashboard)();
+  document.getElementById('nav').innerHTML=NAV.map(([k,l])=>`<button data-go="${k}" ${k===p||(p==='audit'&&k==='audits')?'aria-current="page"':''}>${l}</button>`).join('');
+  document.getElementById('date').textContent=D.today+' 2026';
+  document.getElementById('ph').textContent='The '+ph.short+' edition ▾';
+  window.scrollTo(0,0);
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button,tr');if(!t)return;
+  if(t.id==='ph'||t.dataset.ph){ph=ph.id==='hv'?D.pharmacies[1]:D.pharmacies[0];render();return;}
+  if(t.dataset.go){go(t.dataset.go);return;}
+  if(t.dataset.f){st.f=t.dataset.f;render();return;}
+  if(t.dataset.ans){st.ans=t.dataset.ans;render();return;}
+  if(t.hasAttribute('data-task')){st.task=!st.task;render();return;}
+  if(t.hasAttribute('data-next')){st.i=Math.min(5,st.i+1);st.ans=null;render();return;}
+  if(t.hasAttribute('data-prev')){st.i=Math.max(0,st.i-1);st.ans=null;render();return;}
+  if(t.dataset.staff){st.staff=st.staff===t.dataset.staff?null:t.dataset.staff;render();return;}
+  if(t.dataset.sop){st.sop=t.dataset.sop;render();return;}
+});
+window.addEventListener('hashchange',render);render();
+})();
+</script>
+</body>
+</html>

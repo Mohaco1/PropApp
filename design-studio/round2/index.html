@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Round 2 Concepts</title>
+<style>
+:root{--bg:#fff;--soft:#f6f7fb;--line:#e4e6ee;--ink:#1f2330;--muted:#5d6475;--accent:#5b6bd6;--accent-soft:#eef0fc;
+--like:#15803d;--dislike:#b42318;--keep:#1d4ed8;--change:#a15c07;--remove:#6b2a8a;--comment:#475569}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--soft);color:var(--ink);font:14px/1.45 "Segoe UI",system-ui,-apple-system,sans-serif;display:flex;flex-direction:column}
+button,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+header h1{margin:0;font-size:16px}
+header a{color:var(--accent);font-weight:600;text-decoration:none;font-size:13px}
+.seg{display:inline-flex;background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:7px;min-height:32px;padding:0 12px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed=true]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+select{border:1px solid var(--line);border-radius:8px;min-height:34px;padding:0 8px;background:#fff}
+.grow{flex:1}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;min-height:34px;padding:0 12px;font-weight:600}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.small{min-height:28px;padding:0 9px;font-size:12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;min-height:34px;padding:0 12px;font-weight:600;display:flex;align-items:center;gap:6px}
+.chip b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--soft);font-size:12px}
+.chip[aria-pressed=true]{border-color:var(--ink);background:var(--ink);color:#fff}
+.chip[aria-pressed=true] b{background:#fff;color:var(--ink)}
+.wrap{flex:1;min-height:0;display:flex}
+.stage{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:16px;overflow:auto;gap:8px}
+.frame{background:#fff;border-radius:14px;box-shadow:0 4px 18px rgba(20,23,35,.12);overflow:hidden;flex:0 0 auto}
+.frame iframe{border:0;display:block;transform-origin:0 0}
+.side{width:340px;flex:0 0 auto;background:#fff;border-left:1px solid var(--line);overflow:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.side h2{margin:0;font-size:16px}
+.side .why{margin:0;color:var(--muted)}
+.card{border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.card h3{margin:0;font-size:13px}
+.types{display:flex;flex-wrap:wrap;gap:4px}
+.types button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:2px 9px;font-size:12px;min-height:26px}
+.types button[aria-pressed=true]{color:#fff;border-color:transparent;background:var(--c)}
+.t-like{--c:var(--like)}.t-dislike{--c:var(--dislike)}.t-keep{--c:var(--keep)}.t-change{--c:var(--change)}.t-remove{--c:var(--remove)}.t-comment{--c:var(--comment)}
+textarea{width:100%;min-height:56px;border:1px solid var(--line);border-radius:7px;padding:6px 8px;resize:vertical}
+.note{border-top:1px solid var(--line);padding-top:6px;font-size:13px}
+.note .meta{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.badge{color:#fff;background:var(--c);border-radius:999px;padding:0 7px;font-size:11px;font-weight:600}
+.keep{display:flex;gap:8px;align-items:flex-start;min-height:32px;border:0;background:none;text-align:left;padding:2px 0}
+.keep .bx{width:18px;height:18px;border:2px solid var(--ink);border-radius:4px;flex:0 0 auto;display:grid;place-items:center;font-size:11px;margin-top:1px}
+.keep[aria-pressed=true] .bx{background:var(--keep);border-color:var(--keep);color:#fff}
+.grid{display:flex;gap:16px;overflow-x:auto;padding:16px;align-items:flex-start;flex:1}
+.cell{flex:0 0 auto;display:flex;flex-direction:column;gap:6px}
+.cell .t{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.cell .t b{font-size:13px}
+.brief{flex:1;border:0;width:100%;background:#fff}
+.muted{color:var(--muted)}
+@media (max-width:900px){.wrap{flex-direction:column}.side{width:auto;border-left:0;border-top:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Round 2 · Five concepts</h1>
+  <a href="../index.html">← Back to the Design Studio</a>
+  <span class="grow"></span>
+  <div class="seg" role="group" aria-label="Mode"><button data-mode="one">Explore one</button><button data-mode="compare">Compare a page</button><button data-mode="brief">Brief and evaluation</button></div>
+</header>
+<header id="controls" style="padding-top:8px;padding-bottom:8px">
+  <div class="chips" id="concepts"></div>
+  <span class="grow"></span>
+  <label class="muted">Page <select id="page"></select></label>
+  <div class="seg" role="group" aria-label="Device"><button data-dev="phone">Phone</button><button data-dev="laptop">Laptop</button></div>
+  <button class="btn" id="full">Full screen ↗</button>
+</header>
+<div class="wrap" id="wrap"></div>
+<script>
+(function(){
+'use strict';
+var KEY='rph-design-studio-v1';
+var C=[
+ {id:'A',name:'Quiet Precision',file:'concept-a.html',why:'Typography and spacing instead of boxes. One ordered “Needs you” list; details open in place.',keep:['“Needs you” list ordered by urgency','One-sentence summary of the day','Details open in place (no new screens)','Hairline lists instead of cards','Month progress meter','Keyboard shortcuts on laptop']},
+ {id:'B',name:'Command Centre',file:'concept-b.html',why:'A dense workspace: attention queue, detail pane, both pharmacies side by side, ⌘K search and keyboard answering.',keep:['Attention queue table','Detail pane beside the list','Pharmacies side-by-side matrix','⌘K jump-to search','Answer audits with keys 1–4','Staff credentials matrix','Month calendar grid']},
+ {id:'C',name:'Guided Path',file:'concept-c.html',why:'No dashboard to read. Your next step, then today’s path; every job is a short guided flow.',keep:['“Your next step” hero','Today’s ordered path','One question per screen with Undo','“Is it fixed?” guided check','Guided registration checklist','Verify answers one at a time','Path ahead with suggestions']},
+ {id:'D',name:'Editorial',file:'concept-d.html',why:'Reads like a daily briefing: a headline, big figures, a register, and SOPs as typeset documents.',keep:['Headline that sums up the day','Serif display type','Register-style table','Big figures separated by rules','Ruled observation notes','Dates to keep almanac','SOP as a document with highlights']},
+ {id:'E',name:'The Floor',file:'concept-e.html',why:'The floor plan is the navigation. Everything is pinned to the area it belongs to; a visit is a route you walk.',keep:['Floor plan as navigation','Everything pinned to an area','Walk-the-floor visit route','Who looks after which area','Lenses over one map','Procedures by area']}
+];
+var PAGES=[['dashboard','Dashboard / Today'],['audits','Audits and reviews'],['audit','Audit check-in'],['actions','Actions and follow-ups'],['calendar','Calendar / upcoming'],['staff','Staff assurance'],['policies','Policies and procedures']];
+var TYPES=[['like','Like'],['dislike','Dislike'],['keep','Keep'],['change','Change'],['remove','Remove'],['comment','Comment']];
+var TL=Object.fromEntries(TYPES);
+var DEV={phone:[390,844],laptop:[1280,800]};
+var ui={mode:'one',c:'A',page:'dashboard',dev:'phone',draft:'like'};
+try{Object.assign(ui,JSON.parse(localStorage.getItem('rph-r2-ui')||'{}'));}catch(e){}
+function saveUi(){try{localStorage.setItem('rph-r2-ui',JSON.stringify(ui));}catch(e){}}
+function load(){var d={version:1,notes:{},sections:{},updated:null};try{var r=localStorage.getItem(KEY);if(r)d=Object.assign(d,JSON.parse(r));}catch(e){}d.notes=d.notes||{};d.sections=d.sections||{};return d;}
+function store(d){d.updated=new Date().toISOString();try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){alert('Could not save in this browser.');}}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function nk(page,cid){return 'r2-'+page+'|r2-'+cid;}
+function cOf(id){return C.find(function(x){return x.id===id;});}
+
+function frame(c,page,dev,maxW,maxH){
+  var w=DEV[dev][0],h=DEV[dev][1],s=Math.min(1,maxW/w,maxH/h);
+  return '<div class="frame" style="width:'+Math.round(w*s)+'px;height:'+Math.round(h*s)+'px"><iframe title="Concept '+c.id+' '+esc(c.name)+'" src="'+c.file+'#'+page+'" style="width:'+w+'px;height:'+h+'px;transform:scale('+s+')"></iframe></div>';
+}
+function notesHtml(page,cid){
+  var d=load(),list=d.notes[nk(page,cid)]||[];
+  var h='<div class="card" data-k="'+nk(page,cid)+'"><h3>Notes on this page</h3><div class="types">'+TYPES.map(function(t){return '<button class="t-'+t[0]+'" data-type="'+t[0]+'" aria-pressed="'+(ui.draft===t[0])+'">'+t[1]+'</button>';}).join('')+'</div><textarea aria-label="Note" placeholder="What do you think of this page in this concept?"></textarea><div><button class="btn primary small" data-add>Add note</button></div>';
+  list.forEach(function(n){h+='<div class="note" data-id="'+n.id+'"><div class="meta"><span class="badge t-'+n.type+'">'+TL[n.type]+'</span><span style="flex:1"></span><button class="btn small" data-del>Delete</button></div><div style="white-space:pre-wrap">'+esc(n.text)+'</div></div>';});
+  return h+'</div>';
+}
+function keepHtml(cid){
+  var d=load(),c=cOf(cid),list=d.notes['r2-overall|r2-'+cid]||[];
+  return '<div class="card"><h3>Elements to keep from '+esc(c.name)+'</h3><span class="muted" style="font-size:12px">Ticking one doesn’t approve the whole concept.</span>'+c.keep.map(function(k){var on=list.some(function(n){return n.type==='keep'&&n.component==='Signature element'&&n.text===k;});return '<button class="keep" data-keep="'+esc(k)+'" aria-pressed="'+on+'"><span class="bx">'+(on?'✓':'')+'</span><span>'+esc(k)+'</span></button>';}).join('')+'</div>';
+}
+function overallHtml(cid){
+  var d=load(),list=(d.notes['r2-overall|r2-'+cid]||[]).filter(function(n){return !(n.type==='keep'&&n.component==='Signature element');});
+  var h='<div class="card" data-k="r2-overall|r2-'+cid+'"><h3>Overall thoughts on this concept</h3><textarea aria-label="Overall note" placeholder="Gut feeling, what to keep, what to drop"></textarea><div><button class="btn primary small" data-add data-overall>Add</button></div>';
+  list.forEach(function(n){h+='<div class="note" data-id="'+n.id+'"><div class="meta"><span class="badge t-'+n.type+'">'+TL[n.type]+'</span><span style="flex:1"></span><button class="btn small" data-del>Delete</button></div><div style="white-space:pre-wrap">'+esc(n.text)+'</div></div>';});
+  return h+'</div>';
+}
+function render(){
+  document.querySelectorAll('[data-mode]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.mode===ui.mode));});
+  document.querySelectorAll('[data-dev]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.dev===ui.dev));});
+  document.getElementById('controls').style.display=ui.mode==='brief'?'none':'';
+  document.getElementById('concepts').innerHTML=C.map(function(c){return '<button class="chip" data-c="'+c.id+'" aria-pressed="'+(ui.mode==='one'&&ui.c===c.id)+'"'+(ui.mode==='compare'?' disabled style="opacity:.55;cursor:default"':'')+'><b>'+c.id+'</b>'+esc(c.name)+'</button>';}).join('');
+  var sel=document.getElementById('page');sel.innerHTML=PAGES.map(function(p){return '<option value="'+p[0]+'"'+(p[0]===ui.page?' selected':'')+'>'+p[1]+'</option>';}).join('');
+  var wrap=document.getElementById('wrap');
+  if(ui.mode==='brief'){wrap.innerHTML='<iframe class="brief" src="brief.html" title="Brief and evaluation"></iframe>';return;}
+  if(ui.mode==='one'){
+    var c=cOf(ui.c),W=Math.max(320,window.innerWidth-(window.innerWidth>900?372:32)),H=Math.max(420,window.innerHeight-150);
+    wrap.innerHTML='<div class="stage">'+frame(c,ui.page,ui.dev,W,H)+'<span class="muted" style="font-size:12px">You can click around inside the prototype. Its own navigation moves between pages.</span></div><aside class="side"><div><h2>'+c.id+' · '+esc(c.name)+'</h2><p class="why">'+esc(c.why)+'</p></div>'+notesHtml(ui.page,c.id)+keepHtml(c.id)+overallHtml(c.id)+'</aside>';
+  } else {
+    var dev=ui.dev,h=Math.max(360,window.innerHeight-200),w=dev==='phone'?Math.round(h*390/844):Math.round(Math.min(window.innerWidth*0.7,h*1280/800));
+    var d=load();
+    wrap.innerHTML='<div class="grid">'+C.map(function(c){var n=(d.notes[nk(ui.page,c.id)]||[]).length;return '<div class="cell"><div class="t"><b>'+c.id+' · '+esc(c.name)+'</b><span class="muted" style="font-size:12px">'+n+' note'+(n===1?'':'s')+'</span><button class="btn small" data-open="'+c.id+'">Open and note</button></div>'+frame(c,ui.page,dev,w,h)+'</div>';}).join('')+'</div>';
+  }
+}
+document.addEventListener('click',function(e){
+  var t=e.target.closest('button');if(!t)return;
+  if(t.dataset.mode){ui.mode=t.dataset.mode;saveUi();render();return;}
+  if(t.dataset.dev){ui.dev=t.dataset.dev;saveUi();render();return;}
+  if(t.dataset.c&&ui.mode==='one'){ui.c=t.dataset.c;saveUi();render();return;}
+  if(t.dataset.open){ui.c=t.dataset.open;ui.mode='one';saveUi();render();return;}
+  if(t.id==='full'){window.open(cOf(ui.c).file+'#'+ui.page,'_blank');return;}
+  if(t.dataset.type){ui.draft=t.dataset.type;saveUi();t.parentNode.querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',String(b===t));});return;}
+  var card=t.closest('.card');
+  if(t.hasAttribute('data-add')&&card){var ta=card.querySelector('textarea'),txt=ta.value.trim();if(!txt){ta.focus();return;}var d=load(),k=card.dataset.k;(d.notes[k]=d.notes[k]||[]).push({id:uid(),type:t.hasAttribute('data-overall')?'comment':ui.draft,component:t.hasAttribute('data-overall')?'Whole concept':'',text:txt,created:new Date().toISOString()});store(d);render();return;}
+  if(t.hasAttribute('data-del')&&card){if(!confirm('Delete this note?'))return;var d2=load(),k2=card.dataset.k,id=t.closest('.note').dataset.id;d2.notes[k2]=(d2.notes[k2]||[]).filter(function(n){return n.id!==id;});store(d2);render();return;}
+  if(t.dataset.keep){var d3=load(),k3='r2-overall|r2-'+ui.c,l=d3.notes[k3]=d3.notes[k3]||[],i=l.findIndex(function(n){return n.type==='keep'&&n.component==='Signature element'&&n.text===t.dataset.keep;});if(i>=0)l.splice(i,1);else l.push({id:uid(),type:'keep',component:'Signature element',text:t.dataset.keep,created:new Date().toISOString()});store(d3);render();return;}
+});
+document.getElementById('page').addEventListener('change',function(e){ui.page=e.target.value;saveUi();render();});
+var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(render,150);});
+render();
+})();
+</script>
+</body>
+</html>

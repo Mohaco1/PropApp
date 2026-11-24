@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concept E · Guided Precision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--ink:#121729;--muted:#556078;--faint:#8b93a9;--line:#e5e8ef;--soft:#f5f6fa;--bg:#fff;--accent:#3552d6;--accent-soft:#ebeffd;
+--red:#c42f1f;--red-soft:#fdecea;--amber:#9c5800;--amber-soft:#fff2dc;--green:#1d7a43;--green-soft:#e7f6ed;--hero:#141a33}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Plus Jakarta Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+header{position:sticky;top:0;z-index:6;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;gap:12px;padding:10px 20px;max-width:1180px;margin:0 auto}
+.ph{min-height:44px;font-weight:700;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.ph small{font-weight:600;color:var(--faint)}
+nav.top{display:flex;gap:2px;margin-left:16px}
+nav.top button{min-height:40px;padding:0 12px;border-radius:9px;font-weight:600;font-size:15px;color:var(--muted)}
+nav.top button[aria-current=page]{background:var(--soft);color:var(--ink)}
+.search{margin-left:auto;min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:10px;color:var(--faint);font-size:14px;display:flex;align-items:center;gap:8px}
+.search kbd{font:600 12px "Plus Jakarta Sans";border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--muted)}
+.me{width:38px;height:38px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:0 0 auto}
+main{max-width:1180px;margin:0 auto;padding:24px 20px 110px}
+.cols{display:grid;grid-template-columns:1fr;gap:28px}
+h1{margin:0;font-size:28px;letter-spacing:-.02em;font-weight:800;line-height:1.15}
+.meta{font-size:14px;color:var(--muted);font-weight:600}
+.counts{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;font-size:15px;font-weight:700}
+.counts span{display:flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;display:inline-block}
+.c-red{color:var(--red)}.c-amber{color:var(--amber)}.c-blue{color:var(--accent)}.c-green{color:var(--green)}.c-muted{color:var(--muted)}
+.b-red{background:var(--red)}.b-amber{background:var(--amber)}.b-blue{background:var(--accent)}.b-green{background:var(--green)}.b-grey{background:var(--faint)}.b-ink{background:var(--ink)}
+.hero{background:var(--hero);color:#fff;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.hero .pill{align-self:flex-start;background:#fbd9d4;color:#8f1d12;font-size:13px;font-weight:800;border-radius:999px;padding:4px 10px}
+.hero h2{margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em}
+.hero p{margin:0;color:#cfd5ea;font-size:15px}
+.hero .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.hb{min-height:52px;padding:0 20px;border-radius:14px;font-weight:700}
+.hb.w{background:#fff;color:var(--ink)}
+.hb.o{border:1.5px solid #3b4466;color:#e3e7f5}
+.sec{font-size:13px;font-weight:800;color:var(--muted);margin:26px 0 4px;display:flex;justify-content:space-between;align-items:baseline}
+.sec span{font-weight:600;color:var(--faint)}
+.list{border-top:1px solid var(--line)}
+.item{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:12px 0;border-bottom:1px solid var(--line);text-align:left}
+.item .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.item .n{font-weight:700}
+.item .m{font-size:14px;color:var(--muted)}
+.tag{font-size:13px;font-weight:800;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.t-red{background:var(--red-soft);color:var(--red)}.t-amber{background:var(--amber-soft);color:var(--amber)}.t-blue{background:var(--accent-soft);color:var(--accent)}.t-green{background:var(--green-soft);color:var(--green)}.t-grey{background:var(--soft);color:var(--muted)}.t-ink{background:var(--ink);color:#fff}
+.num{width:28px;height:28px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:13px;font-weight:800;flex:0 0 auto;color:var(--muted)}
+.open{padding:6px 0 18px 42px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+.say{background:var(--soft);border-radius:14px;padding:12px 14px;font-size:15px}
+.say b{display:block;font-size:13px;color:var(--muted);font-weight:700}
+.photo{height:90px;border-radius:10px;background:#f4efe3;padding:10px;display:flex;flex-direction:column;gap:6px;margin-top:8px;max-width:260px}
+.photo i{display:block;height:5px;background:#a59f90;border-radius:3px}
+.q{font-weight:800;font-size:17px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{min-height:46px;padding:0 18px;border-radius:12px;border:1.5px solid var(--line);font-weight:700;background:#fff}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.blue{background:var(--accent);border-color:var(--accent);color:#fff}
+.meter{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--ink)}
+.seg{display:inline-flex;background:var(--soft);border-radius:12px;padding:4px}
+.seg button{min-height:40px;padding:0 16px;border-radius:9px;font-weight:700;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed=true]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(18,23,41,.12)}
+.bar{display:flex;gap:5px}.bar i{flex:1;height:6px;border-radius:3px;background:var(--line)}.bar i.d{background:var(--ink)}.bar i.n{background:var(--accent)}
+.card{border:1px solid var(--line);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:12px}
+.opt{display:flex;align-items:center;gap:14px;min-height:60px;padding:0 18px;border-radius:14px;border:1.5px solid var(--line);width:100%;text-align:left;font-weight:700;font-size:17px;background:#fff}
+.opt[aria-pressed=true]{border-color:var(--ink);background:var(--soft)}
+.opt kbd{margin-left:auto;font:600 13px "Plus Jakarta Sans";color:var(--faint)}
+.mini{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.mini button{min-height:44px;border-radius:10px;border:1.5px solid var(--line);font-size:13px;font-weight:700;background:#fff;padding:0 6px}
+.mini button[aria-pressed=true]{color:#fff}
+.chip{min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);font-weight:600;font-size:14px;background:#fff}
+.chip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.box{width:22px;height:22px;border-radius:6px;border:2px solid var(--ink);display:grid;place-items:center;flex:0 0 auto;font-size:13px}
+.box.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chk{display:flex;align-items:center;gap:12px;min-height:48px;text-align:left;font-weight:600}
+textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px;min-height:72px;resize:vertical}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:14px;padding:8px 8px 8px 16px;display:flex;gap:12px;align-items:center;font-size:15px;z-index:20;box-shadow:0 10px 28px rgba(18,23,41,.25)}
+.toast button{min-height:40px;padding:0 14px;border-radius:10px;color:#b8c4ff;font-weight:800}
+.tl .node{display:flex;gap:14px}
+.tl .rail{width:14px;display:flex;flex-direction:column;align-items:center}
+.tl .rail i{width:12px;height:12px;border-radius:50%;margin-top:22px;flex:0 0 auto}
+.tl .rail b{flex:1;width:2px;background:var(--line)}
+.side{display:none}
+.start{min-height:40px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line);font-weight:700;display:none;align-items:center}
+@media (min-width:900px){.start{display:inline-flex}}
+.mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:13px;text-align:center}
+.mcal span{min-height:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-weight:600;color:var(--muted);gap:2px}
+.mcal .t{background:var(--ink);color:#fff}
+.mcal i{width:5px;height:5px;border-radius:50%}
+nav.mob{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,255,255,.97);border-top:1px solid var(--line);padding:4px 4px 10px;z-index:6}
+nav.mob button{min-height:52px;font-size:12px;font-weight:700;color:var(--faint);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+nav.mob button[aria-current=page]{color:var(--ink)}
+@media (max-width:899px){nav.top,.search{display:none}.hrow .me{margin-left:auto}}
+@media (min-width:900px){
+  nav.mob{display:none}
+  main{padding-bottom:60px}
+  .cols{grid-template-columns:minmax(0,1fr) 340px;gap:48px}
+  .side{display:flex;flex-direction:column;gap:6px;position:sticky;top:90px;align-self:start}
+  .toast{bottom:28px}
+}
+</style>
+</head>
+<body>
+<header><div class="hrow"><button class="ph" id="ph"></button><nav class="top" id="top" aria-label="Sections"></nav><button class="search" data-cmd>Search or jump to… <kbd>⌘K</kbd></button><span class="me" title="Alex Owner">AO</span></div></header>
+<main id="main"></main>
+<nav class="mob" id="mob" aria-label="Sections"></nav>
+<script src="../round2/data.js"></script>
+<script>
+(function(){
+const D=window.RPH;let ph=D.pharmacies[0];
+const st={open:{t1:true},mode:'guided',v:{i:1,ans:{c1:'Satisfactory'},find:[],task:true,toast:''},tab:'check',fix:null,reg:0,sop:0,sopOpen:true,read:false,staffOpen:'s1'};
+const NAV=[['dashboard','Today'],['audits','Reviews'],['actions','Actions'],['calendar','Plan'],['staff','Staff'],['policies','Policies']];
+const MOB=[['dashboard','Today'],['audits','Reviews'],['actions','Actions'],['calendar','Plan'],['more','More']];
+const page=()=>location.hash.slice(1)||'dashboard';
+const go=p=>{location.hash=p};
+const CL={overdue:['t-red','b-red'],soon:['t-amber','b-amber'],ok:['t-green','b-green']};
+function obligations(){
+  return `<div class="sec" style="margin-top:0">Obligations <span>${ph.short}</span></div><div class="list">
+  ${[['b-red','Overdue','Site visit · 16 days','audits'],['b-amber','Due within 14 days','Staff credentials · Cold chain · S8','audits'],['b-ink','Next legal date','S8 stock check · 1 Dec','calendar'],['b-blue','Waiting for your check','Fridge log gaps','actions'],['b-grey','To verify','7 setup answers','policies']].map(([c,l,m,g])=>`<button class="item" data-go="${g}" style="min-height:56px"><span class="dot ${c}"></span><span class="t"><span class="n" style="font-size:15px">${l}</span><span class="m">${m}</span></span><span class="c-muted">›</span></button>`).join('')}</div>
+  <div class="sec">November</div><div class="meter"><i style="width:50%"></i></div><span class="meta" style="margin-top:6px">3 of 6 reviews done</span>`;
+}
+const fixFlow=()=>{const a=D.actions[0];return st.fix==='closed'?`<div class="say" style="background:var(--green-soft)"><b>Closed by you · today</b>Recorded as your check. It’s in History.</div>`:st.fix==='reopen'?`<div class="say" style="background:var(--amber-soft)"><b>Sent back to Sam</b>New due date 26 Nov. You’ll see it again when Sam updates it.</div>`:`<div class="say"><b>You noted from Sam · 12 Nov</b>“Reminders set for 9am and 5pm.”<div class="photo" role="img" aria-label="Photo of this week's fridge log">${'<i></i>'.repeat(6)}</div></div><span class="q">Is it fixed? Look at this week’s log first.</span><div class="row"><button class="btn primary" data-fix="closed">Yes · close it</button><button class="btn" data-fix="reopen">Not yet · reopen</button></div>`;};
+const V={
+dashboard(){
+  const path=[
+    {id:'t1',n:'Check Sam’s fridge log fix',m:'Your check · about 2 minutes',tag:['Your check','t-blue'],body:fixFlow},
+    {id:'creds',n:'Confirm Sam’s registration',m:'Staff credentials review due tomorrow',tag:['Tomorrow','t-amber'],go:'staff'},
+    {id:'verify',n:'Verify 3 DAA answers',m:'Unlocks approval of the DAA procedure',tag:['When you can','t-grey'],go:'policies'}
+  ];
+  const left=`<span class="meta">${D.today} · ${ph.short}</span><h1>Today</h1>
+  <div class="counts"><span class="c-red"><i class="dot b-red"></i>1 overdue</span><span class="c-amber"><i class="dot b-amber"></i>4 due within 14 days</span><span class="c-blue"><i class="dot b-blue"></i>1 for your check</span></div>
+  <section class="hero" aria-label="Next step"><span class="pill">Overdue 16 days</span><h2>Site visit</h2><p>Six checks, about ten minutes on site. Guided takes you one check at a time; List shows all six together.</p><div class="acts"><button class="hb w" data-visit="guided">Start guided</button><button class="hb o" data-visit="list">Open as list</button></div></section>
+  <div class="sec">Then <span>tap to do it here</span></div>
+  <div class="list">${path.map((p,i)=>{const o=st.open[p.id];return `<button class="item" ${p.go?`data-go="${p.go}"`:`data-open="${p.id}"`} aria-expanded="${!!o}"><span class="num">${i+2}</span><span class="t"><span class="n">${p.n}</span><span class="m">${p.m}</span></span><span class="tag ${p.tag[1]}">${p.tag[0]}</span></button>${o&&p.body?`<div class="open">${p.body()}</div>`:''}`}).join('')}</div>
+  <div class="sec">Coming up</div><div class="list">${D.upcoming.filter(u=>['meeting','legal'].includes(u.kind)||u.ref==='cold').slice(0,3).map(u=>`<div class="item" style="min-height:54px"><span style="width:58px;font-weight:800;font-size:14px">${u.date}</span><span class="t"><span class="n" style="font-weight:600">${u.title}</span>${u.kind==='legal'?'<span class="m">§ Legal requirement · s 111</span>':''}</span></div>`).join('')}</div>
+  <div class="side" style="display:block" id="oblig-m"></div>`;
+  return `<div class="cols"><div>${left.replace('<div class="side" style="display:block" id="oblig-m"></div>','<div class="mob-only">'+'<div class="sec">Everything outstanding</div>'+`<button class="item" data-go="audits"><span class="t"><span class="n">See all obligations</span><span class="m">Reviews, legal dates, actions and answers to verify</span></span><span class="c-muted">›</span></button>`+'</div>')}</div><aside class="side">${obligations()}</aside></div>`;
+},
+audits(){
+  const g=[['overdue','Overdue'],['soon','Due within 14 days'],['ok','On track']];
+  return `<div class="cols"><div><span class="meta">${ph.short} · ${D.audits.length} in your plan</span><h1>Reviews</h1>
+  ${g.map(([k,l])=>{const list=D.audits.filter(a=>a.status===k);return `<div class="sec">${l} <span>${list.length}</span></div><div class="list">${list.map(a=>`<button class="item" ${a.id==='visit'?'data-visit="guided"':'data-go="audit"'}><span class="dot ${a.legal?'b-ink':CL[k][1]}"></span><span class="t"><span class="n">${a.name}</span><span class="m">${a.cadence} · last ${a.last}${a.legal?' · § s 111':''}</span></span><span class="tag ${a.legal?'t-ink':CL[k][0]}">${a.dueLabel}</span>${k!=='ok'?'<span class="start">Start</span>':''}</button>`).join('')}</div>`}).join('')}</div><aside class="side">${obligations()}</aside></div>`;
+},
+audit(){
+  const v=D.visit,s=st.v,c=v.checks[s.i],a=s.ans[c.id];
+  const bar=`<div class="bar" aria-label="Check ${s.i+1} of 6">${v.checks.map((x,i)=>`<i class="${s.ans[x.id]?'d':i===s.i?'n':''}"></i>`).join('')}</div>`;
+  const head=`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><button class="btn" data-go="dashboard" style="min-height:40px">← Today</button><div class="seg" role="group" aria-label="How to answer"><button data-mode="guided" aria-pressed="${st.mode==='guided'}">Guided</button><button data-mode="list" aria-pressed="${st.mode==='list'}">List</button></div></div>
+  <div style="margin:16px 0 6px;display:flex;justify-content:space-between"><span class="meta">Site visit · Harbourview · saved as you go</span><span class="meta">${Object.keys(s.ans).length} of 6 done</span></div>${bar}`;
+  const extra=(cid)=>`<div style="display:flex;gap:6px;flex-wrap:wrap">${v.findings.map(f=>`<button class="chip" data-find="${f}" aria-pressed="${s.find.includes(f)}">${f}</button>`).join('')}</div><textarea aria-label="Notes" placeholder="Add a sentence if it helps"></textarea><button class="chk" data-task><span class="box ${s.task?'on':''}">${s.task?'✓':''}</span>Raise an action · Sam Taylor · due 26 Nov</button>`;
+  if(st.mode==='list'){
+    const col={Satisfactory:'#1d7a43',Issue:'#c42f1f','Needs verification':'#9c5800','Not applicable':'#556078'};
+    return `${head}<div class="list" style="margin-top:18px">${v.checks.map((x,i)=>{const r=s.ans[x.id];return `<div style="padding:14px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px"><div style="display:flex;justify-content:space-between;gap:10px"><span><span class="n" style="font-weight:700">${i+1}. ${x.name}</span><br><span class="meta" style="font-weight:500">${x.prompt} Last: ${x.last}.</span></span></div><div class="mini" role="radiogroup" aria-label="${x.name}">${v.answers.map(an=>`<button data-lans="${x.id}|${an}" aria-pressed="${r===an}" style="${r===an?`background:${col[an]};border-color:${col[an]}`:''}">${an==='Needs verification'?'Verify':an==='Not applicable'?'N/A':an}</button>`).join('')}</div>${r==='Issue'||r==='Needs verification'?extra(x.id):''}</div>`}).join('')}</div><div class="row" style="margin-top:18px"><button class="btn blue">Finish visit (${Object.keys(s.ans).length}/6 answered)</button></div><p class="meta" style="font-weight:500">Each check needs its own answer. There’s no “mark all”.</p>`;
+  }
+  const issue=a==='Issue'||a==='Needs verification';
+  return `${head}<div class="card" style="margin-top:18px;max-width:640px"><span class="meta">${c.source?c.source+' · ':''}Last visit: ${c.last}</span><h1 style="font-size:24px">${c.name}</h1><p style="margin:0;color:var(--muted)">${c.prompt}</p>
+  ${issue?`<span class="tag t-red" style="align-self:flex-start">${a}</span><span class="q">What did you find?</span>${extra(c.id)}<div class="row"><button class="btn" data-clear>Change answer</button><button class="btn blue" data-save>Save and next check</button></div>`:v.answers.map((x,i)=>`<button class="opt" data-ans="${x}" aria-pressed="${a===x}">${x}<kbd>${i+1}</kbd></button>`).join('')}</div>
+  ${s.toast?`<div class="toast" role="status">${s.toast}<button data-undo>Undo</button></div>`:''}`;
+},
+actions(){
+  const t=st.tab,list=D.actions.filter(a=>a.state===t),cnt=k=>D.actions.filter(a=>a.state===k).length;
+  return `<div class="cols"><div><span class="meta">Only you close an action, after you’ve seen the fix</span><h1>Actions</h1>
+  <div class="seg" role="tablist" style="margin-top:16px">${[['check','Your check'],['staff','With staff'],['closed','Closed']].map(([k,l])=>`<button role="tab" data-tab="${k}" aria-pressed="${t===k}">${l} · ${cnt(k)}</button>`).join('')}</div>
+  <div class="list" style="margin-top:14px">${list.map(a=>{const o=st.open[a.id];return `<button class="item" data-open="${a.id}" aria-expanded="${!!o}"><span class="dot ${t==='check'?'b-blue':t==='staff'?'b-grey':'b-green'}"></span><span class="t"><span class="n">${a.title}</span><span class="m">${t==='closed'?'Closed by you '+a.closed:a.owner+' · due '+a.due} · ${a.from}</span></span><span class="c-muted">${o?'−':'+'}</span></button>${o?`<div class="open" style="padding-left:23px">${a.state==='check'?fixFlow():a.state==='staff'?`<span class="meta" style="font-weight:500">${a.trail.map(([d,x])=>d+': '+x).join('<br>')}</span><div class="row"><button class="btn primary">Record an update</button><button class="btn">Change due date</button></div>`:'<span class="meta" style="font-weight:500">Closed with your check recorded. Open the full record in History.</span>'}</div>`:''}`}).join('')}</div></div><aside class="side">${obligations()}</aside></div>`;
+},
+calendar(){
+  const items=[['Fri 20 Nov','Staff credentials review','b-amber','Review'],['Fri 20 Nov','Sam: OTP approvals location','b-grey','Action'],['Tue 24 Nov','Site visit (suggested)','b-red','Plan it'],['Wed 25 Nov','Check-in with Sam','b-blue','Meeting'],['Mon 30 Nov','Cold chain review','b-amber','Review'],['Tue 1 Dec','S8 stock check · § s 111','b-ink','Legal'],['Fri 4 Dec','DAA packing check','b-green','Review']];
+  const ev={20:['var(--amber)','var(--faint)'],24:['var(--red)'],25:['var(--accent)'],30:['var(--amber)']};
+  let cal=['M','T','W','T','F','S','S'].map(d=>`<span style="min-height:24px;color:var(--faint)">${d}</span>`).join('')+'<span></span>'.repeat(6);
+  for(let d=1;d<=30;d++)cal+=`<span class="${d===19?'t':''}">${d}<span style="display:flex;gap:2px">${(ev[d]||[]).map(c=>`<i style="background:${c}"></i>`).join('')}</span></span>`;
+  return `<div class="cols"><div><span class="meta">${ph.short} · next four weeks</span><h1>Plan</h1>
+  <div class="card" style="margin-top:16px;background:var(--accent-soft);border-color:transparent"><span class="q">Suggested: site visit on Tue 24 Nov</span><span style="color:var(--muted);font-size:15px">You’ll be on site anyway, and you can close the fridge log action at the same time.</span><div class="row"><button class="btn blue">Book Tue 24 Nov</button><button class="btn">Pick another day</button></div></div>
+  <div class="tl" style="margin-top:10px">${items.map(([d,n,c,k])=>`<div class="node"><span class="rail"><i class="${c}"></i><b></b></span><div class="item" style="flex:1"><span class="t"><span class="n">${n}</span><span class="m">${d}</span></span><span class="tag ${c==='b-red'?'t-red':c==='b-amber'?'t-amber':c==='b-ink'?'t-ink':c==='b-blue'?'t-blue':c==='b-green'?'t-green':'t-grey'}">${k}</span></div></div>`).join('')}</div></div>
+  <aside class="side"><div class="sec" style="margin-top:0">November</div><div class="mcal">${cal}</div><div class="sec">Key</div><span class="meta" style="font-weight:500">Red overdue · amber due soon · black legal · blue your check or meeting</span></aside></div>`;
+},
+staff(){
+  const steps=['Search the public register for Sam Taylor','Check the registration is current','Note the renewal date you saw'];
+  return `<div class="cols"><div><span class="meta">${ph.short} · ${D.staff.length} people</span><h1>Staff</h1><div class="counts"><span class="c-amber"><i class="dot b-amber"></i>1 renewal to check by 30 Nov</span><span class="c-green"><i class="dot b-green"></i>3 current</span></div>
+  <div class="list" style="margin-top:16px">${D.staff.map(p=>{const o=st.staffOpen===p.id;return `<button class="item" data-staff="${p.id}" aria-expanded="${o}"><span class="dot ${p.status==='soon'?'b-amber':'b-green'}"></span><span class="t"><span class="n">${p.name}</span><span class="m">${p.role} · ${p.note}</span></span><span class="c-muted">${o?'−':'+'}</span></button>${o?`<div class="open" style="padding-left:23px">${p.status==='soon'?`<span class="q">Confirm the registration · ${st.reg} of 3</span>${steps.map((s2,i)=>`<button class="chk" data-reg="${i}"><span class="box ${st.reg>i?'on':''}">${st.reg>i?'✓':''}</span>${s2}</button>`).join('')}<div class="row"><button class="btn primary" ${st.reg<3?'disabled style="opacity:.45"':''}>Save to Sam’s record</button><button class="btn">Add another record</button></div>`:p.creds.map(([n,m,s2])=>`<div style="display:flex;justify-content:space-between;gap:10px"><span><b style="font-weight:700">${n}</b><br><span class="meta" style="font-weight:500">${m}</span></span><span class="tag ${s2==='soon'?'t-amber':'t-green'}">${s2==='soon'?'Check':'Current'}</span></div>`).join('')}</div>`:''}`}).join('')}</div></div><aside class="side">${obligations()}</aside></div>`;
+},
+policies(){
+  const items=D.verify.filter(v=>v.service==='DAA'),i=Math.min(st.sop,items.length);
+  const daa=i<items.length?`<span class="q">Verify answer ${i+1} of ${items.length}: ${items[i].text}</span><div class="bar" style="max-width:220px">${items.map((x,j)=>`<i class="${j<i?'d':j===i?'n':''}"></i>`).join('')}</div><div class="row"><button class="btn primary" data-sopnext>Correct as answered</button><button class="btn" data-sopnext>Change answer</button><button class="btn" data-sopnext>Ask me later</button></div>`
+   :`${D.sopPreview.lines.map(([l])=>`<p style="margin:0;padding:10px 12px;background:var(--soft);border-radius:10px;font-size:15px">${l}</p>`).join('')}<button class="chk" data-read><span class="box ${st.read?'on':''}">${st.read?'✓':''}</span>I’ve read it and it matches how we work</button><div class="row"><button class="btn primary" ${st.read?'':'disabled style="opacity:.45"'}>Approve and sign</button></div>`;
+  return `<div class="cols"><div><span class="meta">${D.sopTotals.total} procedures from your setup answers</span><h1>Policies</h1><div class="counts"><span class="c-amber"><i class="dot b-amber"></i>1 draft</span><span class="c-blue"><i class="dot b-blue"></i>1 review due</span><span class="c-green"><i class="dot b-green"></i>15 approved</span></div>
+  <div class="list" style="margin-top:16px">${D.sops.map(s=>{const o=s.id==='p1'&&st.sopOpen;return `<button class="item" ${s.id==='p1'?'data-sopopen':''} aria-expanded="${o}"><span class="dot ${s.status==='draft'?'b-amber':s.status==='review'?'b-blue':'b-green'}"></span><span class="t"><span class="n">${s.name}</span><span class="m">${s.note}</span></span><span class="tag ${s.status==='draft'?'t-amber':s.status==='review'?'t-blue':'t-green'}">${s.status==='draft'?'Draft':s.status==='review'?'Review due':s.version}</span></button>${o?`<div class="open" style="padding-left:23px">${daa}</div>`:''}`}).join('')}</div></div><aside class="side">${obligations()}</aside></div>`;
+},
+more(){return `<h1>More</h1><div class="list" style="margin-top:16px">${[['staff','Staff','Credentials and registration checks'],['policies','Policies','Procedures and answers to verify']].map(([k,n,m])=>`<button class="item" data-go="${k}"><span class="t"><span class="n">${n}</span><span class="m">${m}</span></span><span class="c-muted">›</span></button>`).join('')}</div>`;}
+};
+function render(){
+  const p=page();
+  document.getElementById('main').innerHTML=(V[p]||V.dashboard)();
+  document.getElementById('top').innerHTML=NAV.map(([k,l])=>`<button data-go="${k}" ${k===p||(p==='audit'&&k==='audits')?'aria-current="page"':''}>${l}</button>`).join('');
+  document.getElementById('mob').innerHTML=MOB.map(([k,l])=>`<button data-go="${k}" ${k===p||(p==='audit'&&k==='audits')||(k==='more'&&['staff','policies'].includes(p))?'aria-current="page"':''}>${l}</button>`).join('');
+  document.getElementById('mob').style.display=p==='audit'?'none':'';
+  document.getElementById('ph').innerHTML=ph.short+' <small>▾</small>';
+  document.querySelectorAll('.mob-only').forEach(el=>{el.style.display=window.matchMedia('(min-width:900px)').matches?'none':'';});
+}
+function palette(){
+  const items=[['Start site visit','audit'],['Fridge log gaps · your check','actions'],['Sam Taylor · registration','staff'],['S8 stock check · 1 Dec','calendar'],['DAA procedure (draft)','policies']];
+  const el=document.createElement('div');el.style.cssText='position:fixed;inset:0;background:rgba(18,23,41,.35);display:flex;align-items:flex-start;justify-content:center;padding-top:14vh;z-index:30';
+  el.innerHTML=`<div style="width:min(540px,92vw);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.22)"><input aria-label="Search" placeholder="Search reviews, actions, people, procedures…" style="width:100%;border:0;border-bottom:1px solid var(--line);padding:14px 16px;font:inherit;outline:none">${items.map(([t,g])=>`<button class="item" data-go="${g}" style="padding:0 16px;min-height:48px"><span class="t"><span class="n" style="font-weight:600">${t}</span></span></button>`).join('')}</div>`;
+  el.addEventListener('click',e=>{if(e.target===el)el.remove();});document.body.appendChild(el);el.querySelector('input').focus();
+}
+let tt;
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  const pal=t.closest('div[style*="position:fixed"]');if(pal&&t.dataset.go){pal.remove();go(t.dataset.go);return;}
+  if(t.hasAttribute('data-cmd')){palette();return;}
+  if(t.id==='ph'){ph=ph.id==='hv'?D.pharmacies[1]:D.pharmacies[0];render();return;}
+  if(t.dataset.go){go(t.dataset.go);return;}
+  if(t.dataset.visit){st.mode=t.dataset.visit;go('audit');return;}
+  if(t.dataset.mode){st.mode=t.dataset.mode;render();return;}
+  if(t.dataset.open){st.open[t.dataset.open]=!st.open[t.dataset.open];render();return;}
+  if(t.dataset.tab){st.tab=t.dataset.tab;render();return;}
+  if(t.dataset.fix){st.fix=t.dataset.fix;render();return;}
+  if(t.dataset.staff){st.staffOpen=st.staffOpen===t.dataset.staff?null:t.dataset.staff;render();return;}
+  if(t.dataset.reg){st.reg=Math.max(st.reg,+t.dataset.reg+1);render();return;}
+  if(t.hasAttribute('data-sopopen')){st.sopOpen=!st.sopOpen;render();return;}
+  if(t.hasAttribute('data-sopnext')){st.sop++;render();return;}
+  if(t.hasAttribute('data-read')){st.read=!st.read;render();return;}
+  const s=st.v;
+  if(t.dataset.ans){const c=D.visit.checks[s.i];s.ans[c.id]=t.dataset.ans;if(t.dataset.ans==='Issue'||t.dataset.ans==='Needs verification'){render();return;}s.toast='Saved: '+t.dataset.ans;render();clearTimeout(tt);tt=setTimeout(()=>{s.i=Math.min(5,s.i+1);render();setTimeout(()=>{s.toast='';render();},2600);},600);return;}
+  if(t.dataset.lans){const[id,an]=t.dataset.lans.split('|');s.ans[id]=an;render();return;}
+  if(t.dataset.find){const i=s.find.indexOf(t.dataset.find);i<0?s.find.push(t.dataset.find):s.find.splice(i,1);render();return;}
+  if(t.hasAttribute('data-task')){s.task=!s.task;render();return;}
+  if(t.hasAttribute('data-clear')){delete s.ans[D.visit.checks[s.i].id];render();return;}
+  if(t.hasAttribute('data-save')){s.i=Math.min(5,s.i+1);s.toast='Saved with an action for Sam';render();return;}
+  if(t.hasAttribute('data-undo')){clearTimeout(tt);const prev=Math.max(1,s.i-(s.ans[D.visit.checks[s.i].id]?0:1));delete s.ans[D.visit.checks[prev].id];s.i=prev;s.toast='';render();return;}
+});
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();palette();return;}
+  if(page()==='audit'&&st.mode==='guided'&&/^[1-4]$/.test(e.key)&&!e.target.matches('textarea,input')){const b=document.querySelector(`[data-ans="${D.visit.answers[+e.key-1]}"]`);b&&b.click();}
+});
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(render,120)});
+window.addEventListener('hashchange',render);render();
+})();
+</script>
+</body>
+</html>

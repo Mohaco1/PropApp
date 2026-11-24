@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concept B · Command Centre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#eef1f5;--panel:#fff;--ink:#0f172a;--muted:#55607a;--faint:#8590a6;--line:#dde2ea;--rail:#0f172a;--accent:#4f46e5;--accent-soft:#eef0ff;
+--red:#c62828;--red-soft:#fdecec;--amber:#a15c00;--amber-soft:#fff4e0;--green:#1b7a3f;--green-soft:#e8f6ed;--blue-soft:#e9f0ff}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:4px}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+aside{background:var(--rail);color:#cfd6e4;display:flex;flex-direction:column;padding:12px 10px;gap:2px;position:sticky;top:0;height:100vh}
+.logo{color:#fff;font-weight:700;padding:6px 8px 12px;display:flex;justify-content:space-between;align-items:center}
+.k{font-family:"JetBrains Mono",monospace;font-size:12px;color:#8d97ad;border:1px solid #334155;border-radius:4px;padding:1px 5px}
+.search{display:flex;align-items:center;gap:8px;min-height:38px;padding:0 10px;border-radius:8px;background:#1e293b;color:#94a3b8;width:100%;margin-bottom:10px}
+.grp{font-size:11px;font-weight:600;letter-spacing:.06em;color:#7c879d;padding:12px 8px 4px;text-transform:uppercase}
+.ph{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 8px;border-radius:8px;width:100%;text-align:left;color:#e2e8f0}
+.ph[aria-current=true]{background:#1e293b}
+.ph .cnt{margin-left:auto;display:flex;gap:4px}
+.pill{font-size:12px;font-weight:700;border-radius:999px;padding:1px 7px;line-height:18px}
+.nav{display:flex;align-items:center;gap:10px;min-height:38px;padding:0 8px;border-radius:8px;width:100%;text-align:left;color:#cbd5e1}
+.nav[aria-current=page]{background:#334155;color:#fff;font-weight:600}
+.nav .n{margin-left:auto;font-size:12px;color:#94a3b8}
+.main{min-width:0;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:4}
+.top h1{margin:0;font-size:17px;font-weight:700}
+.top .crumb{color:var(--muted)}
+.top .sp{flex:1}
+.btn{min-height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:#fff;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.lg{min-height:44px;padding:0 16px;font-size:14px}
+.kpis{display:flex;gap:0;background:var(--panel);border-bottom:1px solid var(--line);overflow-x:auto}
+.kpi{flex:1 0 auto;min-width:130px;padding:12px 20px;border-right:1px solid var(--line);text-align:left;display:flex;flex-direction:column;gap:2px}
+.kpi b{font-size:22px;font-weight:700;line-height:1.1}
+.kpi span{font-size:12px;color:var(--muted);font-weight:500}
+.kpi[aria-pressed=true]{background:var(--accent-soft);box-shadow:inset 0 -2px 0 var(--accent)}
+.work{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:0;flex:1;min-height:0}
+.pane{background:var(--panel);border-left:1px solid var(--line);padding:18px 20px;overflow:auto}
+.content{padding:16px 20px;overflow:auto;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.card+.card{margin-top:14px}
+.card h3{margin:0;padding:10px 14px;font-size:13px;font-weight:700;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;font-weight:600;color:var(--muted);text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);background:#fafbfc;white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid #eef1f5;vertical-align:middle}
+tr.sel td{background:var(--accent-soft)}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:#f7f8fb}
+tr:last-child td{border-bottom:0}
+.s{font-size:12px;font-weight:700;border-radius:6px;padding:2px 8px;white-space:nowrap;display:inline-block}
+.s-overdue{background:var(--red-soft);color:var(--red)}.s-soon{background:var(--amber-soft);color:var(--amber)}.s-ok{background:var(--green-soft);color:var(--green)}.s-check{background:var(--accent-soft);color:var(--accent)}.s-staff{background:#eef1f5;color:var(--muted)}.s-legal{background:#0f172a;color:#fff}
+.mono{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted)}
+.muted{color:var(--muted)}
+.pane h2{margin:0 0 4px;font-size:18px}
+.pane .sec{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.pane .lbl{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:6px 10px;font-size:13px}
+.kv span:nth-child(odd){color:var(--muted)}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:flex;gap:10px;padding:6px 0;font-size:13px}
+.tl li b{width:48px;flex:0 0 auto}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{min-height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:500}
+.chip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.ans{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ans button{min-height:64px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-weight:600;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;padding:0 12px;text-align:left}
+.ans button .mono{font-size:12px}
+.ans button[aria-pressed=true]{border-color:var(--ink);background:var(--ink);color:#fff}
+.ans button[aria-pressed=true] .mono{color:#cbd5e1}
+.steps{list-style:none;margin:0;padding:0}
+.steps li button{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 12px;border-bottom:1px solid #eef1f5;text-align:left}
+.steps li button[aria-current=step]{background:var(--accent-soft);font-weight:600}
+.box{width:20px;height:20px;border-radius:5px;border:2px solid var(--ink);display:grid;place-items:center;flex:0 0 auto;font-size:12px}
+.box.on{background:var(--accent);border-color:var(--accent);color:#fff}
+textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;min-height:70px;resize:vertical}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.col h4{margin:0 0 8px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:flex;justify-content:space-between}
+.tcard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;text-align:left;width:100%;display:flex;flex-direction:column;gap:4px}
+.tcard.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-left:1px solid var(--line);border-top:1px solid var(--line)}
+.cal div{min-height:88px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px 6px;font-size:12px;background:#fff}
+.cal .dn{font-weight:600;color:var(--muted)}
+.cal .o{background:#fafbfc;color:#b4bccb}
+.cal .today{box-shadow:inset 0 0 0 2px var(--accent)}
+.ev{display:block;margin-top:3px;border-radius:4px;padding:1px 5px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.palette{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:flex-start;justify-content:center;padding-top:12vh;z-index:20}
+.palette .p{width:min(560px,92vw);background:#fff;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,.25);overflow:hidden}
+.palette input{width:100%;border:0;border-bottom:1px solid var(--line);padding:14px 16px;font-size:16px;outline:none}
+.palette .r{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:44px;padding:0 16px;text-align:left}
+.palette .r:hover,.palette .r.on{background:var(--accent-soft)}
+.mtop{display:none}
+.mobnav{display:none}
+@media (max-width:899px){
+  .app{grid-template-columns:1fr}
+  aside{display:none}
+  .mtop{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--rail);color:#fff;position:sticky;top:0;z-index:6}
+  .mtop select{flex:1;min-height:40px;border-radius:8px;border:1px solid #334155;background:#1e293b;color:#fff;padding:0 10px;font-weight:600}
+  .mtop .btn{background:#1e293b;border-color:#334155;color:#e2e8f0;min-height:40px}
+  .top{position:static;padding:12px 14px}
+  .work{grid-template-columns:1fr}
+  .pane{position:fixed;left:0;right:0;bottom:0;max-height:78vh;border-left:0;border-top:1px solid var(--line);border-radius:16px 16px 0 0;box-shadow:0 -12px 32px rgba(15,23,42,.18);z-index:8;transform:translateY(100%);transition:transform .2s}
+  .pane.open{transform:none}
+  .pane .closer{display:flex!important}
+  .content{padding:12px 12px 90px}
+  .hide-m{display:none}
+  .board{grid-template-columns:1fr}
+  .ans{grid-template-columns:1fr 1fr}
+  .kpi{min-width:110px;padding:10px 14px}
+  .mobnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);z-index:7;padding:4px 2px 8px}
+  .mobnav button{min-height:50px;font-size:12px;font-weight:600;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+  .mobnav button[aria-current=page]{color:var(--accent)}
+  .split{grid-template-columns:1fr!important}
+  .btn,.chip,.mtop .btn{min-height:44px}
+}
+.closer{display:none;justify-content:space-between;align-items:center;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside id="rail"></aside>
+  <div class="main">
+    <div class="mtop"><select id="mph" aria-label="Pharmacy"></select><button class="btn" data-cmd aria-label="Search">⌘K</button></div>
+    <div id="view" style="display:flex;flex-direction:column;flex:1;min-height:0"></div>
+  </div>
+</div>
+<nav class="mobnav" id="mobnav" aria-label="Sections"></nav>
+<script src="data.js"></script>
+<script>
+(function(){
+const D=window.RPH; let ph=D.pharmacies[0];
+const st={sel:{dashboard:'q1',audits:'visit',actions:'t1',staff:'s1',policies:'p1',calendar:null},filter:'all',kpi:'all',ans:{},cur:1,task:true,find:[],pane:false};
+const NAV=[['dashboard','Overview'],['audits','Reviews',D.audits.length],['actions','Actions',3],['calendar','Calendar'],['staff','Staff',D.staff.length],['policies','Policies',D.sopTotals.total]];
+const page=()=>location.hash.slice(1)||'dashboard';
+const go=p=>{location.hash=p};
+const sCls={overdue:'s-overdue',soon:'s-soon',ok:'s-ok'};
+const queue=[
+  {id:'q1',kind:'Review',item:'Site visit',ph:'Harbourview',due:'Overdue 16 days',s:'overdue',owner:'You',act:'Start visit',to:'audit'},
+  {id:'q2',kind:'Action',item:'Fix fridge log gaps',ph:'Harbourview',due:'Your check',s:'check',owner:'Sam Taylor',act:'Check and close',to:'actions'},
+  {id:'q3',kind:'Review',item:'Staff credentials review',ph:'Harbourview',due:'Due tomorrow',s:'soon',owner:'You',act:'Open staff',to:'staff'},
+  {id:'q4',kind:'Action',item:'Confirm where OTP approvals are filed',ph:'Harbourview',due:'Fri 20 Nov',s:'staff',owner:'Sam Taylor',act:'Record update',to:'actions'},
+  {id:'q5',kind:'Legal',item:'S8 stock check',ph:'Harbourview',due:'1 Dec',s:'legal',owner:'You',act:'Schedule',to:'calendar'},
+  {id:'q6',kind:'Verify',item:'7 setup answers',ph:'Harbourview',due:'When you can',s:'staff',owner:'You',act:'Verify',to:'policies'},
+  {id:'q7',kind:'Verify',item:'2 setup answers',ph:'Kensal Street',due:'When you can',s:'staff',owner:'You',act:'Verify',to:'policies'},
+  {id:'q8',kind:'Review',item:'Cold chain review',ph:'Kensal Street',due:'26 Nov',s:'soon',owner:'You',act:'Open',to:'audits'}
+];
+function rail(p){
+  return `<div class="logo">R.Pharmacy <span class="k">⌘K</span></div>
+  <button class="search" data-cmd>Search or jump to… </button>
+  <div class="grp">Pharmacies</div>
+  <button class="ph" aria-current="true"><span>All pharmacies</span><span class="cnt"><span class="pill" style="background:#7f1d1d;color:#fecaca">1</span><span class="pill" style="background:#78350f;color:#fde68a">4</span></span></button>
+  ${D.pharmacies.map(x=>`<button class="ph" data-ph="${x.id}" ${x.id===ph.id?'style="color:#fff"':''}><span>${x.short}</span><span class="cnt">${x.overdue?`<span class="pill" style="background:#7f1d1d;color:#fecaca">${x.overdue}</span>`:''}<span class="pill" style="background:#78350f;color:#fde68a">${x.dueSoon}</span></span></button>`).join('')}
+  <div class="grp">Workspace</div>
+  ${NAV.map(([k,l,n])=>`<button class="nav" data-go="${k}" ${k===p||(p==='audit'&&k==='audits')?'aria-current="page"':''}>${l}${n?`<span class="n">${n}</span>`:''}</button>`).join('')}
+  <div style="margin-top:auto;padding:8px;font-size:12px;color:#8d97ad;line-height:1.6"><span class="k">J</span> <span class="k">K</span> move · <span class="k">↵</span> open · <span class="k">1</span>–<span class="k">4</span> answer</div>`;
+}
+const head=(title,crumb,right='')=>`<div class="top"><h1>${title}</h1><span class="crumb hide-m">${crumb||''}</span><span class="sp"></span>${right}</div>`;
+const pane=(inner)=>`<section class="pane ${st.pane?'open':''}" aria-label="Details"><div class="closer"><b>Details</b><button class="btn" data-closepane>Close</button></div>${inner}</section>`;
+
+const V={
+dashboard(){
+  const q=queue.find(x=>x.id===st.sel.dashboard)||queue[0];
+  const k=st.kpi, rows=queue.filter(x=>k==='all'||(k==='overdue'&&x.s==='overdue')||(k==='check'&&x.s==='check')||(k==='legal'&&x.s==='legal')||(k==='verify'&&x.kind==='Verify')||(k==='soon'&&x.s==='soon'));
+  const mat=['visit','creds','cold','s8','daa','clean'];
+  const ks={visit:['overdue','Overdue 16d'],creds:['soon','20 Nov'],cold:['soon','30 Nov'],s8:['soon','1 Dec'],daa:['ok','4 Dec'],clean:['ok','9 Dec']};
+  const kk={visit:['ok','12 Dec'],creds:['ok','2 Feb'],cold:['soon','26 Nov'],s8:['ok','14 Dec'],daa:['ok','8 Dec'],clean:['ok','11 Dec']};
+  return head('Overview','All pharmacies · '+D.todayShort,'<button class="btn" data-cmd>Jump to… <span class="mono">⌘K</span></button>')+
+  `<div class="kpis">${[['all',queue.length,'In your queue'],['overdue',1,'Overdue'],['soon',3,'Due ≤ 14 days'],['check',1,'Your checks'],['verify',9,'To verify'],['legal','1 Dec','Next legal: S8']].map(([id,n,l])=>`<button class="kpi" data-kpi="${id}" aria-pressed="${k===id}"><b ${id==='overdue'?'style="color:var(--red)"':''}>${n}</b><span>${l}</span></button>`).join('')}</div>
+  <div class="work"><div class="content">
+    <div class="card"><h3>Attention queue <span class="muted" style="font-weight:500">${rows.length} items · sorted by urgency</span></h3>
+    <table><thead><tr><th>Item</th><th class="hide-m">Type</th><th class="hide-m">Pharmacy</th><th>Due</th><th class="hide-m">Owner</th></tr></thead><tbody>
+    ${rows.map(x=>`<tr data-row="${x.id}" class="${x.id===q.id?'sel':''}"><td><b style="font-weight:600">${x.item}</b><div class="muted" style="font-size:12px">${x.kind} · ${x.ph}</div></td><td class="hide-m">${x.kind}</td><td class="hide-m">${x.ph}</td><td><span class="s s-${x.s}">${x.due}</span></td><td class="hide-m">${x.owner}</td></tr>`).join('')}</tbody></table></div>
+    <div class="card hide-m"><h3>Pharmacies side by side <span class="muted" style="font-weight:500">next due date per review</span></h3>
+    <table><thead><tr><th>Review</th><th>Harbourview</th><th>Kensal Street</th></tr></thead><tbody>${mat.map(id=>{const a=D.audits.find(x=>x.id===id);return `<tr><td>${a.name}${a.legal?' <span class="s s-legal">§</span>':''}</td><td><span class="s ${sCls[ks[id][0]]}">${ks[id][1]}</span></td><td><span class="s ${sCls[kk[id][0]]}">${kk[id][1]}</span></td></tr>`}).join('')}</tbody></table></div>
+  </div>
+  ${pane(`<div class="lbl">${q.kind} · ${q.ph}</div><h2>${q.item}</h2><span class="s s-${q.s}">${q.due}</span>
+    <div class="sec kv"><span>Owner</span><span>${q.owner}</span><span>Source</span><span>${q.item==='S8 stock check'?'§ Reg 2026 s 111':q.kind==='Verify'?'Setup answers':'Your plan'}</span><span>Last done</span><span>${q.item==='Site visit'?'8 Sep · all satisfactory':q.item==='S8 stock check'?'1 Sep':'—'}</span></div>
+    <div class="sec"><div class="lbl">Why it’s here</div><p style="margin:0">${q.item==='Site visit'?'Your plan sets a visit every 8 weeks. The last was 8 Sep, so it fell due on 3 Nov.':q.item==='Fix fridge log gaps'?'Sam recorded a fix on 12 Nov. Only you can close it, after you’ve looked.':q.kind==='Verify'?'These answers were marked “Needs verification” during setup.':'It falls due within the next two weeks.'}</p></div>
+    <div class="sec" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary lg" data-go="${q.to}">${q.act}</button><button class="btn lg">Snooze to next week</button></div>`)}
+  </div>`;
+},
+audits(){
+  const f=st.filter, list=D.audits.filter(a=>f==='all'||a.status===f||(f==='legal'&&a.legal));
+  const a=D.audits.find(x=>x.id===st.sel.audits)||D.audits[0];
+  return head('Reviews',ph.name,'<button class="btn primary" data-go="audit">Start site visit</button>')+
+  `<div class="work"><div class="content"><div class="chips">${[['all','All '+D.audits.length],['overdue','Overdue 1'],['soon','Due soon 3'],['ok','On track 4'],['legal','Legal 1']].map(([k,l])=>`<button class="chip" aria-pressed="${f===k}" data-filter="${k}">${l}</button>`).join('')}</div>
+  <div class="card"><table><thead><tr><th>Review</th><th class="hide-m">Cadence</th><th class="hide-m">Last</th><th>Next due</th><th class="hide-m">Source</th></tr></thead><tbody>
+  ${list.map(x=>`<tr data-row="${x.id}" class="${x.id===a.id?'sel':''}"><td><b style="font-weight:600">${x.name}</b><div class="muted" style="font-size:12px">${x.area}</div></td><td class="hide-m">${x.cadence}</td><td class="hide-m">${x.last}</td><td><span class="s ${sCls[x.status]}">${x.dueLabel}</span></td><td class="hide-m mono">${x.source}</td></tr>`).join('')}</tbody></table></div></div>
+  ${pane(`<div class="lbl">${a.area}</div><h2>${a.name}</h2><span class="s ${sCls[a.status]}">${a.dueLabel}</span>
+  <div class="sec kv"><span>Cadence</span><span>${a.cadence}</span><span>Last done</span><span>${a.last}</span><span>Checks</span><span>${a.checks}</span><span>Source</span><span class="mono">${a.source}</span></div>
+  <div class="sec"><div class="lbl">Last three results</div><ul class="tl"><li><b>${a.last}</b>All satisfactory</li><li><b>Earlier</b>1 issue · closed</li><li><b>Earlier</b>All satisfactory</li></ul></div>
+  <div class="sec" style="display:flex;gap:8px"><button class="btn primary lg" data-go="audit">Start now</button><button class="btn lg">Schedule</button></div>`)}</div>`;
+},
+audit(){
+  const v=D.visit, c=v.checks[st.cur], a=st.ans[c.id]||(st.cur===0?'Satisfactory':null);
+  return head('Site visit','Harbourview · started '+v.started,'<button class="btn" data-go="audits">Save and exit</button>')+
+  `<div class="work split" style="grid-template-columns:280px minmax(0,1fr)"><div class="content hide-m" style="padding:0;background:#fff;border-right:1px solid var(--line)"><ol class="steps">${v.checks.map((x,i)=>{const r=st.ans[x.id]||(i===0?'Satisfactory':'');return `<li><button data-step="${i}" ${i===st.cur?'aria-current="step"':''}><span class="mono">${i+1}</span><span style="flex:1">${x.name}</span>${r?`<span class="s ${r==='Issue'?'s-overdue':r==='Satisfactory'?'s-ok':'s-staff'}">${r==='Satisfactory'?'OK':r}</span>`:''}</button></li>`}).join('')}</ol></div>
+  <div class="content" style="max-width:760px"><div class="lbl" style="font-size:12px;color:var(--muted);font-weight:600">CHECK ${st.cur+1} OF 6 ${c.source?' · '+c.source:''}</div><h2 style="font-size:24px;margin:4px 0 6px">${c.name}</h2><p class="muted" style="margin:0 0 16px;font-size:15px">${c.prompt} Last visit: ${c.last}.</p>
+  <div class="ans">${v.answers.map((x,i)=>`<button data-ans="${x}" aria-pressed="${a===x}">${x}<span class="mono">Press ${i+1}</span></button>`).join('')}</div>
+  ${a==='Issue'||a==='Needs verification'?`<div style="margin-top:16px"><div class="chips">${v.findings.map(f=>`<button class="chip" data-find="${f}" aria-pressed="${st.find.includes(f)}">${f}</button>`).join('')}</div><textarea aria-label="Notes" placeholder="Notes for the record"></textarea>
+  <button data-task style="display:flex;gap:10px;align-items:center;min-height:44px;margin-top:6px"><span class="box ${st.task?'on':''}">${st.task?'✓':''}</span>Raise an action · owner Sam Taylor · due 26 Nov</button></div>`:''}
+  <div style="display:flex;gap:8px;margin-top:20px"><button class="btn lg" data-prev>Previous</button><button class="btn primary lg" data-next>Save · next check <span class="mono" style="color:#c7d2fe">↵</span></button></div></div></div>`;
+},
+actions(){
+  const t=D.actions.find(x=>x.id===st.sel.actions)||D.actions[0];
+  const col=(k,l)=>`<div class="col"><h4>${l}<span>${D.actions.filter(a=>a.state===k).length}</span></h4>${D.actions.filter(a=>a.state===k).map(a=>`<button class="tcard ${a.id===t.id?'sel':''}" data-row="${a.id}"><b style="font-weight:600">${a.title}</b><span class="muted" style="font-size:12px">${a.state==='closed'?'Closed '+a.closed:a.owner+' · due '+a.due}</span><span class="mono">${a.from}</span></button>`).join('')}</div>`;
+  return head('Actions',ph.name+' · only you close actions','<button class="btn primary">New action</button>')+
+  `<div class="work"><div class="content"><div class="board">${col('check','Your check')}${col('staff','With staff')}${col('closed','Closed')}</div></div>
+  ${pane(`<div class="lbl">${t.from}</div><h2>${t.title}</h2><span class="s ${t.state==='check'?'s-check':t.state==='staff'?'s-staff':'s-ok'}">${t.state==='check'?'Ready for your check':t.state==='staff'?'With '+t.owner:'Closed '+t.closed}</span>
+  <div class="sec kv"><span>Owner</span><span>${t.owner}</span><span>Due</span><span>${t.due}</span></div>
+  <div class="sec"><div class="lbl">Trail</div><ul class="tl">${t.trail.map(([d,x])=>`<li><b>${d}</b>${x}</li>`).join('')||'<li>No further history.</li>'}</ul></div>
+  <div class="sec" style="display:flex;gap:8px;flex-wrap:wrap">${t.state==='check'?'<button class="btn primary lg">Checked · close</button><button class="btn lg">Reopen</button>':t.state==='staff'?'<button class="btn primary lg">Record update</button><button class="btn lg">Change due date</button>':'<button class="btn lg">View record</button>'}</div>`)}</div>`;
+},
+calendar(){
+  const ev={20:[['Staff credentials','s-soon'],['OTP approvals (Sam)','s-staff']],25:[['Check-in with Sam','s-check'],['Fridge log: your check','s-check']],30:[['Cold chain review','s-soon']]};
+  const dec={1:[['§ S8 stock check','s-legal']],4:[['DAA packing','s-ok']],6:[['Vaccination fridge','s-ok']],9:[['Dispensary clean','s-ok']],15:[['Thermometer (Priya)','s-staff']]};
+  let cells='';const lead=6; // Nov 2026 starts Sunday; Monday-first grid
+  for(let i=0;i<lead;i++)cells+=`<div class="o"><span class="dn">${26+i}</span></div>`;
+  for(let d=1;d<=30;d++)cells+=`<div class="${d===19?'today':''}"><span class="dn">${d}</span>${(ev[d]||[]).map(([t,c])=>`<span class="ev ${c}">${t}</span>`).join('')}${d===3?'<span class="ev s-overdue">Site visit was due</span>':''}</div>`;
+  for(let d=1;d<=6;d++)cells+=`<div class="o"><span class="dn">${d} Dec</span>${(dec[d]||[]).map(([t,c])=>`<span class="ev ${c}" style="opacity:.75">${t}</span>`).join('')}</div>`;
+  return head('Calendar','November 2026 · '+ph.short,'<button class="btn">‹</button><button class="btn">›</button><button class="btn primary">Plan site visit</button>')+
+  `<div class="work"><div class="content"><div class="card hide-m"><div class="cal">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<div style="min-height:0;background:#fafbfc;font-weight:600;color:var(--muted)">${d}</div>`).join('')}${cells}</div></div>
+  <div class="card" style="margin-top:14px"><h3>Next 4 weeks</h3><table><tbody>${D.upcoming.map(u=>`<tr><td style="width:80px"><b>${u.date}</b><div class="muted" style="font-size:12px">${u.dow}</div></td><td>${u.title}</td><td style="text-align:right"><span class="s ${u.kind==='legal'?'s-legal':u.kind==='task'?'s-staff':u.kind==='meeting'?'s-check':'s-ok'}">${u.kind==='legal'?'§ Legal':u.kind[0].toUpperCase()+u.kind.slice(1)}</span></td></tr>`).join('')}</tbody></table></div></div>
+  ${pane(`<div class="lbl">Not scheduled</div><h2>Site visit</h2><span class="s s-overdue">Overdue 16 days</span><div class="sec"><p style="margin:0 0 10px">Pick a day. Tue 24 Nov would also let you check the fridge log fix on site.</p><div class="chips">${['Mon 23','Tue 24','Wed 25','Thu 26'].map((d,i)=>`<button class="chip" aria-pressed="${i===1}">${d}</button>`).join('')}</div><button class="btn primary lg">Book Tue 24 Nov</button></div>`)}</div>`;
+},
+staff(){
+  const p=D.staff.find(x=>x.id===st.sel.staff)||D.staff[0];
+  const cols=['Registration','Immunisation','First aid','Training / review'];
+  const cell=(person,i)=>{const map=[/registration/i,/immunisation/i,/first aid/i,/training|review|sign-off/i];const c=person.creds.find(x=>map[i].test(x[0]));return c?`<span class="s ${c[2]==='soon'?'s-soon':'s-ok'}">${c[2]==='soon'?'Check 30 Nov':'Current'}</span>`:'<span class="muted">—</span>'};
+  return head('Staff assurance',ph.name+' · credentials and training','<button class="btn primary">Add record</button>')+
+  `<div class="work"><div class="content"><div class="card"><table><thead><tr><th>Person</th>${cols.map(c=>`<th class="hide-m">${c}</th>`).join('')}<th>Status</th></tr></thead><tbody>${D.staff.map(x=>`<tr data-row="${x.id}" class="${x.id===p.id?'sel':''}"><td><b style="font-weight:600">${x.name}</b><div class="muted" style="font-size:12px">${x.role}</div></td>${cols.map((c,i)=>`<td class="hide-m">${cell(x,i)}</td>`).join('')}<td><span class="s ${x.status==='soon'?'s-soon':'s-ok'}">${x.status==='soon'?'Check soon':'Current'}</span></td></tr>`).join('')}</tbody></table></div>
+  <p class="muted" style="font-size:12px;margin-top:10px">Dates come from your records. Check registrations yourself on the public register.</p></div>
+  ${pane(`<div class="lbl">${p.role}</div><h2>${p.name}</h2><span class="s ${p.status==='soon'?'s-soon':'s-ok'}">${p.note}</span><div class="sec">${p.creds.map(([n,m,s])=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #eef1f5"><span><b style="font-weight:600">${n}</b><div class="muted" style="font-size:12px">${m}</div></span><span class="s ${s==='soon'?'s-soon':'s-ok'}">${s==='soon'?'Check':'OK'}</span></div>`).join('')}</div><div class="sec" style="display:flex;gap:8px"><button class="btn primary lg">Register checked</button><button class="btn lg">Add record</button></div>`)}</div>`;
+},
+policies(){
+  const s=D.sops.find(x=>x.id===st.sel.policies)||D.sops[0];
+  return head('Policies and procedures',D.sopTotals.total+' SOPs · '+D.sopTotals.approved+' approved','<button class="btn">Inspection pack</button>')+
+  `<div class="work"><div class="content"><div class="card"><table><thead><tr><th>Procedure</th><th>Status</th><th class="hide-m">Version</th><th class="hide-m">Area</th></tr></thead><tbody>${D.sops.map(x=>`<tr data-row="${x.id}" class="${x.id===s.id?'sel':''}"><td><b style="font-weight:600">${x.name}</b><div class="muted" style="font-size:12px">${x.note}</div></td><td><span class="s ${x.status==='draft'?'s-soon':x.status==='review'?'s-check':'s-ok'}">${x.status==='draft'?'Draft':x.status==='review'?'Review due':'Approved'}</span></td><td class="hide-m mono">${x.version}</td><td class="hide-m">${D.zones.find(z=>z.id===x.zone).name}</td></tr>`).join('')}</tbody></table></div>
+  <div class="card"><h3>Setup answers to verify <span class="muted" style="font-weight:500">${D.verify.length}</span></h3><table><tbody>${D.verify.map(v=>`<tr><td>${v.text}</td><td class="mono">${v.service}</td><td style="text-align:right"><button class="btn">Verify</button></td></tr>`).join('')}</tbody></table></div></div>
+  ${pane(s.id==='p1'?`<div class="lbl">Draft · section 3 of 7</div><h2>${s.name}</h2>${D.sopPreview.lines.map(([l,t])=>`<p style="margin:10px 0 0;padding:8px 10px;border-radius:8px;${t==='Marked to verify'?'background:var(--amber-soft)':'background:#f7f8fb'}">${l}<br><span class="mono">${t}</span></p>`).join('')}<div class="sec" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary lg">Verify 3 answers</button><button class="btn lg" disabled style="opacity:.5">Approve</button></div>`:`<div class="lbl">${s.version}</div><h2>${s.name}</h2><span class="s s-ok">${s.note}</span><div class="sec"><button class="btn lg">Open procedure</button></div>`)}</div>`;
+}};
+const MOB=[['dashboard','Overview'],['audits','Reviews'],['actions','Actions'],['calendar','Calendar'],['policies','More']];
+function render(){
+  const p=page();
+  document.getElementById('rail').innerHTML=rail(p);
+  document.getElementById('view').innerHTML=(V[p]||V.dashboard)();
+  document.getElementById('mph').innerHTML=D.pharmacies.map(x=>`<option value="${x.id}" ${x.id===ph.id?'selected':''}>${x.name}</option>`).join('');
+  document.getElementById('mobnav').innerHTML=MOB.map(([k,l])=>`<button data-go="${k}" ${k===p||(p==='audit'&&k==='audits')||(k==='policies'&&p==='staff')?'aria-current="page"':''}>${l}</button>`).join('');
+}
+function palette(){
+  const items=[['Start site visit','audit'],['Fix fridge log gaps','actions'],['Staff credentials review','staff'],['S8 stock check','calendar'],['DAA SOP (draft)','policies'],['Kensal Street Pharmacy','dashboard']];
+  const el=document.createElement('div');el.className='palette';el.innerHTML=`<div class="p" role="dialog" aria-label="Search"><input placeholder="Search reviews, actions, people, SOPs…" aria-label="Search">${items.map(([t,g],i)=>`<button class="r ${i===0?'on':''}" data-go="${g}"><span>${t}</span><span class="mono">${g}</span></button>`).join('')}</div>`;
+  el.addEventListener('click',e=>{if(e.target===el)el.remove();});document.body.appendChild(el);el.querySelector('input').focus();
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button,tr');if(!t)return;
+  if(t.closest('.palette')&&t.dataset.go){document.querySelector('.palette').remove();go(t.dataset.go);return;}
+  if(t.hasAttribute('data-cmd')){palette();return;}
+  if(t.dataset.go){st.pane=false;go(t.dataset.go);return;}
+  if(t.dataset.ph){ph=D.pharmacies.find(x=>x.id===t.dataset.ph);render();return;}
+  if(t.dataset.row){st.sel[page()]=t.dataset.row;st.pane=true;render();return;}
+  if(t.hasAttribute('data-closepane')){st.pane=false;render();return;}
+  if(t.dataset.kpi){st.kpi=t.dataset.kpi;render();return;}
+  if(t.dataset.filter){st.filter=t.dataset.filter;render();return;}
+  if(t.dataset.step){st.cur=+t.dataset.step;render();return;}
+  if(t.dataset.ans){st.ans[D.visit.checks[st.cur].id]=t.dataset.ans;render();return;}
+  if(t.dataset.find){const i=st.find.indexOf(t.dataset.find);i<0?st.find.push(t.dataset.find):st.find.splice(i,1);render();return;}
+  if(t.hasAttribute('data-task')){st.task=!st.task;render();return;}
+  if(t.hasAttribute('data-next')){st.cur=Math.min(5,st.cur+1);render();return;}
+  if(t.hasAttribute('data-prev')){st.cur=Math.max(0,st.cur-1);render();return;}
+});
+document.getElementById('mph').addEventListener('change',e=>{ph=D.pharmacies.find(x=>x.id===e.target.value);render();});
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();palette();return;}
+  if(e.key==='Escape'){document.querySelector('.palette')?.remove();return;}
+  if(e.target.matches('input,textarea,select'))return;
+  const p=page();
+  if(p==='audit'&&/^[1-4]$/.test(e.key)){st.ans[D.visit.checks[st.cur].id]=D.visit.answers[+e.key-1];render();return;}
+  if(p==='audit'&&e.key==='Enter'){st.cur=Math.min(5,st.cur+1);render();return;}
+  const rows=[...document.querySelectorAll('[data-row]')].map(r=>r.dataset.row);if(!rows.length)return;
+  const i=rows.indexOf(st.sel[p]);
+  if(e.key==='j'){st.sel[p]=rows[Math.min(rows.length-1,i+1)];render();}
+  if(e.key==='k'){st.sel[p]=rows[Math.max(0,i-1)];render();}
+});
+window.addEventListener('hashchange',render);render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "by": "u_oB_xmELmgbegLcH3_Zwv8w",
+  "createdAt": "2026-11-20T06:50:03.678Z",
+  "fix": "Review due dates now opens with the suggested first dates already filled in (dashed outline). Change any, then save; nothing is scheduled until you save. 'Clear suggested dates' empties them.",
+  "kind": "note",
+  "page": "Setup · Review due dates",
+  "status": "Fixed – retest",
+  "text": "woudnt it make snese for it to be preloaded dates ?",
+  "type": ""
+}

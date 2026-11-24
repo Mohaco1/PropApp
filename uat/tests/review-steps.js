@@ -1,0 +1,24 @@
+// One question at a time in reviews (other than the site visit): stepping, keys, hidden-step validation, completion.
+const { chromium } = require('playwright');
+const res=[];const ok=(n,p,d='')=>res.push({n,p:!!p,d:String(d).slice(0,300)});
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1280,height:860}});const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('dialog',d=>d.accept());
+await p.goto('file:///home/user/rpharmacy/uat/app/'+(process.env.FILE||'rpharmacy-uat-testing.html'));await p.waitForTimeout(1500);
+await p.evaluate(()=>{if(D.phone)D.applyView(false);const n=clone();Object.assign(n,{freshSite:true,onboarded:true,freshProprietors:true,freshSelection:true,pharmacyName:'X',proprietors:[{id:'p1',name:'Alex Owner',primary:true}],currentReviewer:'p1',active:['daa']});n.schedule.B1=addInterval(today(),5,'days');commit(n,'t');reviewEditor('B1');});
+await p.waitForTimeout(400);
+const vis=()=>p.evaluate(()=>CD.auditSets().map(x=>x.el.offsetParent!==null));
+ok('S8 review shows one question at a time',await p.evaluate(()=>$('editor').classList.contains('cd-step'))&&(await vis()).filter(Boolean).length===1,JSON.stringify(await vis()));
+await p.keyboard.press('1');await p.waitForTimeout(100);
+ok('key 1 answers the shown question',await p.evaluate(()=>document.querySelector('#editor input[name=q0]:checked')?.value==='Completed'));
+await p.locator('#editor .cd-revnav button',{hasText:/^Next$/}).click();await p.waitForTimeout(100);
+ok('Save and next shows question 2',(await vis())[1]===true&&(await vis())[0]===false);
+await p.keyboard.press('1');await p.waitForTimeout(100);
+await p.evaluate(()=>{const f=(id,v)=>{const e=$(id);if(e){e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));}};f('stock-date',addInterval(today(),-1,'days'));f('stock-pharmacist','Sam Taylor (fictional)');});
+ok('date, notes and next date stay visible',await p.evaluate(()=>['review-date','next-date','notes'].every(id=>$(id)&&$(id).offsetParent!==null)));
+await p.locator('#editor .cd-steps button').first().click();await p.waitForTimeout(100);
+ok('the steps list jumps to a question',(await vis())[0]===true);
+await p.evaluate(()=>[...$('editor').querySelectorAll('button')].find(b=>/Complete review/.test(b.textContent)).click());await p.waitForTimeout(500);
+const r=await p.evaluate(()=>({open:$('editor').open,n:state.reviews.filter(r=>r.audit==='B1').length,shown:CD.auditSets?CD.auditSets().map(x=>x.el.offsetParent!==null):[]}));
+ok('completing from any step saves the review (or shows the step that still needs an answer)',(!r.open&&r.n===1)||(r.open&&r.shown.filter(Boolean).length===1),JSON.stringify(r));
+ok('no script errors',!errs.length,errs.join(' | '));
+for(const x of res)console.log((x.p?'PASS ':'FAIL ')+x.n+(x.p?'':' · '+x.d));console.log(res.filter(x=>x.p).length+'/'+res.length+' passed');
+await b.close();})();

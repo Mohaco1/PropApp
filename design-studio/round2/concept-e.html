@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concept E · The Floor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+<style>
+:root{--bg:#f2f4f8;--panel:#fff;--ink:#16203a;--muted:#56607a;--faint:#8b93a8;--line:#dfe3ec;--plan:#1d2b4a;--accent:#2f6fdf;--accent-soft:#e7effd;
+--red:#c0311f;--red-soft:#fde9e6;--amber:#9a5b00;--amber-soft:#fff1d6;--green:#1f7a45;--green-soft:#e4f5ea;--grey-soft:#eef1f6}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "DM Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.app{display:flex;flex-direction:column;min-height:100vh}
+.top{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+.ph{min-height:44px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.me{margin-left:auto;width:38px;height:38px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
+.lenses{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);scrollbar-width:none}
+.lens{min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);font-weight:600;font-size:14px;white-space:nowrap;background:#fff}
+.lens[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.body{display:grid;grid-template-columns:1fr;flex:1;min-height:0}
+.mapwrap{padding:14px 16px 6px;position:relative}
+.map{width:100%;height:auto;display:block;background:#fbfcfe;border:1.5px solid var(--plan);border-radius:14px}
+.zone rect{stroke:var(--plan);stroke-width:1.5;cursor:pointer;transition:fill .15s}
+.zone text{font:600 12px "DM Sans",sans-serif;fill:var(--plan);pointer-events:none}
+.zone .cnt{font:700 12px "DM Sans",sans-serif;fill:#fff}
+.zone.sel rect{stroke:var(--accent);stroke-width:3}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--muted);padding:8px 2px 0}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:5px;vertical-align:-2px;border:1.5px solid var(--plan)}
+.panel{background:var(--panel);border-top:1px solid var(--line);padding:16px 16px 40px;display:flex;flex-direction:column;gap:12px}
+.panel h1{margin:0;font-size:24px;line-height:1.2;font-weight:700;letter-spacing:-.01em}
+.panel .sub{margin:0;color:var(--muted);font-size:15px}
+.row{display:flex;align-items:center;gap:12px;min-height:60px;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;width:100%;text-align:left;background:#fff}
+.row .t{flex:1;display:flex;flex-direction:column;gap:1px;min-width:0}
+.row .n{font-weight:700}
+.row .m{font-size:14px;color:var(--muted)}
+.tag{font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.t-red{background:var(--red-soft);color:var(--red)}.t-amber{background:var(--amber-soft);color:var(--amber)}.t-green{background:var(--green-soft);color:var(--green)}.t-blue{background:var(--accent-soft);color:var(--accent)}.t-grey{background:var(--grey-soft);color:var(--muted)}.t-ink{background:var(--ink);color:#fff}
+.grp{font-size:13px;font-weight:700;color:var(--muted);margin-top:6px}
+.banner{display:flex;gap:12px;align-items:center;background:var(--red-soft);border-radius:14px;padding:12px 14px}
+.btn{min-height:50px;border-radius:12px;font-weight:700;padding:0 18px;border:1.5px solid var(--line);background:#fff}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.ans{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ans button{min-height:56px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font-weight:600;text-align:left;padding:0 14px}
+.ans button[aria-pressed=true]{border-color:var(--ink);background:var(--ink);color:#fff}
+.box{width:22px;height:22px;border-radius:6px;border:2px solid var(--ink);display:grid;place-items:center;flex:0 0 auto;font-size:13px}
+.box.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chk{display:flex;align-items:center;gap:12px;min-height:48px;text-align:left}
+textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px;min-height:76px;resize:vertical}
+.people{display:flex;gap:6px;flex-wrap:wrap}
+.pc{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px 0 6px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-weight:600;font-size:14px}
+.pc i{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;color:#fff;background:var(--plan)}
+.pc[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft)}
+@keyframes pulse{0%{stroke-opacity:1;stroke-width:3}100%{stroke-opacity:0;stroke-width:14}}
+.pulse{fill:none;stroke:var(--accent);animation:pulse 1.6s ease-out infinite}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+@media (min-width:900px){
+  .body{grid-template-columns:minmax(0,1fr) 440px}
+  .mapwrap{padding:24px}
+  .panel{border-top:0;border-left:1px solid var(--line);max-height:calc(100vh - 128px);overflow:auto;position:sticky;top:0}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top"><button class="ph" id="ph"></button><span style="font-size:13px;color:var(--muted)" id="dt"></span><span class="me" title="Alex Owner">AO</span></header>
+  <nav class="lenses" id="lenses" aria-label="What to show on the floor"></nav>
+  <div class="body"><div class="mapwrap" id="mapwrap"></div><section class="panel" id="panel" aria-live="polite"></section></div>
+</div>
+<script src="data.js"></script>
+<script>
+(function(){
+const D=window.RPH; let ph=D.pharmacies[0];
+const st={zone:null,i:1,ans:null,task:true,person:null,sop:null};
+const LENS=[['dashboard','Today'],['audits','Reviews'],['audit','Walk the floor'],['actions','Actions'],['calendar','Dates'],['staff','People'],['policies','Procedures']];
+const page=()=>location.hash.slice(1)||'dashboard';
+const go=p=>{location.hash=p};
+const Z={front:[10,190,215,62],consult:[235,190,115,62],dispensary:[10,72,190,108],fridge:[210,72,70,108],safe:[290,72,60,50],daa:[290,130,60,50],office:[10,10,340,52]};
+const ZN=Object.fromEntries(D.zones.map(z=>[z.id,z.name]));
+const SHORT={front:'Front of shop',consult:'Consult room',dispensary:'Dispensary',fridge:'Fridges',safe:'S8 safe',daa:'DAA',office:'Back office'};
+const people={front:['JL'],consult:['PN'],dispensary:['ST','MC'],fridge:['ST'],safe:['ST'],daa:['MC'],office:['ST']};
+function zoneInfo(z){
+  const a=D.audits.filter(x=>x.zone===z), t=D.actions.filter(x=>x.zone===z&&x.state!=='closed'), s=D.sops.filter(x=>x.zone===z);
+  const v=z==='daa'?3:z==='safe'?2:z==='fridge'?1:z==='front'?1:0;
+  let level='ok';
+  if(a.some(x=>x.status==='overdue'))level='overdue';else if(a.some(x=>x.status==='soon')||t.some(x=>x.state==='check'))level='soon';else if(v)level='verify';
+  return {a,t,s,v,level,count:a.filter(x=>x.status!=='ok').length+t.length+(v?1:0)};
+}
+const fill={overdue:'#fde9e6',soon:'#fff1d6',verify:'#e7effd',ok:'#e4f5ea',none:'#f6f8fb'};
+const dotc={overdue:'#c0311f',soon:'#9a5b00',verify:'#2f6fdf',ok:'#1f7a45'};
+function map(mode){
+  const v=D.visit, cur=v.checks[st.i]?.zone;
+  const route=['front','dispensary','fridge','safe','daa','consult'];
+  const ctr=z=>{const[x,y,w,h]=Z[z];return [x+w/2,y+h/2]};
+  let svg=`<svg class="map" viewBox="0 0 360 262" role="group" aria-label="Floor plan of ${ph.short}">`;
+  svg+=`<rect x="1" y="1" width="358" height="260" rx="10" fill="none" stroke="none"/><line x1="90" y1="261" x2="150" y2="261" stroke="#fbfcfe" stroke-width="4"/><text x="120" y="256" text-anchor="middle" style="font:600 10px DM Sans;fill:#56607a">ENTRY</text>`;
+  for(const z of Object.keys(Z)){
+    const [x,y,w,h]=Z[z], info=zoneInfo(z);
+    let f=fill[info.level];
+    if(mode==='staff')f=st.person&&people[z].includes(st.person)?'#e7effd':'#f6f8fb';
+    if(mode==='audit')f=z===cur?'#e7effd':route.indexOf(z)<route.indexOf(cur)?'#e4f5ea':'#f6f8fb';
+    if(mode==='policies')f=D.sops.some(s=>s.zone===z&&s.status!=='approved')?'#fff1d6':'#f6f8fb';
+    svg+=`<g class="zone ${st.zone===z?'sel':''}" data-zone="${z}" role="button" tabindex="0" aria-label="${ZN[z]}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="${f}"/><text x="${x+8}" y="${y+16}">${SHORT[z]}</text>`;
+    const n=mode==='staff'?people[z].length:mode==='policies'?D.sops.filter(s=>s.zone===z).length:info.count;
+    if(n&&mode!=='audit'){const c=mode==='staff'||mode==='policies'?'#1d2b4a':dotc[info.level];svg+=`<circle cx="${x+w-14}" cy="${y+h-14}" r="10" fill="${c}"/><text class="cnt" x="${x+w-14}" y="${y+h-10}" text-anchor="middle">${n}</text>`;}
+    if(mode==='staff')svg+=`<text x="${x+8}" y="${y+34}" style="font:700 12px DM Sans;fill:#2f6fdf">${people[z].join(' · ')}</text>`;
+    svg+=`</g>`;
+  }
+  if(mode==='audit'){
+    svg+=`<polyline points="${route.map(z=>ctr(z).join(',')).join(' ')}" fill="none" stroke="#2f6fdf" stroke-width="2" stroke-dasharray="5 5" pointer-events="none"/>`;
+    route.forEach((z,i)=>{const[cx,cy]=ctr(z);const done=i<route.indexOf(cur),now=z===cur;svg+=`<circle cx="${cx}" cy="${cy}" r="11" fill="${done?'#1f7a45':now?'#2f6fdf':'#fff'}" stroke="#2f6fdf" stroke-width="2" pointer-events="none"/>${now?`<circle class="pulse" cx="${cx}" cy="${cy}" r="11" pointer-events="none"/>`:''}<text x="${cx}" y="${cy+4}" text-anchor="middle" style="font:700 11px DM Sans;fill:${done||now?'#fff':'#2f6fdf'}" pointer-events="none">${done?'✓':i+1}</text>`;});
+  }
+  svg+=`</svg>`;
+  const leg=mode==='audit'?`<span><i style="background:#e4f5ea"></i>Checked</span><span><i style="background:#e7effd"></i>You are here</span><span><i style="background:#f6f8fb"></i>Still to walk</span>`:mode==='staff'?`<span>Initials show who looks after each area. Tap a person to highlight their areas.</span>`:mode==='policies'?`<span><i style="background:#fff1d6"></i>Procedure needs you</span><span>Numbers: procedures for that area</span>`:`<span><i style="background:#fde9e6"></i>Overdue</span><span><i style="background:#fff1d6"></i>Due soon</span><span><i style="background:#e7effd"></i>To verify</span><span><i style="background:#e4f5ea"></i>In hand</span>`;
+  return svg+`<div class="legend">${leg}</div>`;
+}
+const zoneHead=z=>`<div style="display:flex;justify-content:space-between;align-items:center"><span class="grp" style="margin:0">${ZN[z]}</span><button class="lens" data-zone="">Whole pharmacy</button></div>`;
+const aRow=a=>`<button class="row" data-go="${a.id==='visit'?'audit':'audits'}"><span class="t"><span class="n">${a.name}</span><span class="m">${a.cadence} · last ${a.last}</span></span><span class="tag ${a.status==='overdue'?'t-red':a.status==='soon'?(a.legal?'t-ink':'t-amber'):'t-green'}">${a.dueLabel}</span></button>`;
+const tRow=t=>`<button class="row" data-go="actions"><span class="t"><span class="n">${t.title}</span><span class="m">${t.state==='check'?'Ready for your check':t.owner+' · due '+t.due}</span></span><span class="tag ${t.state==='check'?'t-blue':'t-grey'}">${t.state==='check'?'Your check':'With staff'}</span></button>`;
+const P={
+dashboard(){
+  const z=st.zone;
+  if(z){const i=zoneInfo(z);return `${zoneHead(z)}<h1>${i.level==='ok'?'All in hand':i.count+' thing'+(i.count>1?'s':'')+' here'}</h1>${i.a.length?'<span class="grp">Reviews</span>'+i.a.map(aRow).join(''):''}${i.t.length?'<span class="grp">Actions</span>'+i.t.map(tRow).join(''):''}${i.v?`<span class="grp">Setup answers</span><button class="row" data-go="policies"><span class="t"><span class="n">${i.v} to verify</span><span class="m">Answers about this area</span></span><span class="tag t-blue">Verify</span></button>`:''}${i.s.length?'<span class="grp">Procedures for this area</span>'+i.s.map(s=>`<button class="row" data-go="policies"><span class="t"><span class="n">${s.name}</span><span class="m">${s.note}</span></span></button>`).join(''):''}`;}
+  return `<span class="grp" style="margin:0">${D.today}</span><h1>Good afternoon, ${D.proprietor.first}</h1><p class="sub">Tap any part of the floor to see everything about it.</p>
+  <div class="banner"><span style="flex:1"><b>Site visit overdue 16 days</b><br><span style="font-size:14px;color:var(--muted)">Walk all six areas · about 10 minutes</span></span><button class="btn primary" data-go="audit">Walk the floor</button></div>
+  <span class="grp">Areas that need you</span>${['fridge','office','safe','daa'].map(z=>{const i=zoneInfo(z);return `<button class="row" data-zone="${z}"><span style="width:12px;height:12px;border-radius:3px;background:${dotc[i.level]}"></span><span class="t"><span class="n">${ZN[z]}</span><span class="m">${[...i.a.filter(x=>x.status!=='ok').map(x=>x.name),...i.t.map(x=>x.title),...(i.v?[i.v+' answers to verify']:[])].slice(0,2).join(' · ')}</span></span><span style="color:var(--faint)">›</span></button>`}).join('')}
+  <p class="sub" style="font-size:14px">Dispensary, front of shop and consulting room are in hand.</p>`;
+},
+audits(){
+  const z=st.zone, list=D.audits.filter(a=>!z||a.zone===z||a.zone==='all');
+  return `${z?zoneHead(z):'<span class="grp" style="margin:0">Reviews · whole pharmacy</span>'}<h1>${list.length} reviews${z?' here':''}</h1><p class="sub">Each review lives where it happens. Tap an area on the floor to filter.</p>${list.map(a=>`<div style="display:flex;flex-direction:column;gap:2px">${aRow(a)}<span style="font-size:13px;color:var(--faint);padding:2px 4px">${a.zone==='all'?'Whole pharmacy':ZN[a.zone]}</span></div>`).join('')}`;
+},
+audit(){
+  const v=D.visit, c=v.checks[st.i], issue=st.ans==='Issue'||st.ans==='Needs verification';
+  return `<div style="display:flex;justify-content:space-between;align-items:center"><span class="grp" style="margin:0">Walking the floor · stop ${st.i+1} of 6</span><button class="lens" data-go="dashboard">Pause</button></div>
+  <h1>${c.name}</h1><p class="sub">Go to: <b style="color:var(--ink)">${ZN[c.zone]}</b>. ${c.prompt}</p><p class="sub" style="font-size:14px">${c.source?c.source+' · ':''}Last visit: ${c.last}</p>
+  <div class="ans" role="radiogroup" aria-label="Result">${v.answers.map(a=>`<button aria-pressed="${st.ans===a}" data-ans="${a}">${a}</button>`).join('')}</div>
+  ${issue?`<label for="n" style="font-weight:700">What did you find?</label><textarea id="n">Out-of-date stock found in the returns area.</textarea><button class="chk" data-task><span class="box ${st.task?'on':''}">${st.task?'✓':''}</span><span><b>Raise an action pinned to ${SHORT[c.zone]}</b><br><span style="font-size:14px;color:var(--muted)">Sam Taylor · due 26 Nov</span></span></button>`:''}
+  <div style="display:flex;gap:10px"><button class="btn" data-prev style="flex:1">Back</button><button class="btn primary" data-next style="flex:2">Next stop</button></div>`;
+},
+actions(){
+  const z=st.zone, list=D.actions.filter(t=>t.state!=='closed'&&(!z||t.zone===z)), a=D.actions[0];
+  return `${z?zoneHead(z):'<span class="grp" style="margin:0">Actions · pinned where they happen</span>'}<h1>${list.length} open</h1>
+  ${list.map(t=>`<div class="row" style="flex-direction:column;align-items:stretch;gap:8px"><div style="display:flex;gap:10px;align-items:center"><span class="t"><span class="n">${t.title}</span><span class="m">${SHORT[t.zone]} · ${t.from}</span></span><span class="tag ${t.state==='check'?'t-blue':'t-grey'}">${t.state==='check'?'Your check':t.owner}</span></div>${t.state==='check'?`<p class="sub" style="font-size:14px;margin:0">${t.trail[2][1]}</p><div style="display:flex;gap:8px"><button class="btn primary" style="flex:2">Checked · close</button><button class="btn" style="flex:1">Reopen</button></div>`:''}</div>`).join('')}
+  <span class="grp">Closed recently</span>${D.actions.filter(t=>t.state==='closed').map(t=>`<div class="row"><span class="t"><span class="n">${t.title}</span><span class="m">${SHORT[t.zone]} · closed by you ${t.closed}</span></span><span class="tag t-green">Closed</span></div>`).join('')}`;
+},
+calendar(){
+  const zOf=u=>{const a=D.audits.find(x=>x.id===u.ref);const t=D.actions.find(x=>x.id===u.ref);return a?a.zone:t?t.zone:'office'};
+  return `<span class="grp" style="margin:0">Dates · next four weeks</span><h1>What’s coming, and where</h1><p class="sub">Tap a date to light up its area on the floor.</p>
+  <div class="banner" style="background:var(--accent-soft)"><span style="flex:1"><b>Book the site visit</b><br><span style="font-size:14px;color:var(--muted)">Tue 24 Nov also lets you check the fridge log fix</span></span><button class="btn primary">Book</button></div>
+  ${D.upcoming.map(u=>{const z=zOf(u);return `<button class="row" data-zone="${z}" style="${st.zone===z?'border-color:var(--accent)':''}"><span style="width:58px;font-weight:700">${u.date}<br><span style="font-size:13px;color:var(--muted);font-weight:500">${u.dow}</span></span><span class="t"><span class="n">${u.title}</span><span class="m">${u.kind==='legal'?'§ Legal requirement · ':''}${SHORT[z]}</span></span></button>`}).join('')}`;
+},
+staff(){
+  const p=D.staff.find(x=>x.id===st.person)||null;
+  const ini={s1:'ST',s2:'PN',s3:'MC',s4:'JL'};
+  return `<span class="grp" style="margin:0">People · who looks after what</span><h1>${D.staff.length} people</h1><div class="people">${D.staff.map(x=>`<button class="pc" data-person="${ini[x.id]}" data-pid="${x.id}" aria-pressed="${st.person===ini[x.id]}"><i>${ini[x.id]}</i>${x.name.split(' ')[0]}${x.status==='soon'?' <span class="tag t-amber" style="padding:1px 8px">!</span>':''}</button>`).join('')}</div>
+  ${(()=>{const x=D.staff.find(s=>ini[s.id]===st.person)||D.staff[0];return `<span class="grp">${x.name} · ${x.role}</span>${x.creds.map(([n,m,s])=>`<div class="row"><span class="t"><span class="n">${n}</span><span class="m">${m}</span></span><span class="tag ${s==='soon'?'t-amber':'t-green'}">${s==='soon'?'Check soon':'Current'}</span></div>`).join('')}<div style="display:flex;gap:8px"><button class="btn primary" style="flex:2">Register checked</button><button class="btn" style="flex:1">Add record</button></div>`})()}`;
+},
+policies(){
+  const z=st.zone, list=D.sops.filter(s=>!z||s.zone===z);
+  return `${z?zoneHead(z):'<span class="grp" style="margin:0">Procedures · 17 in total</span>'}<h1>${z?list.length+' for this area':'Procedures by area'}</h1><p class="sub">Each procedure belongs to the place it governs. The DAA bench has a draft waiting.</p>
+  ${list.map(s=>`<button class="row" data-sop="${s.id}"><span class="t"><span class="n">${s.name}</span><span class="m">${SHORT[s.zone]} · ${s.note}</span></span><span class="tag ${s.status==='draft'?'t-amber':s.status==='review'?'t-blue':'t-green'}">${s.status==='draft'?'Draft':s.status==='review'?'Review':'Approved'}</span></button>${st.sop===s.id&&s.id==='p1'?D.sopPreview.lines.map(([l,t])=>`<p style="margin:0;padding:10px 12px;border-radius:10px;background:${t==='Marked to verify'?'var(--amber-soft)':'var(--grey-soft)'};font-size:15px">${l}<br><span style="font-size:13px;color:var(--muted)">${t}</span></p>`).join('')+'<div style="display:flex;gap:8px"><button class="btn primary" style="flex:2">Verify 3 answers</button><button class="btn" disabled style="flex:1;opacity:.5">Approve</button></div>':''}`).join('')}`;
+}};
+function render(){
+  const p=page();
+  document.getElementById('lenses').innerHTML=LENS.map(([k,l])=>`<button class="lens" data-go="${k}" aria-pressed="${k===p}">${l}</button>`).join('');
+  document.getElementById('mapwrap').innerHTML=map(p);
+  document.getElementById('panel').innerHTML=(P[p]||P.dashboard)();
+  document.getElementById('ph').textContent=ph.short+' ▾';
+  document.getElementById('dt').textContent=D.todayShort;
+}
+document.addEventListener('click',e=>{
+  const z=e.target.closest('[data-zone]');
+  if(z){st.zone=z.dataset.zone||null;if(page()==='audit'){}render();return;}
+  const t=e.target.closest('button');if(!t)return;
+  if(t.id==='ph'){ph=ph.id==='hv'?D.pharmacies[1]:D.pharmacies[0];render();return;}
+  if(t.dataset.go){if(t.dataset.go!==page())st.zone=null;go(t.dataset.go);return;}
+  if(t.dataset.ans){st.ans=t.dataset.ans;render();return;}
+  if(t.hasAttribute('data-task')){st.task=!st.task;render();return;}
+  if(t.hasAttribute('data-next')){st.i=Math.min(5,st.i+1);st.ans=null;render();return;}
+  if(t.hasAttribute('data-prev')){st.i=Math.max(0,st.i-1);st.ans=null;render();return;}
+  if(t.dataset.person){st.person=st.person===t.dataset.person?null:t.dataset.person;render();return;}
+  if(t.dataset.sop){st.sop=st.sop===t.dataset.sop?null:t.dataset.sop;render();return;}
+});
+document.addEventListener('keydown',e=>{const z=e.target.closest&&e.target.closest('g[data-zone]');if(z&&(e.key==='Enter'||e.key===' ')){e.preventDefault();st.zone=z.dataset.zone;render();}});
+window.addEventListener('hashchange',render);render();
+})();
+</script>
+</body>
+</html>

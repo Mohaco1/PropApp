@@ -1,0 +1,7 @@
+{
+  "choice": "ask",
+  "key": "delivery/provider",
+  "question": "Who performs deliveries?",
+  "service": "Home delivery",
+  "updatedAt": "2026-11-19T23:18:52.658Z"
+}

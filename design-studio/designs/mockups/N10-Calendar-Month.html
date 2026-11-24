@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendar · month with plain-words planning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+body{margin:0;background:#fff;font-family:Inter,system-ui,sans-serif;color:#111827}
+button{font-family:inherit;cursor:pointer}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:0 12px}
+.dow{font-size:12px;font-weight:600;color:#6b7280;text-align:center;padding:4px 0}
+.day{min-height:46px;border:0;background:#fff;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:3px;padding-top:6px;font-size:15px;color:#111827;font-variant-numeric:tabular-nums}
+.day.o{color:#c0c4cc}
+.day.t{background:#111827;color:#fff;font-weight:700}
+.day[aria-pressed=true]{box-shadow:inset 0 0 0 2px #1d4ed8}
+.dots{display:flex;gap:3px;height:6px}
+.dots i{width:6px;height:6px;border-radius:50%;display:block}
+.ev{display:flex;gap:12px;align-items:center;min-height:56px;border-bottom:1px solid #eef0f3}
+</style>
+</head>
+<body>
+<div style="width:390px;height:844px;box-sizing:border-box;display:flex;flex-direction:column">
+  <div style="padding:14px 16px 8px;display:flex;align-items:center;gap:8px">
+    <h1 style="margin:0;flex:1;font-size:30px;font-weight:800;letter-spacing:-.02em">December</h1>
+    <button type="button" aria-label="Previous month" style="width:44px;height:44px;border:0;border-radius:12px;background:#f3f4f6;display:grid;place-items:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button type="button" aria-label="Next month" style="width:44px;height:44px;border:0;border-radius:12px;background:#f3f4f6;display:grid;place-items:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+  </div>
+
+  <div style="margin:0 16px 12px;border:1px solid #d1d5db;border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px">
+    <span style="font-size:16px">S8 check <b style="background:#eef2ff;color:#1e3a8a;border-radius:4px;padding:0 4px">1st Dec</b> <b style="background:#eef2ff;color:#1e3a8a;border-radius:4px;padding:0 4px">morning</b></span>
+    <span style="display:flex;align-items:center;gap:8px;font-size:14px;color:#374151"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg>S8 stock check · Tue 1 Dec, 9:00am · Harbourview<button type="button" style="margin-left:auto;min-height:44px;min-width:64px;border:0;border-radius:10px;background:#111827;color:#fff;font-size:14px;font-weight:700">Add</button></span>
+  </div>
+
+  <div class="cal" role="grid" aria-label="December">
+    <span class="dow">M</span><span class="dow">T</span><span class="dow">W</span><span class="dow">T</span><span class="dow">F</span><span class="dow">S</span><span class="dow">S</span>
+  </div>
+  <div class="cal" id="days"></div>
+
+  <div style="flex:1;overflow:auto;padding:10px 16px 12px">
+    <h2 style="margin:4px 0 2px;font-size:17px;font-weight:700">Tue 1 Dec</h2>
+    <div class="ev"><span style="width:4px;height:36px;border-radius:2px;background:#111827"></span><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:600">S8 stock check</span><span style="font-size:14px;color:#4b5563">9:00am · § Legal requirement · s 111</span></span></div>
+    <div class="ev"><span style="width:4px;height:36px;border-radius:2px;background:#e0a23b"></span><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:600">DAA packing check</span><span style="font-size:14px;color:#4b5563">Any time · your monthly plan</span></span></div>
+    <p style="margin:12px 0 0;font-size:13px;line-height:1.45;color:#4b5563">Dots: black legal requirement, amber your plan, blue meeting. Nothing is booked until you tap Add.</p>
+  </div>
+</div>
+<script>
+// December 2026 starts on a Tuesday.
+var ev={1:['#111827','#e0a23b'],4:['#e0a23b'],9:['#e0a23b'],14:['#1d4ed8'],16:['#e0a23b'],22:['#1d4ed8']};
+var h='<button class="day o">30</button>';
+for(var d=1;d<=31;d++){var dots=(ev[d]||[]).map(function(c){return '<i style="background:'+c+'"></i>'}).join('');h+='<button class="day'+(d===1?'':'')+'" aria-pressed="'+(d===1)+'">'+d+'<span class="dots">'+dots+'</span></button>';}
+for(var k=1;k<=3;k++)h+='<button class="day o">'+k+'</button>';
+document.getElementById('days').innerHTML=h;
+document.querySelectorAll('#days .day:not(.o)').forEach(function(b){b.onclick=function(){document.querySelectorAll('#days .day').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))})}});
+</script>
+</body>
+</html>

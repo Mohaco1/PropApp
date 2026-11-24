@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audits · last 12 times</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+body{margin:0;background:#fff;font-family:Inter,system-ui,sans-serif;color:#111827}
+button{font-family:inherit;cursor:pointer}
+.chip{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d1d5db;background:#fff;font-size:14px;font-weight:600}
+.chip[aria-pressed=true]{background:#111827;color:#fff;border-color:#111827}
+.a{width:100%;border:0;border-bottom:1px solid #eef0f3;background:#fff;text-align:left;padding:12px 0;display:flex;flex-direction:column;gap:8px;color:#111827}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:4px}
+.grid i{height:16px;border-radius:4px;display:block}
+.d{background:#15803d}.l{background:#86c79c}.m{background:#b42318}.u{background:#fff;box-shadow:inset 0 0 0 2px #1d4ed8}.n{background:#eef0f3}
+</style>
+</head>
+<body>
+<div style="width:390px;height:844px;box-sizing:border-box;display:flex;flex-direction:column">
+  <div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:8px">
+    <h1 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-.02em">Audits</h1>
+    <p style="margin:0;font-size:15px;line-height:1.45;color:#374151">Each square is one time an audit was due, oldest on the left.</p>
+    <div style="display:flex;gap:8px;overflow-x:auto;padding:4px 0"><button class="chip" aria-pressed="true">All 8</button><button class="chip" aria-pressed="false">Due soon 2</button><button class="chip" aria-pressed="false">Often late 2</button></div>
+  </div>
+  <div id="list" style="flex:1;overflow:auto;padding:0 16px"></div>
+  <div style="padding:10px 16px 18px;border-top:1px solid #eef0f3;display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:#374151">
+    <span style="display:flex;align-items:center;gap:6px"><i class="d" style="width:14px;height:14px;border-radius:4px;display:block"></i>On time</span>
+    <span style="display:flex;align-items:center;gap:6px"><i class="l" style="width:14px;height:14px;border-radius:4px;display:block"></i>Late</span>
+    <span style="display:flex;align-items:center;gap:6px"><i class="m" style="width:14px;height:14px;border-radius:4px;display:block"></i>Missed</span>
+    <span style="display:flex;align-items:center;gap:6px"><i class="u" style="width:14px;height:14px;border-radius:4px;display:block"></i>Next</span>
+    <span style="display:flex;align-items:center;gap:6px"><i class="n" style="width:14px;height:14px;border-radius:4px;display:block"></i>Not yet set up</span>
+  </div>
+</div>
+<script>
+var A=[['Site visit','Every 8 weeks','Overdue 16 days','#b42318','dddldlddlmlu'],['S8 stock check','§ Reg s 111','Due 1 Dec','#111827','nnnnddddlddu'],['Cold chain review','Monthly','Due 30 Nov','#111827','ddddddlddddu'],['DAA packing check','Monthly','Due 4 Dec','#111827','nnnnnnddddlu'],['Dispensary cleanliness','Monthly','Due 9 Dec','#111827','dddddddddddu'],['Fire safety walk-through','Every 6 months','Due Jan','#111827','nnnnnnnnnddu'],['Vaccination fridge audit','Monthly','Late 3 times in 12','#a15c07','ddlddldddldu'],['Staff credentials check','Every 3 months','Due Feb','#111827','nnnnnnnndddu']];
+document.getElementById('list').innerHTML=A.map(function(a){return '<button type="button" class="a"><span class="top"><span style="font-size:16px;font-weight:600">'+a[0]+'</span><span style="font-size:13px;font-weight:600;color:'+a[3]+';white-space:nowrap">'+a[2]+'</span></span><span class="grid" aria-label="Last 12 times">'+a[4].split('').map(function(k){return '<i class="'+k+'"></i>'}).join('')+'</span><span style="font-size:13px;color:#4b5563">'+a[1]+'</span></button>'}).join('');
+document.querySelectorAll('.chip').forEach(function(b){b.onclick=function(){document.querySelectorAll('.chip').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))})}});
+</script>
+</body>
+</html>

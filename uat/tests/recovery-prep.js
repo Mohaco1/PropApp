@@ -1,0 +1,36 @@
+// PIC prep list (optional, copy only) and recovery: last backup shown, restore receipt after reload. Fictional data.
+const { chromium, devices } = require('playwright');
+const res=[];const ok=(n,p,d='')=>res.push({n,p:!!p,d:String(d).slice(0,300)});
+(async()=>{const b=await chromium.launch();const ctx=await b.newContext({...devices['iPhone 13']});await ctx.grantPermissions(['clipboard-read','clipboard-write']);const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('dialog',d=>d.accept());
+ await p.goto('file:///home/user/rpharmacy/uat/app/rpharmacy-uat-testing.html');await p.waitForTimeout(1500);await p.evaluate(require('./showcase-seed.js'));await p.waitForTimeout(600);
+ await p.evaluate(()=>{if($('editor').open)$('editor').close();RPH.visit.prep(false);});await p.waitForTimeout(300);
+ ok('the visit screen offers "Copy a list for the PIC"',await p.evaluate(()=>!!$('editor').querySelector('.vp-prepbtn')));
+ await p.locator('#editor .vp-prepbtn').click();await p.waitForTimeout(200);
+ const t=await p.evaluate(()=>$('editor').querySelector('.vp-copy textarea').value);
+ ok('the message names the pharmacy and lists what to have ready, without setup "check later" items',/Harbourview Pharmacy today/.test(t)&&/• /.test(t)&&/certificates and records/.test(t)&&!/check later|Annual assurance ·/.test(t),t);
+ await p.evaluate(()=>{const i=$('editor').querySelector('.vp-copy input[type=date]');i.value=addInterval(today(),3,'days');i.dispatchEvent(new Event('change'));});
+ ok('changing the visit date updates the message',await p.evaluate(()=>!/ today\./.test($('editor').querySelector('.vp-copy textarea').value)));
+ await p.locator('#editor .vp-copy button.primary').click();await p.waitForTimeout(200);
+ ok('Copy message copies it (nothing is sent)',/Copied|Select all/.test(await p.evaluate(()=>$('editor').querySelector('.vp-copied').textContent)));
+ await p.evaluate(()=>$('editor').close());
+ // Recovery: a real configured pharmacy, so the backup is valid.
+ const q=await (await b.newContext({viewport:{width:1280,height:860},acceptDownloads:true})).newPage();q.on('pageerror',e=>errs.push(e.message));q.on('dialog',d=>d.accept());
+ await require('./lib-setup.js')(q);await q.evaluate(()=>{if($('editor').open)$('editor').close();});
+ const row=()=>q.evaluate(()=>{CD.go('setup');return document.querySelector('#cd-view tr[data-row="setup:Locations, backup & restore"]')?.textContent||'';});
+ const before=await row();
+ ok('before any backup, setup says "No backup file yet"',/No backup file yet/.test(before),before);
+ const [dl]=await Promise.all([q.waitForEvent('download',{timeout:5000}).catch(()=>null),q.evaluate(()=>RPH.downloadBackup())]);
+ const after=await row();
+ ok('after downloading a backup, setup shows "Last backup <date> · up to date"',dl&&/Last backup .* up to date/.test(after),after);
+ await q.evaluate(()=>{const n=clone();n.pharmacyName=n.pharmacyName+' ';commit(n,'fictional change after backup');});
+ ok('a later change shows "1 change since"',/1 change since/.test(await row()));
+ const bk=await q.evaluate(()=>{try{const b=portableBackup();b.exportedAt='2026-11-20T09:30:00.000Z';restoreBackup(b,localStorage.getItem(currentSlot()));return 'ok';}catch(e){return e.message;}});
+ await q.reload();await q.waitForTimeout(2200);
+ const rc=await q.evaluate(()=>({open:$('editor').open,t:$('editor').textContent}));
+ ok('after a restore and reload, a receipt says when the file was made and what came back',rc.open&&/Restored/.test(rc.t)&&/20 Nov/.test(rc.t)&&/open action/.test(rc.t)&&/isn’t in it/.test(rc.t),JSON.stringify({bk,t:rc.t.slice(0,300)}));
+ await q.evaluate(()=>$('editor').close());
+ ok('after a restore, the last backup shows the file’s date',/Last backup 20 Nov/.test(await row()));
+ await q.reload();await q.waitForTimeout(2000);
+ ok('the receipt shows only once',await q.evaluate(()=>!$('editor').open||!/Restored/.test($('editor').textContent)));
+ ok('no page errors',!errs.length,errs.join(' | '));
+ await b.close();const f=res.filter(r=>!r.p);for(const r of res)console.log((r.p?'PASS ':'FAIL ')+r.n+(r.p?'':' :: '+r.d));console.log(res.length-f.length+'/'+res.length);process.exit(f.length?1:0);})();

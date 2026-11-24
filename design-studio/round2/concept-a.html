@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concept A · Quiet Precision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#0c111c;--muted:#5b6476;--faint:#8a92a3;--line:#e6e8ee;--bg:#ffffff;--soft:#f6f7f9;--accent:#2f5bea;--accent-soft:#eef2fd;
+--red:#c0281b;--amber:#a35a00;--green:#1c7a3e;--grey:#6b7385}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.app{min-height:100vh;display:flex;flex-direction:column}
+header.bar{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);z-index:5}
+.brand{font-weight:700;letter-spacing:-.01em}
+.switch{display:flex;align-items:center;gap:4px;min-height:44px;font-weight:600;color:var(--ink)}
+.switch small{color:var(--faint);font-weight:500}
+.me{margin-left:auto;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font-size:13px;font-weight:700}
+.topnav{display:none;gap:4px}
+.topnav button{min-height:40px;padding:0 12px;border-radius:8px;color:var(--muted);font-weight:500;font-size:15px}
+.topnav button[aria-current=page]{color:var(--ink);background:var(--soft);font-weight:600}
+main{flex:1;width:100%;max-width:720px;margin:0 auto;padding:24px 20px 110px}
+h1{margin:0;font-size:30px;line-height:1.15;letter-spacing:-.025em;font-weight:700}
+.lede{margin:10px 0 0;color:var(--muted);font-size:17px;line-height:1.5}
+h2{margin:36px 0 6px;font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+.list{border-top:1px solid var(--line)}
+.item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);width:100%;text-align:left;min-height:64px}
+.item .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.item .n{font-weight:600}
+.item .m{font-size:14px;color:var(--muted)}
+.item .r{font-size:14px;font-weight:600;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.d-overdue{background:var(--red)}.d-soon{background:var(--amber)}.d-ok{background:var(--green)}.d-check{background:var(--accent)}.d-staff{background:var(--grey)}.d-legal{background:var(--ink)}
+.c-overdue{color:var(--red)}.c-soon{color:var(--amber)}.c-ok{color:var(--green)}.c-accent{color:var(--accent)}.c-muted{color:var(--muted)}
+.verb{color:var(--accent);font-weight:600;font-size:15px;min-height:44px;display:inline-flex;align-items:center}
+.meter{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:10px}
+.meter i{display:block;height:100%;background:var(--ink)}
+.tabs{display:flex;gap:22px;border-bottom:1px solid var(--line);margin-top:20px;overflow-x:auto}
+.tabs button{min-height:44px;color:var(--muted);font-weight:500;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button[aria-selected=true]{color:var(--ink);border-color:var(--ink);font-weight:600}
+.tabs .n{color:var(--faint);font-weight:500;margin-left:4px}
+.btn{min-height:48px;padding:0 20px;border-radius:10px;font-weight:600;border:1px solid var(--line);background:#fff}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.block{width:100%}
+.detail{padding:4px 0 18px 22px;border-bottom:1px solid var(--line)}
+.trail{margin:6px 0 14px;padding:0;list-style:none}
+.trail li{display:flex;gap:14px;font-size:14px;padding:5px 0;color:var(--muted)}
+.trail li b{width:52px;flex:0 0 auto;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.row2{display:flex;gap:10px;flex-wrap:wrap}
+.opt{display:flex;align-items:center;gap:14px;width:100%;min-height:58px;border-bottom:1px solid var(--line);text-align:left;font-size:17px}
+.opt .rad{width:22px;height:22px;border-radius:50%;border:2px solid var(--faint);display:grid;place-items:center;flex:0 0 auto}
+.opt[aria-checked=true] .rad{border-color:var(--ink)}
+.opt[aria-checked=true] .rad::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--ink)}
+.opt[aria-checked=true]{font-weight:600}
+.box{width:22px;height:22px;border-radius:5px;border:2px solid var(--ink);display:grid;place-items:center;flex:0 0 auto}
+.box.on{background:var(--ink);color:#fff}
+.chk{display:flex;align-items:center;gap:12px;min-height:48px;text-align:left}
+textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px;min-height:84px;resize:vertical;font-size:16px}
+.chip{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);font-size:14px;font-weight:500}
+.chip[aria-pressed=true]{border-color:var(--ink);background:var(--ink);color:#fff}
+.src{font-size:13px;color:var(--muted)}
+.segs{display:flex;gap:4px}.segs i{flex:1;height:3px;background:var(--line);border-radius:2px}.segs i.done{background:var(--ink)}.segs i.now{background:var(--accent)}
+.kbd{font-size:12px;color:var(--faint);margin-top:28px}
+.kbd b{display:inline-block;min-width:20px;padding:0 5px;border:1px solid var(--line);border-radius:4px;color:var(--muted);font-weight:500;text-align:center;margin:0 2px}
+nav.tabbar{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,255,255,.97);border-top:1px solid var(--line);padding:6px 4px calc(8px + env(safe-area-inset-bottom));z-index:5}
+nav.tabbar button{min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;color:var(--faint);font-weight:500}
+nav.tabbar button[aria-current=page]{color:var(--ink);font-weight:600}
+.visitbar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 20px calc(14px + env(safe-area-inset-bottom));display:flex;gap:10px;z-index:6}
+.visitbar .btn{flex:1}.visitbar .btn.primary{flex:2}
+.menu{position:absolute;top:58px;left:12px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(12,17,28,.12);padding:6px;z-index:10;min-width:250px}
+.menu button{display:flex;justify-content:space-between;gap:12px;width:100%;min-height:48px;padding:0 12px;border-radius:8px;text-align:left}
+.menu button:hover{background:var(--soft)}
+@media (min-width:900px){
+  .topnav{display:flex;margin-left:24px}
+  nav.tabbar{display:none}
+  main{padding-bottom:60px}
+  .visitbar{position:static;max-width:720px;margin:0 auto;border:0;padding:24px 20px}
+  .visitbar .btn{flex:0 0 auto;min-width:140px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <span class="brand">R.</span>
+    <button class="switch" id="sw" aria-haspopup="true"><span id="phName"></span><small>▾</small></button>
+    <nav class="topnav" id="topnav" aria-label="Sections"></nav>
+    <span class="me" title="Alex Owner">AO</span>
+  </header>
+  <main id="main"></main>
+  <nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
+</div>
+<script src="data.js"></script>
+<script>
+(function(){
+const D=window.RPH; let ph=D.pharmacies[0];
+const st={auditFilter:'all',actTab:'check',open:{},visit:{i:1,answer:null,find:[],task:true,notes:''},sop:null,staff:null};
+const NAV=[['dashboard','Today'],['audits','Reviews'],['actions','Actions'],['calendar','Plan'],['staff','Staff'],['policies','Policies']];
+const TAB=[['dashboard','Today','M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z'],['audits','Reviews','M5 4h14v16H5zM9 9h6M9 13h6M9 17h4'],['actions','Actions','M5 12l4 4 10-10'],['calendar','Plan','M4 6h16v14H4zM4 10h16M9 3v4M15 3v4'],['more','More','M5 12h.01M12 12h.01M19 12h.01']];
+const ic=d=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+const page=()=>(location.hash.slice(1)||'dashboard');
+const go=p=>{location.hash=p};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const statusWord={overdue:'Overdue',soon:'Due soon',ok:'On track'};
+
+const P={
+dashboard(){
+  const a=D.audits, act=D.actions;
+  return `<p class="src" style="margin:0 0 6px">${D.today}</p>
+  <h1>Good afternoon, ${D.proprietor.first}.</h1>
+  <p class="lede">${ph.overdue?'One review is overdue and':'Nothing is overdue;'} ${ph.dueSoon} are due in the next two weeks. One action is ready for your check.</p>
+  <h2>Needs you</h2>
+  <div class="list">
+    <div class="item"><span class="dot d-overdue"></span><span class="t"><span class="n">Site visit</span><span class="m">Overdue 16 days · 6 checks · about 10 minutes</span></span><button class="verb" data-go="audit">Start</button></div>
+    <div class="item"><span class="dot d-check"></span><span class="t"><span class="n">${act[0].title}</span><span class="m">Sam says it’s fixed · your check</span></span><button class="verb" data-go="actions">Review</button></div>
+    <div class="item"><span class="dot d-soon"></span><span class="t"><span class="n">Staff credentials review</span><span class="m">Due tomorrow · Sam’s renewal is 30 Nov</span></span><button class="verb" data-go="staff">Open</button></div>
+    <div class="item"><span class="dot d-staff"></span><span class="t"><span class="n">${D.verify.length} setup answers to verify</span><span class="m">OTP, DAA, Vaccination, Delivery · when you can</span></span><button class="verb" data-go="policies">See</button></div>
+  </div>
+  <h2>November</h2>
+  <div style="display:flex;justify-content:space-between;font-size:15px"><span>3 of 6 reviews done</span><span class="c-muted">50%</span></div>
+  <div class="meter"><i style="width:50%"></i></div>
+  <h2>Coming up</h2>
+  <div class="list">${D.upcoming.filter(u=>u.kind!=='task').slice(0,4).map(u=>`<div class="item" style="min-height:52px"><span style="width:56px;font-weight:600;font-variant-numeric:tabular-nums">${u.date}</span><span class="t"><span class="n" style="font-weight:500">${u.title}</span></span>${u.kind==='legal'?'<span class="r c-muted">§ legal</span>':''}</div>`).join('')}</div>
+  <p class="kbd">Shortcuts on a keyboard: <b>G</b><b>T</b> Today · <b>G</b><b>R</b> Reviews · <b>N</b> start next review</p>`;
+},
+audits(){
+  const f=st.auditFilter, list=D.audits.filter(a=>f==='all'||a.status===f);
+  const cnt=k=>D.audits.filter(a=>k==='all'||a.status===k).length;
+  return `<h1>Reviews</h1><p class="lede">${D.audits.length} reviews in your plan for ${ph.short}.</p>
+  <div class="tabs" role="tablist">${[['all','All'],['overdue','Overdue'],['soon','Due soon'],['ok','On track']].map(([k,l])=>`<button role="tab" aria-selected="${f===k}" data-filter="${k}">${l}<span class="n">${cnt(k)}</span></button>`).join('')}</div>
+  <div class="list" style="border-top:0">${list.map(a=>`<button class="item" data-go="${a.id==='visit'?'audit':'audits'}"><span class="dot d-${a.legal?'legal':a.status}"></span><span class="t"><span class="n">${a.name}</span><span class="m">${a.cadence} · last ${a.last} · ${a.source}</span></span><span class="r c-${a.status}">${a.dueLabel}</span></button>`).join('')}</div>`;
+},
+audit(){
+  const v=D.visit, s=st.visit, c=v.checks[s.i];
+  const segs=v.checks.map((x,i)=>`<i class="${i<s.i?'done':i===s.i?'now':''}"></i>`).join('');
+  const issue=s.answer==='Issue', ver=s.answer==='Needs verification';
+  return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><button class="verb" data-go="dashboard" style="color:var(--muted)">✕ Close</button><span class="src">Saved as you go · started ${v.started}</span></div>
+  <div class="segs" aria-label="Check ${s.i+1} of 6">${segs}</div>
+  <p class="src" style="margin:16px 0 4px">Site visit · ${v.pharmacy} · check ${s.i+1} of ${v.checks.length}</p>
+  <h1>${c.name}</h1>
+  <p class="lede">${c.prompt}</p>
+  <p class="src" style="margin-top:8px">${c.source?c.source+' · ':''}Last visit: ${c.last}</p>
+  <div role="radiogroup" aria-label="Result" style="margin-top:22px;border-top:1px solid var(--line)">${v.answers.map(a=>`<button class="opt" role="radio" aria-checked="${s.answer===a}" data-ans="${a}"><span class="rad"></span>${a}</button>`).join('')}</div>
+  ${issue||ver?`<div style="margin-top:22px">
+    <label for="find" style="font-weight:600">${issue?'What did you find?':'What needs verifying?'}</label>
+    ${issue?`<div class="row2" style="margin:10px 0">${v.findings.map(f=>`<button class="chip" aria-pressed="${s.find.includes(f)}" data-find="${f}">${f}</button>`).join('')}</div>`:''}
+    <textarea id="find" placeholder="A sentence is enough" data-notes>${esc(s.notes)}</textarea>
+    <button class="chk" data-task style="margin-top:8px"><span class="box ${s.task?'on':''}">${s.task?'✓':''}</span><span><b style="font-weight:600">Create a follow-up action</b><br><span class="src">Due in 7 days · stays open until you check the fix</span></span></button>
+  </div>`:''}
+  <div class="visitbar"><button class="btn" data-prev ${s.i===0?'disabled':''}>Previous</button><button class="btn primary" data-next>${s.answer?'Save and continue':'Choose a result'}</button></div>`;
+},
+actions(){
+  const t=st.actTab, list=D.actions.filter(a=>a.state===t);
+  const cnt=k=>D.actions.filter(a=>a.state===k).length;
+  return `<h1>Actions</h1><p class="lede">Only you close an action, after you’ve seen the fix.</p>
+  <div class="tabs" role="tablist">${[['check','Your check'],['staff','With staff'],['closed','Closed']].map(([k,l])=>`<button role="tab" aria-selected="${t===k}" data-tab="${k}">${l}<span class="n">${cnt(k)}</span></button>`).join('')}</div>
+  <div class="list" style="border-top:0">${list.map(a=>{const o=st.open[a.id];return `<button class="item" data-open="${a.id}" aria-expanded="${!!o}"><span class="dot d-${a.state==='check'?'check':a.state==='staff'?'staff':'ok'}"></span><span class="t"><span class="n">${a.title}</span><span class="m">${a.state==='closed'?'Closed by you '+a.closed:a.owner+' · due '+a.due} · ${a.from}</span></span><span class="r c-muted">${o?'−':'+'}</span></button>${o?`<div class="detail"><ol class="trail">${a.trail.map(([d,x])=>`<li><b>${d}</b>${x}</li>`).join('')||'<li>No further history.</li>'}</ol>${a.state==='check'?`<div class="row2"><button class="btn primary">I’ve checked it · close</button><button class="btn">Not fixed · reopen</button></div>`:a.state==='staff'?`<button class="btn">Record an update</button>`:''}</div>`:''}`}).join('')}</div>`;
+},
+calendar(){
+  const weeks=[['This week',D.upcoming.filter(u=>['20 Nov'].includes(u.date))],['Next week',D.upcoming.filter(u=>['25 Nov'].includes(u.date))],['Week of 30 Nov',D.upcoming.filter(u=>['30 Nov','1 Dec','4 Dec','6 Dec'].includes(u.date))],['Week of 7 Dec',D.upcoming.filter(u=>['9 Dec'].includes(u.date))],['Week of 14 Dec',D.upcoming.filter(u=>['15 Dec'].includes(u.date))]];
+  return `<h1>Plan</h1><p class="lede">The next four weeks. The overdue site visit isn’t booked yet.</p>
+  <div class="item" style="border-top:1px solid var(--line);margin-top:18px"><span class="dot d-overdue"></span><span class="t"><span class="n">Site visit</span><span class="m">Overdue 16 days · not scheduled</span></span><button class="verb">Pick a day</button></div>
+  ${weeks.map(([w,items])=>`<h2>${w}</h2><div class="list">${items.map(u=>`<div class="item" style="min-height:56px"><span style="width:64px;font-variant-numeric:tabular-nums"><b style="font-weight:600">${u.date}</b><br><span class="src">${u.dow}</span></span><span class="t"><span class="n" style="font-weight:500">${u.title}</span><span class="m">${u.kind==='legal'?'§ Legal requirement · s 111':u.kind==='task'?'Action due':u.kind==='meeting'?'Meeting':'Review'}</span></span></div>`).join('')}</div>`).join('')}`;
+},
+staff(){
+  return `<h1>Staff</h1><p class="lede">${D.staff.length} people at ${ph.short}. One renewal to check before 30 Nov.</p>
+  <div class="list" style="margin-top:20px">${D.staff.map(p=>{const o=st.staff===p.id;return `<button class="item" data-staff="${p.id}" aria-expanded="${o}"><span class="dot d-${p.status}"></span><span class="t"><span class="n">${p.name}</span><span class="m">${p.role} · ${p.note}</span></span><span class="r c-muted">${o?'−':'+'}</span></button>${o?`<div class="detail">${p.creds.map(([n,m,s])=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)"><span><span style="font-weight:500">${n}</span><br><span class="src">${m}</span></span><span class="r c-${s}" style="font-size:14px;font-weight:600">${s==='soon'?'Check soon':'Current'}</span></div>`).join('')}<div class="row2" style="margin-top:12px"><button class="btn primary">Register checked</button><button class="btn">Add record</button></div></div>`:''}`}).join('')}</div>`;
+},
+policies(){
+  const T=D.sopTotals, sel=st.sop;
+  return `<h1>Policies</h1><p class="lede">${T.total} procedures built from your setup answers. ${T.approved} approved, ${T.draft} draft, ${T.review} due for review.</p>
+  <div class="list" style="margin-top:20px">${D.sops.map(s=>{const o=sel===s.id;return `<button class="item" data-sop="${s.id}" aria-expanded="${o}"><span class="dot d-${s.status==='draft'?'soon':s.status==='review'?'check':'ok'}"></span><span class="t"><span class="n">${s.name}</span><span class="m">${s.note}</span></span><span class="r ${s.status==='approved'?'c-muted':s.status==='draft'?'c-soon':'c-accent'}">${s.status==='approved'?s.version:s.status==='draft'?'Draft':'Review due'}</span></button>${o&&s.id==='p1'?`<div class="detail"><p class="src" style="margin:4px 0 8px">Section 3 · Safeguards</p>${D.sopPreview.lines.map(([l,t])=>`<p style="margin:0 0 10px;${t==='Marked to verify'?'background:#fff6e5;padding:6px 8px;border-radius:6px':''}">${l} <span class="src">· ${t}</span></p>`).join('')}<p class="src">Approve stays locked until the 3 marked answers are verified.</p><div class="row2"><button class="btn primary">Verify 3 answers</button><button class="btn" disabled style="opacity:.5">Approve and sign</button></div></div>`:o?`<div class="detail"><p class="src">${s.version}. Opens the full procedure.</p></div>`:''}`}).join('')}</div>
+  <h2>Setup answers to verify</h2><div class="list">${D.verify.map(v=>`<div class="item" style="min-height:52px"><span class="dot d-staff"></span><span class="t"><span class="n" style="font-weight:500">${v.text}</span><span class="m">${v.service}</span></span><button class="verb">Verify</button></div>`).join('')}</div>`;
+},
+more(){
+  return `<h1>More</h1><div class="list" style="margin-top:20px">${[['staff','Staff','Credentials and training'],['policies','Policies','Procedures and setup answers'],['calendar','Plan','Upcoming obligations']].map(([k,n,m])=>`<button class="item" data-go="${k}"><span class="t"><span class="n">${n}</span><span class="m">${m}</span></span><span class="r c-muted">›</span></button>`).join('')}</div>`;
+}};
+
+function render(){
+  const p=page(); const m=document.getElementById('main');
+  m.innerHTML=(P[p]||P.dashboard)();
+  document.getElementById('phName').textContent=ph.short;
+  document.getElementById('topnav').innerHTML=NAV.map(([k,l])=>`<button data-go="${k}" ${k===p||(p==='audit'&&k==='audits')?'aria-current="page"':''}>${l}</button>`).join('');
+  const tb=document.getElementById('tabbar'); tb.style.display=p==='audit'?'none':'';
+  tb.innerHTML=TAB.map(([k,l,d])=>`<button data-go="${k}" ${k===p||(k==='more'&&['staff','policies'].includes(p))||(p==='audit'&&k==='audits')?'aria-current="page"':''}>${ic(d)}${l}</button>`).join('');
+  window.scrollTo(0,0);
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button'); if(!t)return;
+  const menu=document.querySelector('.menu'); if(menu&&!t.closest('.menu')){menu.remove();if(t.id!=='sw')return;}
+  if(t.id==='sw'){const m=document.createElement('div');m.className='menu';m.innerHTML=D.pharmacies.map(x=>`<button data-ph="${x.id}"><span>${x.name}</span><span class="src">${x.overdue?x.overdue+' overdue':'All on track'}</span></button>`).join('');document.querySelector('header').appendChild(m);return;}
+  if(t.dataset.ph){ph=D.pharmacies.find(x=>x.id===t.dataset.ph);document.querySelector('.menu')?.remove();render();return;}
+  if(t.dataset.go){go(t.dataset.go);return;}
+  if(t.dataset.filter){st.auditFilter=t.dataset.filter;render();return;}
+  if(t.dataset.tab){st.actTab=t.dataset.tab;render();return;}
+  if(t.dataset.open){st.open[t.dataset.open]=!st.open[t.dataset.open];render();return;}
+  if(t.dataset.staff){st.staff=st.staff===t.dataset.staff?null:t.dataset.staff;render();return;}
+  if(t.dataset.sop){st.sop=st.sop===t.dataset.sop?null:t.dataset.sop;render();return;}
+  if(t.dataset.ans){st.visit.answer=t.dataset.ans;render();return;}
+  if(t.dataset.find){const f=st.visit.find,i=f.indexOf(t.dataset.find);i<0?f.push(t.dataset.find):f.splice(i,1);render();return;}
+  if(t.hasAttribute('data-task')){st.visit.task=!st.visit.task;render();return;}
+  if(t.hasAttribute('data-next')){if(!st.visit.answer)return;st.visit.i=Math.min(5,st.visit.i+1);st.visit.answer=null;st.visit.find=[];st.visit.notes='';render();return;}
+  if(t.hasAttribute('data-prev')){st.visit.i=Math.max(0,st.visit.i-1);st.visit.answer=D.visit.checks[st.visit.i].answer;render();return;}
+});
+document.addEventListener('input',e=>{if(e.target.hasAttribute('data-notes'))st.visit.notes=e.target.value;});
+let gk=false;document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea'))return;const k=e.key.toLowerCase();if(gk){gk=false;if(k==='t')go('dashboard');if(k==='r')go('audits');return;}if(k==='g'){gk=true;return;}if(k==='n')go('audit');});
+window.addEventListener('hashchange',render);render();
+})();
+</script>
+</body>
+</html>

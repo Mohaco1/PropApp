@@ -1,0 +1,50 @@
+// My log, staff suggestions, S8 yearly construction checks. Fictional data.
+const { chromium, devices } = require('playwright');
+const APP='file:///home/user/rpharmacy/uat/app/'+(process.env.FILE||'rpharmacy-uat-testing.html');
+const res=[];const ok=(n,p,d='')=>res.push({n,p:!!p,d:String(d).slice(0,300)});
+(async()=>{const b=await chromium.launch();const ctx=await b.newContext({...devices['iPhone 13']});const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('dialog',d=>d.accept());
+ await p.goto(APP);await p.waitForTimeout(1500);
+ await p.locator('main button',{hasText:'Set up your pharmacy'}).click();await p.waitForTimeout(300);
+ await p.fill('#editor input >> nth=0','Harbourview Test Pharmacy');await p.fill('#editor input >> nth=1','1 Test Street');await p.locator('#editor button',{hasText:'Continue'}).click();await p.waitForTimeout(300);
+ await p.fill('#editor input >> nth=0','Alex Owner');await p.locator('#editor button',{hasText:'Continue'}).click();await p.waitForTimeout(300);
+ for(const s of ['Vaccination','Opioid Treatment Program'])await p.locator('#editor .d-tiles>label',{hasText:s}).first().click();
+ await p.locator('#editor button',{hasText:'Save service selection'}).click();await p.waitForTimeout(400);
+ await p.evaluate(()=>{if($('editor').open)fsClose();});
+ // 1. log
+ await p.evaluate(()=>{state.freshSite=true;siteSetup();});
+ ok('Pharmacy setup has "My log"',await p.evaluate(()=>[...document.querySelectorAll('main [data-insp] strong')].some(x=>x.textContent==='My log')));
+ await p.evaluate(()=>RPH.insp.s8());await p.waitForTimeout(200);
+ const btns=await p.evaluate(()=>document.querySelectorAll('#editor .help-logbtn').length);
+ ok('each incident card (3 S8 + data breach) has "Log that you reported it"',btns===4,btns);
+ await p.evaluate(()=>document.querySelector('#editor .help-logbtn').click());await p.waitForTimeout(200);
+ const pre=await p.evaluate(()=>({t:$('editor').querySelector('#dialog-title').textContent,w:$('editor').querySelector('input').value,k:$('editor').querySelector('select').value}));
+ ok('it opens My log pre-filled with what and who to',pre.t==='My log'&&/missing or stolen/.test(pre.w)&&/NSW Health/.test(pre.k),JSON.stringify(pre));
+ await p.evaluate(()=>{$('editor').querySelectorAll('input')[2].value='NSW-TEST-001';});
+ await p.locator('#editor button',{hasText:'Add to log'}).click();await p.waitForTimeout(300);
+ const lg=await p.evaluate(()=>({log:state.ownerLog,li:document.querySelectorAll('#editor .help-log li').length,h:state.history.some(h=>/^Logged · /.test(h.message))}));
+ ok('adding saves date, what, who to, reference and who logged it, with a history line',lg.log?.length===1&&lg.log[0].ref==='NSW-TEST-001'&&lg.log[0].by&&lg.li===1&&lg.h,JSON.stringify(lg.log));
+ await p.evaluate(()=>{$('editor').querySelector('input').value='';});await p.locator('#editor button',{hasText:'Add to log'}).click();await p.waitForTimeout(200);
+ ok('an empty entry is refused',await p.evaluate(()=>state.ownerLog.length===1&&/Write what happened/.test($('editor').textContent)));
+ // 2. staff
+ await p.evaluate(()=>{fsClose();fsChange('t',n=>{(n.staff??=[]).push({id:'s1',person:'Sam Taylor (fictional)',role:'Pharmacist',services:['vaccination','otp'],credentials:[{id:'c1',title:'CPR certificate',expiry:addInterval(today(),200,'days')}]});});});
+ const sg=await p.evaluate(()=>RPH.help.suggest(state.staff.find(x=>x.id==='s1')).map(o=>o.title));
+ ok('suggestions follow the person’s services and skip what is already recorded (CPR)',sg.includes('NSW Pharmacist Immuniser Declaration Form')&&sg.includes('Read and understood the OTP Standards')&&!sg.includes('CPR certificate'),sg.join('|'));
+ await p.evaluate(()=>credentialEditor('s1'));await p.waitForTimeout(200);
+ const ch=await p.evaluate(()=>document.querySelectorAll('#credential-form .help-chip').length);
+ await p.evaluate(()=>[...document.querySelectorAll('#credential-form .help-chip')].find(c=>/Declaration/.test(c.textContent)).click());
+ const fill=await p.evaluate(()=>({t:$('credential-form').elements.title.value,s:$('credential-form').elements.service?.value,e:$('credential-form').elements.expiry?.value}));
+ ok('the credential window shows suggestion chips; tapping fills the name and service, not a date',ch>=4&&/Declaration/.test(fill.t)&&fill.s==='vaccination'&&!fill.e,JSON.stringify(fill));
+ await p.evaluate(()=>{$('editor').close();openStaff('s1');});await p.waitForTimeout(400);
+ ok('the staff record lists suggested items not recorded yet',await p.evaluate(()=>/Suggested for their services, not recorded/.test($('cd-view')?.textContent||'')));
+ // 3. S8 yearly
+ const q1=await p.evaluate(()=>reviewQuestions(catalog().find(a=>a.id==='B1')).length);
+ await p.evaluate(()=>fsChange('t',n=>{n.s8StorageChecked=addInterval(today(),-2,'months');}));
+ const q2=await p.evaluate(()=>reviewQuestions(catalog().find(a=>a.id==='B1')).map(String));
+ ok('construction checks show when never done, and drop out for 12 months once done (register/keys stay)',q1===9&&q2.length===7&&q2.some(x=>/^Keys and codes/.test(x))&&!q2.some(x=>/^Fixing/.test(x)),q1+' / '+q2.length);
+ await p.evaluate(()=>RPH.insp.s8());await p.waitForTimeout(200);
+ await p.evaluate(()=>[...$('editor').querySelectorAll('button')].find(x=>/Safe or fridge changed/.test(x.textContent)).click());await p.waitForTimeout(300);
+ ok('"Safe or fridge changed" brings the construction checks back to the next S8 review',await p.evaluate(()=>reviewQuestions(catalog().find(a=>a.id==='B1')).length===9));
+ const bk=await p.evaluate(()=>{try{validateBackup({format:backupFormat,version:2,data:JSON.parse(JSON.stringify(state)),drafts:{}});return 'ok';}catch(e){return e.message;}});
+ ok('backup with the log is valid',bk==='ok',bk);
+ ok('no page errors',!errs.length,errs.join(' | '));
+ await b.close();const f=res.filter(r=>!r.p);for(const r of res)console.log((r.p?'PASS ':'FAIL ')+r.n+(r.p?'':' :: '+r.d));console.log(res.length-f.length+'/'+res.length);process.exit(f.length?1:0);})();

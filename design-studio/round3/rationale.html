@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Round 3 rationale</title>
+<style>
+:root{--ink:#14181f;--muted:#566070;--line:#e3e6ec;--soft:#f6f7fa;--accent:#4b5bd4}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--ink);font:16px/1.6 "Segoe UI",system-ui,-apple-system,sans-serif}
+main{max-width:880px;margin:0 auto;padding:32px 20px 80px}
+h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.02em}
+h2{font-size:22px;margin:44px 0 10px;padding-top:18px;border-top:2px solid var(--ink)}
+h3{font-size:17px;margin:22px 0 6px}
+.lede{font-size:18px;color:var(--muted);margin:0}
+ul{padding-left:20px}li{margin:4px 0}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}
+th,td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top}
+th{background:var(--soft);font-weight:600}
+.two{display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.box{background:var(--soft);border-radius:10px;padding:12px 16px}
+.box h3{margin-top:0}
+.note{background:#eef0fc;border-radius:12px;padding:14px 18px;margin-top:16px}
+</style>
+</head>
+<body>
+<main>
+<h1>Round 3: two hybrids, three originals</h1>
+<p class="lede">A, B and C are unchanged from Round 2. D and E are new. This page explains the thinking behind D and E, without picking a winner.</p>
+
+<h2>1. How I read your Round 2 feedback</h2>
+<table>
+<thead><tr><th>Type</th><th>What you said</th><th>What I took from it</th></tr></thead>
+<tbody>
+<tr><td><b>Visual</b></td><td>A: “very clean… theme is great”. B: “I don’t like it visually”. C: “looks super premium”, but “more professional, colours to show urgency”.</td><td>A’s white, hairline, type-led look is the base. C’s confidence comes from one strong focal block, not from its lavender background. Urgency colour is welcome when it carries meaning.</td></tr>
+<tr><td><b>Navigation</b></td><td>No complaints about any concept’s navigation. You turned down D and E (Round 2), whose navigation was unusual (sections as newspaper tabs; a floor map).</td><td>Use familiar navigation and keep it the same everywhere: tabs on a laptop, a bottom bar on a phone. Put new ideas inside pages, not into how you move between them.</td></tr>
+<tr><td><b>Workflow</b></td><td>You kept all of C’s guided flows (next step, path, “Is it fixed?”, the registration checklist, verifying one at a time, one question with Undo).</td><td>Guidance at the moment of doing something is valued. The open question is how to offer it without extra screens.</td></tr>
+<tr><td><b>Functionality</b></td><td>B: “features are 10/10”. You kept the queue, detail pane, pharmacies side by side, ⌘K, keys 1–4, the credentials matrix and the month grid.</td><td>B’s power is wanted. It needs a calmer way of showing it.</td></tr>
+<tr><td><b>Components</b></td><td>A: kept the ordered “Needs you” list, details opening in place, hairline lists and the month meter. You didn’t want the opening greeting.</td><td>The opening sentence is gone from D and E. The date and the counts lead instead.</td></tr>
+</tbody></table>
+
+<h3>Opportunities you may not have spotted</h3>
+<ul>
+<li><b>A’s “details open in place” and B’s “detail pane” are the same idea at two screen sizes.</b> D uses one detail view that sits beside the list on a laptop and opens inside the list on a phone.</li>
+<li><b>C’s guided flows don’t need their own screens.</b> “Is it fixed?” is two buttons and a photo, so in E it opens inside the action’s row.</li>
+<li><b>Experienced and new proprietors want different speeds for the same audit.</b> E lets you choose Guided or List and remembers your choice. Every check still needs its own answer.</li>
+<li><b>Multi-pharmacy can be a scope, not a separate page.</b> D adds an “All / Harbourview / Kensal Street” switch to every page. If you only own one pharmacy, the side-by-side summary simply doesn’t appear.</li>
+</ul>
+
+<h2>2. D · Precision Command (A + B)</h2>
+<div class="two">
+<div class="box"><h3>Problems it solves</h3><ul>
+<li>B’s power felt heavy and dark.</li>
+<li>A felt sparse on a laptop and hid everything behind single rows.</li>
+<li>Owners of several pharmacies need to see across sites without a separate screen.</li>
+</ul></div>
+<div class="box"><h3>Borrowed</h3><ul>
+<li><b>From A:</b> white surfaces, hairline rows, dots with words for status, tabs, the month meter, details opening in place on a phone.</li>
+<li><b>From B:</b> the attention queue, the detail pane, the pharmacies side by side, ⌘K, J/K and 1–4 keys, the steps list beside the audit, the credentials matrix, the month grid.</li>
+</ul></div>
+<div class="box"><h3>Deliberately left out</h3><ul>
+<li>B’s dark rail. The pharmacy switch moves into the header as a light scope control.</li>
+<li>Coloured pills everywhere. Coloured words and dots carry status instead.</li>
+<li>B’s three-column actions board. It doesn’t work on a phone, so it becomes grouped rows.</li>
+<li>B’s “Snooze”. Postponing an obligation shouldn’t take one click, so “Plan a date” replaces it.</li>
+<li>A’s opening greeting, as you asked.</li>
+</ul></div>
+<div class="box"><h3>New interactions</h3><ul>
+<li>The <b>scope switch</b> on every page: All, or one pharmacy.</li>
+<li>One detail view that’s a <b>pane on a laptop and opens in the list on a phone</b>.</li>
+<li><b>“Why it’s here”</b>: every queued item explains its reason in a sentence.</li>
+<li><b>Calendar days you can select</b>: picking a day shows its items. The unbooked site visit offers suggested dates.</li>
+<li>The audit pane lists <b>open actions in the same area</b>, so you can close them while you’re on site.</li>
+</ul></div>
+</div>
+<h3>Trade-offs</h3>
+<ul>
+<li>Busier than A: more columns and more on screen at once. It relies on strict ordering to stay calm.</li>
+<li>On a phone, tables lose columns, and the matrices become lists with details opening in place.</li>
+<li>Its full power (keys, ⌘K, the pane) is mainly a laptop benefit.</li>
+</ul>
+
+<h2>3. E · Guided Precision (A + C, with selected B)</h2>
+<div class="two">
+<div class="box"><h3>Problems it solves</h3><ul>
+<li>C sent you to a new screen for every job and hid the bigger picture behind “Records”.</li>
+<li>A showed everything but didn’t help you do any of it.</li>
+<li>Experienced and new proprietors need different paces.</li>
+</ul></div>
+<div class="box"><h3>Borrowed</h3><ul>
+<li><b>From A:</b> white surfaces, hairline lists, details opening in place, tabs, the month meter.</li>
+<li><b>From C:</b> the next-step card, the ordered “Then” path, the guided checks (fix, registration, verify, approve), Undo, the suggested plan.</li>
+<li><b>From B, selectively:</b> ⌘K, keys 1–4 in guided audits, a month mini-calendar.</li>
+</ul></div>
+<div class="box"><h3>Deliberately left out</h3><ul>
+<li>C’s “Your path / Records” switch. E uses standard navigation, so every section is one tap away.</li>
+<li>Separate full-screen flows for small jobs. They open in place instead.</li>
+<li>B’s tables, matrices and side-by-side pharmacies. They would undo the calm, and E switches pharmacy instead.</li>
+<li>C’s lavender background. Urgency colour is used only where it means something, as you asked.</li>
+<li>Any “mark all satisfactory” shortcut. Speed must never become rubber-stamping.</li>
+</ul></div>
+<div class="box"><h3>New interactions</h3><ul>
+<li><b>Guided / List</b> for the site visit. List shows all six checks, each answered explicitly.</li>
+<li><b>Guided checks inside the row</b> for actions, staff and policies.</li>
+<li>An <b>Obligations column</b> that stays visible on a laptop. On a phone it’s one tap away.</li>
+<li>A <b>next-step card with two entry points</b>: “Start guided” or “Open as list”.</li>
+</ul></div>
+</div>
+<h3>Trade-offs</h3>
+<ul>
+<li>On a phone, the full list of obligations is one tap away rather than always on screen.</li>
+<li>Comparing pharmacies is weaker than in D: you switch between them rather than seeing them side by side.</li>
+<li>The dark next-step card is the one heavy element. It earns its place by always being the most urgent job.</li>
+</ul>
+
+<h2>4. How each handles the jobs you listed</h2>
+<table>
+<thead><tr><th>Job</th><th>D · Precision Command</th><th>E · Guided Precision</th></tr></thead>
+<tbody>
+<tr><td>Routine oversight speed</td><td>Work down the queue with J/K; details beside it; act from the pane.</td><td>Next step, then the “Then” list; most jobs finish without leaving Today.</td></tr>
+<tr><td>Clarity of urgent and overdue items</td><td>Coloured counts in the status line, urgency filters, dots and words on every row.</td><td>Coloured counts, the next-step card leads with what’s overdue, the Obligations column.</td></tr>
+<tr><td>Multi-pharmacy</td><td>A scope switch on every page, plus pharmacies side by side with progress.</td><td>A pharmacy switch; one pharmacy at a time.</td></tr>
+<tr><td>Audit completion</td><td>Radio form, keys 1–4 and Enter, a steps list, related open actions.</td><td>Guided (auto-next with Undo) or List (all checks on one page).</td></tr>
+<tr><td>Following up issues</td><td>Grouped actions with the trail and close/reopen in the pane.</td><td>“Is it fixed?” with the photo and Yes/Not yet, inside the row.</td></tr>
+<tr><td>Minimal data entry</td><td>Finding chips, an action raised with one tick box, smart defaults for owner and due date.</td><td>The same, plus guided defaults (for example the suggested visit date).</td></tr>
+<tr><td>Finding past evidence</td><td>⌘K search, the last three results in the review pane, the action trail.</td><td>⌘K search; the trail is shown within each action.</td></tr>
+<tr><td>Consistent navigation</td><td>The same tabs and scope switch everywhere; details work the same way on every page.</td><td>The same tabs everywhere; details open in place everywhere.</td></tr>
+</tbody></table>
+<div class="note">Same scenario and data as Round 2 (Harbourview, Thursday 19 November, all fictional). Notes you make in Round 3 are kept separately from your Round 2 notes, which stay exactly as you left them. Your Round 2 notes for A, B and C are shown alongside, read-only.</div>
+</main>
+</body>
+</html>

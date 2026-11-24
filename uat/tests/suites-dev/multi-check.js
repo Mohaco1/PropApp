@@ -1,0 +1,21 @@
+const { chromium } = require('playwright');
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  const errs = []; page.on('pageerror', e => errs.push(String(e)));
+  await page.goto('file:///home/user/rpharmacy/dev/proprietor-hub.html', { waitUntil: 'load' });
+  await page.waitForTimeout(1000);
+  await page.evaluate(() => { state.active = ['daa']; fsCard('daa'); });
+  await page.waitForTimeout(400);
+  const boxes = page.locator('#pe-content input[type=checkbox]');
+  console.log('count', await boxes.count(), 'types', await page.locator('#pe-content input').evaluateAll(els => els.map(e => e.type)));
+  await boxes.nth(0).check();
+  await boxes.nth(1).check();
+  const states = await boxes.evaluateAll(els => els.map(e => e.checked));
+  console.log('after ticking first two:', states);
+  await page.locator('#pe-content button', { hasText: 'Continue' }).click();
+  await page.waitForTimeout(500);
+  console.log('status after continue:', await page.locator('#pe-content [role=status]').textContent());
+  console.log('errors', errs);
+  await browser.close();
+})();

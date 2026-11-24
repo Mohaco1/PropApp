@@ -1,0 +1,238 @@
+<title>Tell Me Once Mock-up</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: a row of phone screens per flow, in the order the owner meets them; phones keep the app's light Concept D palette. */
+:root{
+ --page:#f3f4f7;--page-fg:#0c111c;--page-muted:#5b6476;--page-line:#dfe2e9;
+ --ink:#0c111c;--muted:#5b6476;--faint:#8a92a3;--line:#e6e8ee;--soft:#f6f7f9;--bg:#fff;--accent:#2f5bea;
+ --red:#c0281b;--amber:#a35a00;--amber-soft:#fff3e0;--green:#1c7a3e;--green-soft:#e9f6ee;--blue-soft:#eef2fd;
+ --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#11141b;--page-fg:#eef0f4;--page-muted:#a3aab8;--page-line:#2a2f3a;color-scheme:dark}}
+:root[data-theme="dark"]{--page:#11141b;--page-fg:#eef0f4;--page-muted:#a3aab8;--page-line:#2a2f3a;color-scheme:dark}
+body{background:var(--page);color:var(--page-fg);font:15px/1.5 var(--sans);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:44px}
+h1{font-size:24px;margin:0 0 4px;text-wrap:balance}
+.lede{color:var(--page-muted);margin:0;max-width:70ch}
+section>h2{font-size:19px;margin:0 0 4px}
+section>p{color:var(--page-muted);margin:0 0 16px;max-width:70ch}
+.row{display:flex;flex-wrap:wrap;gap:22px}
+figure{margin:0;display:grid;gap:8px;flex:1 1 260px;min-width:0;max-width:300px;align-content:start}
+figcaption{font-size:13px;color:var(--page-muted)}
+figcaption b{display:block;color:var(--page-fg);font-size:14px}
+.ph{background:var(--bg);color:var(--ink);border:1px solid var(--page-line);border-radius:26px;overflow:hidden;height:600px;display:flex;flex-direction:column;position:relative;box-shadow:0 1px 2px rgba(12,17,28,.06),0 8px 24px rgba(12,17,28,.08);font-size:13px}
+.top{display:flex;align-items:center;gap:8px;padding:12px 14px 8px;border-bottom:1px solid var(--line);font-size:12px}
+.top b{font-size:14px}.top .st{color:var(--muted);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .x{color:var(--muted)}
+.body{flex:1;overflow:hidden;padding:12px 14px 16px;display:flex;flex-direction:column;gap:9px}
+h3{font-size:17px;margin:0;line-height:1.25}
+.sub{color:var(--muted);font-size:12px;line-height:1.4;margin:0}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+.card{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.li{display:flex;gap:10px;align-items:center;padding:9px 11px;border-top:1px solid var(--line);min-height:44px}
+.li:first-child{border-top:0}
+.tx{flex:1;min-width:0}.tx b{display:block;font-size:13px}.tx small{display:block;color:var(--muted);font-size:11.5px;line-height:1.35}
+.chev{color:var(--faint);font-size:18px}
+.btn{display:flex;align-items:center;justify-content:center;min-height:42px;border-radius:10px;border:1px solid var(--line);font-weight:600;font-size:13px;background:var(--bg);color:var(--ink)}
+.btn.pri{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.link{border:0;min-height:30px;color:var(--accent);justify-content:flex-start}
+.btns{display:grid;gap:6px;margin-top:auto}
+.field{display:flex;flex-direction:column;gap:3px}
+.field span{font-size:12px;font-weight:600}
+.inp{border:1px solid var(--line);border-radius:9px;min-height:38px;display:flex;align-items:center;padding:0 10px;color:var(--ink);font-size:13px}
+.opt{display:flex;gap:9px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:9px 10px}
+.opt.on{border-color:var(--accent);background:var(--blue-soft)}
+.radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--faint);flex:none;margin-top:1px}
+.opt.on .radio{border:5px solid var(--accent)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:12px}
+.cmp div{padding:7px 9px;border-top:1px solid var(--line)}
+.cmp .h{border-top:0;font-weight:700;background:var(--soft)}
+.cmp .k{grid-column:1/-1;background:var(--soft);font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);padding:5px 9px}
+.cmp .new{background:var(--blue-soft)}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;border-radius:99px;padding:1px 7px;margin-right:4px;vertical-align:1px}
+.tag.law{background:var(--amber-soft);color:var(--amber)}
+.tag.rec{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.tag.kept{background:var(--green-soft);color:var(--green)}
+.src{font-size:11px;color:var(--accent)}
+.mini{display:flex;gap:6px;margin-top:5px}
+.mini span{font-size:11.5px;font-weight:600;border:1px solid var(--line);border-radius:8px;padding:4px 9px}
+.mini span.p{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ok{display:flex;gap:8px;align-items:center;color:var(--green);font-weight:700;font-size:14px}
+.ok i{width:22px;height:22px;border-radius:50%;background:var(--green-soft);display:grid;place-items:center;font-style:normal}
+.note{font-size:13px;color:var(--page-muted);max-width:70ch;margin:0}
+.note b{color:var(--page-fg)}
+.rules{display:grid;gap:6px;margin:0;padding-left:18px;color:var(--page-muted);font-size:14px;max-width:80ch}
+.rules b{color:var(--page-fg)}
+</style>
+
+<div class="wrap">
+ <header>
+  <h1>Tell me once · inherited facts on a first visit</h1>
+  <p class="lede">A phone mock-up with fictional data (Harbourview Pharmacy, Northside Packing Co). Nothing here is built yet. The DAA wording comes from what the app already cites: Medicines, Poisons and Therapeutic Goods Regulation 2026 s 136–137 and NSW Health's Dose Administration Aids page.</p>
+ </header>
+
+ <section>
+  <h2>A · Tell me once: DAA packing moves to an external packer</h2>
+  <p>The owner records the change once. The app shows what's different and lists only the few things that depend on it. Each item says why, whether it's required by law or recommended, and where it comes from. The owner decides each one now or later. Nothing is adopted, closed or changed for them.</p>
+  <div class="row">
+   <figure>
+    <div class="ph" aria-label="Services, DAA">
+     <div class="top"><b>R.</b><span class="st">Harbourview Pharmacy</span></div>
+     <div class="body">
+      <h3>Dose administration aids</h3>
+      <p class="sub">Active since Mar 2025 · last review 12 Sep</p>
+      <div class="card">
+       <div class="li"><span class="tx"><b>How it runs</b><small>We dispense and pack in-house</small></span><span class="chev">›</span></div>
+       <div class="li"><span class="tx"><b>Procedure</b><small>DAA procedure · approved v2</small></span><span class="chev">›</span></div>
+       <div class="li"><span class="tx"><b>Next review</b><small>DAA in-house packing · 12 Dec</small></span><span class="chev">›</span></div>
+      </div>
+      <div class="btns"><span class="btn pri">Change how this service runs</span><span class="btn link">Stop offering this service</span></div>
+     </div>
+    </div>
+    <figcaption><b>1 · Start from the service</b>One clear entry point on the service itself, not a setup re-run.</figcaption>
+   </figure>
+
+   <figure>
+    <div class="ph" aria-label="What is changing">
+     <div class="top"><span class="x">‹ Back</span><span class="st">DAA · change</span></div>
+     <div class="body">
+      <h3>What’s changing?</h3>
+      <div class="opt"><span class="radio"></span><span class="tx"><b>We pack in-house</b><small>Current</small></span></div>
+      <div class="opt on"><span class="radio"></span><span class="tx"><b>We dispense, an external packer packs</b><small>The packer works from our instructions</small></span></div>
+      <div class="opt"><span class="radio"></span><span class="tx"><b>Something else</b><small>Describe it; we’ll list what to check</small></span></div>
+      <label class="field"><span>Packer</span><span class="inp">Northside Packing Co (fictional)</span></label>
+      <label class="field"><span>From</span><span class="inp">1 Dec 2026</span></label>
+      <div class="btns"><span class="btn pri">See what this changes</span></div>
+     </div>
+    </div>
+    <figcaption><b>2 · Say it once</b>Three plain choices, the packer and the date it starts. The date you record it is kept separately.</figcaption>
+   </figure>
+
+   <figure>
+    <div class="ph" aria-label="Before and after">
+     <div class="top"><span class="x">‹ Back</span><span class="st">DAA · from 1 Dec</span></div>
+     <div class="body">
+      <h3>Before and after</h3>
+      <div class="cmp">
+       <div class="h">Now</div><div class="h">From 1 Dec</div>
+       <div class="k">Who packs</div><div>Our pharmacy</div><div class="new">Northside Packing Co</div>
+       <div class="k">Checks before supply</div><div>Our final check</div><div class="new">Instructions match the prescription · packs checked on return</div>
+       <div class="k">Records kept</div><div>Packing records</div><div class="new">Manufacturing instructions, 2 years, by both</div>
+       <div class="k">Patients</div><div>No change needed</div><div class="new">Ask before their packing moves</div>
+      </div>
+      <p class="sub">Your DAA review dates and labels rules stay the same.</p>
+      <div class="btns"><span class="btn pri">What needs my attention</span></div>
+     </div>
+    </div>
+    <figcaption><b>3 · See the difference</b>Old and new side by side, only the rows that change.</figcaption>
+   </figure>
+
+   <figure>
+    <div class="ph" aria-label="What needs attention">
+     <div class="top"><span class="x">‹ Back</span><span class="st">DAA · 4 things</span></div>
+     <div class="body">
+      <h3>4 things depend on this</h3>
+      <div class="card">
+       <div class="li"><span class="tx"><b><span class="tag law">Required by law</span>Packer’s TGA GMP licence</b><small>Note where you keep a copy. <span class="src">Reg 2026 s 137 · NSW Health DAA page</span></small><div class="mini"><span class="p">Do now</span><span>Later</span></div></span></div>
+       <div class="li"><span class="tx"><b><span class="tag law">Required by law</span>Instructions and records</b><small>Instructions match the prescription; both keep them 2 years; the pack names us as supplier. <span class="src">Reg 2026 s 136–137</span></small><div class="mini"><span class="p">Do now</span><span>Later</span></div></span></div>
+       <div class="li"><span class="tx"><b><span class="tag rec">Recommended</span>Ask patients first</b><small>NSW Health says patients should consent before packing is outsourced.</small><div class="mini"><span>Do now</span><span class="p">Later</span></div></span></div>
+       <div class="li"><span class="tx"><b>Procedure draft</b><small>We’ve drafted the changes to your DAA procedure. v2 stays in use until you adopt.</small><div class="mini"><span>Review draft</span><span>Later</span></div></span></div>
+      </div>
+     </div>
+    </div>
+    <figcaption><b>4 · Only what changed</b>Each item: why, whether it’s law or recommended, the source, and Do now / Later.</figcaption>
+   </figure>
+
+   <figure>
+    <div class="ph" aria-label="Kept as it is and done">
+     <div class="top"><span class="st">DAA · change saved</span></div>
+     <div class="body">
+      <div class="ok"><i>✓</i>Change recorded</div>
+      <p class="sub">From 1 Dec 2026 · recorded 24 Nov by Alex Owner</p>
+      <div class="lbl">Still to decide · in Today</div>
+      <div class="card">
+       <div class="li"><span class="tx"><b>Ask patients first</b><small>Later · recommended</small></span></div>
+       <div class="li"><span class="tx"><b>Review the DAA procedure draft</b><small>Draft · not adopted</small></span></div>
+      </div>
+      <div class="lbl">Kept as it is</div>
+      <div class="card">
+       <div class="li"><span class="tx"><b><span class="tag kept">Kept</span>1 open DAA action</b><small>“Pack-check sign-off gaps” stays open</small></span></div>
+       <div class="li"><span class="tx"><b><span class="tag kept">Kept</span>Past reviews and visits</b><small>Still read “packed in-house”</small></span></div>
+       <div class="li"><span class="tx"><b><span class="tag kept">Kept</span>Review dates</b><small>Next DAA review 12 Dec, with the external-packer questions</small></span></div>
+      </div>
+      <div class="btns"><span class="btn">Done</span></div>
+     </div>
+    </div>
+    <figcaption><b>5 · Saved once</b>One history entry. Reopening the change shows this screen again, never a second draft.</figcaption>
+   </figure>
+  </div>
+ </section>
+
+ <section>
+  <h2>B · New buyer: confirm inherited facts while you’re there</h2>
+  <p>Answers marked “Inherited · check later” get a useful home on the first visit. Only facts you can check on site are offered, three at a time. Correcting one that matters, like DAA packing, opens the Tell me once flow above.</p>
+  <div class="row">
+   <figure>
+    <div class="ph" aria-label="Start a visit with inherited">
+     <div class="top"><b>R.</b><span class="st">Harbourview Pharmacy</span><span class="x">Close</span></div>
+     <div class="body">
+      <h3>Start a visit</h3>
+      <p class="sub">First visit since you bought it · 24 Nov</p>
+      <div class="lbl">From the previous owner · confirm while you’re here</div>
+      <div class="card">
+       <div class="li"><span class="tx"><b>DAAs are packed in-house</b><small>Is that still how this pharmacy runs?</small><div class="mini"><span>Confirm</span><span>Correct</span><span>Leave open</span></div></span></div>
+       <div class="li"><span class="tx"><b>One vaccine fridge with a data logger</b><small>Check it’s there and logging.</small><div class="mini"><span>Confirm</span><span>Correct</span><span>Leave open</span></div></span></div>
+       <div class="li"><span class="tx"><b>S8 safe fixed as the Storage Standards require</b><small>Look at how it’s fixed.</small><div class="mini"><span>Confirm</span><span>Correct</span><span>Leave open</span></div></span></div>
+      </div>
+      <span class="btn link">9 more inherited · see all</span>
+      <div class="btns"><span class="btn pri">Start the checks</span></div>
+     </div>
+    </div>
+    <figcaption><b>6 · Three at a time</b>Phrased as a question you can answer standing in the pharmacy.</figcaption>
+   </figure>
+
+   <figure>
+    <div class="ph" aria-label="Correct an inherited fact">
+     <div class="top"><span class="x">‹ Back</span><span class="st">Inherited · DAA packing</span></div>
+     <div class="body">
+      <h3>How are DAAs packed now?</h3>
+      <p class="sub">The previous owner recorded “in-house”.</p>
+      <div class="opt"><span class="radio"></span><span class="tx"><b>In-house</b><small>Same as recorded</small></span></div>
+      <div class="opt on"><span class="radio"></span><span class="tx"><b>An external packer packs</b><small>Changes what your DAA review asks</small></span></div>
+      <p class="sub">This changes your DAA setup, so we’ll show what depends on it before anything is saved.</p>
+      <div class="btns"><span class="btn pri">Continue · see what this changes</span><span class="btn">Leave it open for now</span></div>
+     </div>
+    </div>
+    <figcaption><b>7 · Correct leads to Tell me once</b>A correction that affects obligations goes through screens 3–5, not a silent edit.</figcaption>
+   </figure>
+
+   <figure>
+    <div class="ph" aria-label="Confirmed">
+     <div class="top"><b>R.</b><span class="st">Harbourview Pharmacy</span></div>
+     <div class="body">
+      <h3>Pharmacy setup</h3>
+      <div class="lbl">Services</div>
+      <div class="card">
+       <div class="li"><span class="tx"><b>Vaccination</b><small>One fridge with data logger · <b style="display:inline;color:var(--green)">confirmed 24 Nov by you</b></small></span><span class="chev">›</span></div>
+       <div class="li"><span class="tx"><b>DAA</b><small>External packer from 1 Dec · changed 24 Nov</small></span><span class="chev">›</span></div>
+       <div class="li"><span class="tx"><b>S8 storage</b><small>Inherited · check later</small></span><span class="chev">›</span></div>
+      </div>
+      <p class="sub">“Leave open” keeps it as inherited, with no due date, until your next visit.</p>
+     </div>
+    </div>
+    <figcaption><b>8 · The record says who confirmed it</b>Confirmed, changed or still inherited, with the date.</figcaption>
+   </figure>
+  </div>
+ </section>
+
+ <section>
+  <h2>Rules this would follow</h2>
+  <ul class="rules">
+   <li><b>One change event.</b> It's saved once with its start date and the date you recorded it. Opening it again resumes it; it never makes a second draft or action.</li>
+   <li><b>Nothing is decided for you.</b> Procedure changes stay drafts until you adopt them. Open actions stay open. Past reviews still describe how things were done then.</li>
+   <li><b>Law vs recommended is always shown,</b> with the source in one tap. Recommended items can be left for later without turning red.</li>
+   <li><b>First version covers only DAA.</b> A change of pharmacist in charge and starting or stopping a service come next, once this proves useful.</li>
+  </ul>
+  <p class="note"><b>Before building:</b> the external-packer rows reuse wording the app already cites from Regulation 2026 s 136–137 and NSW Health. I'd re-check that page and the Board guideline for any other duty that changes with outsourcing before this goes live.</p>
+ </section>
+</div>

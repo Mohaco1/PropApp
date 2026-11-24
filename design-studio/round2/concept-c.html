@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concept C · Guided Path</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#f3f5fb;--card:#fff;--ink:#141933;--muted:#565d7a;--faint:#8e94ad;--line:#e1e4ef;--accent:#3b5bdb;--accent-ink:#2a44b8;--accent-soft:#e8edfc;
+--red:#c2341f;--red-soft:#fdecea;--amber:#9a5a00;--amber-soft:#fff3dd;--green:#1d7a43;--green-soft:#e6f6ec}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Plus Jakarta Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+.top{display:flex;align-items:center;gap:10px;padding:14px 18px;max-width:1100px;margin:0 auto}
+.mode{display:flex;background:#e4e8f5;border-radius:999px;padding:4px}
+.mode button{min-height:40px;padding:0 14px;white-space:nowrap;border-radius:999px;font-weight:700;font-size:14px;color:var(--muted)}
+.mode button[aria-pressed=true]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(20,25,51,.12)}
+.ph{min-height:44px;font-weight:700;font-size:15px;display:flex;align-items:center;gap:4px;white-space:nowrap}
+@media (max-width:420px){.top{gap:6px;padding:12px 12px}.mode button{padding:0 11px;font-size:13px}.me{width:36px;height:36px}}
+.me{margin-left:auto;width:40px;height:40px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
+.wrap{max-width:1100px;margin:0 auto;padding:4px 18px 40px;display:grid;grid-template-columns:1fr;gap:22px}
+.side{display:none}
+.col{max-width:640px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.hello{font-size:15px;color:var(--muted);font-weight:600}
+h1{margin:0;font-size:30px;line-height:1.15;letter-spacing:-.02em;font-weight:800}
+.lede{margin:0;color:var(--muted);font-size:17px}
+.next{background:var(--ink);color:#fff;border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:12px}
+.next .eyebrow{font-size:13px;font-weight:700;color:#aab4e6}
+.next h2{margin:0;font-size:26px;line-height:1.2;font-weight:800}
+.next p{margin:0;color:#d4d8ea;font-size:15px}
+.big{min-height:56px;border-radius:16px;font-weight:700;font-size:17px;padding:0 20px;width:100%}
+.big.light{background:#fff;color:var(--ink)}
+.big.primary{background:var(--accent);color:#fff}
+.big.ghost{background:#fff;border:1.5px solid var(--line)}
+.then{background:var(--card);border-radius:20px;padding:6px 6px;border:1px solid var(--line)}
+.step{display:flex;align-items:center;gap:14px;width:100%;min-height:68px;padding:10px 12px;border-radius:14px;text-align:left}
+.step:hover{background:#f7f8fd}
+.step .num{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center;font-weight:800;font-size:14px;flex:0 0 auto}
+.step .t{flex:1;display:flex;flex-direction:column;gap:1px}
+.step .n{font-weight:700}
+.step .m{font-size:14px;color:var(--muted)}
+.tag{font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.t-red{background:var(--red-soft);color:var(--red)}.t-amber{background:var(--amber-soft);color:var(--amber)}.t-green{background:var(--green-soft);color:var(--green)}.t-blue{background:var(--accent-soft);color:var(--accent-ink)}.t-grey{background:#eef0f6;color:var(--muted)}.t-ink{background:var(--ink);color:#fff}
+.week{background:var(--card);border-radius:20px;padding:16px 18px;border:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.dots{display:flex;gap:6px}.dots i{flex:1;height:8px;border-radius:4px;background:#e4e8f5}.dots i.on{background:var(--accent)}
+.q{background:var(--card);border-radius:24px;padding:22px;border:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.opt{display:flex;align-items:center;gap:14px;min-height:64px;padding:0 18px;border-radius:16px;border:1.5px solid var(--line);background:#fff;width:100%;text-align:left;font-weight:600;font-size:17px}
+.opt[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft)}
+.opt .k{margin-left:auto;font-size:13px;color:var(--faint);font-weight:600}
+.chip{min-height:44px;padding:0 16px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-weight:600;font-size:15px}
+.chip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.box{width:24px;height:24px;border-radius:7px;border:2px solid var(--ink);display:grid;place-items:center;flex:0 0 auto;font-size:14px}
+.box.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.toast{display:flex;align-items:center;gap:12px;background:var(--ink);color:#fff;border-radius:16px;padding:10px 10px 10px 16px;font-size:15px}
+.toast button{margin-left:auto;min-height:40px;padding:0 14px;border-radius:10px;color:#aab8ff;font-weight:700}
+.prog{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted);font-weight:600}
+.prog .dots{flex:1}
+.back{min-height:44px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:4px}
+.say{background:#fff;border-radius:18px;border:1px solid var(--line);padding:16px}
+.say .who{font-size:13px;color:var(--muted);font-weight:700}
+.photo{height:140px;border-radius:14px;background:#f5f1e6;padding:14px;display:flex;flex-direction:column;gap:8px}
+.photo i{display:block;height:6px;background:#a49e8f;border-radius:3px}
+.tl{display:flex;flex-direction:column}
+.tl .w{font-size:13px;font-weight:800;color:var(--muted);margin:14px 0 6px;letter-spacing:.02em}
+.node{display:flex;gap:14px;align-items:stretch}
+.node .rail{width:20px;display:flex;flex-direction:column;align-items:center}
+.node .rail i{width:14px;height:14px;border-radius:50%;border:3px solid var(--accent);background:#fff;margin-top:20px;flex:0 0 auto}
+.node .rail b{flex:1;width:2px;background:var(--line)}
+.node .card{flex:1;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin:6px 0;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.sheet{position:fixed;inset:0;background:rgba(20,25,51,.4);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet .s{background:#fff;width:min(640px,100%);border-radius:24px 24px 0 0;padding:18px 18px 28px;display:flex;flex-direction:column;gap:6px}
+@media (min-width:900px){
+  .wrap{grid-template-columns:260px minmax(0,1fr)}
+  .side{display:flex;flex-direction:column;gap:6px;position:sticky;top:12px;align-self:start}
+  .side .lbl{font-size:13px;font-weight:800;color:var(--muted);margin:6px 8px}
+  .side button{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:12px;text-align:left;font-weight:600;font-size:15px;color:var(--muted)}
+  .side button[aria-current=page]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(20,25,51,.08)}
+  .side .sn{margin-left:auto;font-size:13px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="ph" id="ph">Harbourview ▾</button>
+  <div class="mode" role="group" aria-label="View"><button data-mode="path" id="mPath">Your path</button><button data-mode="records" id="mRec">Records</button></div>
+  <span class="me" title="Alex Owner">AO</span>
+</header>
+<div class="wrap"><nav class="side" id="side" aria-label="Path"></nav><main class="col" id="main"></main></div>
+<script src="data.js"></script>
+<script>
+(function(){
+const D=window.RPH; let ph=D.pharmacies[0];
+const st={v:{i:1,stage:'answer',ans:null,find:[],task:true,toast:''},fix:'look',reg:0,sop:0,done:2};
+const page=()=>location.hash.slice(1)||'dashboard';
+const go=p=>{location.hash=p};
+const PATH=[
+  {id:'audit',title:'Do the site visit',meta:'Overdue 16 days · about 10 minutes',tag:['Overdue','t-red']},
+  {id:'actions',title:'Check Sam’s fridge log fix',meta:'Sam says it’s fixed · 2 minutes',tag:['Your check','t-blue']},
+  {id:'staff',title:'Confirm Sam’s registration',meta:'Staff review due tomorrow · 3 minutes',tag:['Tomorrow','t-amber']},
+  {id:'policies',title:'Get the DAA SOP ready to approve',meta:'3 answers to verify · 5 minutes',tag:['When you can','t-grey']}
+];
+function side(p){
+  return `<span class="lbl">Today’s path</span>${PATH.map((s,i)=>`<button data-go="${s.id}" ${p===s.id?'aria-current="page"':''}><span class="tag ${i<0?'t-green':'t-blue'}" style="padding:2px 8px">${i+1}</span>${s.title.split(' ').slice(0,4).join(' ')}</button>`).join('')}
+  <span class="lbl" style="margin-top:14px">Records</span>${[['dashboard','Home'],['audits','Reviews',8],['calendar','Path ahead'],['actions','Actions',3],['staff','Staff',4],['policies','Policies',17]].map(([k,l,n])=>`<button data-go="${k}" ${p===k&&!PATH.some(s=>s.id===k)?'aria-current="page"':''}>${l}${n?`<span class="sn">${n}</span>`:''}</button>`).join('')}`;
+}
+const backBtn=()=>`<button class="back" data-go="dashboard">‹ Your path</button>`;
+const V={
+dashboard(){
+  return `<span class="hello">${D.today} · ${ph.short}</span><h1>Good afternoon, ${D.proprietor.first}. Here’s your next step.</h1>
+  <section class="next" aria-label="Next step"><span class="eyebrow">STEP 1 OF 4 TODAY</span><h2>Do the site visit</h2><p>It was due on 3 Nov. Six checks, about ten minutes on site. Answers save as you go, so you can stop any time.</p><button class="big light" data-go="audit">Start the visit</button><button style="min-height:44px;color:#c4cbf0;font-weight:700" data-go="calendar">Not today? Pick a day</button></section>
+  <section class="then"><div style="padding:10px 12px 4px;font-size:14px;font-weight:800;color:var(--muted)">Then</div>${PATH.slice(1).map((s,i)=>`<button class="step" data-go="${s.id}"><span class="num">${i+2}</span><span class="t"><span class="n">${s.title}</span><span class="m">${s.meta}</span></span><span class="tag ${s.tag[1]}">${s.tag[0]}</span></button>`).join('')}</section>
+  <section class="week"><div style="display:flex;justify-content:space-between"><b>This week</b><span style="color:var(--muted);font-size:14px;font-weight:600">${st.done} of 6 steps done</span></div><div class="dots">${[0,1,2,3,4,5].map(i=>`<i class="${i<st.done?'on':''}"></i>`).join('')}</div><span style="font-size:14px;color:var(--muted)">Next legal date: S8 stock check, Tue 1 Dec. It’s on your path for next week.</span></section>`;
+},
+audit(){
+  const v=D.visit, s=st.v, c=v.checks[s.i];
+  const prog=`<div class="prog"><span>Check ${s.i+1} of 6</span><span class="dots">${v.checks.map((x,i)=>`<i class="${i<=s.i?'on':''}"></i>`).join('')}</span></div>`;
+  let body='';
+  if(s.stage==='answer') body=`<div class="q"><span class="hello">${c.source?c.source+' · ':''}Last time: ${c.last}</span><h1 style="font-size:26px">${c.name}</h1><p class="lede" style="font-size:16px">${c.prompt}</p>
+    ${v.answers.map((a,i)=>`<button class="opt" data-ans="${a}" aria-pressed="${s.ans===a}">${a}<span class="k">${i+1}</span></button>`).join('')}</div>`;
+  else if(s.stage==='find') body=`<div class="q"><span class="hello">Issue · ${c.name}</span><h1 style="font-size:26px">What did you find?</h1><p class="lede" style="font-size:16px">Tap what fits. Add a sentence if it helps.</p><div style="display:flex;flex-wrap:wrap;gap:8px">${v.findings.map(f=>`<button class="chip" data-find="${f}" aria-pressed="${s.find.includes(f)}">${f}</button>`).join('')}</div><textarea aria-label="Details" placeholder="Optional details" style="border:1.5px solid var(--line);border-radius:14px;padding:12px;min-height:80px"></textarea><button class="big primary" data-stage="follow">Continue</button></div>`;
+  else body=`<div class="q"><span class="hello">Issue · ${c.name}</span><h1 style="font-size:26px">Raise an action so it gets fixed?</h1><button class="opt" data-task style="font-weight:600"><span class="box ${s.task?'on':''}">${s.task?'✓':''}</span><span style="display:flex;flex-direction:column;gap:2px"><span>Yes, raise an action</span><span style="font-size:14px;color:var(--muted);font-weight:500">Sam Taylor · due Thu 26 Nov · you check the fix</span></span></button><button class="big primary" data-saveissue>Save and next check</button></div>`;
+  return `<div style="display:flex;justify-content:space-between;align-items:center">${backBtn()}<span class="hello">Saved as you go</span></div>${prog}${body}${s.toast?`<div class="toast" role="status">${s.toast}<button data-undo>Undo</button></div>`:''}`;
+},
+actions(){
+  const a=D.actions[0];
+  if(st.fix==='done') return `${backBtn()}<div class="q" style="align-items:flex-start"><span class="tag t-green">Closed by you</span><h1 style="font-size:26px">Fridge log gaps: closed</h1><p class="lede" style="font-size:16px">Recorded with today’s date as your check. It’s in History if anyone asks.</p><button class="big primary" data-go="staff">Next step: Sam’s registration</button></div>`;
+  return `${backBtn()}<span class="hello">Step 2 · from ${a.from}</span><h1>Is the fridge log fixed?</h1>
+  <div class="say"><span class="who">You noted from Sam · 12 Nov</span><p style="margin:6px 0 12px;font-size:17px">“Reminders set for 9am and 5pm.”</p><div class="photo" role="img" aria-label="Photo of this week's fridge log">${'<i></i>'.repeat(8)}</div></div>
+  <div class="q"><p style="margin:0;font-weight:600">Look at this week’s fridge log, then choose:</p><button class="opt" data-fix="done">Yes, it’s fixed · close it</button><button class="opt" data-fix="reopen">Not yet · send it back to Sam</button>
+  <button style="min-height:44px;color:var(--muted);font-weight:700;align-self:flex-start" data-records="actions">See all actions (3 open)</button></div>`;
+},
+staff(){
+  const steps=['Open the public register and search for Sam Taylor','Check the registration is current','Record what you saw'];
+  return `${backBtn()}<span class="hello">Step 3 · Staff credentials review due tomorrow</span><h1>Confirm Sam’s registration</h1><p class="lede">Sam’s renewal date in your record is 30 Nov. Checking now means no surprises.</p>
+  <div class="q">${steps.map((s,i)=>`<button class="opt" data-reg="${i}" aria-pressed="${st.reg>i}" style="font-weight:600"><span class="box ${st.reg>i?'on':''}">${st.reg>i?'✓':''}</span>${s}</button>`).join('')}
+  <button class="big primary" ${st.reg<3?'style="opacity:.5"':''}>Save to Sam’s record</button></div>
+  <div class="then"><div style="padding:10px 12px 4px;font-size:14px;font-weight:800;color:var(--muted)">Everyone else</div>${D.staff.slice(1).map(p=>`<div class="step"><span class="num" style="background:var(--green-soft);color:var(--green)">✓</span><span class="t"><span class="n">${p.name}</span><span class="m">${p.role} · ${p.note}</span></span></div>`).join('')}</div>`;
+},
+policies(){
+  const items=D.verify.filter(v=>v.service==='DAA'), i=Math.min(st.sop,items.length);
+  if(i>=items.length) return `${backBtn()}<div class="q"><span class="tag t-green" style="align-self:flex-start">Ready</span><h1 style="font-size:26px">The DAA SOP is ready for you to approve</h1>${D.sopPreview.lines.map(([l])=>`<p style="margin:0;padding:12px 14px;background:#f7f8fd;border-radius:12px">${l}</p>`).join('')}<button class="opt" style="font-weight:600"><span class="box"></span>I’ve read it and it matches how we work</button><button class="big primary">Approve and sign</button></div>`;
+  const v=items[i];
+  return `${backBtn()}<span class="hello">Step 4 · DAA SOP · answer ${i+1} of ${items.length} to verify</span><h1>${v.text}</h1><p class="lede">You marked this “Needs verification” during setup. Check it in the pharmacy, then confirm.</p>
+  <div class="prog"><span>${i} of ${items.length} verified</span><span class="dots">${items.map((x,j)=>`<i class="${j<i?'on':''}"></i>`).join('')}</span></div>
+  <div class="q"><button class="opt" data-sopnext>It’s right as answered</button><button class="opt" data-sopnext>Change the answer</button><button class="opt" data-sopnext>Still not sure · ask me later</button></div>
+  <button style="min-height:44px;color:var(--muted);font-weight:700;align-self:flex-start" data-records="policies">See all 17 policies</button>`;
+},
+calendar(){
+  const groups=[['THIS WEEK',[['Fri 20 Nov','Staff credentials review','t-amber','Review'],['Fri 20 Nov','Sam: OTP approvals location','t-grey','Action']]],['NEXT WEEK',[['Tue 24 Nov','Site visit (suggested)','t-red','Plan it'],['Wed 25 Nov','Check-in with Sam','t-blue','Meeting']]],['WEEK OF 30 NOV',[['Mon 30 Nov','Cold chain review','t-amber','Review'],['Tue 1 Dec','S8 stock check','t-ink','§ Legal'],['Fri 4 Dec','DAA packing check','t-green','Review']]]];
+  return `<span class="hello">Records · Path ahead</span><h1>What’s coming up</h1><p class="lede">Suggested: do the site visit on Tue 24 Nov. You’ll be on site anyway, and it lets you close the fridge log action on the spot.</p>
+  <button class="big primary" style="max-width:340px">Book Tue 24 Nov</button>
+  <div class="tl">${groups.map(([w,items])=>`<span class="w">${w}</span>${items.map(([d,t,c,k])=>`<div class="node"><span class="rail"><i></i><b></b></span><div class="card"><span><b>${t}</b><br><span style="font-size:14px;color:var(--muted)">${d}</span></span><span class="tag ${c}">${k}</span></div></div>`).join('')}`).join('')}</div>`;
+},
+audits(){
+  const g=[['Overdue',D.audits.filter(a=>a.status==='overdue'),'t-red'],['Due soon',D.audits.filter(a=>a.status==='soon'),'t-amber'],['On track',D.audits.filter(a=>a.status==='ok'),'t-green']];
+  return `<span class="hello">Records · ${ph.short}</span><h1>Reviews</h1><p class="lede">You don’t need to plan from here. Anything due appears on your path.</p>
+  ${g.map(([l,list,c])=>`<section class="then"><div style="padding:10px 12px 4px;font-size:14px;font-weight:800;color:var(--muted)">${l} · ${list.length}</div>${list.map(a=>`<button class="step" data-go="${a.id==='visit'?'audit':'audits'}"><span class="t"><span class="n">${a.name}</span><span class="m">${a.cadence} · last ${a.last}</span></span><span class="tag ${c}">${a.dueLabel}</span></button>`).join('')}</section>`).join('')}`;
+}};
+function render(){
+  const p=page(), rec=['audits','calendar'].includes(p);
+  document.getElementById('main').innerHTML=(V[p]||V.dashboard)();
+  document.getElementById('side').innerHTML=side(p);
+  document.getElementById('mPath').setAttribute('aria-pressed',String(!rec));
+  document.getElementById('mRec').setAttribute('aria-pressed',String(rec));
+  document.getElementById('ph').textContent=ph.short+' ▾';
+  window.scrollTo(0,0);
+}
+function recordsSheet(){
+  const el=document.createElement('div');el.className='sheet';
+  el.innerHTML=`<div class="s" role="dialog" aria-label="Records"><b style="font-size:18px;padding:4px 6px 8px">Records</b>${[['audits','Reviews','8 in your plan'],['calendar','Path ahead','Next 4 weeks'],['actions','Actions','1 for you · 2 with staff'],['staff','Staff','4 people'],['policies','Policies','17 SOPs · 1 draft']].map(([k,l,m])=>`<button class="step" data-go="${k}"><span class="t"><span class="n">${l}</span><span class="m">${m}</span></span><span style="color:var(--faint)">›</span></button>`).join('')}</div>`;
+  el.addEventListener('click',e=>{if(e.target===el)el.remove();});document.body.appendChild(el);
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.closest('.sheet')&&t.dataset.go){document.querySelector('.sheet').remove();go(t.dataset.go);return;}
+  if(t.dataset.mode==='records'||t.dataset.records){recordsSheet();return;}
+  if(t.dataset.mode==='path'){go('dashboard');return;}
+  if(t.id==='ph'){ph=ph.id==='hv'?D.pharmacies[1]:D.pharmacies[0];render();return;}
+  if(t.dataset.go){go(t.dataset.go);return;}
+  const s=st.v;
+  if(t.dataset.ans){s.ans=t.dataset.ans;if(s.ans==='Issue'||s.ans==='Needs verification'){s.stage='find';render();}else{s.toast='Saved: '+s.ans+' · '+D.visit.checks[s.i].name;render();setTimeout(()=>{if(s.ans){s.i=Math.min(5,s.i+1);s.ans=null;s.toast='Saved · moving on';render();}},700);}return;}
+  if(t.dataset.find){const i=s.find.indexOf(t.dataset.find);i<0?s.find.push(t.dataset.find):s.find.splice(i,1);render();return;}
+  if(t.dataset.stage){s.stage=t.dataset.stage;render();return;}
+  if(t.hasAttribute('data-task')){s.task=!s.task;render();return;}
+  if(t.hasAttribute('data-saveissue')){s.i=Math.min(5,s.i+1);s.stage='answer';s.ans=null;s.find=[];s.toast='Saved with an action for Sam';render();return;}
+  if(t.hasAttribute('data-undo')){s.i=Math.max(1,s.i-1);s.ans=null;s.stage='answer';s.toast='';render();return;}
+  if(t.dataset.fix){st.fix=t.dataset.fix==='done'?'done':'look';if(st.fix==='done')st.done=3;render();return;}
+  if(t.dataset.reg){st.reg=Math.max(st.reg,+t.dataset.reg+1);render();return;}
+  if(t.hasAttribute('data-sopnext')){st.sop++;render();return;}
+});
+document.addEventListener('keydown',e=>{if(page()==='audit'&&st.v.stage==='answer'&&/^[1-4]$/.test(e.key)){const b=document.querySelector(`[data-ans="${D.visit.answers[+e.key-1]}"]`);b&&b.click();}});
+window.addEventListener('hashchange',render);render();
+})();
+</script>
+</body>
+</html>
