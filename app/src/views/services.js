@@ -23,6 +23,8 @@ function kindOf(id, f) {
   return f.options ? 'single' : 'text';
 }
 const answered = (a, k) => a[k] !== undefined && String(a[k]).trim() !== '';
+export function questionIndex(ph, id, key) { return fieldsFor(ph, id).findIndex(f => f.key === key); }
+export function questionLabel(ph, id, key) { const f = fieldsFor(ph, id).find(x => x.key === key); return f ? (RPH.qm.metaFor(id, key).label || f.label) : key; }
 export function serviceProgress(ph, id) { const a = ph.services[id]?.answers || {}, fs = fieldsFor(ph, id); const n = fs.filter(f => answered(a, f.key)).length; return { n, total: fs.length, later: fs.filter(f => a[f.key] === NV).length }; }
 register('services', {
   tab: 'more',

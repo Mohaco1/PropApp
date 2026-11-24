@@ -79,3 +79,11 @@ register('tellmeonce', {
     const it = itemsFor(open.from, open.to).find(i => i.key === d.k);
     c.change(ph => { const ch = ph.changes.find(x => x.id === open.id); ch.items[d.k].status = d.s; if (d.s === 'later') newAction(ph, { title: it.title + ' (DAA packing change)', due: addDays(today(), 14), source: { type: 'change', label: 'DAA packing change' } }); }, d.s === 'done' ? 'Marked done' : 'An action was raised'); } },
 });
+
+register('receipt', {
+  tab: 'today',
+  render(c) { const r = c.ui.receipt || {};
+    return screen({ title: 'Restored', back: true, body: h`<div class="card"><h2>${r.name}</h2><p class="muted">Restored from ${r.from}.</p>
+      <ul class="plain"><li>${r.records} recorded reviews, visits and meetings</li><li>${r.actions} actions</li><li>${r.staff} staff</li><li>${r.procedures} procedures</li><li>${r.drafts} drafts in progress</li></ul></div>
+      ${btn('Go to Today', 'tab', { kind: 'primary', cls: 'block', data: { tab: 'today' } })}` }); },
+});

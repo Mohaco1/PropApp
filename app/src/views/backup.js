@@ -7,6 +7,7 @@ export function validate(b) {
   if (isLegacyBackup(b)) return importLegacy(b);
   throw Error('This file is not a PropApp or R.Pharmacy backup.');
 }
+const b2from = got => got.pharmacy.legacy ? 'an earlier R.Pharmacy backup' : 'a PropApp backup';
 export async function importBackup(c, file) {
   if (!file) return;
   try {
@@ -14,7 +15,7 @@ export async function importBackup(c, file) {
     const exists = c.store.pharmacy(got.pharmacy.id);
     if (exists && !confirmReplace(exists.name)) return;
     c.store.savePharmacy(got.pharmacy); c.store.setDrafts(got.pharmacy.id, got.drafts);
-    await c.open(got.pharmacy.id); c.toast('Restored ' + got.pharmacy.name);
+    await c.open(got.pharmacy.id); c.ui.receipt = { name: got.pharmacy.name, records: got.pharmacy.records.length, actions: Object.keys(got.pharmacy.actions).length, staff: got.pharmacy.staff.length, procedures: got.pharmacy.procedures.length, drafts: Object.keys(got.drafts || {}).length, from: b2from(got) }; c.go('receipt');
   } catch (e) { c.toast(e.message); c.rerender(); }
 }
 // Replacing a pharmacy that is already here is the one destructive restore; it needs a second tap (no browser dialogs).

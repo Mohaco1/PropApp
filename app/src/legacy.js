@@ -73,6 +73,7 @@ export function importLegacy(backup) {
   ph.lead = d.serviceLead || '';
   ph.siteScope = { ...(d.siteScope || {}) };
   ph.settings.setupDone = !!d.onboarded;
+  if (d.inherited) ph.inherited = { since: typeof d.inherited === 'string' ? d.inherited : '' };
   // drafts: site visits keep their answers; other review drafts keep their chosen answers
   const drafts = {};
   for (const [k, v] of Object.entries(backup.drafts || {})) {

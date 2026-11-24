@@ -39,11 +39,8 @@ Live test link (private to the owner): https://claude.ai/artifact/5fKsJBkM1Jq35f
 All pass.
 
 **Not yet in the rebuild** (old app still has them; see `uat/FEATURE-INVENTORY.md`):
-- review intervals (Adjust intervals);
-- search or jump;
-- first visit after buying (inherited facts);
-- restore receipt screen;
-- review-detail download;
 - Express setup (replaced by "Check later" on every question, to confirm with the owner);
 - the year plan as a grid (shown as a month-by-month list);
 - account placeholders.
+- procedures for the 12 services the example pharmacy doesn't offer use the same copied generator, but only the 5 it does offer have been compared word for word so far;
+- a screen for draft conflict copies (they are kept, but not yet shown).

@@ -58,7 +58,7 @@ register('review', {
       <p class="muted">${a.legal ? h`<span class="law">Required by law</span> ` : ''}${legalLine(a)}</p>${why('Why?', whyText(a))}
       ${!ap.applies ? note('Preview only: ' + ap.why + '.', 'warn') : ''}
       <div class="card"><p class="meta">${a.event ? 'Done when you start or change the service.' : due ? dueText(due) + ' · ' + fmt(due) : 'No date yet'}${last ? ' · last done ' + fmt(last.date) : ''}</p>
-        ${ap.applies ? btn('Start review', 'start', { kind: 'primary', cls: 'block' }) : ''}${!a.event ? btn('Change due date', 'go', { kind: 'link', data: { to: 'due-date', id: a.id } }) : ''}</div>
+        ${ap.applies ? btn('Start review', 'start', { kind: 'primary', cls: 'block' }) : ''}${!a.event ? btn('Change due date', 'go', { kind: 'link', data: { to: 'due-date', id: a.id } }) : ''}${!a.event && !a.legal ? btn('How often: ' + (c.ph.intervals?.[a.id] || a.frequency), 'go', { kind: 'link', data: { to: 'interval', id: a.id } }) : ''}</div>
       ${last ? btn('See the last one', 'go', { kind: 'link', data: { to: 'record', id: last.id } }) : ''}
       <section class="sec"><h2 class="sec-title">What it asks · ${qs.length}</h2><ol class="qlist">${qs.map(q => h`<li>${q.text}</li>`)}</ol></section>` });
     const step = d.step || 0, total = qs.length;
@@ -119,6 +119,9 @@ function saveReview(c, id) {
 }
 register('record', {
   tab: 'reviews',
+  acts: { copyrec: async (c, d) => { const rec = c.ph.records.find(x => x.id === d.id), a = reviewById(rec.type);
+    const t = [c.ph.name, (rec.extra ? 'Extra site visit' : a?.name || rec.title) + ' · ' + fmt(rec.date) + ' · recorded by ' + rec.by, '', ...rec.answers.map(x => x.text + ': ' + x.answer + (x.note ? ' (' + x.note + ')' : '')), rec.notes ? '\nNote: ' + rec.notes : ''].join('\n');
+    try { await navigator.clipboard.writeText(t); c.toast('Copied'); } catch { c.toast('Copy didn’t work here.'); } } },
   render(c, r) {
     const rec = c.ph.records.find(x => x.id === r.id); if (!rec) return screen({ title: 'Record', back: true, body: empty('Not found.') });
     const a = reviewById(rec.type);
@@ -127,7 +130,7 @@ register('record', {
       <p class="meta">${fmt(rec.date)} · recorded by ${rec.by || '—'}</p>
       ${acts.length ? h`<section class="sec"><h2 class="sec-title">Actions from this</h2><div class="list">${acts.map(x => row({ title: x.title, right: x.status === 'closed' ? 'Closed' : dueText(x.due), tone: x.status === 'open' && x.due < today() ? 'bad' : '', act: 'go', data: { to: 'action', id: x.id } }))}</div></section>` : ''}
       ${!rec.answers.length ? note('Recorded on ' + fmt(rec.date) + ' in the earlier app. Its details are kept with the record.', 'info') : ''}<section class="sec" ${rec.answers.length ? '' : h`hidden`}><h2 class="sec-title">Answers</h2><div class="list">${rec.answers.map(x => h`<div class="row static"><span class="row-main"><span class="row-title">${x.text}</span>${x.note ? h`<span class="row-sub">${x.note}</span>` : ''}</span><span class="row-right ${/Issue|Outstanding|Yes|Gap|Incomplete/.test(x.answer) && !/^No/.test(x.answer) ? 'bad' : ''}">${x.answer}</span></div>`)}</div></section>
-      ${rec.notes ? h`<div class="card"><p class="eyebrow">Note</p><p>${rec.notes}</p></div>` : ''}
+      ${rec.notes ? h`<div class="card"><p class="eyebrow">Note</p><p>${rec.notes}</p></div>` : ''}${btn('Copy this record as text', 'copyrec', { kind: 'link', data: { id: rec.id } })}
       ${Object.entries(rec.fields || {}).filter(([k, v]) => v && typeof v !== 'object' && !['date', 'notes', 'next', 'personId'].includes(k)).length ? h`<div class="card">${Object.entries(rec.fields).filter(([k, v]) => v && typeof v !== 'object' && !['date', 'notes', 'next', 'personId'].includes(k)).map(([k, v]) => h`<p class="meta">${label(rec.type, k)}: ${isDate(v) ? fmt(v) : v}</p>`)}</div>` : ''}` });
   },
 });
@@ -143,4 +146,13 @@ register('due-date', {
   },
   forms: { due: (c, f, el, r) => { const lim = r.id === 'B1' ? s8Limit(c.ph) : ''; if (lim && f.date > lim) { c.toast('The law doesn’t allow a date after ' + fmt(lim) + '.'); return; }
     c.change(ph => { const old = ph.schedule[r.id]; ph.schedule[r.id] = f.date; log(ph, 'Due date · ' + reviewById(r.id).name + ' · ' + (old || 'none') + ' → ' + f.date + (f.why ? ' · ' + f.why : '')); }, 'Date saved'); c.back(); } },
+});
+
+// How often (current app's "Adjust intervals"). The S8 review stays every 3 months: that's the law.
+register('interval', {
+  tab: 'reviews',
+  render(c, r) { const a = reviewById(r.id), cur = c.ph.intervals?.[r.id] || a.frequency;
+    return screen({ title: 'How often', back: true, body: h`<h2 class="big-title">${a.name}</h2><p class="muted">The suggested interval is ${a.frequency.toLowerCase()}. Choose what suits your pharmacy.</p>
+      <form class="form" data-form="save">${choice('f', ['Monthly', 'Quarterly', 'Six-monthly', 'Annual'], cur)}${field('Why (optional)', textInput('why', ''))}<div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` }); },
+  forms: { save: (c, f, el, r) => { if (!f.f) return; c.change(ph => { (ph.intervals ??= {})[r.id] = f.f; log(ph, 'How often · ' + reviewById(r.id).name + ' · ' + f.f + (f.why ? ' · ' + f.why : '')); }, 'Saved'); c.back(); } },
 });

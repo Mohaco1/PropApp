@@ -17,7 +17,7 @@ This is the checklist the rebuild must match before the old app is retired (rule
 - [x] Service checklist after core setup (rebuild: To do / In progress / Done).
 - [ ] Today setup checklist ("Finish setting up · N left") and a one-time "set up" message.
 - [x] Review due dates screen: set or change first dates; moving a date needs a reason.
-- [ ] Review intervals (Adjust intervals), with the S8 legal limit enforced (s 111: 3 months after the latest stock-check date, unless NSW Health approved otherwise).
+- [x] Review intervals (Adjust intervals), with the S8 legal limit enforced (s 111: 3 months after the latest stock-check date, unless NSW Health approved otherwise).
 - [x] Setup answers to verify: a list on Policies and Today ("to check later").
 
 ## 2. Today
@@ -85,7 +85,7 @@ This is the checklist the rebuild must match before the old app is retired (rule
 - [x] Full history timeline (finding → updates → asks → closure or reopening), with copy.
 - [x] Add action manually. Link several sources. Reopen.
 - [x] OTP procedure parts screen: one action, 7+2 parts marked Written or To write.
-- [ ] Inherited items from a previous owner ("Check later · from previous owner").
+- [x] Inherited items from a previous owner ("Check later · from previous owner").
 
 ## 6. Staff
 - [x] Register: Active / Needs review / Coming up / Locum / Former, plus search.
@@ -118,8 +118,8 @@ This is the checklist the rebuild must match before the old app is retired (rule
 - [x] Rebuild: calendar feed (.ics) — owner decision.
 
 ## 9. History and exports
-- [ ] History: every record (reviews, actions, meetings, setup changes), filters (pharmacy, search, source, record type, review, from and through dates), page through.
-- [ ] Print or save a filtered PDF. Download a filtered CSV. Rebuild: readable rows with title, status, due date, resolution and who.
+- [x] History: every record (reviews, actions, meetings, setup changes), filters (pharmacy, search, source, record type, review, from and through dates), page through.
+- [x] Print or save a filtered PDF. Download a filtered CSV. Rebuild: readable rows with title, status, due date, resolution and who.
 - [ ] Review detail download. Full history text per action.
 - [x] My log: what the owner reported or sent (date, what, to whom, reference).
 
@@ -132,7 +132,7 @@ This is the checklist the rebuild must match before the old app is retired (rule
 
 ## 11. Pharmacy setup (settings)
 - [x] Pharmacy details. Proprietors and oversight (recording as …, switch reviewer). Services and configuration.
-- [ ] Bought, selling or closing (what NSW Health requires). First visit after buying: inherited facts to confirm.
+- [x] Bought, selling or closing (what NSW Health requires). First visit after buying: inherited facts to confirm.
 - [x] Tell me once: a change to how DAAs are packed (in-house / outside packer / another pharmacy) shows only the dependent items, each Done or Later.
 - [ ] Settings: last backup and changes since; backup download; restore with a receipt; storage status.
 - [x] More than one pharmacy on a device (switch, add). Directory of sites.

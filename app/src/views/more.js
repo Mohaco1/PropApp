@@ -54,3 +54,21 @@ register('history', {
     csv: c => { const ok = saveFile('history-' + c.ph.name.replace(/\W+/g, '-') + '-' + today() + '.csv', csv(c.ph, historyRows(c.ph)), 'text/csv'); c.toast(ok ? 'CSV ready' : 'Downloads are blocked here. Use Copy as text.'); },
     copy: async c => { try { await navigator.clipboard.writeText(printable(c.ph, historyRows(c.ph))); c.toast('Copied'); } catch { c.toast('Copy didn’t work here.'); } } },
 });
+
+// Search or jump to: reviews, actions, staff, procedures, legal obligations and setup questions, in one box.
+import { catalog } from '../rules.js';
+import { C } from '../content.js';
+register('search', {
+  tab: 'today',
+  render(c) { const q = (c.ui.q || '').trim().toLowerCase(), R = [];
+    if (q.length > 1) {
+      for (const a of catalog()) if (a.name.toLowerCase().includes(q)) R.push({ t: a.name, s: 'Review · ' + a.frequency, to: a.kind === 'visit' ? 'visit-start' : a.kind === 'meeting' ? 'meeting' : 'review', id: a.id });
+      for (const a of Object.values(c.ph.actions)) if (a.title.toLowerCase().includes(q)) R.push({ t: a.title, s: 'Action · ' + (a.status === 'open' ? 'open' : 'closed'), to: 'action', id: a.id });
+      for (const p of c.ph.staff) if (p.name.toLowerCase().includes(q)) R.push({ t: p.name, s: 'Staff · ' + p.role, to: 'person', id: p.id });
+      for (const [id, s] of Object.entries(c.ph.services)) if (s.active && C.services.services.find(x => x.id === id)?.name.toLowerCase().includes(q)) R.push({ t: C.services.services.find(x => x.id === id).name, s: 'Service', to: 'service', id });
+      for (const o of C.law.OBL) if ((o[2] + ' ' + o[1] + ' ' + o[3]).toLowerCase().includes(q)) R.push({ t: o[2], s: 'Legal obligation · ' + o[1], to: 'obligation', id: o[0] });
+    }
+    return screen({ title: 'Search', back: true, body: h`<label class="search">${icon('search')}<input class="input" name="q" placeholder="Search reviews, actions, staff, rules" value="${c.ui.q || ''}" data-change="q" autofocus></label>
+      ${q.length > 1 ? h`<div class="list">${R.length ? R.slice(0, 40).map(x => row({ title: x.t, sub: x.s, act: 'go', data: { to: x.to, id: x.id } })) : empty('Nothing matches.')}</div>` : h`<p class="muted">Type at least two letters.</p>`}` }); },
+  changes: { q: (c, el) => { c.ui.q = el.value; c.rerender(); } },
+});

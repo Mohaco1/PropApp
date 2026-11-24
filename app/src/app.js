@@ -56,6 +56,6 @@ export async function start(el) {
   load();
   document.addEventListener('click', e => handle(e, 'click'));
   document.addEventListener('submit', e => handle(e, 'submit'));
-  document.addEventListener('change', e => { const el = e.target.closest('[data-change]'); if (!el) return; const v = views[ctx.route.name] || {}; v.changes?.[el.dataset.change]?.(ctx, el, ctx.route, e); });
+  document.addEventListener('change', e => { const el = e.target.closest('[data-change]'); if (!el) return; const r = S.ph ? ctx.route : { name: 'welcome' }; const v = views[r.name] || {}; v.changes?.[el.dataset.change]?.(ctx, el, r, e); });
   render();
 }

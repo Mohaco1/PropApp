@@ -61,5 +61,7 @@ register('changes', {
   tab: 'more',
   render(c) { return screen({ title: 'Bought, selling or closing', back: true, body: h`<p class="muted">What NSW Health requires when a pharmacy changes hands or closes.</p>
     ${L.OWN.map(([t, xs]) => section(t, h`<div class="card"><ul class="plain">${xs.map(x => h`<li>${x}</li>`)}</ul></div>`))}
-    ${btn('Changing how DAAs are packed?', 'go', { kind: 'link', data: { to: 'tellmeonce' } })}` }); },
+    ${btn('Changing how DAAs are packed?', 'go', { kind: 'link', data: { to: 'tellmeonce' } })}
+    ${c.ph.inherited ? note('Marked as a newly bought pharmacy. Your next site visit asks you to confirm what the previous owner recorded.', 'ok') : btn('I’ve just bought this pharmacy', 'bought')}` }); },
+  acts: { bought: c => c.change(ph => { ph.inherited = { since: today() }; log(ph, 'Marked as a newly bought pharmacy'); }, 'Your next visit will ask you to confirm what the previous owner recorded.') },
 });

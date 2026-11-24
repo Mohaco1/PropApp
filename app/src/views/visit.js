@@ -8,6 +8,7 @@ import { fmt, today, addDays, addMonths, dueText, isDate } from '../dates.js';
 import { activeServices } from '../rules.js';
 import { addRecord, newAction } from '../model.js';
 import { reviewDue } from '../summary.js';
+import { questionIndex, questionLabel } from './services.js';
 const DISPLAY = 'Displayed names (Council Guide Note 24): owner names at or near the main entrance; the name of the pharmacist on duty next to the dispensing area (it can change day to day).';
 export function visitItems(ph) {
   const act = activeServices(ph);
@@ -29,6 +30,16 @@ function worthSeeing(ph) {
   for (const a of Object.values(ph.actions).filter(a => a.status === 'open' && !a.source?.staffId && a.source?.type !== 'visit' && isDate(a.due) && a.due <= addDays(today(), 7))) out.push({ title: a.title, why: dueText(a.due), act: 'action', id: a.id });
   return out;
 }
+// First visit after buying (current app's change.js): confirm what the previous owner recorded while you're there.
+function inheritedRows(c) {
+  const ph = c.ph; if (!ph.inherited) return [];
+  const out = [], skip = c.ui.inhSkip || [];
+  if (ph.services.daa?.active && !(ph.changes || []).length && !skip.includes('daa')) out.push({ id: 'daa', title: 'DAAs: ' + (ph.services.daa.answers?.routes || 'house').split(',').map(k => ({ house: 'we pack on site', routeA: 'an outside packer packs', routeB: 'another pharmacy dispenses and packs' }[k] || k)).join(' + '), q: 'Is that still how this pharmacy runs?' });
+  for (const [sid, s] of Object.entries(ph.services)) for (const [k, v] of Object.entries(s.answers || {})) if (s.active && v === 'Needs verification' && out.length < 3 && !skip.includes(sid + '/' + k)) out.push({ id: sid + '/' + k, sid, k, title: questionLabel(ph, sid, k), q: 'Recorded by the previous owner · check it while you’re here' });
+  return out;
+}
+function inheritedBox(c) { const rows = inheritedRows(c); if (!rows.length) return '';
+  return h`<section class="sec"><h2 class="sec-title">From the previous owner · confirm while you’re here</h2><div class="list">${rows.map(r => h`<div class="row static"><span class="row-main"><span class="row-title">${r.title}</span><span class="row-sub">${r.q}</span><span class="btnrow">${r.id === 'daa' ? h`${btn('Confirm', 'inh', { data: { id: 'daa', a: 'ok' } })}${btn('Correct', 'go', { data: { to: 'tellmeonce' } })}` : btn('Check now', 'inh', { data: { id: r.id, a: 'go' } })}${btn('Leave open', 'inh', { kind: 'link', data: { id: r.id, a: 'skip' } })}</span></span></div>`)}</div></section>`; }
 register('visit-start', {
   tab: 'today',
   render(c, r) {
@@ -37,12 +48,16 @@ register('visit-start', {
       <div class="seg">${[[false, 'Quarterly visit'], [true, 'Extra visit']].map(([v, l]) => h`<button class="${v === extra ? 'on' : ''}" data-act="kind" data-v="${v ? 1 : ''}">${l}</button>`)}</div>
       <p class="muted">${extra ? 'An extra visit doesn’t change your quarterly date' + (q1 ? ' (' + fmt(q1) + ')' : '') + '.' : 'This counts as your quarterly visit' + (q1 ? ' (due ' + fmt(q1) + ')' : '') + '. You set the next one when you finish.'}</p>
       ${d ? note(h`You started this visit on ${fmt(d.date)}. Your answers are saved.`, 'ok') : ''}
+      ${inheritedBox(c)}
       ${ws.length ? h`<section class="sec"><h2 class="sec-title">Worth seeing while you’re there</h2><div class="list">${(all ? ws : ws.slice(0, 3)).map(w => row({ title: w.title, sub: w.why, act: 'ws', data: { a: w.act, id: w.id } }))}</div>${ws.length > 3 && !all ? btn('Show all ' + ws.length, 'wsall', { kind: 'link' }) : ''}</section>` : ''}
       ${btn(d ? 'Resume the checks' : 'Start the checks', 'begin', { kind: 'primary', cls: 'block' })}
       ${btn('Copy a list for the pharmacist on duty', 'copy', { kind: 'link' })}` });
   },
   acts: {
     kind: (c, d) => { c.ui.visitExtra = !!d.v; c.rerender(); }, wsall: c => { c.ui.wsAll = true; c.rerender(); },
+    inh: (c, d) => { if (d.a === 'skip') { c.ui.inhSkip = [...(c.ui.inhSkip || []), d.id]; c.rerender(); return; }
+      if (d.id === 'daa') { c.change(ph => { (ph.changes ??= []).push({ id: 'confirm-' + Date.now(), type: 'confirm', service: 'daa', from: [], to: (ph.services.daa.answers?.routes || 'house').split(','), items: {}, at: new Date().toISOString() }); }, 'Confirmed'); return; }
+      const [sid, k] = d.id.split('/'); c.ui['ss:' + sid] = Math.max(0, questionIndex(c.ph, sid, k)); c.go('service-setup', { id: sid }); },
     ws: (c, d) => c.go(d.a, { id: d.id }),
     begin: (c, d, el, r) => { const extra = c.ui.visitExtra ?? !!r.extra; c.ui.visitExtra = undefined; if (!c.draft(key(extra))) c.saveDraft(key(extra), { date: today(), items: {}, vacc: {}, notes: '', next: '', step: 0 }); c.replace('visit', { extra }); },
     copy: async c => { const ws = worthSeeing(c.ph); const t = c.ph.name + ' · site visit ' + fmt(today()) + '\n' + (ws.length ? ws.map(w => '- ' + w.title + ' (' + w.why + ')').join('\n') : 'Nothing open from earlier visits.') + '\nNo patient names or identifiers, please.';

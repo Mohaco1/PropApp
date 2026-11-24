@@ -43,9 +43,11 @@ export function latestStockCheck(ph) {
 }
 // s 111: the next S8 inventory can't be later than 3 months after the latest stock-check date.
 export function s8Limit(ph) { const d = latestStockCheck(ph); return d ? addMonths(d, 3) : ''; }
+export const INTERVALS = MONTHS;
+export const monthsFor = (ph, a) => MONTHS[ph.intervals?.[a.id]] || a.months;
 export function suggestedNext(ph, id, from) {
   const a = reviewById(id); if (!a || !a.months) return '';
-  const d = addMonths(from, a.months);
+  const d = addMonths(from, monthsFor(ph, a));
   if (id === 'B1') { const lim = s8Limit(ph); if (lim && lim < d) return lim; }
   return d;
 }

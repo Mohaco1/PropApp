@@ -33,7 +33,7 @@ function topCard(c, list) {
 }
 export function switcher(c) {
   const n = c.store.dir().ids.length;
-  return n > 1 ? h`<button class="iconbtn" data-act="go" data-to="pharmacies" aria-label="Switch pharmacy">${icon('home')}</button>` : '';
+  return h`<button class="iconbtn" data-act="go" data-to="search" aria-label="Search">${icon('search')}</button>${n > 1 ? h`<button class="iconbtn" data-act="go" data-to="pharmacies" aria-label="Switch pharmacy">${icon('home')}</button>` : ''}`;
 }
 register('today', {
   tab: 'today',
