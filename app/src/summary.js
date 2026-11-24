@@ -1,7 +1,7 @@
 // THE one place that decides what is due, overdue, started or undated. Every count on every screen comes from here
 // (design rule 8), so Today, Reviews, Actions, Calendar and Staff always agree.
 import { plan, reviewById, s8Limit } from './rules.js';
-import { today, addDays, isDate, daysBetween } from './dates.js';
+import { today, addDays, addMonths, isDate, daysBetween } from './dates.js';
 import { requirements, credentialState } from './model.js';
 import { plural } from './util.js';
 export function bucket(date, t = today()) {
@@ -52,6 +52,9 @@ export function items(ph, drafts = {}, t = today()) {
     const n = list.length;
     out.push({ key: 'person/' + p.id, kind: 'person', ref: p.id, title: p.name, date, bucket: bucket(date, t), legal: false, sub: n === 1 ? list[0].title : plural(n, 'check'), parts: list });
   }
+  // adopted procedures: annual review
+  for (const p of ph.procedures || []) { if (p.status !== 'adopted') continue; const last = (p.reviews || []).at(-1)?.date || String(p.versions.filter(v => v.status === 'Adopted').at(-1)?.adoptedAt || p.versions.at(-1).at).slice(0, 10); const date = addMonths(last, 12);
+    out.push({ key: 'procedure/' + p.service, kind: 'procedure', ref: p.service, title: p.title.replace(/ SOP$/, '') + ' · annual review', date, bucket: bucket(date, t), legal: false, sub: 'Procedure' }); }
   // setup answers still to confirm
   for (const [sid, s] of Object.entries(ph.services)) {
     if (!s.active) continue;

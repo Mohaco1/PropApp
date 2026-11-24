@@ -48,7 +48,7 @@ const answerOne = async p => { const ch = p.locator('form label.choice, form lab
     await p.getByRole('button', { name: i === 13 ? 'Finish' : 'Next', exact: true }).click(); await p.waitForTimeout(60);
   }
   await tap(p, 'Save visit'); await p.waitForTimeout(500); await p.reload(); await p.waitForTimeout(600);
-  await tap(p, 'Reviews'); await p.getByRole('button', { name: /^Done/ }).click(); await p.locator('.row', { hasText: 'Proprietor site visit' }).first().click(); await p.waitForTimeout(200);
+  await tap(p, 'Reviews'); await p.getByRole('button', { name: /^Completed/ }).click(); await p.locator('.row', { hasText: 'Proprietor site visit' }).first().click(); await p.waitForTimeout(200);
   let t = await text(p); ok(/SERVICE EVIDENCE/i.test(t) && /Verified operational review/.test(t) && /Packing check log/.test(t) && /Fridge log folder/.test(t) && /Staged supply register/.test(t), 'S3-05 evidence shows on the saved visit after a reload');
   await p.getByRole('button', { name: 'Back', exact: true }).click(); await tap(p, 'More'); await p.getByRole('button', { name: /^History/ }).click();
   ok(/daa evidence: Verified operational review/.test(await text(p)), 'S3-05 evidence is in History');

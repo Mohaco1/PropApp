@@ -2,7 +2,7 @@
 // big answers, then a finish screen with the note and next date. Issues become actions linked to the review.
 import { register } from '../app.js';
 import { h } from '../util.js';
-import { screen, btn, row, field, textInput, textArea, choice, note, why, empty, select } from '../ui.js';
+import { screen, btn, row, field, textInput, textArea, choice, note, why, empty, select, icon } from '../ui.js';
 import { C } from '../content.js';
 import { catalog, reviewById, applies, suggestedNext, s8Limit, LEGAL, serviceName } from '../rules.js';
 import { reviewDue, bucket } from '../summary.js';
@@ -27,24 +27,28 @@ export function questionsFor(id) {
 }
 export function legalLine(a) { return a.legal?.line || (a.event ? 'When you start or change this service' : a.frequency + (a.service ? ' · ' + serviceName(a.service) : '')); }
 const whyText = a => [a.check, ...(C.reviews.forms[a.id]?.notes || []).filter(n => n !== a.check && n.length > 40)].join('\n\n');
-const F = [['due', 'To do'], ['law', 'Required by law'], ['nodate', 'No date'], ['done', 'Done']];
+const F = [['all', 'All'], ['overdue', 'Overdue'], ['soon', 'Due soon'], ['ontrack', 'On track'], ['nodate', 'No date'], ['law', 'Required by law'], ['done', 'Completed']];
 register('reviews', {
   tab: 'reviews',
   render(c) {
-    const f = c.ui.revF || 'due', all = catalog().filter(a => a.id !== 'A1' && a.kind !== 'meeting' && applies(c.ph, a).applies);
-    const rows = all.map(a => ({ a, date: reviewDue(c.ph, a.id), started: a.id === 'Q1' ? !!c.draft('visit/quarterly') : !!c.draft('review/' + a.id) })).map(x => ({ ...x, b: bucket(x.date) }));
+    const f = c.ui.revF || 'all', q = (c.ui.revQ || '').toLowerCase(), inactive = !!c.ui.revInactive;
+    const base = catalog().filter(a => a.id !== 'A1' && a.kind !== 'meeting' && (inactive || applies(c.ph, a).applies));
+    const rows = base.map(a => { const ap = applies(c.ph, a), date = ap.applies ? reviewDue(c.ph, a.id) : ''; return { a, ap, date, started: a.id === 'Q1' ? !!c.draft('visit/quarterly') : !!c.draft('review/' + a.id), b: ap.applies ? bucket(date) : 'inactive' }; });
     const done = [...c.ph.records].filter(r => r.kind === 'review' || r.kind === 'visit').sort((a, b) => b.date.localeCompare(a.date));
-    let list = f === 'law' ? rows.filter(x => x.a.legal) : f === 'nodate' ? rows.filter(x => !x.date && !x.a.event) : rows.filter(x => x.date || x.started);
-    list.sort((x, y) => (x.date || '9').localeCompare(y.date || '9'));
-    const n = { due: rows.filter(x => x.date || x.started).length, law: rows.filter(x => x.a.legal).length, nodate: rows.filter(x => !x.date && !x.a.event).length, done: done.length };
-    const other = catalog().filter(a => a.id !== 'A1' && a.kind !== 'meeting' && !applies(c.ph, a).applies);
+    const pick = { all: x => true, overdue: x => x.b === 'overdue', soon: x => ['today', 'week'].includes(x.b) || (x.date && x.date <= addDays(today(), 30) && x.b !== 'overdue'), ontrack: x => x.date && x.date > addDays(today(), 30), nodate: x => x.ap.applies && !x.date && !x.a.event, law: x => !!x.a.legal };
+    const n = Object.fromEntries(F.map(([k]) => [k, k === 'done' ? done.length : rows.filter(pick[k]).length]));
+    const list = f === 'done' ? [] : rows.filter(pick[f]).filter(x => !q || (x.a.name + ' ' + x.a.frequency).toLowerCase().includes(q)).sort((x, y) => (x.b === 'inactive') - (y.b === 'inactive') || (x.date || '9').localeCompare(y.date || '9'));
+    const doneList = done.filter(r => !q || ((reviewById(r.type)?.name || r.title) + ' ' + r.by).toLowerCase().includes(q));
     return screen({ title: 'Reviews', body: h`
-      <div class="tabs">${F.map(([k, l]) => h`<button class="${k === f ? 'on' : ''}" data-act="f" data-f="${k}">${l} <b>${n[k]}</b></button>`)}</div>
-      ${f === 'done' ? h`<div class="list">${done.length ? done.map(r => row({ title: r.extra ? 'Extra site visit' : reviewById(r.type)?.name || r.title, sub: r.by + (r.actionIds?.length ? ' · ' + r.actionIds.length + (r.actionIds.length === 1 ? ' action' : ' actions') : ''), right: fmt(r.date), act: 'rec', data: { id: r.id } })) : empty('Nothing recorded yet.')}</div>`
-        : h`<div class="list">${list.length ? list.map(x => row({ title: x.a.name, sub: x.a.frequency, legal: !!x.a.legal, right: x.started ? 'In progress' : x.a.event ? 'When needed' : dueText(x.date), tone: x.b === 'overdue' ? 'bad' : x.b === 'today' ? 'warn' : '', act: 'open', data: { id: x.a.id } })) : empty('Nothing here.')}</div>
-        ${f === 'due' && other.length ? why('Not in your plan · ' + other.length, h`<div class="list">${other.map(a => row({ title: a.name, sub: applies(c.ph, a).why, act: 'open', data: { id: a.id }, chev: true }))}</div>`) : ''}`}` });
+      <label class="search">${icon('search')}<input class="input" name="q" type="search" placeholder="Search reviews" value="${c.ui.revQ || ''}" data-input="q" autocomplete="off"></label>
+      <div class="chips">${F.map(([k, l]) => h`<button class="chip ${k === f ? 'on' : ''}" data-act="f" data-f="${k}">${l} · ${n[k]}</button>`)}</div>
+      ${f === 'done' ? h`<div class="list">${doneList.length ? doneList.map(r => row({ title: r.extra ? 'Extra site visit' : reviewById(r.type)?.name || r.title, sub: r.by + (r.actionIds?.length ? ' · ' + r.actionIds.length + (r.actionIds.length === 1 ? ' action' : ' actions') : ''), right: fmt(r.date), act: 'rec', data: { id: r.id } })) : empty('Nothing recorded yet.')}</div>`
+        : h`<div class="list">${list.length ? list.map(x => row({ title: x.a.name, sub: x.b === 'inactive' ? 'Not in your plan · ' + x.ap.why : x.a.frequency, legal: !!x.a.legal, right: x.b === 'inactive' ? '' : x.started ? 'In progress' : x.a.event ? 'When needed' : dueText(x.date), tone: x.b === 'overdue' ? 'bad' : x.b === 'today' ? 'warn' : '', act: 'open', data: { id: x.a.id } })) : empty('Nothing here.')}</div>`}
+      <label class="tick"><input type="checkbox" data-change="inactive" ${inactive ? h`checked` : ''}><span>Include reviews not in your plan</span></label>` });
   },
-  acts: { f: (c, d) => { c.ui.revF = d.f; c.rerender(); }, open: (c, d) => d.id === 'Q1' ? c.go('visit-start') : c.go('review', { id: d.id }), rec: (c, d) => c.go('record', { id: d.id }) },
+  inputs: { q: (c, el) => { c.ui.revQ = el.value; c.rerender(); } },
+  changes: { inactive: (c, el) => { c.ui.revInactive = el.checked; c.rerender(); } },
+  acts: { f: (c, d) => { c.ui.revF = d.f; c.rerender(); }, open: (c, d) => d.id === 'Q1' && applies(c.ph, reviewById('Q1')).applies ? c.go('visit-start') : c.go('review', { id: d.id }), rec: (c, d) => c.go('record', { id: d.id }) },
 });
 const dkey = id => 'review/' + id;
 register('review', {
@@ -57,7 +61,10 @@ register('review', {
     if (!d) return screen({ title: a.name, back: true, body: h`
       <p class="muted">${a.legal ? h`<span class="law">Required by law</span> ` : ''}${legalLine(a)}</p>${why('Why?', whyText(a))}
       ${!ap.applies ? note('Preview only: ' + ap.why + '.', 'warn') : ''}
-      <div class="card"><p class="meta">${a.event ? 'Done when you start or change the service.' : due ? dueText(due) + ' · ' + fmt(due) : 'No date yet'}${last ? ' · last done ' + fmt(last.date) : ''}</p>
+      <dl class="facts"><dt>How often</dt><dd>${c.ph.intervals?.[a.id] || a.frequency}</dd><dt>Last done</dt><dd>${last ? fmt(last.date) + ' by ' + last.by : 'Not yet'}</dd>
+        <dt>Set by</dt><dd>${a.legal ? 'The law (' + a.legal.line.replace(/^.*\((.*)\)$/, '$1') + ')' : c.ph.intervals?.[a.id] ? 'You' : a.service ? 'Your ' + serviceName(a.service) + ' service' : 'Good practice for proprietors'}</dd>
+        <dt>Why it's here</dt><dd>${ap.applies ? (a.service ? 'You offer ' + serviceName(a.service) + '.' : 'Every pharmacy.') : ap.why + '.'}</dd></dl>
+      <div class="card"><p class="meta">${a.event ? 'Done when you start or change the service.' : due ? dueText(due) + ' · ' + fmt(due) : 'No date yet'}</p>
         ${ap.applies ? btn('Start review', 'start', { kind: 'primary', cls: 'block' }) : ''}${!a.event ? btn('Change due date', 'go', { kind: 'link', data: { to: 'due-date', id: a.id } }) : ''}${!a.event && !a.legal ? btn('How often: ' + (c.ph.intervals?.[a.id] || a.frequency), 'go', { kind: 'link', data: { to: 'interval', id: a.id } }) : ''}</div>
       ${last ? btn('See the last one', 'go', { kind: 'link', data: { to: 'record', id: last.id } }) : ''}
       <section class="sec"><h2 class="sec-title">What it asks · ${qs.length}</h2><ol class="qlist">${qs.map(q => h`<li>${q.text}</li>`)}</ol></section>` });

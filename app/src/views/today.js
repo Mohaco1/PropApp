@@ -15,6 +15,7 @@ export function openItem(c, it) {
   if (it.kind === 'action') return c.go('action', { id: it.ref });
   if (it.kind === 'person') return c.go('person', { id: it.ref });
   if (it.kind === 'verify') return c.go('service', { id: it.ref });
+  if (it.kind === 'procedure') return c.go('procedure', { id: it.ref });
 }
 function topCard(c, list) {
   const ph = c.ph;

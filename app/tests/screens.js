@@ -46,7 +46,7 @@ const OUT = path.resolve(__dirname, '../shots'); fs.mkdirSync(OUT, { recursive: 
   await p.getByRole('button', { name: /S8 stock check/ }).first().click(); await shot('S8 review · start');
   await tap(p, 'Start review'); await shot('S8 review · question 1');
   await back();
-  await p.getByRole('button', { name: /^Done/ }).click(); await shot('Reviews · done');
+  await p.getByRole('button', { name: /^Completed/ }).click(); await shot('Reviews · completed');
   await p.locator('.row').first().click(); await shot('Record · last review'); await back();
   await tap(p, 'Actions'); await shot('Actions');
   await p.getByRole('button', { name: /fire extinguisher/ }).click(); await shot('Action · waiting');

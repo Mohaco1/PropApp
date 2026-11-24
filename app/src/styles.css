@@ -150,3 +150,4 @@ table.cal{width:100%;border-collapse:collapse;font-size:14px} table.cal td,table
 body:has(#uat-btn) #app.has-nav{padding-bottom:calc(132px + env(safe-area-inset-bottom,0px))}
 .empty-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:18px;background:var(--surface);border:1px dashed var(--line);border-radius:12px}
 .checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.checklist li{display:flex;gap:10px;align-items:baseline}.checklist li .muted{margin-left:auto;font-size:14px}.checklist li.done{color:var(--muted)}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}.facts dt{color:var(--muted);font-size:14px}.facts dd{margin:0}
