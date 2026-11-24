@@ -5,7 +5,9 @@ import { h, uid } from '../util.js';
 import { screen, btn, row, field, textInput, textArea, select, note, why, empty, section } from '../ui.js';
 import { C } from '../content.js';
 import { fmt, today, dueText, isDate } from '../dates.js';
-import { s8Limit, latestStockCheck, activeServices } from '../rules.js';
+import { s8Limit, latestStockCheck, activeServices, serviceName } from '../rules.js';
+import { RPH } from '../procgen.js';
+import { questionLabel } from './services.js';
 import { reviewDue } from '../summary.js';
 import { note as log, me } from '../model.js';
 const L = C.law;
@@ -70,4 +72,41 @@ register('changes', {
     ${btn('Changing how DAAs are packed?', 'go', { kind: 'link', data: { to: 'tellmeonce' } })}
     ${c.ph.inherited ? note('Marked as a newly bought pharmacy. Your next site visit asks you to confirm what the previous owner recorded.', 'ok') : btn('I’ve just bought this pharmacy', 'bought')}` }); },
   acts: { bought: c => c.change(ph => { ph.inherited = { since: today() }; log(ph, 'Marked as a newly bought pharmacy'); }, 'Your next visit will ask you to confirm what the previous owner recorded.') },
+});
+
+// Incident steps (S4-04): the current app's "If something goes wrong" cards, word for word (uat/layers/inspection.js),
+// from NSW Health Pharmaceutical Services pages current Nov 2026.
+const INCIDENTS = [
+  ['S8 or S4D missing or stolen', ['Unexplained loss or theft: notify NSW Pharmaceutical Services immediately, using their online form for lost or stolen S8 and S4D medicines.', 'Keep a copy of the submitted form.', 'Record the loss in the drug register.', 'If more details come to light, submit the form again with them.', 'An explained loss (for example dead space in a syringe, or a witnessed spill) is recorded in the drug register; it is not notified.'], 'NSW Health · Notifying the loss or theft of medicines', 'https://www.health.nsw.gov.au/pharmaceutical/Pages/lost-stolen-drugs.aspx'],
+  ['Drug register lost or destroyed', ['This includes missing pages, or an electronic register you can no longer open (for example after a system failure or ransomware).', 'Notify NSW Pharmaceutical Services immediately, in writing, with what happened (s 112). Keep a copy.', 'Make an accurate inventory of all S8 held and enter it in a new drug register (s 112).', 'Try to find out what happened and recover the register or pages if you can.', 'If S8 is also missing, notify that separately using the lost or stolen form.'], 'NSW Health · Loss or destruction of a drug register', 'https://www.health.nsw.gov.au/pharmaceutical/Pages/lost-stolen-drug-register.aspx'],
+  ['Destroying S8 at the pharmacy', ['Use an independent witness: a pharmacist, medical practitioner or nurse practitioner who is not employed at the pharmacy, not a family member, and (if a pharmacist) has no financial interest in it (s 148).', 'Patient returns go in the register on receipt; expired stock is moved to a separate “for destruction” page.', 'Render it unusable (never down a sink or toilet) and record the date, medicine and quantity, and both names, registration numbers and signatures.'], 'NSW Health · Destruction of S8 medicines at community pharmacies', 'https://www.health.nsw.gov.au/pharmaceutical/pharmacists/Pages/schedule8-destruction.aspx'],
+];
+register('incidents', {
+  tab: 'more',
+  render(c) { const cs = L.CONTACTS.filter(x => /Pharmaceutical Services|Lost or stolen|Public health unit|indemnity|e-prescription fraud/i.test(x[0]));
+    return screen({ title: 'If something goes wrong', back: true, body: h`<p class="muted">Steps from NSW Health. Read the page itself if you're unsure.</p>
+      ${INCIDENTS.map(([t, steps, src, url]) => h`<details class="why"><summary>${t}</summary><div class="why-body"><ol class="plain">${steps.map(x => h`<li>${x}</li>`)}</ol><p class="hint">Source: <a href="${url}" target="_blank" rel="noopener">${src}</a></p></div></details>`)}
+      ${section('Who to contact', h`<div class="list">${cs.map(x => h`<div class="row static"><span class="row-main"><span class="row-title">${x[0]}</span><span class="row-sub sel">${x[1]}</span><span class="btnrow">${links(x[1])}</span></span></div>`)}</div>`)}
+      ${btn('Log what you reported', 'go', { kind: 'link', data: { to: 'mylog' } })}` }); },
+});
+// Evidence locations (S4-05): one place for where every record is kept, from setup answers and legal obligations.
+register('locations', {
+  tab: 'more',
+  render(c) { const ph = c.ph, rows = locationRows(ph);
+    return screen({ title: 'Evidence locations', back: true, body: h`<p class="muted">Where each record is kept, so you (or an inspector) can find it. The records themselves stay where they are.</p>
+      <div class="list">${rows.map(r => row({ title: r.title, sub: r.group + (r.where ? '' : ' · not recorded yet'), right: r.where || 'Add', tone: r.where ? '' : 'warn', act: 'edit', data: { k: r.k } }))}</div>` }); },
+  acts: { edit: (c, d) => c.go('location', { id: d.k }) },
+});
+function locationRows(ph) { const out = [];
+  for (const [sid, s] of Object.entries(ph.services)) if (s.active) for (const k of [...(RPH.sq.REC[sid] || [])]) { const v = s.answers?.[k]; out.push({ k: 'svc:' + sid + ':' + k, group: serviceName(sid), title: questionLabel(ph, sid, k), where: v && v !== 'Needs verification' ? v : '' }); }
+  for (const o of L.OBL.filter(o => applies(ph, o))) out.push({ k: 'obl:' + o[0], group: 'Legal obligation · ' + o[1], title: o[2], where: ph.obligations?.[o[0]]?.where || '' });
+  return out; }
+register('location', {
+  tab: 'more',
+  render(c, r) { const row0 = locationRows(c.ph).find(x => x.k === r.id) || {};
+    return screen({ title: 'Where is it kept?', back: true, body: h`<h2 class="big-title">${row0.title}</h2><p class="muted">${row0.group}</p>
+      <form class="form" data-form="save">${field('Where it is kept', textInput('where', row0.where || '', { required: true, placeholder: 'e.g. Dispensary office, drawer 2' }))}<div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` }); },
+  forms: { save: (c, f, el, r) => { const [kind, a, b] = r.id.split(':'), where = f.where.trim(); if (!where) return;
+    c.change(ph => { if (kind === 'svc') ph.services[a].answers = { ...ph.services[a].answers, [b]: where }; else (ph.obligations ??= {})[a] = { ...(ph.obligations?.[a] || {}), where, by: me(ph).name, at: new Date().toISOString() };
+      log(ph, 'Evidence location saved · ' + (kind === 'svc' ? serviceName(a) + ' · ' + b : a) + ' · ' + where); }, 'Saved'); c.back(); } },
 });

@@ -151,3 +151,11 @@ body:has(#uat-btn) #app.has-nav{padding-bottom:calc(132px + env(safe-area-inset-
 .empty-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:18px;background:var(--surface);border:1px dashed var(--line);border-radius:12px}
 .checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.checklist li{display:flex;gap:10px;align-items:baseline}.checklist li .muted{margin-left:auto;font-size:14px}.checklist li.done{color:var(--muted)}
 .facts{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}.facts dt{color:var(--muted);font-size:14px}.facts dd{margin:0}
+.findrow{flex-direction:row;align-items:flex-end;gap:8px}.findrow .field{flex:1;min-width:0}
+.monthnav{display:flex;align-items:center;justify-content:space-between;gap:8px}.monthnav h2{font-size:18px}
+.month{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.month .dow{text-align:center;font-size:12px;color:var(--muted);font-weight:700}
+.day{position:relative;min-height:44px;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:8px;font-weight:600;cursor:pointer;padding:0}
+.day.out{opacity:.4}.day.today{border-color:var(--primary);border-width:2px}.day.sel{background:var(--primary);color:var(--on-primary)}
+.day i{position:absolute;right:3px;bottom:2px;font-style:normal;font-size:10px;line-height:1;color:var(--accent)}.day.bad i{color:var(--bad)}.day.sel i{color:var(--on-primary)}
+table.yearplan{border-collapse:collapse;font-size:13px;min-width:560px}.yearplan th,.yearplan td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:center}.yearplan th[scope=row]{text-align:left;font-weight:600;min-width:150px;position:sticky;left:0;background:var(--bg)}
+.yearplan td.done{color:var(--ok)}.yearplan td.due{color:var(--accent);font-weight:700}.yearplan td.bad{color:var(--bad);font-weight:700}.yearplan td.rep{color:var(--muted)}
