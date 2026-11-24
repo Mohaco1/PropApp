@@ -233,3 +233,5 @@ Brief: "PropApp — Content v2 Brief: NSW Prescribing, 2026 Law Updates & Clinic
 **Not built, per the brief:** QSPP/8CPA accreditation, and Payday Super, payroll or HR.
 
 **Owner decision respected:** "No longer need to record the GP when vaccinating" is in the NSW notes, but the owner decided to leave the vaccination "record the GP" wording as it is. So it isn't in the updates feed.
+
+**Full run on build 1edd311f09:** 12 suites (adding theme and content2), 201 checks, all pass with no console errors. check-procgen-all: all 17 services identical.
