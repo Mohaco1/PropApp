@@ -295,3 +295,5 @@ From Gemini's "v3 Roadmap" brief, with the owner's decisions of 25 Nov: the evid
 | V3-05 | Next | Clinical content (vaccination, OTP/LAIB, SafeScript, eNRMC). Every line will be checked against the pages first. | — |
 
 **Example data note:** in the evidence pack, the S8 "Pharmacist" column for Wattle Grove shows "Office filing cabinet, drawer 1 (fictional)". The v41 example generator (`uat/demo`) put a location in the stock-check pharmacist field. The pack reads the right field. `uat/` stays untouched, so this wasn't changed.
+
+**Full run on build 67c049eff2:** 14 suites (adding v3 and pwa), 230 checks, all pass with no console errors. check-procgen-all: all 17 services identical.
