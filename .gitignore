@@ -4,3 +4,4 @@ uat/tests/out/
 uat/tests/out-dev/
 uat/tests/diffres/
 node_modules/
+*.zip
