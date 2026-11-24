@@ -1,0 +1,194 @@
+[
+ {
+  "id": "B1",
+  "name": "S8 stock check · proprietor review",
+  "firstQuestion": 842,
+  "wordsBefore": 149
+ },
+ {
+  "id": "M1",
+  "name": "Staff safety meeting",
+  "firstQuestion": null,
+  "wordsBefore": 0
+ },
+ {
+  "id": "M2",
+  "name": "Proprietor check-in",
+  "firstQuestion": null,
+  "wordsBefore": 0
+ },
+ {
+  "id": "Q4",
+  "name": "Proprietor governance meeting",
+  "firstQuestion": null,
+  "wordsBefore": 0
+ },
+ {
+  "id": "A1",
+  "name": "Staff Assurance",
+  "firstQuestion": null,
+  "wordsBefore": 0
+ },
+ {
+  "id": "A3",
+  "name": "Governance, access and continuity",
+  "firstQuestion": 557,
+  "wordsBefore": 56
+ },
+ {
+  "id": "service-otp",
+  "name": "OTP monthly check-in",
+  "firstQuestion": null,
+  "wordsBefore": 0
+ },
+ {
+  "id": "service-staged",
+  "name": "Staged supply",
+  "firstQuestion": 658,
+  "wordsBefore": 88
+ },
+ {
+  "id": "service-vaccination",
+  "name": "Vaccination",
+  "firstQuestion": 443,
+  "wordsBefore": 46
+ },
+ {
+  "id": "service-prescribing",
+  "name": "Pharmacist prescribing",
+  "firstQuestion": 559,
+  "wordsBefore": 145
+ },
+ {
+  "id": "service-reviews",
+  "name": "Medicines reviews",
+  "firstQuestion": 443,
+  "wordsBefore": 47
+ },
+ {
+  "id": "service-delivery",
+  "name": "Home delivery",
+  "firstQuestion": 443,
+  "wordsBefore": 47
+ },
+ {
+  "id": "service-simple",
+  "name": "Standard compounding review",
+  "firstQuestion": 472,
+  "wordsBefore": 48
+ },
+ {
+  "id": "service-complex",
+  "name": "Complex compounding",
+  "firstQuestion": 443,
+  "wordsBefore": 47
+ },
+ {
+  "id": "service-aged",
+  "name": "Residential aged care supply",
+  "firstQuestion": 443,
+  "wordsBefore": 49
+ },
+ {
+  "id": "service-screening",
+  "name": "Screening and risk assessment",
+  "firstQuestion": 472,
+  "wordsBefore": 49
+ },
+ {
+  "id": "annual-adherence",
+  "name": "Medicine adherence support",
+  "firstQuestion": 443,
+  "wordsBefore": 48
+ },
+ {
+  "id": "service-nsp",
+  "name": "Needle and syringe program",
+  "firstQuestion": 443,
+  "wordsBefore": 49
+ },
+ {
+  "id": "service-certificates",
+  "name": "Absence from work certificates",
+  "firstQuestion": 472,
+  "wordsBefore": 49
+ },
+ {
+  "id": "service-vaping",
+  "name": "Therapeutic vaping supply",
+  "firstQuestion": 443,
+  "wordsBefore": 48
+ },
+ {
+  "id": "service-cannabis",
+  "name": "Medicinal cannabis supply",
+  "firstQuestion": 443,
+  "wordsBefore": 48
+ },
+ {
+  "id": "service-funding",
+  "name": "Other funded programs",
+  "firstQuestion": 443,
+  "wordsBefore": 48
+ },
+ {
+  "id": "otp-full",
+  "name": "OTP comprehensive review",
+  "firstQuestion": 904,
+  "wordsBefore": 83
+ },
+ {
+  "id": "otp-amenity",
+  "name": "OTP daily-volume threshold review",
+  "firstQuestion": 378,
+  "wordsBefore": 37
+ },
+ {
+  "id": "daa-house",
+  "name": "DAA in-house packing",
+  "firstQuestion": 493,
+  "wordsBefore": 52
+ },
+ {
+  "id": "daa-external",
+  "name": "External DAA · we dispense",
+  "firstQuestion": 443,
+  "wordsBefore": 50
+ },
+ {
+  "id": "vacc-ready",
+  "name": "Vaccination readiness",
+  "firstQuestion": 507,
+  "wordsBefore": 61
+ },
+ {
+  "id": "vacc-storage",
+  "name": "Vaccine storage self-audit reference",
+  "firstQuestion": 378,
+  "wordsBefore": 37
+ },
+ {
+  "id": "daa-external-b",
+  "name": "External DAA · other pharmacy dispenses",
+  "firstQuestion": 378,
+  "wordsBefore": 39
+ },
+ {
+  "id": "prescribing-ready",
+  "name": "Pharmacist prescribing readiness",
+  "firstQuestion": 607,
+  "wordsBefore": 149
+ },
+ {
+  "id": "CO-P",
+  "name": "Pharmacy premises registration renewal",
+  "firstQuestion": 493,
+  "wordsBefore": 62
+ },
+ {
+  "id": "CO-F",
+  "name": "Proprietor financial interest declaration",
+  "firstQuestion": 430,
+  "wordsBefore": 46
+ }
+]
