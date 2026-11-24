@@ -17,6 +17,9 @@ export function ics(ph, drafts) {
   L.push('END:VCALENDAR'); return L.join('\r\n');
 }
 // Save a file. In the claude.ai viewer downloads are blocked, so the text is also offered to copy.
+let dl;
+try { window.claude?.use?.('downloads').then(x => { dl = x; }).catch(() => {}); } catch {}
 export function saveFile(name, text, type = 'text/plain') {
+  if (dl) { dl.save({ filename: name, data: new Blob([text], { type }) }).catch(() => {}); return true; }
   try { const u = URL.createObjectURL(new Blob([text], { type })); const a = document.createElement('a'); a.href = u; a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); return true; } catch { return false; }
 }

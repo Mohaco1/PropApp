@@ -133,3 +133,7 @@ table.cal{width:100%;border-collapse:collapse;font-size:14px} table.cal td,table
 .sel{user-select:all}
 .choices.inline{flex-direction:row;flex-wrap:wrap}
 .choices.inline .choice{flex:1 1 auto;min-width:96px;justify-content:center}
+.seg.mini{flex:none;padding:2px}.seg.mini button{min-height:44px;padding:0 10px;font-size:14px}
+#uat-btn{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:15;min-height:44px;padding:8px 14px;border-radius:999px;border:1px dashed var(--warn);background:var(--warnbg);color:var(--fg);font-weight:600}
+#uat-dlg{border:0;border-radius:14px;padding:16px;width:min(520px,calc(100% - 24px));background:var(--surface);color:var(--fg)}#uat-dlg::backdrop{background:rgb(0 0 0/.5)}
+.uat-h{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:10px}.uat-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:40vh;overflow:auto}

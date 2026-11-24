@@ -6,6 +6,8 @@ let cur = null;
 const sopFields = Object.fromEntries(Object.entries(C.services.setupFields).map(([k, l]) => [k, l.map(f => [f.key, f.label, f.options, f.section, f.extra])]));
 const env = { state: {}, sopValues: id => RPH.qm.migrate(id, { ...(cur?.ph.services[id]?.answers || {}) }), serviceName, sopFields };
 const { RPH, fsFields, normalise } = install(env);
+// Same adjustments the current app's otp-parts layer makes: one OTP procedure action, no per-part actions.
+(() => { const M = RPH.qm.meta.otp; if (M.otpGovernance) M.otpGovernance.checkTask = 'Finish your OTP procedure (OTP Standards, item 1)'; for (const k of ['incidents', 'incidentProcess', 'films', 'takeawayControls', 'maintenance']) if (M[k]) delete M[k].task; })();
 export function draftText(ph, id) {
   const t = RPH.proc.templates[id]; if (!t) return '';
   cur = { ph }; env.state.pharmacyName = ph.name; env.state.serviceLead = ph.lead || ''; env.state.siteScope = ph.siteScope || {}; env.state.active = Object.keys(ph.services).filter(k => ph.services[k].active);

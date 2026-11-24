@@ -7,7 +7,7 @@ import { C } from '../content.js';
 import { RPH, visibleFields, tidyAnswers } from '../procgen.js';
 import { catalog, applies, serviceName, suggestedNext } from '../rules.js';
 import { today, addDays, fmt } from '../dates.js';
-import { note as log } from '../model.js';
+import { note as log, newAction } from '../model.js';
 const NV = 'Needs verification';
 const ROLE_SHOW = v => v === 'Pharmacist in charge' ? 'The pharmacist on duty' : v; // owner decision: no pharmacist-in-charge role
 const show = (id, k, v) => ROLE_SHOW(RPH.qm.showFor(id, k, v));
@@ -63,6 +63,9 @@ register('service-setup', {
     let input;
     if (k === 'single' || k === 'role') { const opts = RPH.qm.optionsFor(id, [f.key, f.label, f.options]); input = h`${choice('v', [...opts.map(o => ({ value: o, label: show(id, f.key, o) })), { value: NV, label: 'Check later' }], split(v)[0]?.split(':')[0] === v.split(':')[0] ? v.split(':')[0] : v)}
       ${(m.describe || ['Different local arrangement', 'Someone else']).some(o => v.startsWith(o)) ? field('Describe', textInput('d', v.includes(':') ? v.slice(v.indexOf(':') + 1).trim() : '')) : ''}`; }
+    else if (k === 'multi' && id === 'vaccination' && f.key === 'vaccines') { const on = split(v);
+      input = h`${RPH.sq.VGROUPS.map(([g, list]) => h`<fieldset class="field vgroup"><legend class="field-label">${g}</legend>${btn('Select all', 'vall', { kind: 'link', data: { g } })}<div class="ticks">${list.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${on.includes(o) ? h`checked` : ''}><span>${o}</span></label>`)}</div></fieldset>`)}
+      <label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
     else if (k === 'multi') { const opts = RPH.qm.optionsFor(id, [f.key, f.label, f.options]); const on = split(v);
       input = h`<div class="ticks">${opts.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${on.some(x => x === o || x.startsWith(o + ':')) ? h`checked` : ''}><span>${show(id, f.key, o)}</span></label>`)}</div>
       ${(m.describe || []).some(o => on.some(x => x.startsWith(o))) ? field('Describe', textInput('d', (on.find(x => x.includes(':')) || '').split(':').slice(1).join(':').trim())) : ''}
@@ -96,7 +99,8 @@ register('service-setup', {
     c.change(ph => { const s = ph.services[id]; s.answers = { ...s.answers, [f.key]: v }; if (s.setup === 'todo') s.setup = 'doing';
       if (k === 'routes') { const r = split(v); ph.flags = { ...ph.flags, house: r.includes('house'), routeA: r.includes('routeA'), routeB: r.includes('routeB') }; } });
     c.ui['ss:' + id] = idx; if (before !== v) c.rerender(); } },
-  acts: { step: (c, d, el, r) => { c.ui['ss:' + r.id] = Math.max(0, +d.s); c.rerender(); window.scrollTo(0, 0); },
+  acts: { vall: (c, d, el) => { const fs = el.closest('fieldset'); fs.querySelectorAll('input[type=checkbox]').forEach(i => { i.checked = true; }); fs.closest('form').dispatchEvent(new Event('change', { bubbles: true })); },
+    step: (c, d, el, r) => { c.ui['ss:' + r.id] = Math.max(0, +d.s); c.rerender(); window.scrollTo(0, 0); },
     finish: (c, d, el, r) => finishService(c, r.id), dates: (c, d, el, r) => saveDates(c, r.id) },
 });
 function svcReviews(ph, id) { return catalog().filter(a => a.service === id); }
@@ -108,8 +112,20 @@ function doneScreen(c, id, prog) {
     <section class="sec"><h2 class="sec-title">Its procedure</h2><p class="muted">A draft is written from your answers in Procedures. Nothing is approved until you adopt it.</p></section>
     ${btn('Finish ' + serviceName(id), 'finish', { kind: 'primary', cls: 'block' })}` });
 }
+// Setup actions (current app's "setup-answer-tasks" rule): a 2026 checklist with unticked items raises one action, and
+// some answers raise a follow-up. Due in 30 days (otp-parts rule). Never raised twice while one is open.
+export function setupActions(ph, id) {
+  const a = ph.services[id].answers || {};
+  const open = k => Object.values(ph.actions).some(t => t.status === 'open' && t.source?.type === 'service' && t.source.service === id && t.source.issue === k);
+  for (const f of visibleFields(ph, id, a)) { const k = f[0], m = RPH.qm.metaFor(id, k);
+    if (m.type === 'checklist' && m.checkTask) { const missing = RPH.qm.checkItems(id, k, a).filter(i => !split(a[k]).includes(i.v));
+      if (missing.length && !open(k)) { const t = newAction(ph, { title: m.checkTask + ' · ' + serviceName(id), due: addDays(today(), 30), source: { type: 'service', service: id, issue: k, label: serviceName(id) + ' setup' } }); t.log.push({ at: new Date().toISOString(), by: '', kind: 'updated', text: 'Not yet confirmed: ' + missing.map(i => i.t).join('; ') + (m.source ? ' · Source: ' + m.source : '') }); }
+      continue; }
+    for (const [value, text] of Object.entries(m.task || {})) if (RPH.qm.has(a[k], value) && !open(k)) newAction(ph, { title: text + ' · ' + serviceName(id), due: addDays(today(), 30), source: { type: 'service', service: id, issue: k, label: serviceName(id) + ' setup' } });
+  }
+}
 function finishService(c, id) {
-  c.change(ph => { const s = ph.services[id]; s.answers = tidyAnswers(ph, id, { ...s.answers }); s.setup = 'done';
+  c.change(ph => { const s = ph.services[id]; s.answers = tidyAnswers(ph, id, { ...s.answers }); s.setup = 'done'; setupActions(ph, id);
     for (const a of catalog().filter(x => x.service === id && !x.event)) if (!ph.schedule[a.id] && applies(ph, a).applies) ph.schedule[a.id] = suggestedNext(ph, a.id, today());
     log(ph, 'Setup finished · ' + serviceName(id)); }, serviceName(id) + ' set up. Its review dates are in the Calendar.');
   c.ui['ss:' + id] = undefined; c.replace('service', { id });
@@ -138,4 +154,23 @@ register('first-dates', {
       <form class="form" data-form="save">${list.length ? list.map(a => field(a.name + (a.legal ? ' · required by law' : '') + ' · ' + a.frequency.toLowerCase(), textInput(a.id, FIRST[a.id] ? addDays(today(), FIRST[a.id]) : suggestedNext(c.ph, a.id, today()), { type: 'date', min: today() }))) : empty('Every review has a date.')}
       ${list.length ? h`<div class="dock-inline">${btn('Save these dates', null, { kind: 'primary', type: 'submit' })}</div>` : ''}</form>` }); },
   forms: { save: (c, f) => { c.change(ph => { let n = 0; for (const [k, v] of Object.entries(f)) if (v && !ph.schedule[k]) { ph.schedule[k] = v; n++; } log(ph, 'Review due dates saved · ' + n); }, 'Dates saved'); c.back(); } },
+});
+
+// "Your OTP procedure": one screen for the OTP Standards item 1 parts (current app's otp-parts layer).
+const SHORT = { 'Pharmacist responsibilities': 'Pharmacist responsibilities', 'Accounting and records': 'Accounting and records', 'Secure storage': 'Secure storage (incl. LAIB cold chain)', 'Clinical interventions': 'Clinical interventions and communication', 'Equipment maintenance': 'Dosing equipment maintenance', 'Takeaway doses': 'Takeaway doses', 'Staff training records': 'Staff training records' };
+function otpParts(ph) { const a = ph.services.otp?.answers || {}, items = RPH.qm.checkItems('otp', 'otpGovernance', a), have = split(a.otpGovernance);
+  const local = [['incidents', 'Missed doses and intoxicated patients'], ['incidentProcess', 'Reporting and notifying OTP incidents'], ...(visibleFields(ph, 'otp', a).some(f => f[0] === 'films') ? [['films', 'Supervising film doses']] : [])];
+  return [...items.map(it => ({ key: 'g:' + it.v, title: SHORT[it.v] || it.v, sub: it.t, on: have.includes(it.v) })), ...local.map(([k, l]) => ({ key: 'l:' + k, title: l, sub: 'Your own steps, following current NSW OTP guidance.', on: String(a[k] || '').startsWith('We have our own') }))]; }
+export const otpPartsLeft = ph => { const p = otpParts(ph); return { left: p.filter(x => !x.on).length, total: p.length }; };
+register('otp-parts', {
+  tab: 'actions',
+  render(c) { const parts = otpParts(c.ph), sel = c.ui.otpSel || Object.fromEntries(parts.map(p => [p.key, p.on])); c.ui.otpSel = sel; const n = Object.values(sel).filter(Boolean).length;
+    return screen({ title: 'Your OTP procedure', back: true, body: h`<p class="status">${n} of ${parts.length} parts written</p>
+      <p class="muted">The OTP Standards (November 2026, item 1) require these to be clearly documented at the pharmacy. Mark each part when your written procedure covers it. Nothing is marked for you.</p>
+      <div class="list">${parts.map(p => h`<div class="row static"><span class="row-main"><span class="row-title">${p.title}</span><span class="row-sub">${p.sub}</span></span><span class="seg mini">${[[true, 'Written'], [false, 'To write']].map(([v, l]) => h`<button class="${sel[p.key] === v ? 'on' : ''}" data-act="mark" data-k="${p.key}" data-v="${v ? 1 : ''}">${l}</button>`)}</span></div>`)}</div>
+      ${btn('Save', 'save', { kind: 'primary', cls: 'block' })}` }); },
+  acts: { mark: (c, d) => { c.ui.otpSel[d.k] = !!d.v; c.rerender(); },
+    save: c => { const sel = c.ui.otpSel; c.change(ph => { const s = ph.services.otp, a = s.answers, items = RPH.qm.checkItems('otp', 'otpGovernance', a), g = items.filter(it => sel['g:' + it.v]).map(it => it.v);
+      const next = { ...a, otpGovernance: g.length ? g.join(',') : 'None confirmed yet' }; for (const k of ['incidents', 'incidentProcess', 'films']) if ('l:' + k in sel) next[k] = sel['l:' + k] ? (String(a[k] || '').startsWith('We have our own') ? a[k] : 'We have our own procedure: In our OTP procedure') : 'Draft it for me';
+      s.answers = tidyAnswers(ph, 'otp', next); log(ph, 'Updated OTP procedure parts'); }, Object.values(sel).every(Boolean) ? 'Saved. Every part is written: close the action when you’re happy with it.' : 'Saved'); c.ui.otpSel = null; c.back(); } },
 });

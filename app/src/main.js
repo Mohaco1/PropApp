@@ -14,3 +14,5 @@ import './views/law.js';
 import './views/settings.js';
 const st = document.createElement('style'); st.textContent = css; document.head.append(st);
 start(document.getElementById('app'));
+import { initUat } from './uat.js';
+if (window.PROPAPP_UAT) initUat(() => (document.querySelector('.bar-title')?.childNodes[0]?.textContent || 'Welcome').trim());

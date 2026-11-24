@@ -40,6 +40,7 @@ register('person', {
       ${p.active !== false ? btn('Annual check', 'go', { kind: 'primary', cls: 'block', data: { to: 'annual', id: p.id } }) : ''}
       ${acts.length ? h`<section class="sec"><h2 class="sec-title">Open actions · ${acts.length}</h2><div class="list">${acts.map(a => row({ title: a.title.replace(' · ' + p.name, ''), right: dueText(a.due), tone: a.due < today() ? 'bad' : '', act: 'go', data: { to: 'action', id: a.id } }))}</div></section>` : ''}
       <section class="sec"><h2 class="sec-title">Checks · ${reqs.length}</h2><div class="list">${reqs.map(q => { const s = credentialState(p, q.id); return row({ title: q.label, sub: s.expiry ? (s.state === 'expired' ? 'Expired ' : 'Valid until ') + fmt(s.expiry) : '', right: s.state === 'ok' ? 'Verified' : s.label, tone: s.state === 'expired' || s.state === 'issue' ? 'bad' : s.state === 'none' ? 'warn' : '', chev: false }); })}</div></section>
+      ${p.active !== false ? suggested(c, p) : ''}
       <p class="hint">${p.services?.length ? 'Services: ' + p.services.map(serviceName).join(', ') : 'No services ticked.'}</p>
       <div class="btnrow">${btn('Edit details', 'go', { data: { to: 'person-edit', id: p.id } })}${p.active !== false ? btn('Leaving', 'go', { data: { to: 'leaving', id: p.id } }) : ''}</div>` });
   },
@@ -122,3 +123,9 @@ register('locum', {
       for (const [k, l] of LOCUM.filter(([k]) => f[k] === 'no')) rec.actionIds.push(newAction(ph, { title: l + ' · ' + p.name, due: f.date, source: { type: 'staff', staffId: p.id, label: 'Locum check' } }).id);
     }, 'Locum check saved'); c.back(); } },
 });
+
+// Suggested credentials for the services a person does (current app's helpers layer). Nothing is recorded for them.
+function suggested(c, p) {
+  const list = C.law.SUGGEST.filter(x => (!x[1] && /Pharmacist|Intern/.test(p.role)) || (x[1] && p.services?.includes(x[1])));
+  return list.length ? why('Credentials worth keeping on file · ' + list.length, h`<ul class="plain">${list.map(x => h`<li><b>${x[2]}</b> · ${x[3]}</li>`)}</ul>`) : '';
+}
