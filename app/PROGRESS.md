@@ -208,4 +208,8 @@ No data, storage keys, wording or workflow changed.
 - the Copy fallback;
 - the year plan;
 - 320×568 on all 5 tabs.
+**Full run on build e6d038b7c7:** 11 suites, 178 checks, all pass with no console errors (`handoff/logs/playwright.log`). check-procgen-all: all 17 services identical.
+
+**After this, gates 2–5 of the v41 retirement gate are the owner's checks on their own phone.**
+
 Night mode was also looked at by eye. Screenshots for the brief: `01_today_390px.png`, `02_site_visit_evidence.png`, `03_year_plan_390px.png` and `04_actions_view.png`.
