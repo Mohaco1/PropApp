@@ -1,0 +1,1448 @@
+{
+ "services": [
+  {
+   "id": "otp",
+   "name": "Opioid Treatment Program",
+   "frequency": "Monthly",
+   "check": "Review OTP service exceptions, unresolved self-audit findings and equipment check evidence. Check applicable registration and standards."
+  },
+  {
+   "id": "daa",
+   "name": "Dose administration aids",
+   "frequency": "Quarterly by packing arrangement",
+   "check": "Sample medicine changes, packing checks and handover. Confirm responsibilities if packing is outsourced."
+  },
+  {
+   "id": "staged",
+   "name": "Staged supply",
+   "frequency": "Quarterly",
+   "check": "Review missed collections, changed arrangements and escalation decisions."
+  },
+  {
+   "id": "vaccination",
+   "name": "Vaccination",
+   "frequency": "Before season or launch; quarterly while active",
+   "check": "Review competence, cold chain, emergency readiness and reporting exceptions."
+  },
+  {
+   "id": "prescribing",
+   "name": "Pharmacist prescribing",
+   "frequency": "Before launch; quarterly sample",
+   "check": "Review service authority, competence, consent, referrals and follow-up. Link to the annual evaluation."
+  },
+  {
+   "id": "reviews",
+   "name": "Medicines reviews",
+   "frequency": "Annual",
+   "check": "Review applicable referral, consent, service and claiming evidence. Keep patient reports in the clinical system."
+  },
+  {
+   "id": "delivery",
+   "name": "Home delivery",
+   "frequency": "Annual",
+   "check": "Sample storage, handover, failed deliveries and communication."
+  },
+  {
+   "id": "simple",
+   "name": "Simple compounding",
+   "frequency": "Annual",
+   "check": "Review training, equipment, cleaning and a sample of preparation checks."
+  },
+  {
+   "id": "complex",
+   "name": "Complex compounding",
+   "frequency": "Annual",
+   "check": "Review facility suitability, validation, competence and applicable category before expanding practice."
+  },
+  {
+   "id": "aged",
+   "name": "Residential aged care supply",
+   "frequency": "Annual",
+   "check": "Review handover, medication changes, urgent-use stock arrangements and communication."
+  },
+  {
+   "id": "screening",
+   "name": "Screening and risk assessment",
+   "frequency": "Annual",
+   "check": "Review equipment, competence, consent and referral processes."
+  },
+  {
+   "id": "adherence",
+   "name": "Medicine adherence support",
+   "frequency": "Annual service evaluation",
+   "check": "Review service safety, patient feedback and measurable benefit where available."
+  },
+  {
+   "id": "nsp",
+   "name": "Needle and syringe program",
+   "frequency": "Annual",
+   "check": "Review supply arrangements, staff training, sharps safety and incident follow-up."
+  },
+  {
+   "id": "certificates",
+   "name": "Absence from work certificates",
+   "frequency": "Annual",
+   "check": "Review scope, assessment process, records and referral decisions."
+  },
+  {
+   "id": "vaping",
+   "name": "Therapeutic vaping supply",
+   "frequency": "Annual",
+   "check": "Review current supply eligibility, product controls, staff training and records."
+  },
+  {
+   "id": "cannabis",
+   "name": "Medicinal cannabis supply",
+   "frequency": "Annual",
+   "check": "Review lawful access pathway, supply authority, verification, storage and record handling."
+  },
+  {
+   "id": "funding",
+   "name": "Other funded programs",
+   "frequency": "Annual",
+   "check": "Identify actual programs, current eligibility and claiming evidence before activating program reminders."
+  }
+ ],
+ "setupFields": {
+  "daa": [
+   {
+    "key": "routes",
+    "label": "How are your DAAs packed?",
+    "options": null,
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "packing",
+    "label": "Packing method",
+    "options": [
+     "Manual Webster packs",
+     "Other local method",
+     "Needs verification"
+    ],
+    "section": "Practical procedures",
+    "extra": null
+   },
+   {
+    "key": "population",
+    "label": "Service population",
+    "options": [
+     "Community patients",
+     "Other local population",
+     "Needs verification"
+    ],
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "preparation",
+    "label": "Who prepares packs?",
+    "options": [
+     "Technicians or assistants",
+     "Pharmacists",
+     "Needs verification"
+    ],
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "listCheck",
+    "label": "Medication list check",
+    "options": [
+     "Pharmacist verifies before packing",
+     "Different local arrangement",
+     "No documented check yet",
+     "Needs verification"
+    ],
+    "section": "Safeguards",
+    "extra": null
+   },
+   {
+    "key": "finalCheck",
+    "label": "Final check of completed packs",
+    "options": [
+     "Pharmacist checks every completed pack",
+     "Different local arrangement",
+     "Needs verification"
+    ],
+    "section": "Safeguards",
+    "extra": null
+   },
+   {
+    "key": "signoff",
+    "label": "How is the packing check recorded?",
+    "options": [
+     "Paper packing records (signed or initialled)",
+     "Electronic packing check record",
+     "Needs verification"
+    ],
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "handover",
+    "label": "How do patients receive their packs?",
+    "options": [
+     "Collection or pharmacy staff delivery",
+     "Collection",
+     "Pharmacy staff delivery",
+     "Needs verification"
+    ],
+    "section": "Practical procedures",
+    "extra": null
+   },
+   {
+    "key": "changes",
+    "label": "Medication changes (including after hospital discharge)",
+    "options": [
+     "Pharmacist reviews medication and hospital discharge changes",
+     "Different local arrangement",
+     "Needs verification"
+    ],
+    "section": "Incidents",
+    "extra": null
+   },
+   {
+    "key": "s8",
+    "label": "Are Schedule 8 medicines packed in DAAs?",
+    "options": [
+     "Yes",
+     "No",
+     "Needs verification"
+    ],
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "s8Placement",
+    "label": "Who places S8 medicines into packs?",
+    "options": [
+     "Pharmacist physically places S8 medicines in packs",
+     "Different local arrangement",
+     "Needs verification"
+    ],
+    "section": "Responsibilities",
+    "extra": [
+     "s8",
+     "Yes"
+    ]
+   },
+   {
+    "key": "s8Storage",
+    "label": "Storage of completed packs containing S8",
+    "options": [
+     "S8 packs in locked S8 safe; other packs stored separately",
+     "Different local arrangement",
+     "Needs verification"
+    ],
+    "section": "Safeguards",
+    "extra": [
+     "s8",
+     "Yes"
+    ]
+   },
+   {
+    "key": "funded",
+    "label": "How are DAAs funded?",
+    "options": [
+     "Private / unfunded",
+     "PPA DAA Program",
+     "Other arrangement",
+     "Needs verification"
+    ],
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "fundedConsent",
+    "label": "Written consent for PPA-funded patients",
+    "options": [
+     "Reported obtained and retained",
+     "Different local arrangement",
+     "Needs verification"
+    ],
+    "section": "Records",
+    "extra": [
+     "funded",
+     "PPA DAA Program"
+    ]
+   },
+   {
+    "key": "claims",
+    "label": "PPA eligibility and claim records",
+    "options": [
+     "Reported checked and retained",
+     "Different local arrangement",
+     "Needs verification"
+    ],
+    "section": "Records",
+    "extra": [
+     "funded",
+     "PPA DAA Program"
+    ]
+   },
+   {
+    "key": "deliveryEvidence",
+    "label": "Where are pack collection or delivery records kept? (location or system)",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "sampleReviewer",
+    "label": "Who does the routine DAA check (sample of packs and records)?",
+    "options": null,
+    "section": "Proprietor oversight",
+    "extra": null
+   },
+   {
+    "key": "sampleFrequency",
+    "label": "How often is the routine DAA check done?",
+    "options": [
+     "Annual",
+     "Six months",
+     "Quarterly",
+     "Needs verification"
+    ],
+    "section": "Review arrangements",
+    "extra": null
+   },
+   {
+    "key": "sampleMethod",
+    "label": "How many packs are checked each time? (optional)",
+    "options": null,
+    "section": "Proprietor oversight",
+    "extra": null
+   },
+   {
+    "key": "consent",
+    "label": "Patient or carer agreement to DAA supply",
+    "options": [
+     "Evidence pending",
+     "Local documentation reported",
+     "Needs verification"
+    ],
+    "section": "Outstanding verification",
+    "extra": null
+   },
+   {
+    "key": "packingProvider",
+    "label": "External packing provider (name or agreement reference)",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "thirdParty2026",
+    "label": "External packer · rules from 5 November 2026",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "dispensingProvider",
+    "label": "Other pharmacy that dispenses and packs (name or agreement reference)",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "transfer2026",
+    "label": "Prescriptions transferred to another pharmacy · NSW Health guidance",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "labels2026",
+    "label": "DAA labels and records · rules from 5 November 2026",
+    "options": null,
+    "section": "Safeguards",
+    "extra": null
+   }
+  ],
+  "otp": [
+   {
+    "key": "medicines",
+    "label": "Which OTP medicines do you supply?",
+    "options": [
+     "Methadone oral liquid and buprenorphine/naloxone sublingual films",
+     "Methadone oral liquid",
+     "Buprenorphine/naloxone sublingual films",
+     "Needs verification"
+    ],
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "laib",
+    "label": "Do pharmacists administer long-acting injectable buprenorphine (LAIB) here?",
+    "options": [
+     "Yes",
+     "No",
+     "Needs verification"
+    ],
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "laibArea",
+    "label": "LAIB injection area",
+    "options": [
+     "Private consultation room",
+     "Other private area",
+     "Needs verification"
+    ],
+    "section": "Safeguards",
+    "extra": [
+     "laib",
+     "Yes"
+    ]
+   },
+   {
+    "key": "laibAreaStd",
+    "label": "LAIB administration area · OTP Standards",
+    "options": null,
+    "section": "Safeguards",
+    "extra": null
+   },
+   {
+    "key": "laibCompetence",
+    "label": "Pharmacist LAIB training and competence",
+    "options": [
+     "Reported checked and current",
+     "Evidence pending",
+     "Needs verification"
+    ],
+    "section": "Outstanding verification",
+    "extra": [
+     "laib",
+     "Yes"
+    ]
+   },
+   {
+    "key": "laibStorage",
+    "label": "LAIB storage and handling",
+    "options": [
+     "Stored under the pharmacy’s S8 procedures as per product information",
+     "Evidence pending",
+     "Needs verification"
+    ],
+    "section": "Safeguards",
+    "extra": [
+     "laib",
+     "Yes"
+    ]
+   },
+   {
+    "key": "supply",
+    "label": "Dosing arrangements",
+    "options": [
+     "Supervised dosing and authorised take-away doses",
+     "Supervised dosing",
+     "Needs verification"
+    ],
+    "section": "Practical procedures",
+    "extra": null
+   },
+   {
+    "key": "takeaway",
+    "label": "When are methadone take-away doses prepared?",
+    "options": [
+     "Upon patient collection",
+     "Different local arrangement",
+     "Needs verification"
+    ],
+    "section": "Practical procedures",
+    "extra": [
+     "supply",
+     "Supervised dosing and authorised take-away doses"
+    ]
+   },
+   {
+    "key": "pump",
+    "label": "Methadone measuring equipment",
+    "options": [
+     "Manually operated pump",
+     "Other equipment",
+     "No pump",
+     "Needs verification"
+    ],
+    "section": "Practical procedures",
+    "extra": null
+   },
+   {
+    "key": "area",
+    "label": "Where does supervised dosing happen?",
+    "options": [
+     "Designated supervised dosing area",
+     "Different local arrangement",
+     "Needs verification"
+    ],
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "doseSystem",
+    "label": "Software used to record doses",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "records",
+    "label": "Are OTP patient files on paper, electronic or both?",
+    "options": [
+     "Paper and electronic",
+     "Paper",
+     "Electronic",
+     "Needs verification"
+    ],
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "fileSystem",
+    "label": "Software used for OTP patient files",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "registration",
+    "label": "OTP registration and pharmacist training",
+    "options": [
+     "Reported checked and current",
+     "Evidence pending",
+     "Needs verification"
+    ],
+    "section": "Outstanding verification",
+    "extra": null
+   },
+   {
+    "key": "otpGovernance",
+    "label": "Documented OTP procedures · OTP Standards",
+    "options": null,
+    "section": "Safeguards",
+    "extra": null
+   },
+   {
+    "key": "incidents",
+    "label": "Process for missed doses and intoxicated patients",
+    "options": [
+     "Draft it for me",
+     "We have our own procedure"
+    ],
+    "section": "Incidents",
+    "extra": null
+   },
+   {
+    "key": "takeawayControls",
+    "label": "Process for authorised take-away doses",
+    "options": [
+     "Draft it for me",
+     "We have our own procedure"
+    ],
+    "section": "Safeguards",
+    "extra": [
+     "supply",
+     "Supervised dosing and authorised take-away doses"
+    ]
+   },
+   {
+    "key": "maintenance",
+    "label": "Pump cleaning, calibration and maintenance",
+    "options": [
+     "Draft it for me",
+     "We have our own procedure"
+    ],
+    "section": "Safeguards",
+    "extra": [
+     "pump",
+     "Manually operated pump"
+    ]
+   },
+   {
+    "key": "films",
+    "label": "Process for supervising film doses",
+    "options": [
+     "Draft it for me",
+     "We have our own procedure"
+    ],
+    "section": "Safeguards",
+    "extra": null
+   },
+   {
+    "key": "pbs",
+    "label": "PBS approval for this pharmacy",
+    "options": [
+     "Reported checked and current",
+     "Evidence pending",
+     "Needs verification"
+    ],
+    "section": "Outstanding verification",
+    "extra": null
+   },
+   {
+    "key": "approvalConditions",
+    "label": "Site-specific approval conditions (if known)",
+    "options": null,
+    "section": "Outstanding verification",
+    "extra": null
+   },
+   {
+    "key": "incidentProcess",
+    "label": "How OTP incidents are reported and notified",
+    "options": [
+     "Draft it for me",
+     "We have our own procedure"
+    ],
+    "section": "Incidents",
+    "extra": null
+   },
+   {
+    "key": "sampleMethod",
+    "label": "How many files are checked each time? (optional)",
+    "options": null,
+    "section": "Proprietor oversight",
+    "extra": null
+   },
+   {
+    "key": "fileReviewer",
+    "label": "Who reviews OTP patient files?",
+    "options": [
+     "Pharmacist alone",
+     "Trained staff with pharmacist clinical review",
+     "Needs verification"
+    ],
+    "section": "Proprietor oversight",
+    "extra": null
+   },
+   {
+    "key": "fileFrequency",
+    "label": "How often are OTP patient files reviewed?",
+    "options": [
+     "Every six months",
+     "Annual",
+     "Quarterly",
+     "Other local interval",
+     "Needs verification"
+    ],
+    "section": "Review arrangements",
+    "extra": null
+   },
+   {
+    "key": "volumeBand",
+    "label": "Have 80 or more supervised patients been dosed on any one day?",
+    "options": [
+     "Yes",
+     "No",
+     "Needs verification"
+    ],
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "otherInterval",
+    "label": "Describe the actual file review interval",
+    "options": null,
+    "section": "Review arrangements",
+    "extra": [
+     "fileFrequency",
+     "Other local interval"
+    ]
+   }
+  ],
+  "delivery": [
+   {
+    "key": "provider",
+    "label": "Who performs deliveries?",
+    "options": [
+     "Pharmacy personnel",
+     "External provider",
+     "Both",
+     "Needs verification"
+    ],
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "handover",
+    "label": "How is handover recorded?",
+    "options": [
+     "Signed paper record",
+     "Electronic confirmation",
+     "Both",
+     "Needs verification"
+    ],
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "failure",
+    "label": "What happens after a failed delivery?",
+    "options": [
+     "Return to pharmacy and contact pharmacist",
+     "Follow documented escalation procedure",
+     "Needs verification"
+    ],
+    "section": "Incidents",
+    "extra": null
+   },
+   {
+    "key": "transport",
+    "label": "What transport safeguards apply?",
+    "options": [
+     "Secured transport",
+     "Temperature-controlled transport",
+     "Both",
+     "Needs verification"
+    ],
+    "section": "Safeguards",
+    "extra": null
+   },
+   {
+    "key": "controlled",
+    "label": "Are controlled medicines delivered?",
+    "options": [
+     "Yes",
+     "No",
+     "Needs verification"
+    ],
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "controlledRef",
+    "label": "Controlled-medicine procedure reference",
+    "options": [
+     "Draft it for me",
+     "We have our own procedure"
+    ],
+    "section": "Safeguards",
+    "extra": [
+     "controlled",
+     "Yes"
+    ]
+   },
+   {
+    "key": "s8Delivery2026",
+    "label": "S8 deliveries · rules from 5 November 2026",
+    "options": null,
+    "section": "Safeguards",
+    "extra": null
+   },
+   {
+    "key": "paperwork",
+    "label": "Delivery evidence location or system",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "escalation",
+    "label": "Who receives delivery incidents?",
+    "options": [
+     "Pharmacist in charge",
+     "Designated pharmacist",
+     "Needs verification"
+    ],
+    "section": "Incidents",
+    "extra": null
+   }
+  ],
+  "reviews": [
+   {
+    "key": "program",
+    "label": "Which review programs are provided?",
+    "options": [
+     "HMR only",
+     "RMMR only",
+     "Both HMR and RMMR",
+     "Needs verification"
+    ],
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "HMRreviewer",
+    "label": "Who performs the review for HMR?",
+    "options": [
+     "Pharmacy credentialed pharmacist",
+     "External credentialed pharmacist",
+     "Needs verification"
+    ],
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "HMRreferral",
+    "label": "Who receives formal referrals for HMR?",
+    "options": [
+     "The pharmacy",
+     "External provider",
+     "Another approved service provider",
+     "Needs verification"
+    ],
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "HMRclaimant",
+    "label": "Who submits PPA claims for HMR?",
+    "options": [
+     "The pharmacy",
+     "External provider",
+     "Another approved service provider",
+     "Needs verification"
+    ],
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "RMMRreviewer",
+    "label": "Who performs the review for RMMR?",
+    "options": [
+     "Pharmacy credentialed pharmacist",
+     "External credentialed pharmacist",
+     "Needs verification"
+    ],
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "RMMRreferral",
+    "label": "Who receives formal referrals for RMMR?",
+    "options": [
+     "The pharmacy",
+     "External provider",
+     "Another approved service provider",
+     "Needs verification"
+    ],
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "RMMRclaimant",
+    "label": "Who submits PPA claims for RMMR?",
+    "options": [
+     "The pharmacy",
+     "External provider",
+     "Another approved service provider",
+     "Needs verification"
+    ],
+    "section": "Responsibilities",
+    "extra": null
+   }
+  ],
+  "staged": [
+   {
+    "key": "funding",
+    "label": "Is this a funded staged supply service?",
+    "options": [
+     "PPA-funded",
+     "Private",
+     "Both",
+     "Needs verification"
+    ],
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "consent",
+    "label": "Consent evidence location",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "fileSystem",
+    "label": "Software or system for instalment records",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "s8",
+    "label": "Does staged supply include S8 medicines?",
+    "options": [
+     "Yes",
+     "No",
+     "Needs verification"
+    ],
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "exceptions",
+    "label": "Who reviews missed collections?",
+    "options": [
+     "Pharmacist in charge",
+     "Designated pharmacist",
+     "Needs verification"
+    ],
+    "section": "Incidents",
+    "extra": null
+   }
+  ],
+  "vaccination": [
+   {
+    "key": "venue",
+    "label": "Where is vaccination provided?",
+    "options": [
+     "On site",
+     "Off site",
+     "Both",
+     "Needs verification"
+    ],
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "vaccines",
+    "label": "Which vaccines are offered?",
+    "options": null,
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "fileSystem",
+    "label": "Screening and consent record system",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "air",
+    "label": "Where is evidence of AIR reporting kept? (location)",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "funding",
+    "label": "Government-funded vaccines",
+    "options": [
+     "Participating",
+     "Private only",
+     "Needs verification"
+    ],
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "cold",
+    "label": "Cold-chain monitoring evidence location",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "emergency",
+    "label": "Emergency procedure location",
+    "options": [
+     "Draft it for me",
+     "We have our own procedure"
+    ],
+    "section": "Records",
+    "extra": null
+   }
+  ],
+  "prescribing": [
+   {
+    "key": "responsibility",
+    "label": "Who is responsible for this service?",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "records",
+    "label": "Where are this service’s records kept? (system or reference)",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "pathway",
+    "label": "Which authorised prescribing pathway is provided?",
+    "options": null,
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "prescribing2026",
+    "label": "Approved pharmacy conditions · prescribing authorities",
+    "options": null,
+    "section": "Safeguards",
+    "extra": null
+   },
+   {
+    "key": "authority",
+    "label": "Pathway authority or protocol reference",
+    "options": null,
+    "section": "Safeguards",
+    "extra": null
+   }
+  ],
+  "simple": [
+   {
+    "key": "responsibility",
+    "label": "Who is responsible for this service?",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "records",
+    "label": "Where are this service’s records kept? (system or reference)",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "preparations",
+    "label": "Types of standard preparations",
+    "options": null,
+    "section": "Scope",
+    "extra": null
+   }
+  ],
+  "complex": [
+   {
+    "key": "responsibility",
+    "label": "Who is responsible for this service?",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "records",
+    "label": "Where are this service’s records kept? (system or reference)",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "preparations",
+    "label": "Types of complex preparations",
+    "options": null,
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "validation",
+    "label": "Facility and validation record location",
+    "options": null,
+    "section": "Safeguards",
+    "extra": null
+   }
+  ],
+  "aged": [
+   {
+    "key": "responsibility",
+    "label": "Who is responsible for this service?",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "records",
+    "label": "Where are this service’s records kept? (system or reference)",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "agreement",
+    "label": "Facility agreement location",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "handover",
+    "label": "Handover and escalation procedure (reference)",
+    "options": [
+     "Draft it for me",
+     "We have our own procedure"
+    ],
+    "section": "Records",
+    "extra": null
+   }
+  ],
+  "screening": [
+   {
+    "key": "responsibility",
+    "label": "Who is responsible for this service?",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "records",
+    "label": "Where are this service’s records kept? (system or reference)",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "tests",
+    "label": "Which screening tests are provided?",
+    "options": null,
+    "section": "Scope",
+    "extra": null
+   },
+   {
+    "key": "qc",
+    "label": "Equipment QC reference",
+    "options": null,
+    "section": "Safeguards",
+    "extra": null
+   }
+  ],
+  "adherence": [
+   {
+    "key": "responsibility",
+    "label": "Who is responsible for this service?",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "records",
+    "label": "Where are this service’s records kept? (system or reference)",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "interruption",
+    "label": "Who handles interrupted support?",
+    "options": [
+     "Pharmacist in charge",
+     "Designated pharmacist",
+     "Needs verification"
+    ],
+    "section": "Responsibilities",
+    "extra": null
+   }
+  ],
+  "nsp": [
+   {
+    "key": "responsibility",
+    "label": "Who is responsible for this service?",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "safety",
+    "label": "Sharps and exposure procedure location",
+    "options": [
+     "Draft it for me",
+     "We have our own procedure"
+    ],
+    "section": "Safeguards",
+    "extra": null
+   }
+  ],
+  "certificates": [
+   {
+    "key": "responsibility",
+    "label": "Who is responsible for this service?",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "records",
+    "label": "Where are this service’s records kept? (system or reference)",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "scopeEvidence",
+    "label": "Assessment and referral procedure (reference)",
+    "options": [
+     "Draft it for me",
+     "We have our own procedure"
+    ],
+    "section": "Scope",
+    "extra": null
+   }
+  ],
+  "vaping": [
+   {
+    "key": "responsibility",
+    "label": "Who is responsible for this service?",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "scopeEvidence",
+    "label": "Supply pathway and procedure (reference)",
+    "options": [
+     "Draft it for me",
+     "We have our own procedure"
+    ],
+    "section": "Scope",
+    "extra": null
+   }
+  ],
+  "cannabis": [
+   {
+    "key": "responsibility",
+    "label": "Who is responsible for this service?",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "thc",
+    "label": "Do you supply THC-containing (Schedule 8) medicinal cannabis products?",
+    "options": [
+     "Yes",
+     "No",
+     "Needs verification"
+    ],
+    "section": "Scope",
+    "extra": null
+   }
+  ],
+  "funding": [
+   {
+    "key": "responsibility",
+    "label": "Who is responsible for this service?",
+    "options": null,
+    "section": "Responsibilities",
+    "extra": null
+   },
+   {
+    "key": "records",
+    "label": "Where are this service’s records kept? (system or reference)",
+    "options": null,
+    "section": "Records",
+    "extra": null
+   },
+   {
+    "key": "programs",
+    "label": "Which other programs are provided?",
+    "options": null,
+    "section": "Scope",
+    "extra": null
+   }
+  ]
+ },
+ "sq": {
+  "PROC": {
+   "delivery": {
+    "controlledRef": {
+     "label": "Controlled-medicine (S8) delivery procedure",
+     "text": "For Schedule 8 medicines: a pharmacist checks and seals the package; it is handed only to the patient or an authorised adult after an identity check, with a signed record; undelivered S8 medicines come back to the pharmacy the same day and are recorded and returned to the S8 safe. [Confirm: these steps match the pharmacy’s S8 procedure and the 2026 Regulation checklist]"
+    }
+   },
+   "vaccination": {
+    "emergency": {
+     "label": "Emergency (anaphylaxis) procedure",
+     "text": "Keep an anaphylaxis response kit with in-date adrenaline at the vaccination area; observe patients after vaccination; if anaphylaxis occurs, give adrenaline as per the Australian Immunisation Handbook, call 000 and stay with the patient; record the event and report it as an adverse event following immunisation. [Confirm: steps match the current Handbook and NSW guidance]"
+    }
+   },
+   "aged": {
+    "handover": {
+     "label": "Handover and escalation procedure",
+     "text": "Urgent medication issues are escalated to the facility’s registered nurse in charge and the prescriber on the same day, and the communication is recorded. [Confirm: contacts and timeframes agreed with each facility]"
+    }
+   },
+   "certificates": {
+    "scopeEvidence": {
+     "label": "Assessment and referral procedure",
+     "text": "The pharmacist assesses the person in person, issues a certificate only for conditions within pharmacist scope and for the period the pharmacist can attest to, and refers the person to a doctor when symptoms are serious or outside scope. A record of each certificate is kept. [Confirm: steps match current professional guidance]"
+    }
+   },
+   "vaping": {
+    "scopeEvidence": {
+     "label": "Vape supply procedure",
+     "text": "Therapeutic vapes are supplied only under the current pathway the pharmacy uses (prescription or pharmacist supply after consultation), with the age, consultation and record requirements of that pathway. [Confirm: steps match current TGA and NSW requirements]"
+    }
+   },
+   "nsp": {
+    "safety": {
+     "label": "Sharps and needlestick procedure",
+     "text": "Use approved sharps containers and never recap needles; after a needlestick or exposure, wash the area, seek same-day medical assessment and record and report the incident. [Confirm: steps match the pharmacy’s infection-control arrangements]"
+    }
+   },
+   "otp": {
+    "incidents": {
+     "label": "Procedure for missed doses and intoxicated patients",
+     "text": "[Confirm: write the steps for missed doses and intoxicated patients, following the current NSW OTP guidance]"
+    },
+    "incidentProcess": {
+     "label": "Procedure for reporting and notifying OTP incidents",
+     "text": "[Confirm: write the steps for reporting and notifying OTP incidents, following the current NSW OTP guidance]"
+    },
+    "films": {
+     "label": "Procedure for supervising film doses",
+     "text": "[Confirm: write the steps for supervising film doses, following the current NSW OTP guidance]"
+    },
+    "takeawayControls": {
+     "label": "Procedure for authorised take-away doses",
+     "text": "[Confirm: write the steps for authorised take-away doses, following the current NSW OTP guidance]"
+    },
+    "maintenance": {
+     "label": "Procedure for pump cleaning, calibration and maintenance",
+     "text": "[Confirm: write the steps for pump cleaning, calibration and maintenance, following the current NSW OTP guidance]"
+    }
+   }
+  },
+  "REC_BASE": [
+   "Dispensing or clinical software",
+   "Paper folder in the pharmacy",
+   "Shared drive or cloud storage",
+   "Other"
+  ],
+  "REC": {
+   "vaccination": [
+    "air",
+    "cold"
+   ],
+   "staged": [
+    "consent"
+   ],
+   "delivery": [
+    "paperwork"
+   ],
+   "daa": [
+    "deliveryEvidence"
+   ],
+   "complex": [
+    "validation",
+    "records"
+   ],
+   "aged": [
+    "agreement",
+    "records"
+   ],
+   "screening": [
+    "qc",
+    "records"
+   ],
+   "cannabis": [
+    "scopeEvidence",
+    "records"
+   ],
+   "prescribing": [
+    "authority",
+    "records"
+   ],
+   "simple": [
+    "records"
+   ],
+   "adherence": [
+    "records"
+   ],
+   "nsp": [
+    "records"
+   ],
+   "certificates": [
+    "records"
+   ],
+   "vaping": [
+    "records"
+   ],
+   "funding": [
+    "records"
+   ]
+  },
+  "LEAD": {
+   "delivery": [
+    "escalation"
+   ],
+   "staged": [
+    "exceptions"
+   ],
+   "adherence": [
+    "interruption",
+    "responsibility"
+   ],
+   "prescribing": [
+    "responsibility"
+   ],
+   "simple": [
+    "responsibility"
+   ],
+   "complex": [
+    "responsibility"
+   ],
+   "aged": [
+    "responsibility"
+   ],
+   "screening": [
+    "responsibility"
+   ],
+   "nsp": [
+    "responsibility"
+   ],
+   "certificates": [
+    "responsibility"
+   ],
+   "vaping": [
+    "responsibility"
+   ],
+   "cannabis": [
+    "responsibility"
+   ],
+   "funding": [
+    "responsibility"
+   ],
+   "daa": [
+    "sampleReviewer"
+   ]
+  },
+  "VGROUPS": [
+   [
+    "Seasonal and adult",
+    [
+     "COVID-19",
+     "Influenza",
+     "Pneumococcal (Capvaxive or Prevenar 20)",
+     "Zoster (Shingrix only)",
+     "RSV (Arexvy or Abrysvo)",
+     "Diphtheria/tetanus/pertussis (e.g. dTpa or ADT)"
+    ]
+   ],
+   [
+    "Catch-up and childhood",
+    [
+     "Measles/mumps/rubella (MMR)",
+     "Poliomyelitis",
+     "Varicella (chickenpox)",
+     "Human papillomavirus (HPV)",
+     "Meningococcal ACWY",
+     "Meningococcal B",
+     "Meningococcal C",
+     "Haemophilus influenzae type b (Hib)",
+     "Hepatitis A",
+     "Hepatitis B"
+    ]
+   ],
+   [
+    "Travel",
+    [
+     "Typhoid (oral or injection)",
+     "Cholera (oral)",
+     "Japanese encephalitis",
+     "Rabies (pre-exposure)"
+    ]
+   ],
+   [
+    "Special programs",
+    [
+     "Mpox (JYNNEOS; authorised settings only)"
+    ]
+   ]
+  ]
+ }
+}

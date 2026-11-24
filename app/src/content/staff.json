@@ -1,0 +1,1161 @@
+{
+ "roles": [
+  "Pharmacist",
+  "Pharmacist in charge (PIC)",
+  "Pharmacist manager",
+  "Intern",
+  "Dispensary technician / assistant",
+  "Pharmacy assistant",
+  "Retail manager",
+  "Student",
+  "Other"
+ ],
+ "engagements": [
+  "Regular",
+  "Locum",
+  "Intern",
+  "Student",
+  "Other"
+ ],
+ "requirements": {
+  "Pharmacist": {
+   "base": [
+    {
+     "id": "induction",
+     "label": "Local induction, confidentiality, safety and incident escalation"
+    },
+    {
+     "id": "role",
+     "label": "Signed role description and responsibilities"
+    },
+    {
+     "id": "registration",
+     "label": "Ahpra registration, conditions and scope"
+    },
+    {
+     "id": "insurance",
+     "label": "Indemnity arrangements appropriate to duties"
+    },
+    {
+     "id": "competence",
+     "label": "Professional development and competence for assigned duties"
+    }
+   ],
+   "services": {
+    "otp": [
+     {
+      "id": "service/otp",
+      "label": "Opioid Treatment Program · dosing-point training, supervision and escalation"
+     }
+    ],
+    "daa": [
+     {
+      "id": "service/daa",
+      "label": "Dose administration aids · packing, checking or handover responsibilities"
+     }
+    ],
+    "staged": [
+     {
+      "id": "service/staged",
+      "label": "Staged supply · collection checks, recording and escalation"
+     }
+    ],
+    "vaccination": [
+     {
+      "id": "service/vaccination",
+      "label": "Vaccination · immuniser training, current authority and emergency readiness"
+     }
+    ],
+    "prescribing": [
+     {
+      "id": "service/prescribing",
+      "label": "Pharmacist prescribing · individual pathway authority and referral limits"
+     }
+    ],
+    "reviews": [
+     {
+      "id": "service/reviews",
+      "label": "Medicines reviews · credential and program eligibility for the reviews performed"
+     }
+    ],
+    "delivery": [
+     {
+      "id": "service/delivery",
+      "label": "Home delivery · competence and applicable authority"
+     }
+    ],
+    "simple": [
+     {
+      "id": "service/simple",
+      "label": "Simple compounding · preparation technique, equipment and checking"
+     }
+    ],
+    "complex": [
+     {
+      "id": "service/complex",
+      "label": "Complex compounding · competency for authorised preparation types and controls"
+     }
+    ],
+    "aged": [
+     {
+      "id": "service/aged",
+      "label": "Residential aged care supply · competence and applicable authority"
+     }
+    ],
+    "screening": [
+     {
+      "id": "service/screening",
+      "label": "Screening and risk assessment · competence and applicable authority"
+     }
+    ],
+    "adherence": [
+     {
+      "id": "service/adherence",
+      "label": "Medicine adherence support · competence and applicable authority"
+     }
+    ],
+    "nsp": [
+     {
+      "id": "service/nsp",
+      "label": "Needle and syringe program · competence and applicable authority"
+     }
+    ],
+    "certificates": [
+     {
+      "id": "service/certificates",
+      "label": "Absence from work certificates · competence and applicable authority"
+     }
+    ],
+    "vaping": [
+     {
+      "id": "service/vaping",
+      "label": "Therapeutic vaping supply · competence and applicable authority"
+     }
+    ],
+    "cannabis": [
+     {
+      "id": "service/cannabis",
+      "label": "Medicinal cannabis supply · competence and applicable authority"
+     }
+    ],
+    "funding": [
+     {
+      "id": "service/funding",
+      "label": "Other funded programs · competence and applicable authority"
+     }
+    ]
+   }
+  },
+  "Pharmacist in charge (PIC)": {
+   "base": [
+    {
+     "id": "induction",
+     "label": "Local induction, confidentiality, safety and incident escalation"
+    },
+    {
+     "id": "role",
+     "label": "Signed role description and responsibilities"
+    },
+    {
+     "id": "registration",
+     "label": "Ahpra registration, conditions and scope"
+    },
+    {
+     "id": "insurance",
+     "label": "Indemnity arrangements appropriate to duties"
+    },
+    {
+     "id": "competence",
+     "label": "Professional development and competence for assigned duties"
+    },
+    {
+     "id": "governance",
+     "label": "Clinical governance, supervision and incident responsibilities"
+    }
+   ],
+   "services": {
+    "otp": [
+     {
+      "id": "service/otp",
+      "label": "Opioid Treatment Program · dosing-point training, supervision and escalation"
+     }
+    ],
+    "daa": [
+     {
+      "id": "service/daa",
+      "label": "Dose administration aids · packing, checking or handover responsibilities"
+     }
+    ],
+    "staged": [
+     {
+      "id": "service/staged",
+      "label": "Staged supply · collection checks, recording and escalation"
+     }
+    ],
+    "vaccination": [
+     {
+      "id": "service/vaccination",
+      "label": "Vaccination · immuniser training, current authority and emergency readiness"
+     }
+    ],
+    "prescribing": [
+     {
+      "id": "service/prescribing",
+      "label": "Pharmacist prescribing · individual pathway authority and referral limits"
+     }
+    ],
+    "reviews": [
+     {
+      "id": "service/reviews",
+      "label": "Medicines reviews · credential and program eligibility for the reviews performed"
+     }
+    ],
+    "delivery": [
+     {
+      "id": "service/delivery",
+      "label": "Home delivery · competence and applicable authority"
+     }
+    ],
+    "simple": [
+     {
+      "id": "service/simple",
+      "label": "Simple compounding · preparation technique, equipment and checking"
+     }
+    ],
+    "complex": [
+     {
+      "id": "service/complex",
+      "label": "Complex compounding · competency for authorised preparation types and controls"
+     }
+    ],
+    "aged": [
+     {
+      "id": "service/aged",
+      "label": "Residential aged care supply · competence and applicable authority"
+     }
+    ],
+    "screening": [
+     {
+      "id": "service/screening",
+      "label": "Screening and risk assessment · competence and applicable authority"
+     }
+    ],
+    "adherence": [
+     {
+      "id": "service/adherence",
+      "label": "Medicine adherence support · competence and applicable authority"
+     }
+    ],
+    "nsp": [
+     {
+      "id": "service/nsp",
+      "label": "Needle and syringe program · competence and applicable authority"
+     }
+    ],
+    "certificates": [
+     {
+      "id": "service/certificates",
+      "label": "Absence from work certificates · competence and applicable authority"
+     }
+    ],
+    "vaping": [
+     {
+      "id": "service/vaping",
+      "label": "Therapeutic vaping supply · competence and applicable authority"
+     }
+    ],
+    "cannabis": [
+     {
+      "id": "service/cannabis",
+      "label": "Medicinal cannabis supply · competence and applicable authority"
+     }
+    ],
+    "funding": [
+     {
+      "id": "service/funding",
+      "label": "Other funded programs · competence and applicable authority"
+     }
+    ]
+   }
+  },
+  "Pharmacist manager": {
+   "base": [
+    {
+     "id": "induction",
+     "label": "Local induction, confidentiality, safety and incident escalation"
+    },
+    {
+     "id": "role",
+     "label": "Signed role description and responsibilities"
+    },
+    {
+     "id": "registration",
+     "label": "Ahpra registration, conditions and scope"
+    },
+    {
+     "id": "insurance",
+     "label": "Indemnity arrangements appropriate to duties"
+    },
+    {
+     "id": "competence",
+     "label": "Professional development and competence for assigned duties"
+    },
+    {
+     "id": "governance",
+     "label": "Clinical governance, supervision and incident responsibilities"
+    }
+   ],
+   "services": {
+    "otp": [
+     {
+      "id": "service/otp",
+      "label": "Opioid Treatment Program · dosing-point training, supervision and escalation"
+     }
+    ],
+    "daa": [
+     {
+      "id": "service/daa",
+      "label": "Dose administration aids · packing, checking or handover responsibilities"
+     }
+    ],
+    "staged": [
+     {
+      "id": "service/staged",
+      "label": "Staged supply · collection checks, recording and escalation"
+     }
+    ],
+    "vaccination": [
+     {
+      "id": "service/vaccination",
+      "label": "Vaccination · immuniser training, current authority and emergency readiness"
+     }
+    ],
+    "prescribing": [
+     {
+      "id": "service/prescribing",
+      "label": "Pharmacist prescribing · individual pathway authority and referral limits"
+     }
+    ],
+    "reviews": [
+     {
+      "id": "service/reviews",
+      "label": "Medicines reviews · credential and program eligibility for the reviews performed"
+     }
+    ],
+    "delivery": [
+     {
+      "id": "service/delivery",
+      "label": "Home delivery · competence and applicable authority"
+     }
+    ],
+    "simple": [
+     {
+      "id": "service/simple",
+      "label": "Simple compounding · preparation technique, equipment and checking"
+     }
+    ],
+    "complex": [
+     {
+      "id": "service/complex",
+      "label": "Complex compounding · competency for authorised preparation types and controls"
+     }
+    ],
+    "aged": [
+     {
+      "id": "service/aged",
+      "label": "Residential aged care supply · competence and applicable authority"
+     }
+    ],
+    "screening": [
+     {
+      "id": "service/screening",
+      "label": "Screening and risk assessment · competence and applicable authority"
+     }
+    ],
+    "adherence": [
+     {
+      "id": "service/adherence",
+      "label": "Medicine adherence support · competence and applicable authority"
+     }
+    ],
+    "nsp": [
+     {
+      "id": "service/nsp",
+      "label": "Needle and syringe program · competence and applicable authority"
+     }
+    ],
+    "certificates": [
+     {
+      "id": "service/certificates",
+      "label": "Absence from work certificates · competence and applicable authority"
+     }
+    ],
+    "vaping": [
+     {
+      "id": "service/vaping",
+      "label": "Therapeutic vaping supply · competence and applicable authority"
+     }
+    ],
+    "cannabis": [
+     {
+      "id": "service/cannabis",
+      "label": "Medicinal cannabis supply · competence and applicable authority"
+     }
+    ],
+    "funding": [
+     {
+      "id": "service/funding",
+      "label": "Other funded programs · competence and applicable authority"
+     }
+    ]
+   }
+  },
+  "Intern": {
+   "base": [
+    {
+     "id": "induction",
+     "label": "Local induction, confidentiality, safety and incident escalation"
+    },
+    {
+     "id": "role",
+     "label": "Signed role description and responsibilities"
+    },
+    {
+     "id": "registration",
+     "label": "Ahpra registration, conditions and scope"
+    },
+    {
+     "id": "insurance",
+     "label": "Indemnity arrangements appropriate to duties"
+    },
+    {
+     "id": "supervision",
+     "label": "Named supervisor, training and limits of practice"
+    }
+   ],
+   "services": {
+    "otp": [
+     {
+      "id": "service/otp",
+      "label": "Opioid Treatment Program · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "daa": [
+     {
+      "id": "service/daa",
+      "label": "Dose administration aids · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "staged": [
+     {
+      "id": "service/staged",
+      "label": "Staged supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "vaccination": [
+     {
+      "id": "service/vaccination",
+      "label": "Vaccination · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "prescribing": [
+     {
+      "id": "service/prescribing",
+      "label": "Pharmacist prescribing · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "reviews": [
+     {
+      "id": "service/reviews",
+      "label": "Medicines reviews · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "delivery": [
+     {
+      "id": "service/delivery",
+      "label": "Home delivery · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "simple": [
+     {
+      "id": "service/simple",
+      "label": "Simple compounding · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "complex": [
+     {
+      "id": "service/complex",
+      "label": "Complex compounding · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "aged": [
+     {
+      "id": "service/aged",
+      "label": "Residential aged care supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "screening": [
+     {
+      "id": "service/screening",
+      "label": "Screening and risk assessment · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "adherence": [
+     {
+      "id": "service/adherence",
+      "label": "Medicine adherence support · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "nsp": [
+     {
+      "id": "service/nsp",
+      "label": "Needle and syringe program · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "certificates": [
+     {
+      "id": "service/certificates",
+      "label": "Absence from work certificates · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "vaping": [
+     {
+      "id": "service/vaping",
+      "label": "Therapeutic vaping supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "cannabis": [
+     {
+      "id": "service/cannabis",
+      "label": "Medicinal cannabis supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "funding": [
+     {
+      "id": "service/funding",
+      "label": "Other funded programs · assigned support duties, training and pharmacist supervision"
+     }
+    ]
+   }
+  },
+  "Dispensary technician / assistant": {
+   "base": [
+    {
+     "id": "induction",
+     "label": "Local induction, confidentiality, safety and incident escalation"
+    },
+    {
+     "id": "role",
+     "label": "Signed role description and responsibilities"
+    },
+    {
+     "id": "qualification",
+     "label": "Relevant qualifications and dispensing support competence"
+    },
+    {
+     "id": "supervision",
+     "label": "Pharmacist supervision, limits and referral"
+    }
+   ],
+   "services": {
+    "otp": [
+     {
+      "id": "service/otp",
+      "label": "Opioid Treatment Program · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "daa": [
+     {
+      "id": "service/daa",
+      "label": "Dose administration aids · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "staged": [
+     {
+      "id": "service/staged",
+      "label": "Staged supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "vaccination": [
+     {
+      "id": "service/vaccination",
+      "label": "Vaccination · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "prescribing": [
+     {
+      "id": "service/prescribing",
+      "label": "Pharmacist prescribing · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "reviews": [
+     {
+      "id": "service/reviews",
+      "label": "Medicines reviews · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "delivery": [
+     {
+      "id": "service/delivery",
+      "label": "Home delivery · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "simple": [
+     {
+      "id": "service/simple",
+      "label": "Simple compounding · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "complex": [
+     {
+      "id": "service/complex",
+      "label": "Complex compounding · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "aged": [
+     {
+      "id": "service/aged",
+      "label": "Residential aged care supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "screening": [
+     {
+      "id": "service/screening",
+      "label": "Screening and risk assessment · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "adherence": [
+     {
+      "id": "service/adherence",
+      "label": "Medicine adherence support · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "nsp": [
+     {
+      "id": "service/nsp",
+      "label": "Needle and syringe program · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "certificates": [
+     {
+      "id": "service/certificates",
+      "label": "Absence from work certificates · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "vaping": [
+     {
+      "id": "service/vaping",
+      "label": "Therapeutic vaping supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "cannabis": [
+     {
+      "id": "service/cannabis",
+      "label": "Medicinal cannabis supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "funding": [
+     {
+      "id": "service/funding",
+      "label": "Other funded programs · assigned support duties, training and pharmacist supervision"
+     }
+    ]
+   }
+  },
+  "Pharmacy assistant": {
+   "base": [
+    {
+     "id": "induction",
+     "label": "Local induction, confidentiality, safety and incident escalation"
+    },
+    {
+     "id": "role",
+     "label": "Signed role description and responsibilities"
+    },
+    {
+     "id": "referral",
+     "label": "S2/S3 referral and product handling within role"
+    }
+   ],
+   "services": {
+    "otp": [
+     {
+      "id": "service/otp",
+      "label": "Opioid Treatment Program · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "daa": [
+     {
+      "id": "service/daa",
+      "label": "Dose administration aids · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "staged": [
+     {
+      "id": "service/staged",
+      "label": "Staged supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "vaccination": [
+     {
+      "id": "service/vaccination",
+      "label": "Vaccination · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "prescribing": [
+     {
+      "id": "service/prescribing",
+      "label": "Pharmacist prescribing · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "reviews": [
+     {
+      "id": "service/reviews",
+      "label": "Medicines reviews · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "delivery": [
+     {
+      "id": "service/delivery",
+      "label": "Home delivery · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "simple": [
+     {
+      "id": "service/simple",
+      "label": "Simple compounding · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "complex": [
+     {
+      "id": "service/complex",
+      "label": "Complex compounding · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "aged": [
+     {
+      "id": "service/aged",
+      "label": "Residential aged care supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "screening": [
+     {
+      "id": "service/screening",
+      "label": "Screening and risk assessment · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "adherence": [
+     {
+      "id": "service/adherence",
+      "label": "Medicine adherence support · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "nsp": [
+     {
+      "id": "service/nsp",
+      "label": "Needle and syringe program · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "certificates": [
+     {
+      "id": "service/certificates",
+      "label": "Absence from work certificates · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "vaping": [
+     {
+      "id": "service/vaping",
+      "label": "Therapeutic vaping supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "cannabis": [
+     {
+      "id": "service/cannabis",
+      "label": "Medicinal cannabis supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "funding": [
+     {
+      "id": "service/funding",
+      "label": "Other funded programs · assigned support duties, training and pharmacist supervision"
+     }
+    ]
+   }
+  },
+  "Retail manager": {
+   "base": [
+    {
+     "id": "induction",
+     "label": "Local induction, confidentiality, safety and incident escalation"
+    },
+    {
+     "id": "role",
+     "label": "Signed role description and responsibilities"
+    },
+    {
+     "id": "retail",
+     "label": "Advertising, safety and supervision responsibilities"
+    }
+   ],
+   "services": {
+    "otp": [
+     {
+      "id": "service/otp",
+      "label": "Opioid Treatment Program · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "daa": [
+     {
+      "id": "service/daa",
+      "label": "Dose administration aids · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "staged": [
+     {
+      "id": "service/staged",
+      "label": "Staged supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "vaccination": [
+     {
+      "id": "service/vaccination",
+      "label": "Vaccination · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "prescribing": [
+     {
+      "id": "service/prescribing",
+      "label": "Pharmacist prescribing · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "reviews": [
+     {
+      "id": "service/reviews",
+      "label": "Medicines reviews · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "delivery": [
+     {
+      "id": "service/delivery",
+      "label": "Home delivery · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "simple": [
+     {
+      "id": "service/simple",
+      "label": "Simple compounding · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "complex": [
+     {
+      "id": "service/complex",
+      "label": "Complex compounding · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "aged": [
+     {
+      "id": "service/aged",
+      "label": "Residential aged care supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "screening": [
+     {
+      "id": "service/screening",
+      "label": "Screening and risk assessment · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "adherence": [
+     {
+      "id": "service/adherence",
+      "label": "Medicine adherence support · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "nsp": [
+     {
+      "id": "service/nsp",
+      "label": "Needle and syringe program · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "certificates": [
+     {
+      "id": "service/certificates",
+      "label": "Absence from work certificates · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "vaping": [
+     {
+      "id": "service/vaping",
+      "label": "Therapeutic vaping supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "cannabis": [
+     {
+      "id": "service/cannabis",
+      "label": "Medicinal cannabis supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "funding": [
+     {
+      "id": "service/funding",
+      "label": "Other funded programs · assigned support duties, training and pharmacist supervision"
+     }
+    ]
+   }
+  },
+  "Student": {
+   "base": [
+    {
+     "id": "induction",
+     "label": "Local induction, confidentiality, safety and incident escalation"
+    },
+    {
+     "id": "role",
+     "label": "Placement agreement and permitted duties"
+    },
+    {
+     "id": "supervision",
+     "label": "Named supervisor, training and limits of practice"
+    }
+   ],
+   "services": {
+    "otp": [
+     {
+      "id": "service/otp",
+      "label": "Opioid Treatment Program · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "daa": [
+     {
+      "id": "service/daa",
+      "label": "Dose administration aids · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "staged": [
+     {
+      "id": "service/staged",
+      "label": "Staged supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "vaccination": [
+     {
+      "id": "service/vaccination",
+      "label": "Vaccination · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "prescribing": [
+     {
+      "id": "service/prescribing",
+      "label": "Pharmacist prescribing · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "reviews": [
+     {
+      "id": "service/reviews",
+      "label": "Medicines reviews · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "delivery": [
+     {
+      "id": "service/delivery",
+      "label": "Home delivery · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "simple": [
+     {
+      "id": "service/simple",
+      "label": "Simple compounding · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "complex": [
+     {
+      "id": "service/complex",
+      "label": "Complex compounding · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "aged": [
+     {
+      "id": "service/aged",
+      "label": "Residential aged care supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "screening": [
+     {
+      "id": "service/screening",
+      "label": "Screening and risk assessment · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "adherence": [
+     {
+      "id": "service/adherence",
+      "label": "Medicine adherence support · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "nsp": [
+     {
+      "id": "service/nsp",
+      "label": "Needle and syringe program · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "certificates": [
+     {
+      "id": "service/certificates",
+      "label": "Absence from work certificates · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "vaping": [
+     {
+      "id": "service/vaping",
+      "label": "Therapeutic vaping supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "cannabis": [
+     {
+      "id": "service/cannabis",
+      "label": "Medicinal cannabis supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "funding": [
+     {
+      "id": "service/funding",
+      "label": "Other funded programs · assigned support duties, training and pharmacist supervision"
+     }
+    ]
+   }
+  },
+  "Other": {
+   "base": [
+    {
+     "id": "induction",
+     "label": "Local induction, confidentiality, safety and incident escalation"
+    },
+    {
+     "id": "role",
+     "label": "Signed role description and responsibilities"
+    },
+    {
+     "id": "scope",
+     "label": "Competence and agreed scope of duties"
+    }
+   ],
+   "services": {
+    "otp": [
+     {
+      "id": "service/otp",
+      "label": "Opioid Treatment Program · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "daa": [
+     {
+      "id": "service/daa",
+      "label": "Dose administration aids · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "staged": [
+     {
+      "id": "service/staged",
+      "label": "Staged supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "vaccination": [
+     {
+      "id": "service/vaccination",
+      "label": "Vaccination · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "prescribing": [
+     {
+      "id": "service/prescribing",
+      "label": "Pharmacist prescribing · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "reviews": [
+     {
+      "id": "service/reviews",
+      "label": "Medicines reviews · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "delivery": [
+     {
+      "id": "service/delivery",
+      "label": "Home delivery · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "simple": [
+     {
+      "id": "service/simple",
+      "label": "Simple compounding · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "complex": [
+     {
+      "id": "service/complex",
+      "label": "Complex compounding · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "aged": [
+     {
+      "id": "service/aged",
+      "label": "Residential aged care supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "screening": [
+     {
+      "id": "service/screening",
+      "label": "Screening and risk assessment · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "adherence": [
+     {
+      "id": "service/adherence",
+      "label": "Medicine adherence support · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "nsp": [
+     {
+      "id": "service/nsp",
+      "label": "Needle and syringe program · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "certificates": [
+     {
+      "id": "service/certificates",
+      "label": "Absence from work certificates · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "vaping": [
+     {
+      "id": "service/vaping",
+      "label": "Therapeutic vaping supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "cannabis": [
+     {
+      "id": "service/cannabis",
+      "label": "Medicinal cannabis supply · assigned support duties, training and pharmacist supervision"
+     }
+    ],
+    "funding": [
+     {
+      "id": "service/funding",
+      "label": "Other funded programs · assigned support duties, training and pharmacist supervision"
+     }
+    ]
+   }
+  }
+ },
+ "outcomes": [
+  "Verified",
+  "Needs Review",
+  "Not Applicable"
+ ],
+ "methods": [
+  "Physically sighted",
+  "Authoritative register checked",
+  "Secure record reviewed",
+  "Observed competency",
+  "Discussion or attestation",
+  "On file only",
+  "Not available",
+  "Applicability assessed"
+ ]
+}

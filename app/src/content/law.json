@@ -1,0 +1,505 @@
+{
+ "REG": "Medicines, Poisons and Therapeutic Goods Regulation 2026 (NSW)",
+ "OBL": [
+  [
+   "s108",
+   "s 108–110",
+   "S8 drug register",
+   "A drug register for S8 substances: a bound book with numbered pages (or an approved electronic register), a separate page for each substance, brand, strength and form, with every transaction entered on the day it happens, kept on the premises where the S8 is stored (NSW Health).",
+   "The responsible person for a pharmacy is the holder of a financial interest in it: the proprietor (s 108(1)(i))",
+   []
+  ],
+  [
+   "s111",
+   "s 111",
+   "S8 inventory every 3 months",
+   "An accurate inventory of all S8 substances every 3 months (unless NSW Health approved other times), entered in the drug register under the last entry for each substance with the quantity held and the date, and signed.",
+   "The responsible person (the proprietor) must ensure it is made",
+   []
+  ],
+  [
+   "s111-3",
+   "s 111(3)",
+   "Inventory on taking control",
+   "Anyone who takes control of the pharmacy for 1 month or more must have an S8 inventory made in the drug register immediately on taking control.",
+   "The person taking control",
+   []
+  ],
+  [
+   "s122",
+   "s 122",
+   "S8 storage",
+   "S8 kept in a dedicated, locked room, receptacle or fridge, on its own (except with S9, or in a fridge holding only scheduled substances), fixed to the premises and not accessible to the public. Keys kept on a pharmacist or in a separately locked receptacle only a pharmacist can open; codes never told to anyone who is not a pharmacist.",
+   "You (the Regulation names the pharmacist in charge on the day, s 122(2))",
+   []
+  ],
+  [
+   "s148",
+   "s 148",
+   "S8 destruction at the pharmacy",
+   "Destroyed in front of an eligible witness (a pharmacist not employed at or financially interested in the pharmacy and not family, or a medical or nurse practitioner who is not family), and recorded in the drug register: date, substance and quantity, both names, registration numbers and signatures.",
+   "The pharmacist destroying it",
+   []
+  ],
+  [
+   "s194",
+   "s 194",
+   "Receipt of S8 orders",
+   "Written notice of receipt to the supplier within 24 hours of receiving an S8 order.",
+   "The person who ordered and received it",
+   []
+  ],
+  [
+   "s56",
+   "s 56",
+   "Verify S8 prescriptions",
+   "No more than 2 days’ supply of an S8 on prescription until the prescription is verified with the prescriber (unless the pharmacist knows the handwriting or the patient).",
+   "The supplying pharmacist",
+   []
+  ],
+  [
+   "s57",
+   "s 57",
+   "Copies of S8 prescriptions",
+   "Keep a copy of every S8 (and Schedule 4D anabolic steroid) prescription supplied, kept separately from other prescriptions (not needed for conformant electronic prescriptions).",
+   "The supplying pharmacist",
+   []
+  ],
+  [
+   "s115",
+   "s 115",
+   "Dispensing records",
+   "For every supply on prescription: date, the prescription details, the supplying pharmacist’s name and the prescription reference number.",
+   "The supplying pharmacist",
+   []
+  ],
+  [
+   "s185",
+   "s 185",
+   "Keeping records",
+   "No false entries; corrections only by a dated, initialled margin note or footnote; records kept at least 2 years and shown on demand to an authorised officer or police.",
+   "Everyone who must keep a record under the Regulation",
+   []
+  ],
+  [
+   "s81",
+   "s 81",
+   "OTP Standards",
+   "Dispensing methadone or buprenorphine under an OTP registration in line with the NSW OTP Standards.",
+   "The dispensing pharmacist",
+   [
+    "otp"
+   ]
+  ],
+  [
+   "s136",
+   "s 136–137",
+   "Dose administration aids",
+   "DAA labels (date packed, date of birth, Appendix L information, no oral and external-use medicines together) and label records kept by the pharmacist and the packer; third-party packing follows the prescription.",
+   "The pharmacist and the packer",
+   [
+    "daa",
+    "daa-external-b"
+   ]
+  ],
+  [
+   "s190",
+   "s 190–191",
+   "Delivering S8",
+   "S8 delivered personally (signed, dated receipt), by registered mail, or by carrier (written evidence of consignment; carrier gets a signed receipt; opaque, properly addressed, marked contents list inside).",
+   "The supplying pharmacist",
+   [
+    "delivery",
+    "aged"
+   ]
+  ],
+  [
+   "s70",
+   "s 70",
+   "Vaccination records",
+   "Vaccines given under a Health Secretary authority and the approved standards, with the patient, vaccine (brand, batch, expiry), site, date, place, reference number and pharmacist recorded; training evidence kept if the authority requires it.",
+   "The vaccinating pharmacist",
+   [
+    "vaccination"
+   ]
+  ],
+  [
+   "s33",
+   "s 33–35",
+   "Supply without a prescription",
+   "Emergency and continued-supply rules (for example s 33: up to 7 days’ treatment or the smallest pack, not again within 30 days) and their records.",
+   "The supplying pharmacist",
+   [
+    "prescribing",
+    "prescribing-ready"
+   ]
+  ],
+  [
+   "s12",
+   "s 12",
+   "Urgent supply to aged care",
+   "Urgent wholesale supply to a residential care facility only on a signed written order, in the original pack, approved by the facility’s medicines governance committee or the Health Secretary, with a supply record.",
+   "The supplying pharmacist",
+   [
+    "aged"
+   ]
+  ],
+  [
+   "s134",
+   "s 134",
+   "Labelling",
+   "Supplied scheduled substances labelled as the Poisons Standard requires, with the pharmacy’s name and contact details as the dispenser.",
+   "The supplying pharmacist",
+   [
+    "simple",
+    "complex"
+   ]
+  ],
+  [
+   "mss",
+   "Storage Standards",
+   "Medicine Storage Standards (S8 safe and fridge)",
+   "S8 in a safe built to the Standards (9 mm steel, welded, flush door, locking bar, five-lever lock) or a Grade VII strongroom, fixed with robust fastening; S8 fridge locked, fixed and holding only scheduled medicines; codes changed regularly and removed for leavers.",
+   "You, as owner and responsible person (the Regulation also names the pharmacist in charge on duty, s 122)",
+   []
+  ],
+  [
+   "s112",
+   "s 112",
+   "Drug register lost or destroyed",
+   "Written notice to the Health Secretary immediately (including missing pages or an electronic register that can’t be opened), an accurate S8 inventory, and a new register.",
+   "The responsible person (the proprietor)",
+   []
+  ],
+  [
+   "rx",
+   "NSW Health",
+   "Suspected forged prescriptions",
+   "Verify independently; don’t dispense a forgery; keep the paper script or cancel the e-token; report to Pharmaceutical Services and the police.",
+   "The dispensing pharmacist",
+   []
+  ],
+  [
+   "otpreg",
+   "OTP registration",
+   "Pharmacy OTP registration",
+   "Registered before supplying; a new application for any change of owner, address or trading name; every pharmacist has read the OTP Standards.",
+   "The proprietor",
+   [
+    "otp"
+   ]
+  ],
+  [
+   "vstd",
+   "Vaccination Standards",
+   "NSW Pharmacist Vaccination Standards",
+   "Training and CPR, fridge and logger, twice-daily temperatures, room, consent kept 7 years, AIR within 10 business days, adverse events and errors reported to the public health unit.",
+   "Each pharmacist immuniser; the pharmacy for equipment and room",
+   [
+    "vaccination"
+   ]
+  ],
+  [
+   "pauth",
+   "Class Authorities",
+   "Pharmacist prescribing Class Authorities",
+   "Approved pharmacist and approved pharmacy conditions: enclosed consulting room, name displayed, healthdirect listing, secure digital records 7 years, record to the GP within a week. Expire 4 Nov 2027.",
+   "The pharmacist; the pharmacy for the room and listing",
+   [
+    "prescribing",
+    "prescribing-ready"
+   ]
+  ],
+  [
+   "vape",
+   "NSW Health / TGA",
+   "Therapeutic vaping goods",
+   "Notified vapes only, behind the counter, no advertising; Schedule 3 limits; SAS Category C within 28 days; adverse events to the TGA and sponsor within 15 days.",
+   "The supplying pharmacist; the owner for storage and advertising",
+   [
+    "vaping"
+   ]
+  ],
+  [
+   "privacy",
+   "Privacy Act / HRIP Act",
+   "Patient information and data breaches",
+   "Keep patient information secure (APP 11). A suspected breach (lost device, hacked system, wrong recipient) is assessed quickly, within 30 days; an eligible breach is notified to the OAIC and the people affected. Keep health records at least 7 years after the last service, or until age 25 for information collected as a child (NSW HRIP Act s 25).",
+   "The proprietor, for the pharmacy’s own systems",
+   []
+  ]
+ ],
+ "S8RX": {},
+ "MSS": "Medicine Storage Standards, Part 1",
+ "ADD": {
+  "B1": [
+   "Storage (Medicine Storage Standards, Part 1.1): S8 kept in a safe of 9 mm mild steel with continuous welds, a flush 9 mm door with no more than 1.5 mm clearance, a welded locking bar and a five-lever (or equivalent) lock, or in a Grade VII strongroom; locked when not in immediate use; not accessible to the public.",
+   "Fixing (Medicine Storage Standards): the safe and any S8 fridge are fixed with robust fastening (masonry: expanding bolts at least 12 × 50 mm; timber: 10 mm coach screws; no fixing points: 10 mm steel cable or 5 mm chain). The S8 fridge holds only scheduled medicines that need refrigeration and is locked.",
+   "Keys and codes (Regulation s 122; NSW Health): keys on a pharmacist while open and off the premises (or in another safe) when closed; codes known only to pharmacists, changed at regular intervals, and personal codes removed when someone leaves.",
+   "Drug register (Regulation s 109–110; NSW Health): kept on the premises; entries made the same day; a page per substance, brand, strength and form; it includes patient-held and expired stock (expired on a separate page); the owner makes sure staff follow it.",
+   "Orders and receipts (Regulation s 194; NSW Health): S8 received straight into the safe and entered; receipt signed and the supplier told in writing within 24 hours; phone, fax or email orders confirmed in writing within 14 days.",
+   "If an electronic drug register is used (Electronic Drug Register Standards and Guideline): unique logins only, leavers removed, access reviewed, audit logs reviewed by someone who does not make entries, and a bound book used during downtime with the balance entered afterwards."
+  ],
+  "Q1": [
+   "Prescriptions (NSW Health): new patient with an unknown prescriber means the script is verified (contact details from another source; the lost, stolen and forged list checked); if it cannot be verified and nothing is suspicious, no more than 2 days’ supply and the script is kept.",
+   "Records (Regulation s 185; NSW Health): dispensed prescriptions, emergency supplies, urgent-use orders, wholesale and borrowing records, and copies of S8 and anabolic steroid prescriptions kept 2 years on the premises and producible without delay; paper S8 copies kept separately.",
+   "Phone, fax or email directions (NSW Health): any script not received within 14 days was reported to Pharmaceutical Services.",
+   "Routine reports (Pharmacy Council, proprietor oversight): owing scripts, uncollected scripts, negative stock and wholesaler invoices against the S8 register looked at since the last visit.",
+   "Recalls (TGA, Procedure for recalls, product alerts and product corrections): any recall or alert received since the last visit was acted on as the notice says, affected stock checked, and the response recorded."
+  ],
+  "vacc-ready": [
+   "People (NSW Pharmacist Vaccination Standards; NSW Health): a named vaccine coordinator and a backup; every staff member handling vaccine storage has completed the NSW Health cold-chain module, with certificates kept; each immuniser’s NSW Pharmacist Immuniser Declaration Form is kept on the premises.",
+   "Stock and power (NSW Health; Safe vaccine storage checklist): NIP and state-funded stock kept apart from private stock and labelled; domestic or bar fridges not used; the power-failure plan has been practised.",
+   "Room (Vaccination Standards, part D): not the dispensary, with no patient access to S3, S4 or S8 medicines on the way in or out; two chairs (the patient’s is not a stool or on wheels); space to lie down; stretcher access; the fridge is locked if the public can reach it.",
+   "Consent and records (Vaccination Standards, part F): consent recorded for every vaccination and kept 7 years (or until 25 for under-18s); AIR checked before and updated within 10 business days. If ownership changes, a new AIR provider number and a new VAN are needed."
+  ],
+  "service-vaccination": [
+   "Reporting (Vaccination Standards, part G): adverse events reported to the public health unit (1300 066 055) straight after the response and by the next business day; administration errors disclosed to the patient, recorded on AIR and reported to the public health unit; cold-chain breaches of NIP or state stock reported and the stock quarantined at 2–8 °C labelled “Do not use”."
+  ],
+  "prescribing-ready": [
+   "Patient and pharmacist physically present; consultation records include the pharmacist’s HPI-I; records uploaded to My Health Record unless the patient objects (NSW Class Authorities and Practice Standards, 5 Nov 2026).",
+   "Financial consent before the consultation; Working with Children Check held where needed; pharmacists know they are mandatory reporters (NSW Health, Expanded scope – information for pharmacists).",
+   "Authorities in date: the NSW prescribing Class Authorities expire on 4 November 2027 (check the replacement is in place)."
+  ],
+  "otp-full": [
+   "Registration (NSW Health; Application for pharmacy OTP registration): current for this owner, address and trading name — any change needs a new application; dosing point details current in SafeScript NSW.",
+   "Undertaking (Application for pharmacy OTP registration): the proprietor and every pharmacist employed have read and understood the OTP Standards (record each pharmacist’s acknowledgement).",
+   "Self-audit (NSW Health): the NSW Health OTP self-audit tool for community pharmacies has been completed for this period."
+  ],
+  "daa-house": [
+   "Third-party packing (NSW Health, Dose Administration Aids; Regulation s 137): any third-party packer holds a TGA GMP licence; manufacturing instructions match the prescription and both sides keep them 2 years; patient consent obtained for third-party packing."
+  ],
+  "daa-external": [
+   "Third-party packer (NSW Health, Dose Administration Aids; Regulation s 137): holds a TGA GMP licence; manufacturing instructions match the prescription and both sides keep them 2 years; patient consent to third-party packing recorded; the DAA identifies this pharmacy as the supplier."
+  ],
+  "daa-external-b": [
+   "Transfer (NSW Health, Dose Administration Aids): patient consent obtained before prescriptions are transferred; this pharmacy does not label the DAA as the supplier — the packing pharmacy is the supplying pharmacy."
+  ],
+  "service-aged": [
+   "Urgent-use stock (Regulation s 12; NSW Health RCF page and order of 5 Nov 2026): supplied only on an order signed and dated by the Director of Nursing (or care manager), in the original pack, from the NSW list or the facility’s approved list; after-hours arrangements agreed.",
+   "S8 and charts (NSW Health RCF page): unwanted urgent-use S8 destroyed at the facility, not taken back to the pharmacy; paper medication chart duplicates kept current, each supply recorded, marked CANCELLED on final supply and kept 2 years; electronic charts used only if conformant after 31 March 2027."
+  ],
+  "service-delivery": [
+   "S8 and S4D by courier or post (Regulation s 190–191; NSW Health FAQ): outer packaging does not show S8 or S4D; written evidence of consignment and the signed receipt kept; Australia Post rules checked before mailing dispensed medicines."
+  ],
+  "service-cannabis": [
+   "Stock and supply (NSW Health, Cannabis medicines): no stock of an unregistered cannabis medicine unless the TGA approved it for a particular patient; no substitution of product or strength; no emergency supply of unregistered S8 cannabis; no exclusive supply arrangements."
+  ],
+  "CO-P": [
+   "Premises equipment (Health Practitioner Regulation (NSW) 2025 Sch 5; Council Guide): purpose-built vaccine fridge, dispensing balance, scales to 1 kg, 200/100/10/5 mL measures, funnel, 2 mortars and pestles (1 glass), stirring rod, 2 spatulas, ointment slab, counting tray; scales and measures stamped.",
+   "References (Council routine inspections): current Therapeutic Guidelines (digital) and Australian Medicines Handbook readily accessible, plus the Pharmacy Board’s list of reference texts and the NSW Medicines and Poisons Schedules guide. These are the most common inspection failures.",
+   "Dispensary (Regulation cl 12(2); Council Guide): lit and ventilated; impervious sink with hot and cold running water; bench at least 40 cm wide with 1 m² of clear working space; a barcode scanner at every dispensing station.",
+   "Displayed names (Council Guide Note 24): owner names at or near the main entrance; the name of the pharmacist in charge on duty next to the dispensing area (it can change day to day). Prices follow the Price Information Code of Practice.",
+   "Council kept up to date (Council): renovations to the dispensary or surrounds, name changes, partners added or removed, and interests acquired or disposed of were all notified."
+  ],
+  "A3": [
+   "Resources and risk (Pharmacy Board guidelines 1.1–1.2, Oct 2026): staffing, workload, equipment and references were assessed for each service, and the assessment is written down (the Board may ask to see it). A service is paused if it can’t be staffed safely.",
+   "People (Pharmacy Board guideline 1.2): staff are supervised for their experience and role, the training each role needs is identified, and everyone has confirmed they’ll work to the law and the pharmacy’s procedures.",
+   "Learning from mistakes (Pharmacy Board guideline 1.2): near misses and errors are recorded and reviewed as a system, and concerns raised by staff or patients are written down and answered.",
+   "Privacy and choice (Pharmacy Board guidelines 2–3): staff know the privacy rules and records are kept secure; no patient is told they must use this pharmacy because of an arrangement with a prescriber or clinic.",
+   "Privacy (Privacy Act 1988 APP 11; NSW HRIP Act s 25): patient information in the pharmacy’s own systems is kept secure, health records are kept at least 7 years after the last service (or until 25 for a child), and a suspected data breach would be assessed within 30 days and notified if eligible."
+  ]
+ },
+ "VAPE": [
+  "Products (NSW Health vaping self-assessment): every vaping good sold is on the TGA list of notified vapes.",
+  "Storage (self-assessment): all vaping goods are behind the counter; no self-selection.",
+  "Advertising (self-assessment): no advertisements for vaping goods inside or outside the pharmacy.",
+  "Pathway (self-assessment): products over 20 mg/mL only on prescription; every supply is through the TGA Authorised Prescriber scheme or a SAS pathway.",
+  "Schedule 3 supply (self-assessment): purpose is quitting or nicotine dependence; patient 18 or over with identity and age sighted; informed consent; SAS Category C notification within 28 days; no more than one month at a time and one supply per patient per month.",
+  "Information to patients (self-assessment): alternatives, dose and frequency, titration and duration, interactions, quit-support contacts, and that vaping goods are not TGA-assessed.",
+  "Reporting (self-assessment): adverse effects and faulty goods are reported to the TGA and the sponsor (within 15 calendar days, NSW Health)."
+ ],
+ "DATES": [
+  [
+   "2027-03-31",
+   "Electronic residential medication chart transition ends: only fully conformant eNRMC systems after this date",
+   "NSW Health, Residential care facilities",
+   [
+    "aged"
+   ]
+  ],
+  [
+   "2027-06-30",
+   "Every year by 30 June: pharmacy premises registration renewal fee, and each owner’s annual financial-interest declaration (1 May–30 April)",
+   "Pharmacy Council of NSW",
+   []
+  ],
+  [
+   "2027-11-04",
+   "NSW pharmacist prescribing Class Authorities expire (UTI, contraception, skin and the Queensland-trained conditions)",
+   "NSW Health authorities of 5 Nov 2026",
+   [
+    "prescribing",
+    "prescribing-ready"
+   ]
+  ],
+  [
+   "2028-06-20",
+   "PharmaSelf24 collection unit exemption expires (if you use one)",
+   "NSW Health, Orders and exemptions",
+   []
+  ],
+  [
+   "2028-07-31",
+   "BD Rowa and Meditech collection unit exemptions expire (if you use one)",
+   "NSW Health, Orders and exemptions",
+   []
+  ],
+  [
+   "2028-11-04",
+   "NSW pharmacist vaccination authorities and Vaccination Standards expire",
+   "NSW Health authority of 5 Nov 2026 (HA26/4735)",
+   [
+    "vaccination"
+   ]
+  ],
+  [
+   "2028-11-05",
+   "Instruments made under the old 2008 Regulation lapse (if not replaced earlier)",
+   "NSW Health, Orders and exemptions",
+   []
+  ]
+ ],
+ "CONTACTS": [
+  [
+   "NSW Pharmaceutical Services (enquiries, notifications)",
+   "MOH-PharmaceuticalServices@health.nsw.gov.au · online enquiry and notification forms on the Pharmaceutical Services website"
+  ],
+  [
+   "Lost or stolen S8 or S4D; lost drug register; lost, stolen or forged prescriptions",
+   "Online notification forms, NSW Health Pharmaceutical Services"
+  ],
+  [
+   "OTP registration (pharmacy)",
+   "MOH-Inspectionsandinvestigations@health.nsw.gov.au"
+  ],
+  [
+   "Public health unit (vaccine adverse events, errors, cold-chain breaches)",
+   "1300 066 055"
+  ],
+  [
+   "Drug and Alcohol Specialist Advisory Service (24/7)",
+   "1800 023 687"
+  ],
+  [
+   "OTP pharmacist-to-pharmacist advice line",
+   "1300 369 772"
+  ],
+  [
+   "healthdirect (patients with no GP, triage)",
+   "1800 022 222"
+  ],
+  [
+   "Prescription Shopping Information Service",
+   "1800 631 181"
+  ],
+  [
+   "e-prescription fraud",
+   "fraud@digitalhealth.gov.au"
+  ],
+  [
+   "Pharmacy Council of NSW (premises, ownership, notices)",
+   "hpca.nsw.gov.au/councils/pharmacy · routine inspections about every 18 months"
+  ],
+  [
+   "Professional indemnity (PDL) incident advice",
+   "1300 854 838"
+  ],
+  [
+   "Pharmacy Board of Australia guidelines",
+   "pharmacyboard.gov.au · Guidelines on the safe provision of pharmacy services (from 1 Oct 2026)"
+  ]
+ ],
+ "OWN": [
+  [
+   "Before the takeover",
+   [
+    "OTP dosing point: tell the buyer at least 2 weeks before; the new owner applies for a new OTP registration and emails Pharmaceutical Services at least 7 working days before taking over; order enough stock first (NSW Health).",
+    "Vaccination: the new owner applies for a new AIR provider number and a new VAN; never use the previous owner’s (NSW Health).",
+    "Collection unit: the Pharmacy Council of NSW is told before one is installed (exemption conditions).",
+    "Pharmacy Council of NSW: the right ownership application (sole pharmacist, partnership or body corporate) or notice of acquisition or disposal of a financial interest; all owners must be registered pharmacists and no one may hold interests in more than 5 NSW pharmacies (Council Guide)."
+   ]
+  ],
+  [
+   "On the day",
+   [
+    "S8: whoever takes control of the pharmacy for 1 month or more has an S8 inventory made in the drug register immediately (Regulation s 111(3))."
+   ]
+  ],
+  [
+   "After",
+   [
+    "healthdirect Service Finder listing updated (a legal condition for pharmacist prescribing).",
+    "Closing a pharmacy: the proprietor stays responsible for dispensing records and prescriptions for 2 years from the last transaction, available to an authorised officer (NSW Health FAQ).",
+    "Emergency closure: non-pharmacist staff may, at a pharmacist’s direction, move held prescriptions and repeats (not S8 or anabolic steroids) and deliver dispensed non-S8 medicines to patients (NSW Health FAQ).",
+    "Closing: lodge the Notice of closure with the Pharmacy Council within 14 days (Council Guide Note 16).",
+    "Renovating or relocating the dispensary: the Council inspects before you reopen."
+   ]
+  ]
+ ],
+ "KINDS": [
+  "Reported to NSW Health (Pharmaceutical Services)",
+  "Reported to the police",
+  "Reported to the public health unit",
+  "Notified the TGA",
+  "Told the prescriber or GP",
+  "Contacted the Pharmacy Council or Board",
+  "Other"
+ ],
+ "SUGGEST": [
+  [
+   null,
+   "",
+   "Pharmacist registration (Ahpra)",
+   "Renews each year by 30 November; 40 CPD credits each year to 30 September (Pharmacy Board)."
+  ],
+  [
+   null,
+   "vaccination",
+   "Immuniser training certificate",
+   "For each vaccine they give (NSW Pharmacist Vaccination Standards)."
+  ],
+  [
+   null,
+   "vaccination",
+   "CPR certificate",
+   "Must be under 12 months old; paediatric CPR if vaccinating under-14s."
+  ],
+  [
+   null,
+   "vaccination",
+   "NSW Pharmacist Immuniser Declaration Form",
+   "Kept at the pharmacy for audit."
+  ],
+  [
+   null,
+   "vaccination",
+   "First aid certificate",
+   "Renewed every 3 years; no grace period (Pharmacy Council vaccination checklist)."
+  ],
+  [
+   null,
+   "vaccination",
+   "NSW Health vaccine cold-chain training module",
+   "Everyone who handles vaccine storage."
+  ],
+  [
+   null,
+   "otp",
+   "Read and understood the OTP Standards",
+   "Every pharmacist (OTP registration undertaking)."
+  ],
+  [
+   null,
+   "prescribing",
+   "Working with Children Check",
+   "If they see patients under 18."
+  ],
+  [
+   null,
+   "prescribing",
+   "Injection course (for DMPA)",
+   "Only if they give the contraceptive injection."
+  ]
+ ]
+}

@@ -1,0 +1,61 @@
+// App state, navigation and the one way data changes: ctx.change(fn, message) edits a copy, saves it, logs it, redraws.
+import * as store from './store.js';
+import { clone, html } from './util.js';
+import { nav } from './ui.js';
+const views = {};
+export const register = (name, v) => { views[name] = v; };
+const S = { ph: null, drafts: {}, stack: [], tab: 'today', toast: '', ui: {} };
+export const ctx = {
+  get ph() { return S.ph; }, get drafts() { return S.drafts; }, get route() { return S.stack.at(-1) || { name: S.tab }; }, ui: S.ui,
+  go(name, params = {}) { S.stack.push({ name, ...params }); render(true); },
+  replace(name, params = {}) { S.stack.pop(); S.stack.push({ name, ...params }); render(true); },
+  back() { S.stack.pop(); render(true); },
+  tab(name) { S.tab = name; S.stack = []; render(true); },
+  change(fn, message) {
+    const next = clone(S.ph); const r = fn(next); if (r === false) return false;
+    S.ph = next; store.savePharmacy(next); if (message) ctx.toast(message); render(); return true;
+  },
+  draft(key) { return S.drafts[key] || null; },
+  saveDraft(key, value) { const rev = S.drafts[key]?.rev; store.saveDraft(S.ph.id, key, value, rev); S.drafts = store.drafts(S.ph.id); },
+  toast(m) { S.toast = m; clearTimeout(S.tt); S.tt = setTimeout(() => { S.toast = ''; const t = document.querySelector('.toast'); if (t) t.remove(); }, 3000); },
+  async open(id) { const d = store.dir(); d.active = id; store.setDir(d); await store.flush(); load(); S.stack = []; S.tab = 'today'; render(true); },
+  load, store, rerender: () => render(),
+};
+function load() {
+  const d = store.dir(); S.ph = d.active ? store.pharmacy(d.active) : null; S.drafts = S.ph ? store.drafts(S.ph.id) : {};
+}
+let root;
+export function render(scrollTop = false) {
+  const r = S.ph ? ctx.route : { name: 'welcome' };
+  const v = views[r.name] || views.today;
+  let out = '';
+  try { out = html(v.render(ctx, r)); } catch (e) { console.error(e); out = '<div class="screen"><main class="body"><p class="note bad">Something went wrong showing this screen. Your records are safe. Go back and try again.</p><button class="btn secondary" data-act="back">Back</button></main></div>'; }
+  const showNav = S.ph && !v.noNav;
+  const focusName = document.activeElement?.name, focusVal = document.activeElement?.value;
+  root.innerHTML = out + (showNav ? html(nav(S.stack.length ? (v.tab || S.tab) : S.tab)) : '') + (S.toast ? `<div class="toast" role="status">${S.toast.replace(/[<>&]/g, '')}</div>` : '');
+  root.classList.toggle('has-nav', !!showNav);
+  if (scrollTop) window.scrollTo(0, 0);
+  if (focusName) { const el = root.querySelector(`[name="${focusName}"]`); if (el && el.tagName !== 'INPUT' || el?.type === 'text') { /* keep typing focus where useful */ } }
+  v.after?.(ctx, r, root);
+}
+function handle(e, type) {
+  const el = e.target.closest(type === 'submit' ? 'form[data-form]' : '[data-act]'); if (!el) return;
+  const r = S.ph ? ctx.route : { name: 'welcome' }; const v = views[r.name] || {};
+  if (type === 'submit') { e.preventDefault(); const fn = v.forms?.[el.dataset.form] || common.forms[el.dataset.form]; fn?.(ctx, Object.fromEntries(new FormData(el)), el, r, e); return; }
+  const act = el.dataset.act; const fn = v.acts?.[act] || common.acts[act]; if (!fn) return;
+  if (el.tagName === 'A') e.preventDefault();
+  fn(ctx, el.dataset, el, r, e);
+}
+const common = { acts: {
+  back: c => c.back(), tab: (c, d) => c.tab(d.tab), go: (c, d) => c.go(d.to, { id: d.id || '' }),
+  seg: (c, d) => { c.ui[d.name] = d.value; render(); },
+}, forms: {} };
+export async function start(el) {
+  root = el;
+  await store.init(() => { load(); render(); });
+  load();
+  document.addEventListener('click', e => handle(e, 'click'));
+  document.addEventListener('submit', e => handle(e, 'submit'));
+  document.addEventListener('change', e => { const el = e.target.closest('[data-change]'); if (!el) return; const v = views[ctx.route.name] || {}; v.changes?.[el.dataset.change]?.(ctx, el, ctx.route, e); });
+  render();
+}

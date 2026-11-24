@@ -1,0 +1,6219 @@
+{
+ "catalog": [
+  {
+   "id": "B1",
+   "name": "S8 stock check · proprietor review",
+   "frequency": "Quarterly",
+   "check": "Confirm the pharmacist completed the underlying stock check, review exceptions and follow up outstanding matters."
+  },
+  {
+   "id": "M1",
+   "name": "Staff safety meeting",
+   "frequency": "Monthly",
+   "check": "Review staff concerns, near misses and procedure changes. Record who still needs briefing, including locums."
+  },
+  {
+   "id": "M2",
+   "name": "Proprietor check-in",
+   "frequency": "Monthly",
+   "check": "Review incidents, complaints, overdue actions and resource decisions with the pharmacist in charge. Check whether one previous fix worked."
+  },
+  {
+   "id": "Q1",
+   "name": "Proprietor site visit",
+   "frequency": "Quarterly",
+   "check": "One visit covering premises, medicines, dispensing and staff follow-up."
+  },
+  {
+   "id": "Q4",
+   "name": "Proprietor governance meeting",
+   "frequency": "Quarterly",
+   "check": "Review trends, staffing, resources and effectiveness of previous decisions. Reuse the site-visit findings."
+  },
+  {
+   "id": "A1",
+   "name": "Staff Assurance",
+   "frequency": "Annual",
+   "check": "Review role, current registration, competence, supervision and training. Reopen affected checks on induction, expiry or role change."
+  },
+  {
+   "id": "A3",
+   "name": "Governance, access and continuity",
+   "frequency": "Annual",
+   "check": "Review patient access barriers, risks, privacy, responsibilities and earlier actions. Record a practical continuity exercise."
+  },
+  {
+   "id": "service-otp",
+   "name": "OTP monthly check-in",
+   "frequency": "Monthly",
+   "check": "Review OTP service exceptions, unresolved self-audit findings and equipment check evidence. Check applicable registration and standards.",
+   "service": "otp"
+  },
+  {
+   "id": "service-staged",
+   "name": "Staged supply",
+   "frequency": "Six-monthly",
+   "check": "Review missed collections, changed arrangements and escalation decisions.",
+   "service": "staged"
+  },
+  {
+   "id": "service-vaccination",
+   "name": "Vaccination",
+   "frequency": "Quarterly",
+   "check": "Review competence, cold chain, emergency readiness and reporting exceptions.",
+   "service": "vaccination"
+  },
+  {
+   "id": "service-prescribing",
+   "name": "Pharmacist prescribing",
+   "frequency": "Quarterly",
+   "check": "Review service authority, competence, consent, referrals and follow-up. Link to the annual evaluation.",
+   "service": "prescribing"
+  },
+  {
+   "id": "service-reviews",
+   "name": "Medicines reviews",
+   "frequency": "Annual",
+   "check": "Review applicable referral, consent, service and claiming evidence. Keep patient reports in the clinical system.",
+   "service": "reviews"
+  },
+  {
+   "id": "service-delivery",
+   "name": "Home delivery",
+   "frequency": "Annual",
+   "check": "Sample storage, handover, failed deliveries and communication.",
+   "service": "delivery"
+  },
+  {
+   "id": "service-simple",
+   "name": "Standard compounding review",
+   "frequency": "Annual",
+   "check": "Review training, equipment, cleaning and a sample of preparation checks.",
+   "service": "simple"
+  },
+  {
+   "id": "service-complex",
+   "name": "Complex compounding",
+   "frequency": "Annual",
+   "check": "Review facility suitability, validation, competence and applicable category before expanding practice.",
+   "service": "complex"
+  },
+  {
+   "id": "service-aged",
+   "name": "Residential aged care supply",
+   "frequency": "Annual",
+   "check": "Review handover, medication changes, urgent-use stock arrangements and communication.",
+   "service": "aged"
+  },
+  {
+   "id": "service-screening",
+   "name": "Screening and risk assessment",
+   "frequency": "Annual",
+   "check": "Review equipment, competence, consent and referral processes.",
+   "service": "screening"
+  },
+  {
+   "id": "annual-adherence",
+   "name": "Medicine adherence support",
+   "frequency": "Annual",
+   "check": "Review safety, feedback, available outcomes and improvement decisions for this service. Reuse existing evaluations where suitable.",
+   "service": "adherence"
+  },
+  {
+   "id": "service-nsp",
+   "name": "Needle and syringe program",
+   "frequency": "Annual",
+   "check": "Review supply arrangements, staff training, sharps safety and incident follow-up.",
+   "service": "nsp"
+  },
+  {
+   "id": "service-certificates",
+   "name": "Absence from work certificates",
+   "frequency": "Annual",
+   "check": "Review scope, assessment process, records and referral decisions.",
+   "service": "certificates"
+  },
+  {
+   "id": "service-vaping",
+   "name": "Therapeutic vaping supply",
+   "frequency": "Annual",
+   "check": "Review current supply eligibility, product controls, staff training and records.",
+   "service": "vaping"
+  },
+  {
+   "id": "service-cannabis",
+   "name": "Medicinal cannabis supply",
+   "frequency": "Annual",
+   "check": "Review lawful access pathway, supply authority, verification, storage and record handling.",
+   "service": "cannabis"
+  },
+  {
+   "id": "service-funding",
+   "name": "Other funded programs",
+   "frequency": "Annual",
+   "check": "Identify actual programs, current eligibility and claiming evidence before activating program reminders.",
+   "service": "funding"
+  },
+  {
+   "id": "otp-full",
+   "name": "OTP comprehensive review",
+   "frequency": "Six-monthly",
+   "service": "otp",
+   "check": "Review the dosing point and applicable service arrangements.",
+   "eventOnly": false
+  },
+  {
+   "id": "otp-amenity",
+   "name": "OTP daily-volume threshold review",
+   "frequency": "Monthly",
+   "service": "otp",
+   "check": "Review the plan and declaration for the selected dosing-volume profile. Confirm the applicable source.",
+   "eventOnly": false
+  },
+  {
+   "id": "daa-house",
+   "name": "DAA in-house packing",
+   "frequency": "Quarterly",
+   "service": "daa",
+   "check": "Review packing practice and handover.",
+   "eventOnly": false
+  },
+  {
+   "id": "daa-external",
+   "name": "External DAA · we dispense",
+   "frequency": "Quarterly",
+   "service": "daa",
+   "check": "Review the responsibilities for each external packing arrangement.",
+   "eventOnly": false
+  },
+  {
+   "id": "vacc-ready",
+   "name": "Vaccination readiness",
+   "frequency": "Before launch or material change",
+   "service": "vaccination",
+   "check": "Confirm readiness before offering the service.",
+   "eventOnly": true
+  },
+  {
+   "id": "vacc-storage",
+   "name": "Vaccine storage self-audit reference",
+   "frequency": "Annual",
+   "service": "vaccination",
+   "check": "Review the storage audit and corrective tasks.",
+   "eventOnly": false
+  },
+  {
+   "id": "daa-external-b",
+   "name": "External DAA · other pharmacy dispenses",
+   "service": "daa",
+   "frequency": "Quarterly",
+   "check": "Review the dispensing and packing pharmacy’s responsibilities."
+  },
+  {
+   "id": "prescribing-ready",
+   "name": "Pharmacist prescribing readiness",
+   "service": "prescribing",
+   "frequency": "Before launch or material change",
+   "eventOnly": true,
+   "check": "Review each authorised service and pharmacist."
+  },
+  {
+   "id": "CO-P",
+   "name": "Pharmacy premises registration renewal",
+   "frequency": "Annual",
+   "check": "Confirm site renewal and Council receipt"
+  },
+  {
+   "id": "CO-F",
+   "name": "Proprietor financial interest declaration",
+   "frequency": "Annual",
+   "check": "Confirm this proprietor’s financial interest declaration and receipt for the applicable reporting period"
+  }
+ ],
+ "forms": {
+  "B1": {
+   "title": "S8 stock check · proprietor review",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Was the underlying stock check completed?",
+     "options": [
+      {
+       "value": "Completed",
+       "issue": false
+      },
+      {
+       "value": "Completed with issues",
+       "issue": true
+      },
+      {
+       "value": "Incomplete",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Are there outstanding discrepancies or matters requiring follow-up?",
+     "options": [
+      {
+       "value": "No",
+       "issue": false
+      },
+      {
+       "value": "Yes",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "If incomplete or an issue exists, have follow-up, investigation, reporting and escalation steps been addressed?",
+     "options": [
+      {
+       "value": "Addressed",
+       "issue": false
+      },
+      {
+       "value": "Outstanding",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Keys and codes (Regulation s 122; NSW Health): keys on a pharmacist while open and off the premises (or in another safe) when closed; codes known only to pharmacists, changed at regular intervals, and personal codes removed when someone leaves.",
+     "options": [
+      {
+       "value": "Addressed",
+       "issue": false
+      },
+      {
+       "value": "Outstanding",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Drug register (Regulation s 109–110; NSW Health): kept on the premises; entries made the same day; a page per substance, brand, strength and form; it includes patient-held and expired stock (expired on a separate page); the owner makes sure staff follow it.",
+     "options": [
+      {
+       "value": "Addressed",
+       "issue": false
+      },
+      {
+       "value": "Outstanding",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "Orders and receipts (Regulation s 194; NSW Health): S8 received straight into the safe and entered; receipt signed and the supplier told in writing within 24 hours; phone, fax or email orders confirmed in writing within 14 days.",
+     "options": [
+      {
+       "value": "Addressed",
+       "issue": false
+      },
+      {
+       "value": "Outstanding",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      }
+     ]
+    },
+    {
+     "n": 6,
+     "text": "If an electronic drug register is used (Electronic Drug Register Standards and Guideline): unique logins only, leavers removed, access reviewed, audit logs reviewed by someone who does not make entries, and a bound book used during downtime with the balance entered afterwards.",
+     "options": [
+      {
+       "value": "Addressed",
+       "issue": false
+      },
+      {
+       "value": "Outstanding",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "Stock-check completion date",
+     "type": "date",
+     "id": "stock-date",
+     "required": false
+    },
+    {
+     "label": "Pharmacist who completed the check",
+     "type": "text",
+     "id": "stock-pharmacist",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "The Medicines, Poisons and Therapeutic Goods Regulation 2026 (s 111) requires an S8 inventory entry in the drug register every 3 months, unless NSW Health has approved other times. Record the pharmacist’s actual check date. An incomplete check stays outstanding. Record every S8 loss in the drug register. NSW Health directs the authorised holder to notify the Health Secretary immediately of unexplained loss or theft of S8 or S4D medicines. A follow-up task in this app does not lodge that notification.",
+    "Proprietor oversight · record exceptions and follow-up",
+    "Quarterly · Regulation 2026, s 111 · every 3 months unless NSW Health approves other times"
+   ]
+  },
+  "M1": {
+   "title": "Staff safety meeting",
+   "questions": [],
+   "fields": [
+    {
+     "label": "Date",
+     "type": "date",
+     "id": "md",
+     "required": true
+    },
+    {
+     "label": "Meeting title",
+     "type": "text",
+     "id": "mt",
+     "required": true
+    },
+    {
+     "label": "Recorded by",
+     "type": "text",
+     "id": "mb",
+     "required": true
+    },
+    {
+     "label": "Other attendees",
+     "type": "text",
+     "id": "ma",
+     "required": false
+    },
+    {
+     "label": "Section heading",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Notes",
+     "type": "textarea",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Section heading",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Notes",
+     "type": "textarea",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Section heading",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Notes",
+     "type": "textarea",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Notes and decisions",
+     "type": "textarea",
+     "id": "mn",
+     "required": false
+    },
+    {
+     "label": "Evidence reference (optional)",
+     "type": "text",
+     "id": "minute-ref",
+     "required": false
+    },
+    {
+     "label": "Next meeting review",
+     "type": "date",
+     "id": "minute-next",
+     "required": true
+    }
+   ],
+   "notes": [
+    "Wattle Grove Pharmacy",
+    "Private proprietor notes. Attendance grants no access."
+   ]
+  },
+  "M2": {
+   "title": "Proprietor check-in",
+   "questions": [],
+   "fields": [
+    {
+     "label": "Date",
+     "type": "date",
+     "id": "md",
+     "required": true
+    },
+    {
+     "label": "Meeting title",
+     "type": "text",
+     "id": "mt",
+     "required": true
+    },
+    {
+     "label": "Recorded by",
+     "type": "text",
+     "id": "mb",
+     "required": true
+    },
+    {
+     "label": "Other attendees",
+     "type": "text",
+     "id": "ma",
+     "required": false
+    },
+    {
+     "label": "Section heading",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Notes",
+     "type": "textarea",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Section heading",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Notes",
+     "type": "textarea",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Section heading",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Notes",
+     "type": "textarea",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Notes and decisions",
+     "type": "textarea",
+     "id": "mn",
+     "required": false
+    },
+    {
+     "label": "Evidence reference (optional)",
+     "type": "text",
+     "id": "minute-ref",
+     "required": false
+    },
+    {
+     "label": "Next meeting review",
+     "type": "date",
+     "id": "minute-next",
+     "required": true
+    }
+   ],
+   "notes": [
+    "Wattle Grove Pharmacy",
+    "Private proprietor notes. Attendance grants no access."
+   ]
+  },
+  "Q4": {
+   "title": "Proprietor governance meeting",
+   "questions": [],
+   "fields": [
+    {
+     "label": "Date",
+     "type": "date",
+     "id": "md",
+     "required": true
+    },
+    {
+     "label": "Meeting title",
+     "type": "text",
+     "id": "mt",
+     "required": true
+    },
+    {
+     "label": "Recorded by",
+     "type": "text",
+     "id": "mb",
+     "required": true
+    },
+    {
+     "label": "Other attendees",
+     "type": "text",
+     "id": "ma",
+     "required": false
+    },
+    {
+     "label": "Section heading",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Notes",
+     "type": "textarea",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Section heading",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Notes",
+     "type": "textarea",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Section heading",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Notes",
+     "type": "textarea",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Notes and decisions",
+     "type": "textarea",
+     "id": "mn",
+     "required": false
+    },
+    {
+     "label": "Evidence reference (optional)",
+     "type": "text",
+     "id": "minute-ref",
+     "required": false
+    },
+    {
+     "label": "Next meeting review",
+     "type": "date",
+     "id": "minute-next",
+     "required": true
+    }
+   ],
+   "notes": [
+    "Wattle Grove Pharmacy",
+    "Private proprietor notes. Attendance grants no access."
+   ]
+  },
+  "A1": {
+   "title": "Annual staff assurance",
+   "questions": [],
+   "fields": [],
+   "notes": []
+  },
+  "A3": {
+   "title": "Governance, access and continuity",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Review proprietor oversight and responsibilities",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Review outstanding risks, audit findings and Tasks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Check access, communication and privacy arrangements",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Review the continuity exercise scenario, outcome and follow-up",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Resources and risk (Pharmacy Board guidelines 1.1–1.2, Oct 2026): staffing, workload, equipment and references were assessed for each service, and the assessment is written down (the Board may ask to see it). A service is paused if it can’t be staffed safely.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "People (Pharmacy Board guideline 1.2): staff are supervised for their experience and role, the training each role needs is identified, and everyone has confirmed they’ll work to the law and the pharmacy’s procedures.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 6,
+     "text": "Learning from mistakes (Pharmacy Board guideline 1.2): near misses and errors are recorded and reviewed as a system, and concerns raised by staff or patients are written down and answered.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 7,
+     "text": "Privacy and choice (Pharmacy Board guidelines 2–3): staff know the privacy rules and records are kept secure; no patient is told they must use this pharmacy because of an arrangement with a prescriber or clinic.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 8,
+     "text": "Privacy (Privacy Act 1988 APP 11; NSW HRIP Act s 25): patient information in the pharmacy’s own systems is kept secure, health records are kept at least 7 years after the last service (or until 25 for a child), and a suspected data breach would be assessed within 30 days and notified if eligible.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "Continuity exercise date",
+     "type": "date",
+     "id": "exercise-date",
+     "required": false
+    },
+    {
+     "label": "Exercise scenario",
+     "type": "text",
+     "id": "exercise-scenario",
+     "required": false
+    },
+    {
+     "label": "Outcome and follow-up",
+     "type": "text",
+     "id": "exercise-result",
+     "required": false
+    },
+    {
+     "label": "Does this pharmacy participate in My Health Record? Select Yes No To confirm",
+     "type": "select",
+     "id": "mhr-scope",
+     "required": true,
+     "options": [
+      "Select",
+      "Yes",
+      "No",
+      "To confirm"
+     ]
+    },
+    {
+     "label": "Policy, access, staff training and change review reference",
+     "type": "text",
+     "id": "mhr-evidence",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Review the security and access policy at least annually, when a material risk change triggers review, and on request by the System Operator. Keep each version for five years from its effective date.",
+    "Check that authorised users receive training before access, annually and after significant changes to the system or governing legislation. Check access is removed when it is no longer appropriate.",
+    "For a written System Operator request, provide the requested current or past policy, or applicable records, within seven days of receipt. Record only an evidence reference here.",
+    "Proprietor oversight · record exceptions and follow-up",
+    "Annual · Recommended proprietor oversight interval"
+   ]
+  },
+  "service-otp": {
+   "title": "OTP monthly check-in",
+   "questions": [],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "Attendees or pharmacist in charge consulted",
+     "type": "text",
+     "id": "people",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    },
+    {
+     "label": "Proprietor finding No new verification Verified operational review Gap identified Unable to verify",
+     "type": "select",
+     "id": "",
+     "required": false,
+     "options": [
+      "No new verification",
+      "Verified operational review",
+      "Gap identified",
+      "Unable to verify"
+     ]
+    },
+    {
+     "label": "Actual operational review date",
+     "type": "date",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Operational reviewer",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Number of files or records sampled (optional)",
+     "type": "number",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "External reference (optional, de-identified)",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Material finding or follow-up",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Equipment action No update Record equipment evidence Report fault or gap",
+     "type": "select",
+     "id": "",
+     "required": false,
+     "options": [
+      "No update",
+      "Record equipment evidence",
+      "Report fault or gap"
+     ]
+    },
+    {
+     "label": "Equipment model",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Manufacturer protocol reference",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Next maintenance date from protocol",
+     "type": "date",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Next accuracy check from protocol",
+     "type": "date",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Equipment finding",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "select",
+     "id": "",
+     "required": false,
+     "options": [
+      "No update",
+      "New incident"
+     ]
+    },
+    {
+     "label": "",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "date",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "select",
+     "id": "",
+     "required": false,
+     "options": [
+      "Assess applicability",
+      "Not applicable",
+      "Required — outstanding",
+      "Submitted"
+     ]
+    },
+    {
+     "label": "",
+     "type": "date",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "select",
+     "id": "",
+     "required": false,
+     "options": [
+      "Pending",
+      "Evidence verified"
+     ]
+    },
+    {
+     "label": "",
+     "type": "select",
+     "id": "",
+     "required": false,
+     "options": [
+      "No new verification",
+      "Record dated plan and signed declaration"
+     ]
+    },
+    {
+     "label": "",
+     "type": "date",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "text",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "text",
+     "id": "",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Monthly · Recommended proprietor oversight interval",
+    "Selected OTP patient files · Needs verification",
+    "Local arrangement · Pharmacist alone · Every six months",
+    "Use the equipment protocol for due dates. Daily cleaning is documented in the operational system."
+   ]
+  },
+  "service-staged": {
+   "title": "Staged supply",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Check consent, procedures and responsible staff",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Review changes to directions, missed collections and communication",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Sample secure records and medicine security",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Review incidents and corrective Tasks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Check funded program eligibility, consent, documentation and claims",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Funded Staged Supply · PPA Program Rules section 8 requires the claiming provider to retain service records and consent for at least seven years after the claim. Review the reference in the source system.",
+    "Proprietor oversight · record exceptions and follow-up",
+    "Six-monthly · Recommended proprietor oversight interval",
+    "Preview only. Enable this service to record a review."
+   ]
+  },
+  "service-vaccination": {
+   "title": "Vaccination",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Have required fridge temperature recordings and weekly data-logger reviews been completed? Yes / No.",
+     "options": [
+      {
+       "value": "Yes",
+       "issue": false
+      },
+      {
+       "value": "No",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Have there been vaccination errors, cold-chain breaches or adverse events requiring attention? Yes / No.",
+     "options": [
+      {
+       "value": "No",
+       "issue": false
+      },
+      {
+       "value": "Yes",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Are there outstanding vaccination compliance, training or staffing concerns? Yes / No.",
+     "options": [
+      {
+       "value": "No",
+       "issue": false
+      },
+      {
+       "value": "Yes",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Reporting (Vaccination Standards, part G): adverse events reported to the public health unit (1300 066 055) straight after the response and by the next business day; administration errors disclosed to the patient, recorded on AIR and reported to the public health unit; cold-chain breaches of NIP or state stock reported and the stock quarantined at 2–8 °C labelled “Do not use”.",
+     "options": [
+      {
+       "value": "No",
+       "issue": false
+      },
+      {
+       "value": "Yes",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Quarterly · Recommended proprietor oversight interval",
+    "Preview only. Enable this service to record a review."
+   ]
+  },
+  "service-prescribing": {
+   "title": "Pharmacist prescribing",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Confirm each service authorisation and individual credentials",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Sample eligibility and clinical assessment evidence",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Check consent and documentation",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Review communication and follow-up",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Review incidents and corrective tasks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Service scope · Record the services offered in Services.",
+    "Proprietor oversight · record exceptions and follow-up",
+    "Quarterly · Recommended proprietor oversight interval"
+   ]
+  },
+  "service-reviews": {
+   "title": "Medicines reviews",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Check eligibility and pharmacist credentials for each offered HMR, RMMR or MedsCheck service",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Sample consent and referral records",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Review reports and communication",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Review applicable program rules and claims",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Review incidents and tasks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Annual · Recommended proprietor oversight interval"
+   ]
+  },
+  "service-delivery": {
+   "title": "Home delivery",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Review delivery procedures and failed deliveries",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Check transport conditions and security",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Review confidentiality",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Sample handover and delivery evidence",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Review incidents and outstanding tasks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "S8 and S4D by courier or post (Regulation s 190–191; NSW Health FAQ): outer packaging does not show S8 or S4D; written evidence of consignment and the signed receipt kept; Australia Post rules checked before mailing dispensed medicines.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Annual · Recommended proprietor oversight interval"
+   ]
+  },
+  "service-simple": {
+   "title": "Standard compounding review",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Review scope and applicable requirements",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Confirm staff competency",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Review facilities and equipment",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Check ingredient quality",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Sample preparation and label records",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "Review incidents and tasks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Annual · Recommended proprietor oversight interval"
+   ]
+  },
+  "service-complex": {
+   "title": "Complex compounding",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Review scope, competence and changes including sterile work",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Review procedures and quality assurance",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Review environmental controls",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Sample batch and preparation records",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Review ingredients and incidents",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "Review external findings and corrective tasks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Annual · Recommended proprietor oversight interval"
+   ]
+  },
+  "service-aged": {
+   "title": "Residential aged care supply",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Review facility agreements",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Sample medication orders and supply arrangements",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Review packing, delivery and handover",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Review incidents and escalation",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Check staff training and follow-up",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "Urgent-use stock (Regulation s 12; NSW Health RCF page and order of 5 Nov 2026): supplied only on an order signed and dated by the Director of Nursing (or care manager), in the original pack, from the NSW list or the facility’s approved list; after-hours arrangements agreed.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 6,
+     "text": "S8 and charts (NSW Health RCF page): unwanted urgent-use S8 destroyed at the facility, not taken back to the pharmacy; paper medication chart duplicates kept current, each supply recorded, marked CANCELLED on final supply and kept 2 years; electronic charts used only if conformant after 31 March 2027.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Annual · Recommended proprietor oversight interval"
+   ]
+  },
+  "service-screening": {
+   "title": "Screening and risk assessment",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Confirm competency",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Review equipment checks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Review consent",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Check referral pathways",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Review incidents and follow-up",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Annual · Recommended proprietor oversight interval"
+   ]
+  },
+  "annual-adherence": {
+   "title": "Medicine adherence support",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Review service procedures, staff training and consent arrangements",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Check secure documentation and referral processes",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Review interrupted-service arrangements, incidents and outstanding Tasks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Check applicable funding conditions for this service",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "Notes or evidence reference (optional)",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Annual · Recommended proprietor oversight interval"
+   ]
+  },
+  "service-nsp": {
+   "title": "Needle and syringe program",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Confirm participating service model",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Check staff training",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Review safe handling and disposal",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Review occupational exposure arrangements",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Sample service records and incidents",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Annual · Recommended proprietor oversight interval"
+   ]
+  },
+  "service-certificates": {
+   "title": "Absence from work certificates",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Confirm competence and scope",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Sample assessment process",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Review consent and records",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Review incidents and follow-up",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Annual · Recommended proprietor oversight interval"
+   ]
+  },
+  "service-vaping": {
+   "title": "Therapeutic vaping supply",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Products (NSW Health vaping self-assessment): every vaping good sold is on the TGA list of notified vapes.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Storage (self-assessment): all vaping goods are behind the counter; no self-selection.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Advertising (self-assessment): no advertisements for vaping goods inside or outside the pharmacy.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Pathway (self-assessment): products over 20 mg/mL only on prescription; every supply is through the TGA Authorised Prescriber scheme or a SAS pathway.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Schedule 3 supply (self-assessment): purpose is quitting or nicotine dependence; patient 18 or over with identity and age sighted; informed consent; SAS Category C notification within 28 days; no more than one month at a time and one supply per patient per month.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "Information to patients (self-assessment): alternatives, dose and frequency, titration and duration, interactions, quit-support contacts, and that vaping goods are not TGA-assessed.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 6,
+     "text": "Reporting (self-assessment): adverse effects and faulty goods are reported to the TGA and the sponsor (within 15 calendar days, NSW Health).",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Annual · Recommended proprietor oversight interval"
+   ]
+  },
+  "service-cannabis": {
+   "title": "Medicinal cannabis supply",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Sample prescription and applicable access pathway; review independence, patient choice and conflicts",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Review supply, counselling, consent, substitutions and communication",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Check evidence of S8 oversight in B1, including secure uncollected stock and lawful disposal",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Review product quality and lawful sourcing; check advertising against TGA requirements",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Review incidents, concerns and corrective tasks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "Stock and supply (NSW Health, Cannabis medicines): no stock of an unregistered cannabis medicine unless the TGA approved it for a particular patient; no substitution of product or strength; no emergency supply of unregistered S8 cannabis; no exclusive supply arrangements.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Annual · Recommended proprietor oversight interval"
+   ]
+  },
+  "service-funding": {
+   "title": "Other funded programs",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Confirm program participation",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Review current eligibility",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Sample claims and evidence",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Review staff training",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Review exceptions and corrective tasks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Annual · Recommended proprietor oversight interval"
+   ]
+  },
+  "otp-full": {
+   "title": "OTP comprehensive review",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Registration and governance · section 90 approval, ownership changes and current procedures",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Staff and training · pharmacist-only preparation, supply and administration; documented competencies",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Medicines and equipment · secure storage, quality and maintenance to operating protocols",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Prescriptions and takeaways · nominated dosing point, directly forwarded prescription, labels and packaging",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Records and reconciliation · pharmacist, recipient, observed and takeaway doses",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "Registration (NSW Health; Application for pharmacy OTP registration): current for this owner, address and trading name — any change needs a new application; dosing point details current in SafeScript NSW.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 6,
+     "text": "Undertaking (Application for pharmacy OTP registration): the proprietor and every pharmacist employed have read and understood the OTP Standards (record each pharmacist’s acknowledgement).",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 7,
+     "text": "Self-audit (NSW Health): the NSW Health OTP self-audit tool for community pharmacies has been completed for this period.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Methadone",
+     "type": "number",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Sublingual buprenorphine",
+     "type": "number",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Long-acting injectable buprenorphine",
+     "type": "number",
+     "id": "",
+     "required": false
+    },
+    {
+     "label": "Did 80 or more patients receive supervised dosing on any one day? Select Yes No",
+     "type": "select",
+     "id": "threshold",
+     "required": true,
+     "options": [
+      "Select",
+      "Yes",
+      "No"
+     ]
+    },
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "text",
+     "id": "dosing-device",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "text",
+     "id": "dosing-protocol",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "date",
+     "id": "dosing-last",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "date",
+     "id": "dosing-next",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "dosing-reference",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Six-monthly · Recommended proprietor oversight interval"
+   ]
+  },
+  "otp-amenity": {
+   "title": "OTP daily-volume threshold review",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Did supervised dosing reach 80 or more people on any single day in the review period?",
+     "options": [
+      {
+       "value": "Yes",
+       "issue": false
+      },
+      {
+       "value": "No",
+       "issue": false
+      },
+      {
+       "value": "Unknown",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "Plan or escalation reference for the daily threshold",
+     "type": "text",
+     "id": "amenity-plan",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Monthly · Recommended proprietor oversight interval",
+    "Preview only. Enable this service to record a review."
+   ]
+  },
+  "daa-house": {
+   "title": "DAA in-house packing",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Procedures and staff competency",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Packing environment and medicine suitability",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Medication changes and accuracy",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Sample labels for Appendix L, patient DOB and actual packing date",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Checking, records, supply and handover",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "Incidents and corrective tasks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 6,
+     "text": "Third-party packing (NSW Health, Dose Administration Aids; Regulation s 137): any third-party packer holds a TGA GMP licence; manufacturing instructions match the prescription and both sides keep them 2 years; patient consent obtained for third-party packing.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Quarterly · Recommended proprietor oversight interval",
+    "Preview only. Enable this service to record a review."
+   ]
+  },
+  "daa-external": {
+   "title": "External DAA · we dispense",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Confirm dispensing responsibilities, consent and written agreement",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Verify the packing provider holds the applicable TGA GMP licence",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Check instructions match prescriptions and both parties retain the instructions",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Sample labels for DOB, actual pack date and reference linking prescriptions to manufacturing instructions",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Review changes, delivery, incidents and corrective tasks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "Third-party packer (NSW Health, Dose Administration Aids; Regulation s 137): holds a TGA GMP licence; manufacturing instructions match the prescription and both sides keep them 2 years; patient consent to third-party packing recorded; the DAA identifies this pharmacy as the supplier.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Quarterly · Recommended proprietor oversight interval",
+    "Preview only. Enable this service to record a review."
+   ]
+  },
+  "vacc-ready": {
+   "title": "Vaccination readiness",
+   "questions": [
+    {
+     "n": 0,
+     "text": "For each immuniser, check the authority for supply or administration, vaccine-specific training, CPR/first aid and annual best-practice review. Confirm direct supervision by an appropriately certified immuniser where an intern vaccinates.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "AIR provider access, service listing, consent and eligibility processes confirmed.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Vaccination area privacy and patient observation arrangements checked.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Purpose-built fridge, logger, temperature recording, cold chain and emergency backup arrangements confirmed.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Anaphylaxis response kit, adrenaline expiry, sharps and emergency protocol checked.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "Clinical screening, documentation, AIR submissions, incident/adverse event and cold-chain breach processes verified.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 6,
+     "text": "Required annual vaccine storage self-audit and previous corrective tasks reviewed.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 7,
+     "text": "People (NSW Pharmacist Vaccination Standards; NSW Health): a named vaccine coordinator and a backup; every staff member handling vaccine storage has completed the NSW Health cold-chain module, with certificates kept; each immuniser’s NSW Pharmacist Immuniser Declaration Form is kept on the premises.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 8,
+     "text": "Stock and power (NSW Health; Safe vaccine storage checklist): NIP and state-funded stock kept apart from private stock and labelled; domestic or bar fridges not used; the power-failure plan has been practised.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 9,
+     "text": "Room (Vaccination Standards, part D): not the dispensary, with no patient access to S3, S4 or S8 medicines on the way in or out; two chairs (the patient’s is not a stool or on wheels); space to lie down; stretcher access; the fridge is locked if the public can reach it.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 10,
+     "text": "Consent and records (Vaccination Standards, part F): consent recorded for every vaccination and kept 7 years (or until 25 for under-18s); AIR checked before and updated within 10 business days. If ownership changes, a new AIR provider number and a new VAN are needed.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date (optional for readiness)",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Proprietor oversight · record exceptions and follow-up",
+    "Before launch or material change · Event-triggered proprietor review"
+   ]
+  },
+  "vacc-storage": {
+   "title": "Vaccine storage self-audit reference",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Was the official vaccine storage assessment completed and its findings reviewed?",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "Date of official assessment",
+     "type": "date",
+     "id": "assessment-date",
+     "required": false
+    },
+    {
+     "label": "Official assessment evidence reference",
+     "type": "text",
+     "id": "assessment-ref",
+     "required": false
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": true
+    }
+   ],
+   "notes": [
+    "Annual · Recommended proprietor oversight interval",
+    "Preview only. Enable this service to record a review."
+   ]
+  },
+  "daa-external-b": {
+   "title": "External DAA · other pharmacy dispenses",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Confirm the external pharmacy dispenses and packs, including counselling responsibilities",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Review consent and information-sharing agreement",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Sample changes, dispensing records, traceability and Appendix L labels including DOB and actual packing date",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Check delivery, handover and escalation arrangements",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Review incidents, discrepancies and tasks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "Transfer (NSW Health, Dose Administration Aids): patient consent obtained before prescriptions are transferred; this pharmacy does not label the DAA as the supplier — the packing pharmacy is the supplying pharmacy.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Quarterly · Recommended proprietor oversight interval",
+    "Preview only. Enable this service to record a review."
+   ]
+  },
+  "prescribing-ready": {
+   "title": "Pharmacist prescribing readiness",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Identify each service and its current NSW authority",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Check each participating pharmacist’s credentials and insurance",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "Review facilities and referral arrangements",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Review eligibility and consent processes",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Check recordkeeping, follow-up and communication",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "Review service listing and outstanding tasks",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 6,
+     "text": "Patient and pharmacist physically present; consultation records include the pharmacist’s HPI-I; records uploaded to My Health Record unless the patient objects (NSW Class Authorities and Practice Standards, 5 Nov 2026).",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 7,
+     "text": "Financial consent before the consultation; Working with Children Check held where needed; pharmacists know they are mandatory reporters (NSW Health, Expanded scope – information for pharmacists).",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 8,
+     "text": "Authorities in date: the NSW prescribing Class Authorities expire on 4 November 2027 (check the replacement is in place).",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date (optional for readiness)",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Service scope · Record the services offered in Services.",
+    "Proprietor oversight · record exceptions and follow-up",
+    "Before launch or material change · Event-triggered proprietor review"
+   ]
+  },
+  "CO-P": {
+   "title": "Pharmacy premises registration renewal",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Confirm site renewal and Council receipt",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 1,
+     "text": "Premises equipment (Health Practitioner Regulation (NSW) 2025 Sch 5; Council Guide): purpose-built vaccine fridge, dispensing balance, scales to 1 kg, 200/100/10/5 mL measures, funnel, 2 mortars and pestles (1 glass), stirring rod, 2 spatulas, ointment slab, counting tray; scales and measures stamped.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 2,
+     "text": "References (Council routine inspections): current Therapeutic Guidelines (digital) and Australian Medicines Handbook readily accessible, plus the Pharmacy Board’s list of reference texts and the NSW Medicines and Poisons Schedules guide. These are the most common inspection failures.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 3,
+     "text": "Dispensary (Regulation cl 12(2); Council Guide): lit and ventilated; impervious sink with hot and cold running water; bench at least 40 cm wide with 1 m² of clear working space; a barcode scanner at every dispensing station.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 4,
+     "text": "Displayed names (Council Guide Note 24): owner names at or near the main entrance; the name of the pharmacist in charge on duty next to the dispensing area (it can change day to day). Prices follow the Price Information Code of Practice.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    },
+    {
+     "n": 5,
+     "text": "Council kept up to date (Council): renovations to the dispensary or surrounds, name changes, partners added or removed, and interests acquired or disposed of were all notified.",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "Council receipt reference (required)",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Enter the receipt after filing. Set the next date only if supported by a Council notice.",
+    "Annual · Annual Council process · verify the applicable notice"
+   ]
+  },
+  "CO-F": {
+   "title": "Proprietor financial interest declaration",
+   "questions": [
+    {
+     "n": 0,
+     "text": "Has the selected interest holder filed their declaration for this cycle?",
+     "options": [
+      {
+       "value": "Checked",
+       "issue": false
+      },
+      {
+       "value": "Issue",
+       "issue": true
+      },
+      {
+       "value": "N/A",
+       "issue": false
+      },
+      {
+       "value": "Needs verification",
+       "issue": true
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "label": "Review date",
+     "type": "date",
+     "id": "review-date",
+     "required": true
+    },
+    {
+     "label": "Recorded by (selected proprietor)",
+     "type": "text",
+     "id": "by",
+     "required": true
+    },
+    {
+     "label": "Interest holder Select Jordan Avery",
+     "type": "select",
+     "id": "holder-id",
+     "required": true,
+     "options": [
+      "Select",
+      "Jordan Avery"
+     ]
+    },
+    {
+     "label": "Actual filing date",
+     "type": "date",
+     "id": "filed-date",
+     "required": false
+    },
+    {
+     "label": "Filing receipt or evidence reference",
+     "type": "text",
+     "id": "filing-ref",
+     "required": false
+    },
+    {
+     "label": "Notes or evidence reference (optional)",
+     "type": "textarea",
+     "id": "notes",
+     "required": false
+    },
+    {
+     "label": "Related pharmacy procedure (optional) Select Dose administration aids SOP Opioid Treatment Program SOP Vaccination SOP Staged supply SOP",
+     "type": "select",
+     "id": "audit-policy",
+     "required": false,
+     "options": [
+      "Select",
+      "Dose administration aids SOP",
+      "Opioid Treatment Program SOP",
+      "Vaccination SOP",
+      "Staged supply SOP"
+     ]
+    },
+    {
+     "label": "Overall decision or note (optional)",
+     "type": "textarea",
+     "id": "issue",
+     "required": false
+    },
+    {
+     "label": "Link an outstanding taskCreate or match this finding",
+     "type": "select",
+     "id": "task-repeat",
+     "required": false,
+     "options": [
+      "Create or match this finding"
+     ]
+    },
+    {
+     "label": "Responsible person or role",
+     "type": "text",
+     "id": "owner",
+     "required": false
+    },
+    {
+     "label": "Follow-up due",
+     "type": "date",
+     "id": "due",
+     "required": false
+    },
+    {
+     "label": "Next review date",
+     "type": "date",
+     "id": "next-date",
+     "required": false
+    }
+   ],
+   "notes": [
+    "Annual · Annual Council process · verify the applicable notice"
+   ]
+  }
+ }
+}

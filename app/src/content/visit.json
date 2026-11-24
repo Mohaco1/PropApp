@@ -1,0 +1,213 @@
+{
+ "core": [
+  [
+   "premises",
+   "Premises, security & equipment",
+   "Walk the premises. Check security, general condition, equipment servicing records and contingency arrangements (power, IT or fridge failure)."
+  ],
+  [
+   "storage",
+   "Medicine storage & stock",
+   "Check storage conditions, fridge temperature exceptions, recall actions and expired-stock handling since the last visit."
+  ],
+  [
+   "incidents",
+   "Incidents & complaints",
+   "Review dispensing incidents, near misses, complaints and recurring errors since the last visit, and whether earlier fixes worked."
+  ],
+  [
+   "highrisk",
+   "High-risk medicine safeguards",
+   "Consider safeguards for high-risk medicines relevant to this pharmacy. Sample records only when indicated. Reuse existing S8 stock-check evidence rather than recounting. S8 storage (Regulation 2026 s 122; Medicine Storage Standards Part 1): S8 kept only in the locked safe or strongroom, or a locked fridge holding scheduled medicines only; safe securely fixed and not accessible to the public; keys held by a pharmacist or in a separately locked receptacle only pharmacists can open; codes not given to non-pharmacists, changed regularly, and personal codes removed when staff leave."
+  ],
+  [
+   "actions",
+   "Outstanding corrective actions",
+   "Check that open Tasks from earlier visits and reviews are progressing. Open Tasks are listed at the top of this visit."
+  ],
+  [
+   "staff",
+   "Staff, supervision & credentials",
+   "Supervision, communication, credential concerns and follow-up for staff. Detailed credential checks stay in Staff & credentials."
+  ],
+  [
+   "rxverify",
+   "Prescription verification",
+   "Ask how unknown prescribers and new patients are verified, and look at how a suspected forgery would be handled (NSW Health, Lost, stolen or forged prescriptions)."
+  ],
+  [
+   "rxrecords",
+   "Prescription records (2 years)",
+   "Ask where dispensed prescriptions, S8 copies, emergency supplies, urgent-use orders and wholesale or borrowing records are kept, and that they can be produced without delay."
+  ],
+  [
+   "rxdirections",
+   "Phone, fax and email directions",
+   "Check any phone, fax or email directions were followed by a prescription, and late ones were reported after 14 days."
+  ],
+  [
+   "reports",
+   "Routine reports",
+   "Ask to see the owing-scripts, uncollected-scripts and negative-stock reports, and compare a few wholesaler S8 invoices with the register (Pharmacy Council, Supporting resources for proprietor oversight)."
+  ],
+  [
+   "recalls",
+   "Recalls and alerts",
+   "Ask to see the recall notices received since the last visit and what was done for each (TGA PRAC procedure). The sponsor’s deadlines are theirs; the pharmacy follows the notice and records its response."
+  ]
+ ],
+ "services": {
+  "staged": [
+   "Staged supply",
+   "Review missed collections, changed directions, prescriber communication, medicine security and open findings. Use existing pharmacy-wide S8 evidence."
+  ],
+  "vaccination": [
+   "Vaccination & vaccine storage",
+   "Check fridge temperature monitoring and data-logger review, vaccination incidents or adverse events, and any cold-chain breach or equipment failure since the last visit."
+  ],
+  "daa": [
+   "Dose administration aids",
+   "Review DAA packing exceptions, medication changes, final checking and open findings. Check labels show the date packed and the patient’s date of birth, no pack mixes oral and external-use medicines, and third-party packs carry a reference number (Regulation 2026 s 136)."
+  ]
+ },
+ "items": [
+  {
+   "key": "premises",
+   "title": "Premises, security & equipment",
+   "question": "Premises, security, equipment servicing and contingency arrangements reviewed",
+   "guide": "Walk the premises. Check security, general condition, equipment servicing records and contingency arrangements (power, IT or fridge failure).",
+   "core": true
+  },
+  {
+   "key": "storage",
+   "title": "Medicine storage & stock",
+   "question": "Medicines storage, cold-chain exceptions, recalls and expired stock reviewed",
+   "guide": "Check storage conditions, fridge temperature exceptions, recall actions and expired-stock handling since the last visit.",
+   "core": true
+  },
+  {
+   "key": "incidents",
+   "title": "Incidents & complaints",
+   "question": "Dispensing incidents, complaints and recurring errors reviewed",
+   "guide": "Review dispensing incidents, near misses, complaints and recurring errors since the last visit, and whether earlier fixes worked.",
+   "core": true
+  },
+  {
+   "key": "highrisk",
+   "title": "High-risk medicine safeguards",
+   "question": "Relevant high-risk dispensing safeguards or assurance records considered",
+   "guide": "Consider safeguards for high-risk medicines relevant to this pharmacy. Sample records only when indicated. Reuse existing S8 stock-check evidence rather than recounting. S8 storage (Regulation 2026 s 122; Medicine Storage Standards Part 1): S8 kept only in the locked safe or strongroom, or a locked fridge holding scheduled medicines only; safe securely fixed and not accessible to the public; keys held by a pharmacist or in a separately locked receptacle only pharmacists can open; codes not given to non-pharmacists, changed regularly, and personal codes removed when staff leave.",
+   "core": true
+  },
+  {
+   "key": "actions",
+   "title": "Outstanding corrective actions",
+   "question": "Outstanding dispensing corrective actions reviewed",
+   "guide": "Check that open Tasks from earlier visits and reviews are progressing. Open Tasks are listed at the top of this visit.",
+   "core": true
+  },
+  {
+   "key": "staff",
+   "title": "Staff, supervision & credentials",
+   "question": "Staff supervision, communication, credential concerns and outstanding follow-up reviewed",
+   "guide": "Supervision, communication, credential concerns and follow-up for staff. Detailed credential checks stay in Staff & credentials.",
+   "core": true
+  },
+  {
+   "key": "rxverify",
+   "title": "Prescription verification",
+   "question": "Prescriptions (NSW Health): new patient with an unknown prescriber means the script is verified (contact details from another source; the lost, stolen and forged list checked); if it cannot be verified and nothing is suspicious, no more than 2 days’ supply and the script is kept.",
+   "guide": "Ask how unknown prescribers and new patients are verified, and look at how a suspected forgery would be handled (NSW Health, Lost, stolen or forged prescriptions).",
+   "core": true
+  },
+  {
+   "key": "rxrecords",
+   "title": "Prescription records (2 years)",
+   "question": "Records (Regulation s 185; NSW Health): dispensed prescriptions, emergency supplies, urgent-use orders, wholesale and borrowing records, and copies of S8 and anabolic steroid prescriptions kept 2 years on the premises and producible without delay; paper S8 copies kept separately.",
+   "guide": "Ask where dispensed prescriptions, S8 copies, emergency supplies, urgent-use orders and wholesale or borrowing records are kept, and that they can be produced without delay.",
+   "core": true
+  },
+  {
+   "key": "rxdirections",
+   "title": "Phone, fax and email directions",
+   "question": "Phone, fax or email directions (NSW Health): any script not received within 14 days was reported to Pharmaceutical Services.",
+   "guide": "Check any phone, fax or email directions were followed by a prescription, and late ones were reported after 14 days.",
+   "core": true
+  },
+  {
+   "key": "reports",
+   "title": "Routine reports",
+   "question": "Routine reports (Pharmacy Council, proprietor oversight): owing scripts, uncollected scripts, negative stock and wholesaler invoices against the S8 register looked at since the last visit.",
+   "guide": "Ask to see the owing-scripts, uncollected-scripts and negative-stock reports, and compare a few wholesaler S8 invoices with the register (Pharmacy Council, Supporting resources for proprietor oversight).",
+   "core": true
+  },
+  {
+   "key": "recalls",
+   "title": "Recalls and alerts",
+   "question": "Recalls (TGA, Procedure for recalls, product alerts and product corrections): any recall or alert received since the last visit was acted on as the notice says, affected stock checked, and the response recorded.",
+   "guide": "Ask to see the recall notices received since the last visit and what was done for each (TGA PRAC procedure). The sponsor’s deadlines are theirs; the pharmacy follows the notice and records its response.",
+   "core": true
+  },
+  {
+   "key": "service/staged",
+   "service": "staged",
+   "title": "Staged supply",
+   "question": "Staged supply · proprietor review at site visit",
+   "guide": "Review missed collections, changed directions, prescriber communication, medicine security and open findings. Use existing pharmacy-wide S8 evidence.",
+   "core": false
+  },
+  {
+   "key": "service/vaccination",
+   "service": "vaccination",
+   "title": "Vaccination & vaccine storage",
+   "question": "Vaccination · proprietor review at site visit",
+   "guide": "Check fridge temperature monitoring and data-logger review, vaccination incidents or adverse events, and any cold-chain breach or equipment failure since the last visit.",
+   "core": false
+  },
+  {
+   "key": "service/daa",
+   "service": "daa",
+   "title": "Dose administration aids",
+   "question": "Dose administration aids · proprietor review at site visit",
+   "guide": "Review DAA packing exceptions, medication changes, final checking and open findings. Check labels show the date packed and the patient’s date of birth, no pack mixes oral and external-use medicines, and third-party packs carry a reference number (Regulation 2026 s 136).",
+   "core": false
+  }
+ ],
+ "statusText": {
+  "": "Not yet reviewed",
+  "ok": "Reviewed · satisfactory",
+  "issue": "Reviewed · issue found",
+  "verify": "Needs verification",
+  "na": "Not applicable",
+  "skip": "Not reviewed this visit"
+ },
+ "answerText": {
+  "ok": "Checked",
+  "issue": "Issue",
+  "verify": "Needs verification",
+  "na": "N/A",
+  "skip": "Not reviewed this visit"
+ },
+ "areas": [
+  [
+   "Premises, security and general conditions",
+   "Equipment maintenance and servicing"
+  ],
+  [
+   "Medicine storage conditions",
+   "Cold-chain records and exceptions",
+   "Recalls and follow-up",
+   "Expired stock"
+  ],
+  [
+   "Dispensing workflow",
+   "High-risk medicine safeguards",
+   "Privacy and consent",
+   "Accessibility"
+  ],
+  [
+   "Staff practice and communication",
+   "Previous visit actions"
+  ]
+ ]
+}
