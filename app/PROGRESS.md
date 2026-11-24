@@ -153,6 +153,8 @@ Elsewhere in the old app the phrase was on the task form and the task filter. Th
 - **Copy buttons showed no confirmation.** They copied the text, but "Copied" never appeared, because a toast only showed on the next re-render. Toasts now show straight away.
 - **A conflict copy only appeared after a reload.** When a save kept a conflict copy, the open screen kept showing this phone's older copy, and Backup didn't list it until reload. The store now tells the app straight away.
 
+**Tests:** full run on build 246a96f3c1: core, sprint1–5, screens (390 and 320), setup-questions, extras and polish. 156 checks pass, with no console errors (`handoff/logs/playwright.log`). Both procedure checks pass: all 17 services are identical.
+
 **v41 retirement gate.** Gate 1 (P-01 to P-05 green) is done. Gates 2–5 need the owner's own phone:
 - backup and restore;
 - Print to PDF outside claude.ai;
