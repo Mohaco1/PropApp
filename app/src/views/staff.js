@@ -72,16 +72,19 @@ register('annual', {
     const p = c.ph.staff.find(x => x.id === r.id), reqs = requirements(p), A = c.ui.annual?.[p.id] || {};
     const soon = q => { const s = credentialState(p, q.id); return s.state === 'expired' || s.state === 'issue' || (s.expiry && daysBetween(today(), s.expiry) <= 30); };
     const urgent = reqs.filter(soon), steady = reqs.filter(q => !soon(q)), bulk = steady.filter(q => credentialState(p, q.id).state === 'ok' && !A[q.id]);
+    const lastLine = q => { const s = credentialState(p, q.id), last = p.checks?.[q.id]; return last ? s.label + (last.date ? ' · ' + fmt(last.date) : '') + (last.method ? ' · ' + last.method : '') : 'Not checked before'; };
+    const freq = {}; reqs.forEach(q => { const l = lastLine(q); freq[l] = (freq[l] || 0) + 1; }); const common = Object.entries(freq).sort((x, y) => y[1] - x[1])[0]?.[0] || '';
     const card = q => { const s = credentialState(p, q.id), last = p.checks?.[q.id], a = A[q.id] || {}, hot = soon(q);
       const exp = s.expiry ? (s.state === 'expired' ? 'Expired ' + fmt(s.expiry) : 'Valid until ' + fmt(s.expiry) + (daysBetween(today(), s.expiry) <= 30 ? ' · expires in ' + daysBetween(today(), s.expiry) + (daysBetween(today(), s.expiry) === 1 ? ' day' : ' days') : '')) : '';
-      return h`<div class="card${hot ? ' wait' : ''}"><p class="field-label">${q.label}</p><p class="meta">${last ? 'Last: ' + s.label + (last.date ? ' · ' + fmt(last.date) : '') + (last.method ? ' · ' + last.method : '') : 'Not checked before'}</p>${exp ? h`<p class="${hot ? 'warn' : 'meta'}"><b>${exp}</b></p>` : ''}
+      return h`<div class="card${hot ? ' wait' : ''}"><p class="field-label">${q.label}</p>${lastLine(q) !== common || freq[common] === 1 ? h`<p class="meta">Last: ${lastLine(q)}</p>` : ''}${exp ? h`<p class="${hot ? 'warn' : 'meta'}"><b>${exp}</b></p>` : ''}
         ${choice('r:' + q.id, [...(last && s.state === 'ok' && !hot ? [{ value: 'same', label: 'Current' }] : []), { value: 'ok', label: last ? 'Update' : 'Verified' }, { value: 'issue', label: 'Issue' }, { value: 'na', label: 'N/A' }], a.r || '', { issueValues: ['issue'], inline: true })}
         ${a.r === 'ok' ? h`${field('How did you check?', select('m:' + q.id, [['', 'Choose…'], ...METHODS.map(m => [m, m])], a.m || last?.method || ''))}${field('Valid until (if it expires)', textInput('x:' + q.id, a.x ?? (hot ? '' : last?.expiry ?? ''), { type: 'date' }))}${field('Reference (optional)', textInput('f:' + q.id, a.f ?? last?.ref ?? ''))}` : ''}
         ${a.r === 'issue' || a.r === 'na' ? field(a.r === 'issue' ? 'What needs sorting?' : 'Why not applicable?', textInput('n:' + q.id, a.n || '')) : ''}</div>`; };
     return screen({ title: 'Annual check · ' + p.name, back: true, body: h`
+      ${freq[common] > 1 ? h`<p class="muted">Last time, unless it says otherwise below: ${common}.</p>` : ''}
       <form class="form" data-form="save" data-change="ans">
       ${urgent.length ? h`<section class="sec"><h2 class="sec-title">Expired or expiring soon · ${urgent.length}</h2><p class="muted">Check each of these yourself. Enter the new date when you've seen it.</p>${urgent.map(card)}</section>` : ''}
-      <section class="sec"><h2 class="sec-title">${urgent.length ? 'Everything else' : 'Checks'} · ${steady.length}</h2><p class="muted">Each shows what you recorded last time.</p>
+      <section class="sec"><h2 class="sec-title">${urgent.length ? 'Everything else' : 'Checks'} · ${steady.length}</h2>
         ${bulk.length > 1 ? btn('Confirm these ' + bulk.length + ' unchanged', 'all', { cls: 'block' }) : ''}${steady.map(card)}</section>
         ${field('Next annual check', textInput('next', addMonths(today(), 12), { type: 'date' }))}
         <div class="dock-inline">${btn('Save annual check', null, { kind: 'primary', type: 'submit' })}</div></form>` });

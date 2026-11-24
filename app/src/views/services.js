@@ -6,7 +6,7 @@ import { screen, btn, row, field, textInput, textArea, choice, note, why, empty,
 import { C } from '../content.js';
 import { RPH, visibleFields, tidyAnswers, draftText } from '../procgen.js';
 import { uid } from '../util.js';
-import { catalog, applies, serviceName, suggestedNext } from '../rules.js';
+import { catalog, applies, serviceName, suggestedNext, reviewById } from '../rules.js';
 import { today, addDays, fmt } from '../dates.js';
 import { note as log, newAction } from '../model.js';
 const NV = 'Needs verification';
@@ -14,7 +14,10 @@ const procWord = t => String(t).replace(/\(Policies\)/g, '(Procedures)').replace
 const ROLE_SHOW = v => v === 'Pharmacist in charge' ? 'The pharmacist on duty' : v; // owner decision: no pharmacist-in-charge role
 const show = (id, k, v) => ROLE_SHOW(RPH.qm.showFor(id, k, v));
 const split = v => RPH.qm.split(v);
-function fieldsFor(ph, id) { const a = ph.services[id]?.answers || {}; return visibleFields(ph, id, a).map(f => ({ key: f[0], label: f[1], options: f[2], section: f[3], extra: f[4] })); }
+function fieldsFor(ph, id) { const a = ph.services[id]?.answers || {}; const all = visibleFields(ph, id, a).map(f => ({ key: f[0], label: f[1], options: f[2], section: f[3], extra: f[4] }));
+  // Record-location questions come last, as an optional step (overnight brief S3-04).
+  return [...all.filter(f => kindOf(id, f) !== 'location'), ...all.filter(f => kindOf(id, f) === 'location')]; }
+const isLoc = (id, f) => kindOf(id, f) === 'location';
 const ROUTES = [['house', 'We pack on site'], ['routeA', 'We dispense, an outside packer packs'], ['routeB', 'Another pharmacy dispenses and packs']];
 function kindOf(id, f) {
   if (id === 'daa' && f.key === 'routes') return 'routes';
@@ -60,11 +63,16 @@ register('service-setup', {
   render(c, r) {
     const id = r.id, s = c.ph.services[id]; if (!s) return screen({ title: 'Service', back: true, body: empty('Not found.') });
     if (needsLead(c.ph) && (RPH.sq.LEAD[id] || []).length) return screen({ title: serviceName(id), back: true, body: h`<p>First, one question for all services.</p>${btn('Who runs your services day to day?', 'go', { kind: 'primary', data: { to: 'lead' } })}` });
-    const fs = fieldsFor(c.ph, id), a = s.answers || {}, step = Math.min(c.ui['ss:' + id] ?? fs.findIndex(f => !answered(a, f.key)), fs.length);
+    const fs = fieldsFor(c.ph, id), a = s.answers || {}, step = Math.min(c.ui['ss:' + id] ?? s.pos ?? fs.findIndex(f => !answered(a, f.key)), fs.length);
     const idx = step < 0 ? fs.length : step;
     const prog = h`<div class="prog">${fs.map((f, i) => h`<i class="${i === idx ? 'cur' : answered(a, f.key) ? 'done' : ''}"></i>`)}</div>`;
     if (idx >= fs.length) return doneScreen(c, id, prog);
     const f = fs[idx], m = RPH.qm.metaFor(id, f.key), k = kindOf(id, f), v = a[f.key] || '', label = m.label || f.label;
+    const locs = fs.filter(x => isLoc(id, x));
+    if (k === 'location' && idx === fs.indexOf(locs[0]) && !s.recIntro && c.ui.returnTo?.id !== id) return screen({ title: serviceName(id), back: true, body: h`${prog}
+      <h2 class="big-title">Where you keep records · optional now</h2><p class="muted">${locs.length === 1 ? '1 question' : locs.length + ' questions'} about where records are kept, so a procedure can tell someone where to look. Answer them now, or skip and confirm them later from Today.</p>
+      <div class="list">${locs.map(x => row({ title: procWord(RPH.qm.metaFor(id, x.key).label || x.label), sub: a[x.key] ? (a[x.key] === NV ? 'Check later' : a[x.key]) : '', chev: false }))}</div>
+      <div class="btnrow">${btn('Answer now', 'recnow', { kind: 'primary' })}${btn('Skip for now', 'recskip')}</div>` });
     let input;
     if (k === 'single' || k === 'role') { const opts = RPH.qm.optionsFor(id, [f.key, f.label, f.options]); input = h`${choice('v', [...opts.map(o => ({ value: o, label: show(id, f.key, o) })), { value: NV, label: 'Check later' }], split(v)[0]?.split(':')[0] === v.split(':')[0] ? v.split(':')[0] : v)}
       ${(m.describe || ['Different local arrangement', 'Someone else']).some(o => v.startsWith(o)) ? field('Describe', textInput('d', v.includes(':') ? v.slice(v.indexOf(':') + 1).trim() : '')) : ''}`; }
@@ -106,9 +114,12 @@ register('service-setup', {
     c.change(ph => { const s = ph.services[id]; s.answers = { ...s.answers, [f.key]: v }; if (s.setup === 'todo') s.setup = 'doing';
       if (k === 'routes') { const r = split(v); ph.flags = { ...ph.flags, house: r.includes('house'), routeA: r.includes('routeA'), routeB: r.includes('routeB') }; } });
     c.ui['ss:' + id] = idx; if (before !== v) c.rerender(); } },
+
   forms: { fin: (c, f, el, r) => finishService(c, r.id, f) },
   acts: { vall: (c, d, el) => { const fs = el.closest('fieldset'); fs.querySelectorAll('input[type=checkbox]').forEach(i => { i.checked = true; }); fs.closest('form').dispatchEvent(new Event('change', { bubbles: true })); },
-    step: (c, d, el, r) => { c.ui['ss:' + r.id] = Math.max(0, +d.s); c.rerender(); window.scrollTo(0, 0); },
+    step: (c, d, el, r) => { const s = Math.max(0, +d.s); c.ui['ss:' + r.id] = s; c.change(ph => { ph.services[r.id].pos = s; }); window.scrollTo(0, 0); },
+    recnow: (c, d, el, r) => c.change(ph => { ph.services[r.id].recIntro = 'now'; }),
+    recskip: (c, d, el, r) => { const fs = fieldsFor(c.ph, r.id); c.change(ph => { const s = ph.services[r.id]; s.recIntro = 'skipped'; for (const f of fs.filter(x => isLoc(r.id, x))) if (!answered(s.answers, f.key)) s.answers[f.key] = NV; s.pos = fs.length; if (s.setup === 'todo') s.setup = 'doing'; }, 'Skipped. They are on Today under “To confirm”.'); c.ui['ss:' + r.id] = fs.length; c.rerender(); },
     finish: (c, d, el, r) => finishService(c, r.id),
     ret: (c, d, el, r) => { c.ui.returnTo = null; c.ui['ss:' + r.id] = undefined;
       c.change(ph => { const p = ph.procedures.find(x => x.service === r.id); if (!p || p.status === 'adopted') return; const v = p.versions.at(-1), t = draftText(ph, r.id);
@@ -118,14 +129,16 @@ register('service-setup', {
 function svcReviews(ph, id) { return catalog().filter(a => a.service === id); }
 function doneScreen(c, id, prog) {
   const p = serviceProgress(c.ph, id), probe = { ...c.ph, services: { ...c.ph.services, [id]: { ...c.ph.services[id], active: true } } };
-  const revs = svcReviews(c.ph, id).filter(a => !a.event && applies(probe, a).applies), events = svcReviews(c.ph, id).filter(a => a.event);
+  let revs = svcReviews(c.ph, id).filter(a => !a.event && applies(probe, a).applies); const events = svcReviews(c.ph, id).filter(a => a.event);
+  const inVisit = svcReviews(c.ph, id).some(a => !a.event && /site visit/.test(applies(probe, a).why || ''));
+  if (inVisit) revs = [{ ...reviewById('Q1'), name: 'Proprietor site visit (' + serviceName(id) + ' is checked here)' }, ...revs];
   return screen({ title: serviceName(id), back: true, body: h`${prog}<h2 class="big-title">What happens next</h2>
     ${p.later ? note(p.later + (p.later === 1 ? ' answer is' : ' answers are') + ' marked “Check later”. They stay on Today until you confirm them.', 'warn') : note('Every question answered.', 'ok')}
     <form class="form" data-form="fin">
     ${revs.length ? h`<section class="sec"><h2 class="sec-title">Its reviews · first dates</h2><p class="muted">Suggested dates. Change any of them.</p>${revs.map(a => field(a.name + ' · ' + a.frequency.toLowerCase(), textInput('d:' + a.id, c.ph.schedule[a.id] || suggestedNext(c.ph, a.id, today()), { type: 'date', min: today() })))}</section>` : ''}
     ${events.length ? h`<p class="muted">${events.map(a => a.name).join(', ')}: done when you start or change the service.</p>` : ''}
     <section class="sec"><h2 class="sec-title">Its procedure</h2><p class="muted">Finishing writes a draft procedure from your answers (version 0.1) in Procedures. Nothing is adopted until you say so.</p></section>
-    <div class="dock-inline">${btn('Save dates and finish', null, { kind: 'primary', type: 'submit', cls: 'block' })}</div></form>` });
+    <div class="dock-inline">${btn(revs.length ? 'Save dates and finish' : 'Finish setup', null, { kind: 'primary', type: 'submit', cls: 'block' })}</div></form>` });
 }
 // Setup actions (current app's "setup-answer-tasks" rule): a 2026 checklist with unticked items raises one action, and
 // some answers raise a follow-up. Due in 30 days (otp-parts rule). Never raised twice while one is open.
@@ -142,6 +155,7 @@ export function setupActions(ph, id) {
 function finishService(c, id, f = {}) {
   c.change(ph => { const s = ph.services[id]; s.answers = tidyAnswers(ph, id, { ...s.answers }); s.setup = 'done'; setupActions(ph, id);
     for (const a of catalog().filter(x => x.service === id && !x.event)) { if (!applies(ph, a).applies) continue; const v = f['d:' + a.id]; if (v) ph.schedule[a.id] = v; else if (!ph.schedule[a.id]) ph.schedule[a.id] = suggestedNext(ph, a.id, today()); }
+    if (f['d:Q1']) ph.schedule.Q1 = f['d:Q1'];
     if (!ph.procedures.some(p => p.service === id)) { const t = draftText(ph, id); if (t) ph.procedures.push({ id: uid(), service: id, title: serviceName(id) + ' procedure', status: 'draft', versions: [{ v: '0.1', body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }] }); }
     log(ph, 'Setup finished · ' + serviceName(id)); }, serviceName(id) + ' set up. Its draft procedure is in Procedures.');
   c.ui['ss:' + id] = undefined; c.ui.justDone = id; c.replace('services');

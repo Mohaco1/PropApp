@@ -83,17 +83,19 @@ register('visit', {
         ${a.status === 'issue' ? h`${field('What did you find?', textArea('text', a.text || '', { rows: 2 }))}${field('Fix by', textInput('due', a.due || addDays(today(), 30), { type: 'date' }))}
           ${(() => { const open = Object.values(c.ph.actions).filter(x => x.status === 'open'); return open.length ? field('Already an open action for this?', select('link', [['', 'No, raise a new action'], ...open.map(x => [x.id, 'Link to: ' + x.title.slice(0, 70)])], a.link || '')) : ''; })()}` : ''}
         ${a.status === 'verify' ? field('What do you need to check?', textArea('text', a.text || '', { rows: 2 })) : ''}
-        ${!it.core && ['staged', 'vaccination'].includes(it.service) && a.status && a.status !== 'na' ? field('Evidence reference (optional)', textInput('ref', a.ref || '', { placeholder: 'Where you saw it, e.g. fridge log folder' })) : ''}
+        ${!it.core && a.status && a.status !== 'na' ? h`<div class="card"><p class="field-label">${it.service === 'daa' ? 'DAA operational sample since the last visit' : 'Evidence you looked at'}</p>
+          ${choice('ev', (it.service === 'daa' ? ['Verified operational review', 'No new verification', 'Gap identified'] : ['Evidence reviewed', 'Issue identified', 'Unable to verify']).map(v => ({ value: v, label: v })), a.ev || '', { issueValues: ['Gap identified', 'Issue identified'] })}
+          ${field('Evidence reference (optional, no patient details)', textInput('ref', a.ref || '', { placeholder: it.service === 'daa' ? 'e.g. packing check log, week of 10 Nov' : 'e.g. fridge log folder' }))}</div>` : ''}
         ${it.service === 'vaccination' ? vacc(d.vacc || {}) : ''}
       </form>
       <div class="btnrow">${btn('Previous', 'step', { data: { s: step - 1 }, disabled: step === 0 })}${btn(step === items.length - 1 ? 'Finish' : 'Next', 'step', { kind: 'primary', data: { s: step + 1 } })}</div>` });
   },
   changes: {
     ans: (c, el, r) => { const form = el.closest('form'); const k = key(r.extra), d = structuredClone(c.draft(k)); const its = visitItems(c.ph), f0 = its.findIndex(x => !d.items[x.key]?.status), it = its[d.step ?? (f0 < 0 ? 0 : f0)]; const f = Object.fromEntries(new FormData(form));
-      d.items[it.key] = { ...(d.items[it.key] || {}), status: f.status || '', text: f.text ?? d.items[it.key]?.text ?? '', due: f.due ?? d.items[it.key]?.due ?? '', ref: f.ref ?? d.items[it.key]?.ref ?? '', link: f.link ?? d.items[it.key]?.link ?? '' };
+      d.items[it.key] = { ...(d.items[it.key] || {}), status: f.status || '', text: f.text ?? d.items[it.key]?.text ?? '', due: f.due ?? d.items[it.key]?.due ?? '', ref: f.ref ?? d.items[it.key]?.ref ?? '', link: f.link ?? d.items[it.key]?.link ?? '', ev: f.ev ?? d.items[it.key]?.ev ?? '' };
       if ('vaccEvent' in f || 'vaccSighted' in f) d.vacc = { event: f.vaccEvent || '', sighted: f.vaccSighted || '', auditDate: f.vaccDate || '' };
       d.step = its.indexOf(it);
-      const redraw = (f.status || '') !== (c.draft(k).items[it.key]?.status || '') || ('vaccSighted' in f && f.vaccSighted !== c.draft(k).vacc?.sighted);
+      const redraw = (f.ev || '') !== (c.draft(k).items[it.key]?.ev || '') || (f.status || '') !== (c.draft(k).items[it.key]?.status || '') || ('vaccSighted' in f && f.vaccSighted !== c.draft(k).vacc?.sighted);
       c.saveDraft(k, d); if (redraw) c.rerender(); },
   },
   acts: {
@@ -129,7 +131,7 @@ function save(c, r) {
   c.change(ph => {
     const rec = addRecord(ph, { type: 'Q1', kind: 'visit', extra: !!r.extra, title: r.extra ? 'Extra site visit' : 'Site visit', date: d.date, notes: (f.notes || '').trim(), next: r.extra ? '' : f.next,
       answers: items.map(it => { const a = d.items[it.key]; return { item: it.key, text: it.title, answer: C.visit.answerText[a.status] || a.status, note: (a.text || '').trim(), ref: a.ref || '' }; }),
-      fields: { vacc: d.vacc || {} } });
+      fields: { vacc: d.vacc || {}, serviceEvidence: Object.fromEntries(items.filter(it => !it.core && d.items[it.key]?.ev).map(it => [it.service, { status: d.items[it.key].ev, ref: d.items[it.key].ref || '' }])) } });
     for (const it of items) { const a = d.items[it.key]; if (a.status !== 'issue') continue;
       if (a.link && ph.actions[a.link]?.status === 'open') { const la = ph.actions[a.link]; la.log.push({ at: new Date().toISOString(), by: rec.by, kind: 'updated', text: 'Seen again at the ' + (r.extra ? 'extra visit' : 'site visit') + ' on ' + d.date + ': ' + a.text.trim() }); rec.actionIds.push(la.id); continue; }
       const ac = newAction(ph, { title: a.text.trim(), due: a.due, source: { type: 'visit', recordId: rec.id, label: (r.extra ? 'Extra visit' : 'Site visit') + ' · ' + d.date, item: it.title } }); rec.actionIds.push(ac.id); }

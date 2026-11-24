@@ -1,6 +1,6 @@
 // Service setup at phone size, tapped: vaccines show in 4 groups with "Select all" (owner, 24 Nov: must not go back to
 // typing each one), DAA packing has its three choices, and finishing a service raises the 2026 checklist action.
-const { phone, ok, done, tap, text } = require('./helpers.js');
+const { phone, ok, done, tap, text, activePh } = require('./helpers.js');
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-24T10:00:00+11:00' });
   await tap(p, 'Set up your pharmacy'); await p.fill('input[name=name]', 'Test Pharmacy (fictional)'); await tap(p, 'Continue');
@@ -17,7 +17,14 @@ const { phone, ok, done, tap, text } = require('./helpers.js');
   ok(/COVID-19/.test(ans) && /Influenza/.test(ans), 'Select all saves the group: ' + ans.slice(0, 60));
   ok(await p.locator('input[type=text][name=d]').count() === 0, 'no box to type vaccines into');
   // DAA packing choices
-  await p.getByRole('button', { name: 'Back' }).click(); await p.getByRole('button', { name: /^Dose administration aids/ }).click(); await p.waitForTimeout(200);
+  await p.getByRole('button', { name: 'Back', exact: true }).click(); await p.getByRole('button', { name: /^Dose administration aids/ }).click(); await p.waitForTimeout(200);
   const t = await text(p); ok(/We pack on site/.test(t) && /outside packer/.test(t) && /Another pharmacy dispenses/.test(t), 'DAA packing shows its three choices');
+  // finish DAA and check the 2026 checklist action is raised
+  for (let i = 0; i < 40; i++) { const tt = await text(p); if (/What happens next/.test(tt)) break; if (await p.getByRole('button', { name: 'Answer now', exact: true }).count()) await tap(p, 'Answer now');
+    const ch = p.locator('form label.choice, form label.tick').first(); if (await ch.count()) await ch.click(); else { const inp = p.locator('form input.input').first(); if (await inp.count()) { await inp.fill('Fictional'); await inp.blur(); } }
+    await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(50); }
+  await p.getByRole('button', { name: /^(Save dates and finish|Finish setup)$/ }).click(); await p.waitForTimeout(300);
+  const ph = await activePh(p); const acts = Object.values(ph.actions).filter(a => a.source?.type === 'service' && a.source.service === 'daa');
+  ok(ph.services.daa.setup === 'done' && acts.some(a => /2026 Regulation/.test(a.title)), 'finishing DAA raises the 2026 checklist action: ' + acts.map(a => a.title).join(' | '));
   await done(b, errors);
 })();

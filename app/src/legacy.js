@@ -72,7 +72,7 @@ export function importLegacy(backup) {
   ph.obligations = { ...(d.legalEvidence || {}) };
   ph.lead = d.serviceLead || '';
   ph.siteScope = { ...(d.siteScope || {}) };
-  ph.settings.setupDone = !!d.onboarded;
+  ph.settings.setupDone = !!d.onboarded; ph.settings.allSetSeen = true;
   if (d.inherited) ph.inherited = { since: typeof d.inherited === 'string' ? d.inherited : '' };
   // drafts: site visits keep their answers; other review drafts keep their chosen answers
   const drafts = {};

@@ -9,15 +9,16 @@ const OUT = path.resolve(__dirname, '../shots'); fs.mkdirSync(OUT, { recursive: 
     await p.waitForTimeout(250);
     const m = await p.evaluate(() => {
       const vis = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden'; };
-      const small = [...document.querySelectorAll('button,a,summary,select,input:not([type=checkbox]):not([type=radio]):not([type=file])')].filter(e => vis(e) && !e.closest('.inline-link,.row-sub') && !e.classList.contains('inline-link')).map(e => { const r = e.getBoundingClientRect(); return { t: (e.innerText || e.name || e.getAttribute('aria-label') || '').trim().slice(0, 30), h: Math.round(r.height), w: Math.round(r.width) }; }).filter(x => x.h < 44 || x.w < 44);
-      const lines = document.body.innerText.split(/\n+/).map(s => s.trim()).filter(s => s.length > 24);
+      const small = [...document.querySelectorAll('button,a,summary,select,input:not([type=checkbox]):not([type=radio]):not([type=file])')].filter(e => vis(e) && e.id !== 'uat-btn' && !e.closest('#uat-dlg')).map(e => { const r = e.getBoundingClientRect(); return { t: (e.innerText || e.name || e.getAttribute('aria-label') || '').trim().slice(0, 30), h: Math.round(r.height), w: Math.round(r.width) }; }).filter(x => x.h < 44 || x.w < 44);
+      // repeated sentences outside lists (rows of records may share wording, e.g. two meetings of the same name)
+      const lines = [...document.querySelectorAll('main p, main h1, main h2, main label > span, .bar')].filter(e => !e.closest('.list,.row,.doc,.print-only,.timeline')).map(e => e.innerText.trim()).filter(s => s.length > 24);
       const dup = [...new Set(lines.filter((s, i) => lines.indexOf(s) !== i))];
       return { small, dup, over: document.documentElement.scrollWidth > innerWidth + 1, title: document.querySelector('.bar-title')?.innerText.split('\n')[0] || '' };
     });
     const file = String(++n).padStart(2, '0') + '.png'; await p.screenshot({ path: path.join(OUT, file) });
     shots.push({ n, name, file, ...m });
   };
-  const back = () => p.getByRole('button', { name: 'Back' }).first().click();
+  const back = () => p.getByRole('button', { name: 'Back', exact: true }).first().click();
   await shot('Welcome');
   await tap(p, 'Set up your pharmacy'); await shot('Setup · step 1');
   await p.fill('input[name=name]', 'Harbour Test Pharmacy (fictional)'); await tap(p, 'Continue'); await shot('Setup · step 2');
@@ -30,6 +31,7 @@ const OUT = path.resolve(__dirname, '../shots'); fs.mkdirSync(OUT, { recursive: 
   await p.getByRole('button', { name: /Dose administration aids/ }).click(); await shot('DAA setup · question 1');
   for (let i = 0; i < 40; i++) { // answer each question with its first option
     const t = await p.evaluate(() => document.body.innerText); if (/What happens next/.test(t)) break;
+    if (await p.getByRole('button', { name: 'Answer now', exact: true }).count()) { await shot('DAA · records step'); await tap(p, 'Answer now'); }
     const ch = p.locator('form label.choice, form label.tick').first(); if (await ch.count()) { await ch.click(); await p.waitForTimeout(60); } else { const inp = p.locator('form input.input').first(); if (await inp.count()) { await inp.fill('Fictional answer'); await inp.blur(); } }
     if (i === 3) await shot('DAA setup · a later question');
     await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(60);
@@ -63,9 +65,12 @@ const OUT = path.resolve(__dirname, '../shots'); fs.mkdirSync(OUT, { recursive: 
     await back();
   }
   await tap(p, 'Today'); await p.getByRole('button', { name: 'Resume visit' }).click(); await shot('Visit · resumed check');
-  await p.getByRole('button', { name: 'Back' }).click();
+  await p.getByRole('button', { name: 'Back', exact: true }).click();
   fs.writeFileSync(path.join(OUT, 'shots.json'), JSON.stringify(shots, null, 1));
-  for (const s of shots) { if (s.over) ok(false, s.name + ': sideways scroll'); if (s.dup.length) console.log('NOTE', s.name, 'repeated text:', s.dup.slice(0, 2).join(' | ')); if (s.small.length) console.log('NOTE', s.name, 'small targets:', s.small.slice(0, 4).map(x => x.t + ' ' + x.w + 'x' + x.h).join(', ')); }
-  ok(shots.every(s => !s.over), shots.length + ' screens, none scroll sideways');
+  for (const s of shots) { if (s.dup.length) ok(false, s.name + ': repeated text: ' + s.dup.slice(0, 2).join(' | ')); if (s.small.length) ok(false, s.name + ': small targets: ' + s.small.slice(0, 4).map(x => x.t + ' ' + x.w + 'x' + x.h).join(', ')); if (s.over) ok(false, s.name + ': sideways scroll'); }
+  ok(shots.every(s => !s.over && !s.dup.length && !s.small.length), shots.length + ' screens: no sideways scroll, no repeated sentences, every target at least 44 px');
+  // 320×568: the five main tabs must not scroll sideways
+  await p.setViewportSize({ width: 320, height: 568 });
+  for (const t of ['Today', 'Reviews', 'Actions', 'Staff', 'More']) { await tap(p, t); await p.waitForTimeout(150); ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), '320×568 ' + t + ': no sideways scroll'); }
   await done(b, errors);
 })();

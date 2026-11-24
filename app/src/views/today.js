@@ -6,6 +6,7 @@ import { items, ranked, counts, sentence } from '../summary.js';
 import { fmt, dueText, today, daysBetween, isDate } from '../dates.js';
 import { C } from '../content.js';
 import { undated } from './services.js';
+import { serviceName } from '../rules.js';
 const FILTERS = [['overdue', 'Overdue'], ['week', 'This week'], ['waiting', 'Waiting · to confirm'], ['all', 'All']];
 export function openItem(c, it) {
   if (it.kind === 'visit') return c.go('visit-start', { extra: it.ref === 'extra' });
@@ -20,8 +21,11 @@ function topCard(c, list) {
   const vx = c.draft('visit/extra'), vq = c.draft('visit/quarterly');
   if (vq || vx) { const d = vq || vx, n = Object.values(d.items || {}).filter(s => s?.status).length;
     return h`<div class="card hero warm"><p class="eyebrow">Visit in progress</p><h2>${vq ? 'Quarterly visit' : 'Extra visit'} · ${n} checked</h2><p class="muted">Started ${fmt(d.date)}. Your answers are saved on this device.</p>${btn('Resume visit', 'resume-visit', { kind: 'primary', data: { extra: vq ? '' : '1' } })}</div>`; }
-  const todo = Object.entries(ph.services).filter(([, s]) => s.active && s.setup !== 'done');
-  if (todo.length) return h`<div class="card hero"><p class="eyebrow">Finish setting up</p><h2>${todo.length === 1 ? '1 service' : todo.length + ' services'} to set up</h2><p class="muted">A few questions each, about how your pharmacy does it. About 3 minutes a service.</p>${btn('Set up services', 'go', { kind: 'primary', data: { to: 'services' } })}</div>`;
+  const act = Object.entries(ph.services).filter(([, s]) => s.active), todo = act.filter(([, s]) => s.setup !== 'done');
+  if (todo.length) return h`<div class="card hero"><p class="eyebrow">Finish setting up · ${todo.length} left</p>
+    <ul class="checklist">${act.map(([id, s]) => h`<li class="${s.setup === 'done' ? 'done' : ''}"><span aria-hidden="true">${s.setup === 'done' ? '✓' : '○'}</span>${serviceName(id)}<span class="muted">${s.setup === 'done' ? 'Done' : s.setup === 'doing' ? 'In progress' : 'To do'}</span></li>`)}</ul>
+    ${btn(todo.some(([, s]) => s.setup === 'doing') ? 'Carry on setting up' : 'Set up services', 'setupnext', { kind: 'primary', data: { id: (todo.find(([, s]) => s.setup === 'doing') || todo[0])[0] } })}</div>`;
+  if (act.length && !ph.settings.allSetSeen) return h`<div class="card hero warm"><p class="eyebrow">All set up</p><h2>${ph.name} is set up</h2><p class="muted">Every service has its questions answered and a draft procedure. Today now shows what's due.</p>${btn('Got it', 'allset', { kind: 'primary' })}</div>`;
   const nd = undated(ph).length;
   if (nd) return h`<div class="card hero"><p class="eyebrow">Almost there</p><h2>${nd === 1 ? '1 review needs' : nd + ' reviews need'} a first date</h2><p class="muted">The app suggests dates. You check them and save.</p>${btn('Plan the dates', 'go', { kind: 'primary', data: { to: 'first-dates' } })}</div>`;
   const last = ph.settings.lastBackup, changes = ph.history.filter(x => !last || x.at > last).length;
@@ -54,5 +58,7 @@ register('today', {
     filter: (c, d) => { c.ui.todayFilter = d.f; c.rerender(); },
     open: (c, d) => { const it = items(c.ph, c.drafts).find(i => i.key === d.key); if (it) openItem(c, it); },
     'resume-visit': (c, d) => c.go('visit', { extra: !!d.extra }),
+    setupnext: (c, d) => c.ph.services[d.id]?.setup === 'doing' ? c.go('service-setup', { id: d.id }) : c.go('services'),
+    allset: c => c.change(ph => { ph.settings.allSetSeen = true; }),
   },
 });

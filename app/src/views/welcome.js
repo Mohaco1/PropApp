@@ -9,6 +9,7 @@ import { importBackup } from './backup.js';
 register('welcome', {
   noNav: true,
   render(c) {
+    if (c.ui.setupStep === undefined) { const saved = c.store.getPref('setup-draft'); if (saved) { c.ui.setup = saved.setup; c.ui.setupStep = saved.step; } }
     const step = c.ui.setupStep || 0;
     if (step === 0) return h`<div class="welcome">
       <div class="wm" aria-label="R.Pharmacy"><span class="wm-r">R.</span>Pharmacy</div>
@@ -40,16 +41,17 @@ register('welcome', {
   },
   changes: { restore: (c, el) => importBackup(c, el.files[0]) },
   forms: {
-    s1: (c, f) => { Object.assign(c.ui.setup, { name: f.name.trim(), address: f.address.trim() }); c.ui.setupStep = 2; c.rerender(); },
-    s2: (c, f) => { c.ui.setup.owners = Object.keys(f).filter(k => k.startsWith('owner')).map(k => f[k].trim()).filter(Boolean); c.ui.setupStep = 3; c.rerender(); },
+    s1: (c, f) => { Object.assign(c.ui.setup, { name: f.name.trim(), address: f.address.trim() }); c.ui.setupStep = 2; keep(c); c.rerender(); },
+    s2: (c, f) => { c.ui.setup.owners = Object.keys(f).filter(k => k.startsWith('owner')).map(k => f[k].trim()).filter(Boolean); c.ui.setupStep = 3; keep(c); c.rerender(); },
     s3: async (c, f, form) => {
       const d = c.ui.setup; d.services = [...form.querySelectorAll('input[name=svc]:checked')].map(i => i.value);
       const ph = emptyPharmacy(d.name); ph.address = d.address;
       ph.proprietors = d.owners.map((n, i) => ({ id: uid(), name: n, primary: i === 0 })); ph.recordingAs = ph.proprietors[0].id;
       for (const s of d.services) ph.services[s] = { active: true, setup: 'todo', answers: {} };
       ph.settings.setupDone = true; log(ph, 'Pharmacy set up · ' + ph.name);
-      c.store.savePharmacy(ph); c.ui.setupStep = 0; c.ui.setup = null; await c.open(ph.id); c.toast('Set up. Next: your services, from Today.');
+      c.store.savePharmacy(ph); c.ui.setupStep = 0; c.ui.setup = null; c.store.setPref('setup-draft', undefined); await c.open(ph.id); c.toast('Set up. Next: your services, from Today.');
     },
   },
 });
+function keep(c) { c.store.setPref('setup-draft', { step: c.ui.setupStep, setup: c.ui.setup }); c.store.flush(); }
 function collect(d) { document.querySelectorAll('[name^=owner]').forEach((i, n) => { d.owners[n] = i.value; }); }

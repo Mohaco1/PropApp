@@ -7,7 +7,7 @@ export function historyRows(ph) {
     const name = r.extra ? 'Extra site visit' : r.title || reviewById(r.type)?.name || r.type;
     const issues = r.answers.filter(a => /^(Issue|Outstanding|Yes|Gap identified|Unable to verify|Incomplete|Completed with issues|Not yet|Fault or gap)$/.test(a.answer));
     rows.push({ date: r.date, type: r.kind === 'visit' ? 'Site visit' : r.kind === 'meeting' ? 'Meeting' : r.kind === 'staff' ? 'Staff check' : r.kind === 'departure' ? 'Staff leaving' : 'Review',
-      title: name, by: r.by || '', status: 'Recorded', due: '', done: r.date, detail: [issues.length ? issues.length + ' issue' + (issues.length === 1 ? '' : 's') + ': ' + issues.map(a => a.text + (a.note ? ' (' + a.note + ')' : '')).join('; ') : 'No issues', r.notes].filter(Boolean).join(' · '), id: r.id });
+      title: name, by: r.by || '', status: 'Recorded', due: '', done: r.date, detail: [Object.entries(r.fields?.serviceEvidence || {}).map(([s, e]) => s + ' evidence: ' + e.status + (e.ref ? ' (' + e.ref + ')' : '')).join('; '), issues.length ? issues.length + ' issue' + (issues.length === 1 ? '' : 's') + ': ' + issues.map(a => a.text + (a.note ? ' (' + a.note + ')' : '')).join('; ') : 'No issues', r.notes].filter(Boolean).join(' · '), id: r.id });
   }
   for (const a of Object.values(ph.actions)) {
     rows.push({ date: a.closed?.date || a.created, type: 'Action', title: a.title, by: a.closed?.by || (a.log || []).find(e => e.by)?.by || '', status: a.status === 'closed' ? 'Closed' : a.waiting ? 'Open · waiting' : 'Open', due: a.due || '', done: a.closed?.date || '',

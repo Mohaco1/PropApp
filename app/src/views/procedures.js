@@ -8,11 +8,12 @@ import { draftText, blockers, procWording, visibleFields } from '../procgen.js';
 import { serviceName } from '../rules.js';
 import { fmt, today } from '../dates.js';
 import { note as log } from '../model.js';
+import { questionIndex } from './services.js';
 const current = p => p?.versions?.at(-1);
 // Which setup question fills a "[Confirm: …]" gap: the unanswered or "Check later" question sharing the most words.
 const words = t => new Set(String(t).toLowerCase().match(/[a-z0-9]{4,}/g) || []);
 function bestQuestion(ph, id, gap) { const fs = visibleFields(ph, id, ph.services[id]?.answers || {}), a = ph.services[id]?.answers || {}, g = words(gap);
-  let best = -1, score = 0; fs.forEach((f, i) => { const w = words(f[1]), s = [...g].filter(x => w.has(x)).length + (!a[f[0]] || a[f[0]] === 'Needs verification' ? 0.5 : 0); if (s > score) { score = s; best = i; } }); return score >= 1 ? best : -1; }
+  let best = '', score = 0; fs.forEach(f => { const w = words(f[1]), s = [...g].filter(x => w.has(x)).length + (!a[f[0]] || a[f[0]] === 'Needs verification' ? 0.5 : 0); if (s > score) { score = s; best = f[0]; } }); return score >= 1 ? questionIndex(ph, id, best) : -1; }
 register('procedures', {
   tab: 'more',
   render(c) {

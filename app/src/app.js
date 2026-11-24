@@ -18,7 +18,7 @@ export const ctx = {
   draft(key) { return S.drafts[key] || null; },
   saveDraft(key, value) { const rev = S.drafts[key]?.rev; store.saveDraft(S.ph.id, key, value, rev); S.drafts = store.drafts(S.ph.id); },
   toast(m) { S.toast = m; clearTimeout(S.tt); S.tt = setTimeout(() => { S.toast = ''; const t = document.querySelector('.toast'); if (t) t.remove(); }, 3000); },
-  async open(id) { const d = store.dir(); d.active = id; store.setDir(d); await store.flush(); load(); S.stack = []; S.tab = 'today'; render(true); },
+  async open(id) { const d = store.dir(); d.active = id; store.setDir(d); await store.flush(); load(); S.stack = []; S.tab = 'today'; for (const k of Object.keys(S.ui)) delete S.ui[k]; render(true); },
   load, store, rerender: () => render(),
 };
 function load() {
