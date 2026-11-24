@@ -280,3 +280,5 @@ The pages were read directly. Exact quotes are in `uat/research/content-v2-sourc
 | 5 · Clinical trial S8 | Confirmed | The wording added in part 2 matches the FAQ word for word. | NSW Health pharmacists FAQ, 20 Nov 2026 |
 | 3 · Trial | Still held | The release says eligible pharmacists "will be invited" and that safeguards "will be put in place". | Ministerial release, 10 Sep 2026 |
 | 6, 7 · TGA, eNRMC links | Unchanged | Still marked "not yet checked": those sites can't be reached from here. | — |
+
+**Full run on build 5828ff53c0:** 12 suites, 206 checks, all pass with no console errors. check-procgen-all: all 17 services identical.
