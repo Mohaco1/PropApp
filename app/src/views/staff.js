@@ -70,20 +70,26 @@ register('annual', {
   tab: 'staff',
   render(c, r) {
     const p = c.ph.staff.find(x => x.id === r.id), reqs = requirements(p), A = c.ui.annual?.[p.id] || {};
-    const allCurrent = reqs.every(q => { const s = credentialState(p, q.id); return s.state === 'ok'; });
+    const soon = q => { const s = credentialState(p, q.id); return s.state === 'expired' || s.state === 'issue' || (s.expiry && daysBetween(today(), s.expiry) <= 30); };
+    const urgent = reqs.filter(soon), steady = reqs.filter(q => !soon(q)), bulk = steady.filter(q => credentialState(p, q.id).state === 'ok' && !A[q.id]);
+    const card = q => { const s = credentialState(p, q.id), last = p.checks?.[q.id], a = A[q.id] || {}, hot = soon(q);
+      const exp = s.expiry ? (s.state === 'expired' ? 'Expired ' + fmt(s.expiry) : 'Valid until ' + fmt(s.expiry) + (daysBetween(today(), s.expiry) <= 30 ? ' · expires in ' + daysBetween(today(), s.expiry) + (daysBetween(today(), s.expiry) === 1 ? ' day' : ' days') : '')) : '';
+      return h`<div class="card${hot ? ' wait' : ''}"><p class="field-label">${q.label}</p><p class="meta">${last ? 'Last: ' + s.label + (last.date ? ' · ' + fmt(last.date) : '') + (last.method ? ' · ' + last.method : '') : 'Not checked before'}</p>${exp ? h`<p class="${hot ? 'warn' : 'meta'}"><b>${exp}</b></p>` : ''}
+        ${choice('r:' + q.id, [...(last && s.state === 'ok' && !hot ? [{ value: 'same', label: 'Current' }] : []), { value: 'ok', label: last ? 'Update' : 'Verified' }, { value: 'issue', label: 'Issue' }, { value: 'na', label: 'N/A' }], a.r || '', { issueValues: ['issue'], inline: true })}
+        ${a.r === 'ok' ? h`${field('How did you check?', select('m:' + q.id, [['', 'Choose…'], ...METHODS.map(m => [m, m])], a.m || last?.method || ''))}${field('Valid until (if it expires)', textInput('x:' + q.id, a.x ?? (hot ? '' : last?.expiry ?? ''), { type: 'date' }))}${field('Reference (optional)', textInput('f:' + q.id, a.f ?? last?.ref ?? ''))}` : ''}
+        ${a.r === 'issue' || a.r === 'na' ? field(a.r === 'issue' ? 'What needs sorting?' : 'Why not applicable?', textInput('n:' + q.id, a.n || '')) : ''}</div>`; };
     return screen({ title: 'Annual check · ' + p.name, back: true, body: h`
-      <p class="muted">Each item shows what you recorded last time. Tap what's true now.</p>
-      ${allCurrent && !Object.keys(A).length ? btn('Everything is still current', 'all', { cls: 'block' }) : ''}
-      <form class="form" data-form="save" data-change="ans">${reqs.map(q => { const s = credentialState(p, q.id), last = p.checks?.[q.id], a = A[q.id] || {};
-        return h`<div class="card"><p class="field-label">${q.label}</p><p class="meta">${last ? 'Last: ' + s.label + (last.date ? ' · ' + fmt(last.date) : '') + (last.method ? ' · ' + last.method : '') : 'Not checked before'}</p>
-          ${choice('r:' + q.id, [...(last && s.state === 'ok' ? [{ value: 'same', label: 'Still current' }] : []), { value: 'ok', label: last ? 'Update' : 'Verified' }, { value: 'issue', label: 'Issue' }, { value: 'na', label: 'Not applicable' }], a.r || '', { issueValues: ['issue'], inline: true })}
-          ${a.r === 'ok' ? h`${field('How did you check?', select('m:' + q.id, [['', 'Choose…'], ...METHODS.map(m => [m, m])], a.m || last?.method || ''))}${field('Valid until (if it expires)', textInput('x:' + q.id, a.x ?? last?.expiry ?? '', { type: 'date' }))}${field('Reference (optional)', textInput('f:' + q.id, a.f ?? last?.ref ?? ''))}` : ''}
-          ${a.r === 'issue' || a.r === 'na' ? field(a.r === 'issue' ? 'What needs sorting?' : 'Why not applicable?', textInput('n:' + q.id, a.n || '')) : ''}</div>`; })}
+      <form class="form" data-form="save" data-change="ans">
+      ${urgent.length ? h`<section class="sec"><h2 class="sec-title">Expired or expiring soon · ${urgent.length}</h2><p class="muted">Check each of these yourself. Enter the new date when you've seen it.</p>${urgent.map(card)}</section>` : ''}
+      <section class="sec"><h2 class="sec-title">${urgent.length ? 'Everything else' : 'Checks'} · ${steady.length}</h2><p class="muted">Each shows what you recorded last time.</p>
+        ${bulk.length > 1 ? btn('Confirm these ' + bulk.length + ' unchanged', 'all', { cls: 'block' }) : ''}${steady.map(card)}</section>
         ${field('Next annual check', textInput('next', addMonths(today(), 12), { type: 'date' }))}
         <div class="dock-inline">${btn('Save annual check', null, { kind: 'primary', type: 'submit' })}</div></form>` });
   },
   changes: { ans: (c, el, r) => { const f = Object.fromEntries(new FormData(el.closest('form'))); const A = {}; for (const [k, v] of Object.entries(f)) { const [t, id] = k.split(':'); if (!id) continue; (A[id] ??= {})[t] = v; } const before = JSON.stringify(Object.fromEntries(Object.entries(c.ui.annual?.[r.id] || {}).map(([k, v]) => [k, v.r]))); c.ui.annual = { ...(c.ui.annual || {}), [r.id]: A }; if (before !== JSON.stringify(Object.fromEntries(Object.entries(A).map(([k, v]) => [k, v.r])))) c.rerender(); } },
-  acts: { all: (c, d, el, r) => { const p = c.ph.staff.find(x => x.id === r.id); c.ui.annual = { ...(c.ui.annual || {}), [r.id]: Object.fromEntries(requirements(p).map(q => [q.id, { r: 'same' }])) }; c.rerender(); } },
+  acts: { all: (c, d, el, r) => { const p = c.ph.staff.find(x => x.id === r.id), A = { ...(c.ui.annual?.[r.id] || {}) };
+    for (const q of requirements(p)) { const s = credentialState(p, q.id); if (!A[q.id] && s.state === 'ok' && !(s.expiry && daysBetween(today(), s.expiry) <= 30)) A[q.id] = { r: 'same' }; }
+    c.ui.annual = { ...(c.ui.annual || {}), [r.id]: A }; c.rerender(); } },
   forms: { save: (c, f, el, r) => {
     const p = c.ph.staff.find(x => x.id === r.id), reqs = requirements(p), A = c.ui.annual?.[p.id] || {};
     const missing = reqs.filter(q => !A[q.id]?.r || (A[q.id].r === 'ok' && !A[q.id].m) || (['issue', 'na'].includes(A[q.id].r) && !A[q.id].n?.trim()));

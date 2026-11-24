@@ -31,7 +31,8 @@ register('procedure', {
       <p>${pill(p.status === 'adopted' ? 'Adopted · version ' + v.v : 'Draft ' + v.v, p.status === 'adopted' ? 'ok' : 'warn')} <span class="muted">${fmt(String(v.at).slice(0, 10))}</span></p>
       ${changed ? note(h`Your setup answers changed since this draft. ${btn('Update the draft', 'regen', { kind: 'link' })}`, 'warn') : ''}
       ${b.length && p.status !== 'adopted' ? h`<section class="sec"><h2 class="sec-title">To confirm before adopting · ${b.length}</h2><div class="list">${b.map(x => row({ title: x.charAt(0).toUpperCase() + x.slice(1), sub: 'Answer it in setup, or edit the wording', act: 'fix' }))}</div></section>` : ''}
-      <div class="btnrow">${btn('Edit', 'mode', { data: { m: 'edit' } })}${p.status !== 'adopted' ? btn('Adopt for use here', 'adopt', { kind: 'primary', disabled: b.length > 0 }) : ''}</div>
+      ${c.ui['ad:' + id] ? h`<div class="card hero"><h2>Adopt version ${adoptVersion(p)} for use here?</h2><p class="muted">This records that you, ${c.ph.proprietors.find(x => x.id === c.ph.recordingAs)?.name || 'the proprietor'}, have read it and it matches how your pharmacy works. You can change it later; earlier versions are kept.</p><div class="btnrow">${btn('Yes, adopt it', 'adoptyes', { kind: 'primary' })}${btn('Cancel', 'adoptno')}</div></div>`
+        : h`<div class="btnrow">${btn('Edit', 'mode', { data: { m: 'edit' } })}${p.status !== 'adopted' ? btn('Adopt for use here', 'adopt', { kind: 'primary', disabled: b.length > 0 }) : ''}</div>`}
       ${b.length && p.status !== 'adopted' ? h`<p class="hint">Adopt unlocks when nothing is left to confirm.</p>` : ''}
       <div class="doc">${v.body}</div>
       ${p.versions.length > 1 ? why('Earlier versions · ' + (p.versions.length - 1), h`<div class="list">${p.versions.slice(0, -1).reverse().map(x => row({ title: 'Version ' + x.v, sub: (x.status || '') + ' · ' + fmt(String(x.at).slice(0, 10)), chev: false }))}</div>`) : ''}` });
@@ -41,10 +42,14 @@ register('procedure', {
     fix: (c, d, el, r) => { c.go('service', { id: r.id }); },
     save: (c, d, el, r) => c.change(ph => { ph.procedures.push({ id: uid(), service: r.id, title: serviceName(r.id) + ' procedure', status: 'draft', versions: [{ v: '0.1', body: draftText(ph, r.id), generated: draftText(ph, r.id), at: new Date().toISOString(), status: 'Draft' }] }); log(ph, 'Procedure drafted · ' + serviceName(r.id)); }, 'Draft saved'),
     regen: (c, d, el, r) => c.change(ph => { const p = ph.procedures.find(x => x.service === r.id), t = draftText(ph, r.id); p.versions.push({ v: next(current(p).v), body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }); p.status = 'draft'; log(ph, 'Procedure redrafted · ' + serviceName(r.id)); }, 'Draft updated'),
-    adopt: (c, d, el, r) => { const p = c.ph.procedures.find(x => x.service === r.id); if (blockers(current(p).body).length) return;
-      if (c.ui.adoptArmed !== r.id) { c.ui.adoptArmed = r.id; c.toast('Tap “Adopt” again to confirm you’ve read it and it matches how you work.'); return; } c.ui.adoptArmed = '';
-      c.change(ph => { const q = ph.procedures.find(x => x.service === r.id); q.status = 'adopted'; const v = current(q); v.status = 'Adopted'; v.adoptedAt = new Date().toISOString(); v.adoptedBy = ph.proprietors.find(x => x.id === ph.recordingAs)?.name || ''; log(ph, 'Procedure adopted · ' + serviceName(r.id) + ' ' + v.v); }, 'Adopted'); },
+    adopt: (c, d, el, r) => { const p = c.ph.procedures.find(x => x.service === r.id); if (blockers(current(p).body).length) return; c.ui['ad:' + r.id] = true; c.rerender(); },
+    adoptno: (c, d, el, r) => { c.ui['ad:' + r.id] = false; c.rerender(); },
+    adoptyes: (c, d, el, r) => { c.ui['ad:' + r.id] = false;
+      c.change(ph => { const q = ph.procedures.find(x => x.service === r.id), v = current(q), nv = adoptVersion(q), by = ph.proprietors.find(x => x.id === ph.recordingAs)?.name || '';
+        q.versions.push({ ...v, v: nv, status: 'Adopted', at: new Date().toISOString(), adoptedAt: new Date().toISOString(), adoptedBy: by, from: v.v }); q.status = 'adopted'; log(ph, 'Procedure adopted · ' + serviceName(r.id) + ' · version ' + nv + ' (from draft ' + v.v + ') by ' + by); }, 'Adopted as version ' + adoptVersion(c.ph.procedures.find(x => x.service === r.id))); },
   },
   forms: { edit: (c, f, el, r) => { c.ui['pm:' + r.id] = ''; c.change(ph => { const p = ph.procedures.find(x => x.service === r.id), v = current(p); p.versions.push({ v: next(v.v), body: f.body, generated: v.generated, at: new Date().toISOString(), status: 'Draft', edited: true }); p.status = 'draft'; log(ph, 'Procedure wording edited · ' + serviceName(r.id)); }, 'Saved as a new version'); } },
 });
+// Adopted versions are whole numbers: the first adoption is 1.0, the next 2.0. Drafts in between are 1.1, 1.2…
+const adoptVersion = p => (Math.max(0, ...p.versions.filter(x => x.status === 'Adopted').map(x => parseInt(x.v, 10) || 0)) + 1) + '.0';
 const next = v => { const m = String(v).match(/^(\d+)\.(\d+)/); return m ? m[1] + '.' + (+m[2] + 1) : '0.1'; };

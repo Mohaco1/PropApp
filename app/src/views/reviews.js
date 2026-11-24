@@ -32,7 +32,7 @@ register('reviews', {
   tab: 'reviews',
   render(c) {
     const f = c.ui.revF || 'due', all = catalog().filter(a => a.id !== 'A1' && a.kind !== 'meeting' && applies(c.ph, a).applies);
-    const rows = all.map(a => ({ a, date: reviewDue(c.ph, a.id), started: a.id === 'Q1' ? !!(c.draft('visit/quarterly') || c.draft('visit/extra')) : !!c.draft('review/' + a.id) })).map(x => ({ ...x, b: bucket(x.date) }));
+    const rows = all.map(a => ({ a, date: reviewDue(c.ph, a.id), started: a.id === 'Q1' ? !!c.draft('visit/quarterly') : !!c.draft('review/' + a.id) })).map(x => ({ ...x, b: bucket(x.date) }));
     const done = [...c.ph.records].filter(r => r.kind === 'review' || r.kind === 'visit').sort((a, b) => b.date.localeCompare(a.date));
     let list = f === 'law' ? rows.filter(x => x.a.legal) : f === 'nodate' ? rows.filter(x => !x.date && !x.a.event) : rows.filter(x => x.date || x.started);
     list.sort((x, y) => (x.date || '9').localeCompare(y.date || '9'));

@@ -17,11 +17,11 @@ register('actions', {
     return screen({ title: 'Actions', right: h`<button class="iconbtn" data-act="add" aria-label="Add an action">${icon('plus')}</button>`, body: h`
       <p class="status">${n.open === 1 ? '1 open' : n.open + ' open'}${n.overdue ? h` · <span class="bad">${n.overdue} overdue</span>` : ''}. Only you close an action, once you've seen the fix.</p>
       <div class="tabs">${F.map(([k, l]) => h`<button class="${k === f ? 'on' : ''}" data-act="f" data-f="${k}">${l} <b>${k === 'overdue' ? n.overdue : n[k]}</b></button>`)}</div>
-      <label class="search">${icon('search')}<input class="input" name="q" placeholder="Search actions" value="${c.ui.actQ || ''}" data-change="q"></label>
+      <label class="search">${icon('search')}<input class="input" name="q" type="search" placeholder="Search actions" value="${c.ui.actQ || ''}" data-input="q" autocomplete="off"></label>
       <div class="list">${list.length ? list.map(a => row({ title: a.title, sub: [a.title.includes(a.person) ? '' : a.person, a.source?.label?.replace(/ · \d{4}-\d{2}-\d{2}$/, '')].filter(Boolean).join(' · ') || 'Action', right: a.status === 'closed' ? 'Closed ' + fmt(a.closed?.date) : a.waiting ? 'Waiting' : dueText(a.due), tone: a.status === 'open' && isDate(a.due) && a.due < t ? 'bad' : '', act: 'open', data: { id: a.id } })) : empty('No actions here.')}</div>` });
   },
   acts: { f: (c, d) => { c.ui.actF = d.f; c.rerender(); }, open: (c, d) => c.go('action', { id: d.id }), add: c => c.go('action-new') },
-  changes: { q: (c, el) => { c.ui.actQ = el.value; c.rerender(); } },
+  inputs: { q: (c, el) => { c.ui.actQ = el.value; c.rerender(); } },
 });
 register('action-new', {
   tab: 'actions',

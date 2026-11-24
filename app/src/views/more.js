@@ -1,6 +1,6 @@
 // More: everything that isn't a daily job, grouped by the four modes: rules, proof, setup.
 import { register } from '../app.js';
-import { h } from '../util.js';
+import { h, html } from '../util.js';
 import { screen, row, icon, section, btn, empty, field, textInput, note } from '../ui.js';
 import { fmt, today, dueText, weekStart, addDays, monthName, isDate } from '../dates.js';
 import { items, ranked, bucket } from '../summary.js';
@@ -21,11 +21,11 @@ register('more', {
 register('calendar', {
   tab: 'more',
   render(c) {
-    const view = c.ui.calV || 'weeks', all = items(c.ph, c.drafts).flatMap(i => i.kind === 'person' ? i.parts.filter(p => isDate(p.date)).map(p => ({ ...i, title: p.title.includes(i.title) ? p.title : i.title + ' · ' + p.title, sub: 'Staff', date: p.date, bucket: bucket(p.date) })) : isDate(i.date) ? [i] : []);
+    const view = c.ui.calV || 'weeks', every = items(c.ph, c.drafts), all = every.filter(i => isDate(i.date) && i.bucket !== 'started'), prog = every.filter(i => i.bucket === 'started');
     const t = today(), ws = weekStart(t);
-    const grp = [['Overdue', all.filter(i => i.date < t)], ['This week', all.filter(i => i.date >= t && i.date < addDays(ws, 7))], ['Next week', all.filter(i => i.date >= addDays(ws, 7) && i.date < addDays(ws, 14))], ['Later', all.filter(i => i.date >= addDays(ws, 14))]];
+    const grp = [['In progress', prog], ['Overdue', all.filter(i => i.bucket === 'overdue')], ['This week', all.filter(i => i.date >= t && i.date < addDays(ws, 7))], ['Next week', all.filter(i => i.date >= addDays(ws, 7) && i.date < addDays(ws, 14))], ['Later', all.filter(i => i.date >= addDays(ws, 14))]];
     const months = {}; for (const i of all.filter(i => i.date >= t.slice(0, 7))) (months[i.date.slice(0, 7)] ??= []).push(i);
-    const listOf = l => h`<div class="list">${ranked(l).sort((a, b) => a.date.localeCompare(b.date)).map(i => row({ title: i.title, legal: i.legal, sub: i.kind === 'action' ? 'Action' : i.sub, right: fmt(i.date, { weekday: true }), tone: i.date < t ? 'bad' : '', act: 'open', data: { key: i.key } }))}</div>`;
+    const listOf = l => h`<div class="list">${ranked(l).sort((a, b) => (a.bucket === 'overdue' && b.bucket === 'overdue' ? 0 : (a.date || '').localeCompare(b.date || ''))).map(i => row({ title: i.title, legal: i.legal, sub: i.kind === 'action' ? 'Action' : i.sub, right: i.bucket === 'started' ? 'In progress' : fmt(i.date, { weekday: true }), tone: i.bucket === 'overdue' ? 'bad' : '', act: 'open', data: { key: i.key } }))}</div>`;
     return screen({ title: 'Calendar', back: true, body: h`
       <div class="seg">${[['weeks', 'Weeks'], ['year', 'Year']].map(([k, l]) => h`<button class="${k === view ? 'on' : ''}" data-act="v" data-v="${k}">${l}</button>`)}</div>
       ${view === 'weeks' ? grp.filter(([, l]) => l.length).map(([n, l]) => section(n + ' · ' + l.length, listOf(l))) : Object.entries(months).sort().map(([m, l]) => section(monthName(m + '-01'), listOf(l)))}
@@ -42,14 +42,14 @@ register('history', {
     const rows = all.filter(r => (type === 'all' || r.type === type) && (!q || (r.title + ' ' + r.detail + ' ' + r.by).toLowerCase().includes(q)));
     const types = ['all', ...new Set(all.map(r => r.type))], n = c.ui.histN || 40;
     return screen({ title: 'History', back: true, body: h`
-      <label class="search">${icon('search')}<input class="input" name="q" placeholder="Search history" value="${c.ui.histQ || ''}" data-change="q"></label>
+      <label class="search">${icon('search')}<input class="input" name="q" type="search" placeholder="Search history" value="${c.ui.histQ || ''}" data-input="q" autocomplete="off"></label>
       <div class="chips">${types.map(t => h`<button class="chip ${t === type ? 'on' : ''}" data-act="t" data-t="${t}">${t === 'all' ? 'All' : t}</button>`)}</div>
       <p class="muted">${rows.length} ${rows.length === 1 ? 'entry' : 'entries'} · kept on this device</p>
       <div class="btnrow">${btn('Download CSV', 'csv')}${btn('Copy as text', 'copy')}</div>
       <div class="list">${rows.slice(0, n).map(r => row({ title: r.title, sub: [r.type, r.status, r.detail].filter(Boolean).join(' · '), right: fmt(r.date), act: r.type === 'Action' ? 'act' : r.id ? 'rec' : '', data: { id: r.id }, chev: !!r.id }))}</div>
       ${rows.length > n ? btn('Show more', 'more', { kind: 'link' }) : ''}` });
   },
-  changes: { q: (c, el) => { c.ui.histQ = el.value; c.rerender(); } },
+  inputs: { q: (c, el) => { c.ui.histQ = el.value; c.rerender(); } },
   acts: { t: (c, d) => { c.ui.histT = d.t; c.rerender(); }, more: c => { c.ui.histN = (c.ui.histN || 40) + 60; c.rerender(); }, act: (c, d) => c.go('action', { id: d.id }), rec: (c, d) => c.go('record', { id: d.id }),
     csv: c => { const ok = saveFile('history-' + c.ph.name.replace(/\W+/g, '-') + '-' + today() + '.csv', csv(c.ph, historyRows(c.ph)), 'text/csv'); c.toast(ok ? 'CSV ready' : 'Downloads are blocked here. Use Copy as text.'); },
     copy: async c => { try { await navigator.clipboard.writeText(printable(c.ph, historyRows(c.ph))); c.toast('Copied'); } catch { c.toast('Copy didn’t work here.'); } } },
@@ -58,17 +58,18 @@ register('history', {
 // Search or jump to: reviews, actions, staff, procedures, legal obligations and setup questions, in one box.
 import { catalog } from '../rules.js';
 import { C } from '../content.js';
+function searchResults(c) { const q = (c.ui.q || '').trim().toLowerCase(), R = [];
+  if (q.length < 2) return h`<p class="muted">Type at least two letters.</p>`;
+  for (const a of catalog()) if (a.name.toLowerCase().includes(q)) R.push({ t: a.name, s: 'Review · ' + a.frequency, to: a.kind === 'visit' ? 'visit-start' : a.kind === 'meeting' ? 'meeting' : 'review', id: a.id });
+  for (const a of Object.values(c.ph.actions)) if ((a.title + ' ' + (a.closed?.what || '') + ' ' + (a.progress || '')).toLowerCase().includes(q)) R.push({ t: a.title, s: 'Action · ' + (a.status === 'open' ? 'open' : 'closed'), to: 'action', id: a.id });
+  for (const p of c.ph.staff) if (p.name.toLowerCase().includes(q)) R.push({ t: p.name, s: 'Staff · ' + p.role, to: 'person', id: p.id });
+  for (const [id, s] of Object.entries(c.ph.services)) { const nm = C.services.services.find(x => x.id === id)?.name || id; if (s.active && nm.toLowerCase().includes(q)) R.push({ t: nm, s: 'Service', to: 'service', id }); }
+  for (const p of c.ph.procedures) if ((p.title + ' ' + (p.versions.at(-1)?.body || '')).toLowerCase().includes(q)) R.push({ t: p.title, s: 'Procedure', to: 'procedure', id: p.service });
+  for (const o of C.law.OBL) if ((o[2] + ' ' + o[1] + ' ' + o[3]).toLowerCase().includes(q)) R.push({ t: o[2], s: 'Legal obligation · ' + o[1], to: 'obligation', id: o[0] });
+  return h`<div class="list">${R.length ? R.slice(0, 40).map(x => row({ title: x.t, sub: x.s, act: 'go', data: { to: x.to, id: x.id } })) : empty('Nothing matches “' + q + '”.')}</div>`; }
 register('search', {
   tab: 'today',
-  render(c) { const q = (c.ui.q || '').trim().toLowerCase(), R = [];
-    if (q.length > 1) {
-      for (const a of catalog()) if (a.name.toLowerCase().includes(q)) R.push({ t: a.name, s: 'Review · ' + a.frequency, to: a.kind === 'visit' ? 'visit-start' : a.kind === 'meeting' ? 'meeting' : 'review', id: a.id });
-      for (const a of Object.values(c.ph.actions)) if (a.title.toLowerCase().includes(q)) R.push({ t: a.title, s: 'Action · ' + (a.status === 'open' ? 'open' : 'closed'), to: 'action', id: a.id });
-      for (const p of c.ph.staff) if (p.name.toLowerCase().includes(q)) R.push({ t: p.name, s: 'Staff · ' + p.role, to: 'person', id: p.id });
-      for (const [id, s] of Object.entries(c.ph.services)) if (s.active && C.services.services.find(x => x.id === id)?.name.toLowerCase().includes(q)) R.push({ t: C.services.services.find(x => x.id === id).name, s: 'Service', to: 'service', id });
-      for (const o of C.law.OBL) if ((o[2] + ' ' + o[1] + ' ' + o[3]).toLowerCase().includes(q)) R.push({ t: o[2], s: 'Legal obligation · ' + o[1], to: 'obligation', id: o[0] });
-    }
-    return screen({ title: 'Search', back: true, body: h`<label class="search">${icon('search')}<input class="input" name="q" placeholder="Search reviews, actions, staff, rules" value="${c.ui.q || ''}" data-change="q" autofocus></label>
-      ${q.length > 1 ? h`<div class="list">${R.length ? R.slice(0, 40).map(x => row({ title: x.t, sub: x.s, act: 'go', data: { to: x.to, id: x.id } })) : empty('Nothing matches.')}</div>` : h`<p class="muted">Type at least two letters.</p>`}` }); },
-  changes: { q: (c, el) => { c.ui.q = el.value; c.rerender(); } },
+  render(c) { return screen({ title: 'Search', back: true, body: h`<label class="search">${icon('search')}<input class="input" name="q" type="search" placeholder="Search reviews, actions, staff, rules" value="${c.ui.q || ''}" data-input="q" autocomplete="off"></label><div id="sr">${searchResults(c)}</div>` }); },
+  after: () => { const i = document.querySelector('input[name=q]'); if (i && document.activeElement !== i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } },
+  inputs: { q: (c, el) => { c.ui.q = el.value; document.getElementById('sr').innerHTML = html(searchResults(c)); } },
 });

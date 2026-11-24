@@ -28,7 +28,8 @@ export function applies(ph, a) {
   if (IN_VISIT.has(a.id)) return { applies: false, why: 'Covered inside the site visit' };
   if (a.service === 'daa') {
     const r = daaRoute(ph);
-    if (a.id === 'daa-house' && r && !/house/.test(r)) return { applies: false, why: 'Packs are not made here' };
+    if (!r || r === 'Needs verification') return { applies: false, why: 'Answer how your DAAs are packed first' };
+    if (a.id === 'daa-house' && !/house/.test(r)) return { applies: false, why: 'Packs are not made here' };
     if (a.id === 'daa-external' && !/routeA|external/.test(r)) return { applies: false, why: 'No outside packer' };
     if (a.id === 'daa-external-b' && !/routeB|pharmacy/.test(r)) return { applies: false, why: 'Another pharmacy does not dispense' };
     if (a.id === 'daa-house' && /house/.test(r)) return { applies: false, why: 'Covered inside the site visit' };

@@ -64,7 +64,7 @@ export function items(ph, drafts = {}, t = today()) {
 const ORDER = { overdue: 0, today: 1, started: 2, week: 3, later: 4, nodate: 5, tocheck: 6 };
 export function ranked(list) {
   return [...list].sort((a, b) => (b.legal && ['overdue', 'today'].includes(b.bucket) ? 1 : 0) - (a.legal && ['overdue', 'today'].includes(a.bucket) ? 1 : 0)
-    || (ORDER[a.bucket] - ORDER[b.bucket]) || (a.date || '9').localeCompare(b.date || '9') || a.title.localeCompare(b.title));
+    || (ORDER[a.bucket] - ORDER[b.bucket]) || ((b.legal ? 1 : 0) - (a.legal ? 1 : 0)) || (a.date || '9').localeCompare(b.date || '9') || a.title.localeCompare(b.title));
 }
 export function counts(list) {
   const c = { overdue: 0, today: 0, started: 0, week: 0, nodate: 0, tocheck: 0, waiting: 0, all: list.length, actionsOpen: 0, actionsOverdue: 0 };

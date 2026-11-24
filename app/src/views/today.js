@@ -43,7 +43,7 @@ register('today', {
     const s = sentence(all);
     const list = ranked(pick);
     return screen({ title: 'Today', sub: c.ph.name, right: switcher(c), body: h`
-      <p class="status"><span class="date">${fmt(today(), { weekday: true })}</span> · <span class="${s.tone}">${s.text}</span>${s.start ? h` Start with <button class="inline-link" data-act="open" data-key="${s.start.key}">${s.start.title}</button>.` : ''}</p>
+      <p class="status"><span class="date">${fmt(today(), { weekday: true })}</span> · <span class="${s.tone}">${s.text}</span>${s.start && s.tone !== 'ok' ? h` Start with ${s.start.title}.` : ''}</p>
       ${topCard(c, all)}
       <div class="filters" role="tablist">${FILTERS.map(([k, l]) => h`<button role="tab" aria-selected="${String(k === f)}" class="${k === f ? 'on' : ''}" data-act="filter" data-f="${k}"><b>${k === 'all' ? n.all - n.tocheck : n[k]}</b><span>${l}</span></button>`)}</div>
       <div class="chips">${MORE.map(([k, l]) => h`<button class="chip ${k === f ? 'on' : ''}" data-act="filter" data-f="${k}">${l} · ${n[k]}</button>`)}</div>

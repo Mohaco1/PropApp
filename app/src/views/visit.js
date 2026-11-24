@@ -91,6 +91,7 @@ register('visit', {
     ans: (c, el, r) => { const form = el.closest('form'); const k = key(r.extra), d = structuredClone(c.draft(k)); const its = visitItems(c.ph), f0 = its.findIndex(x => !d.items[x.key]?.status), it = its[d.step ?? (f0 < 0 ? 0 : f0)]; const f = Object.fromEntries(new FormData(form));
       d.items[it.key] = { ...(d.items[it.key] || {}), status: f.status || '', text: f.text ?? d.items[it.key]?.text ?? '', due: f.due ?? d.items[it.key]?.due ?? '', ref: f.ref ?? d.items[it.key]?.ref ?? '' };
       if ('vaccEvent' in f || 'vaccSighted' in f) d.vacc = { event: f.vaccEvent || '', sighted: f.vaccSighted || '', auditDate: f.vaccDate || '' };
+      d.step = its.indexOf(it);
       const redraw = (f.status || '') !== (c.draft(k).items[it.key]?.status || '') || ('vaccSighted' in f && f.vaccSighted !== c.draft(k).vacc?.sighted);
       c.saveDraft(k, d); if (redraw) c.rerender(); },
   },

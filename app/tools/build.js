@@ -9,12 +9,14 @@ const ROOT = path.resolve(__dirname, '..');
   const uat = process.argv.includes('--uat') ? 'window.PROPAPP_UAT=true;' : '';
   const example = fs.existsSync(ex) ? 'window.PROPAPP_EXAMPLE=' + JSON.stringify(JSON.parse(fs.readFileSync(ex, 'utf8'))).replace(/</g, '\\u003c') + ';' : '';
   const build = crypto.createHash('sha256').update(js + example).digest('hex').slice(0, 10);
-  const page = `<title>PropApp</title><meta name="propapp-build" content="${build}">
+  const page = `<title>R.Pharmacy</title><meta name="propapp-build" content="${build}">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="claude:viewport-fit-sides" content="cover">
 <div id="app"></div><script>window.PROPAPP_BUILD=${JSON.stringify(build)};${uat}${example}</script><script>${js.replace(/<\/script/gi, '<\\/script')}</script>`;
   fs.mkdirSync(path.join(ROOT, 'dist'), { recursive: true });
   fs.writeFileSync(path.join(ROOT, 'dist/propapp.html'), page);
   // a full standalone document for opening the file directly in a browser
-  fs.writeFileSync(path.join(ROOT, 'dist/propapp-standalone.html'), `<!doctype html><html lang="en-AU"><head><meta charset="utf-8">${page.replace('<div id="app"></div>', '</head><body><div id="app"></div>')}</body></html>`);
+  // Standalone file: a strict Content Security Policy inside <head> (nothing can be loaded from or sent to the network).
+  const CSP = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'";
+  fs.writeFileSync(path.join(ROOT, 'dist/propapp-standalone.html'), `<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${CSP}">${page.replace('<div id="app"></div>', '</head><body><div id="app"></div>')}</body></html>`);
   console.log('built', build, (page.length / 1024).toFixed(0) + ' KB');
 })().catch(e => { console.error(e.message); process.exit(1); });

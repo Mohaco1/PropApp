@@ -7,10 +7,10 @@ export const register = (name, v) => { views[name] = v; };
 const S = { ph: null, drafts: {}, stack: [], tab: 'today', toast: '', ui: {} };
 export const ctx = {
   get ph() { return S.ph; }, get drafts() { return S.drafts; }, get route() { return S.stack.at(-1) || { name: S.tab }; }, ui: S.ui,
-  go(name, params = {}) { S.stack.push({ name, ...params }); render(true); },
+  go(name, params = {}) { S.toast = ''; S.stack.push({ name, ...params }); render(true); },
   replace(name, params = {}) { S.stack.pop(); S.stack.push({ name, ...params }); render(true); },
-  back() { S.stack.pop(); render(true); },
-  tab(name) { S.tab = name; S.stack = []; render(true); },
+  back() { S.toast = ''; S.stack.pop(); render(true); },
+  tab(name) { S.toast = ''; S.tab = name; S.stack = []; render(true); },
   change(fn, message) {
     const next = clone(S.ph); const r = fn(next); if (r === false) return false;
     S.ph = next; store.savePharmacy(next); if (message) ctx.toast(message); render(); return true;
@@ -31,11 +31,11 @@ export function render(scrollTop = false) {
   let out = '';
   try { out = html(v.render(ctx, r)); } catch (e) { console.error(e); out = '<div class="screen"><main class="body"><p class="note bad">Something went wrong showing this screen. Your records are safe. Go back and try again.</p><button class="btn secondary" data-act="back">Back</button></main></div>'; }
   const showNav = S.ph && !v.noNav;
-  const focusName = document.activeElement?.name, focusVal = document.activeElement?.value;
+  const ae = document.activeElement, focusName = ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName) && !['radio', 'checkbox', 'file'].includes(ae.type) ? ae.name : '', caret = focusName ? ae.selectionStart : 0;
   root.innerHTML = out + (showNav ? html(nav(S.stack.length ? (v.tab || S.tab) : S.tab)) : '') + (S.toast ? `<div class="toast" role="status">${S.toast.replace(/[<>&]/g, '')}</div>` : '');
   root.classList.toggle('has-nav', !!showNav);
   if (scrollTop) window.scrollTo(0, 0);
-  if (focusName) { const el = root.querySelector(`[name="${focusName}"]`); if (el && el.tagName !== 'INPUT' || el?.type === 'text') { /* keep typing focus where useful */ } }
+  if (focusName && !scrollTop) { const el = root.querySelector(`[name="${focusName}"]`); if (el) { el.focus(); try { el.setSelectionRange(caret, caret); } catch {} } }
   v.after?.(ctx, r, root);
 }
 function handle(e, type) {
@@ -56,6 +56,7 @@ export async function start(el) {
   load();
   document.addEventListener('click', e => handle(e, 'click'));
   document.addEventListener('submit', e => handle(e, 'submit'));
+  document.addEventListener('input', e => { const el = e.target.closest('[data-input]'); if (!el) return; const r = S.ph ? ctx.route : { name: 'welcome' }; const v = views[r.name] || {}; v.inputs?.[el.dataset.input]?.(ctx, el, r, e); });
   document.addEventListener('change', e => { const el = e.target.closest('[data-change]'); if (!el) return; const r = S.ph ? ctx.route : { name: 'welcome' }; const v = views[r.name] || {}; v.changes?.[el.dataset.change]?.(ctx, el, r, e); });
   render();
 }
