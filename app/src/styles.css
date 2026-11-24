@@ -219,3 +219,9 @@ table.yearplan{border-collapse:collapse;font-size:13px;table-layout:fixed;width:
 .toast{background:var(--fg);color:var(--surface)}
 @media print{.bar::before,.row::before{display:none}}
 .yearplan th[scope=row],.yearplan thead th:first-child{font-variant-numeric:normal}
+/* Sources (C2-01) */
+.src .row-main{gap:4px}.src-acts{display:flex;flex-wrap:wrap;align-items:center;gap:0 16px}.src-acts .btn.link{padding:10px 0}
+.src-used summary{min-height:44px;display:flex;align-items:center;color:var(--muted);font-size:14px;cursor:pointer}.src-used ul{font-size:14px;color:var(--muted);padding-bottom:6px}
+a.linkbtn{text-decoration:none}
+.updline{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:8px 12px;border:0;border-radius:12px;background:var(--tint);color:var(--primary);font:inherit;font-weight:600;text-align:left;cursor:pointer}.updline span{flex:1}
+.upd{gap:6px}.upd .upd-title{font-size:19px;margin-bottom:4px}.upd .sec-title{margin:8px 0 0}.upd ul.plain{gap:6px}.upd.read{box-shadow:none}

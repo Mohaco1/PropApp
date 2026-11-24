@@ -7,6 +7,7 @@ import { fmt, dueText, today, daysBetween, isDate } from '../dates.js';
 import { C } from '../content.js';
 import { undated } from './services.js';
 import { serviceName } from '../rules.js';
+import { unreadUpdates } from './updates.js';
 const FILTERS = [['overdue', 'Overdue'], ['week', 'This week'], ['waiting', 'Waiting · to confirm'], ['all', 'All']];
 export function openItem(c, it) {
   if (it.kind === 'visit') return c.go('visit-start', { extra: it.ref === 'extra' });
@@ -51,6 +52,7 @@ register('today', {
       <p class="status"><span class="date">${fmt(today(), { weekday: true })}</span><span class="${s.tone}">${s.text}</span>${s.start && s.tone !== 'ok' ? h` Start with ${s.start.title}.` : ''}</p>
       ${topCard(c, all)}
       <div class="filters" role="tablist">${FILTERS.map(([k, l]) => h`<button role="tab" aria-selected="${String(k === f)}" class="${k === f ? 'on' : ''}" data-act="filter" data-f="${k}"><b>${cnt[k]}</b><span>${l}</span></button>`)}</div>
+      ${(u => u ? h`<button class="updline" data-act="go" data-to="updates">${icon('bell')}<span>${u === 1 ? '1 law update' : u + ' law updates'} to read</span>${icon('chev', 'chev')}</button>` : '')(unreadUpdates(c.ph).length)}
       ${n.nodate && f !== 'nodate' ? h`<button class="quietline" data-act="filter" data-f="nodate">${n.nodate === 1 ? '1 review has' : n.nodate + ' reviews have'} no date yet · show</button>` : ''}
       <div class="list">${list.length ? list.map(i => row({ title: i.title, sub: i.sub, legal: i.legal, right: i.bucket === 'started' ? 'In progress' : i.started ? 'Started · ' + dueText(i.date) : i.bucket === 'tocheck' ? 'When you can' : dueText(i.date), tone: i.bucket === 'overdue' ? 'bad' : i.bucket === 'today' ? 'warn' : '', act: 'open', data: { key: i.key } })) : empty(f === 'overdue' ? 'Nothing overdue.' : 'Nothing here.')}</div>` })
 

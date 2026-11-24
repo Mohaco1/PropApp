@@ -128,7 +128,7 @@ This is the checklist the rebuild must match before the old app is retired (rule
 ## 10. Law and inspections
 - [x] S8 at a glance: inventory (s 111), who the law puts it on (s 108, s 122), where records are, S8 setup answers, open S8 actions, last checks, last sighted.
 - [x] Legal obligations: one line per Regulation section that applies, with where the evidence is kept and when last sighted.
-- [x] NSW Health dates and contacts. Sources screen (every rule's source).
+- [x] NSW Health dates and contacts. Sources screen (every rule's source). · test: content2 (rebuild's Sources screen was missing until Content v2, 25 Nov; now: where each is used, Open source, This source changed → one action)
 - [x] Incident steps (lost or stolen drugs, S8 destruction) from NSW Health pages. · test: sprint4 (S4-04)
 - [x] Evidence locations. · test: sprint4 (S4-05)
 

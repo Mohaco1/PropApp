@@ -213,3 +213,23 @@ No data, storage keys, wording or workflow changed.
 **After this, gates 2–5 of the v41 retirement gate are the owner's checks on their own phone.**
 
 Night mode was also looked at by eye. Screenshots for the brief: `01_today_390px.png`, `02_site_visit_evidence.png`, `03_year_plan_390px.png` and `04_actions_view.png`.
+
+## Content v2 (part 1) and F-P06-02/03 · 25 Nov 2026 · build 1edd311f09
+Brief: "PropApp — Content v2 Brief: NSW Prescribing, 2026 Law Updates & Clinical Upgrades (For Claude)" (owner's Drive, read only). It signs off P-06 and F-P06-01 on e6d038b7c7 and approves the four judgement calls.
+
+**How the law content was checked.** CLAUDE.md says no obligation changes without the primary source. This session couldn't reach the official sites: the fetch tool and the permission check both blocked them. So every line added comes from the pages we read on 20–21 Nov 2026 (`uat/research/`). Anything only in Gemini's brief is held back, listed below.
+
+| ID | Status | What was done | Test |
+|---|---|---|---|
+| F-P06-02 | Done | The copy box is off-screen (left −9999 px) at 16 px, not transparent or 1 px. It is editable while copying, then removed. | theme |
+| F-P06-03 | Done | Night-mode tokens are asserted (--bg #0D151C, --surface #15202B, --primary #62B8F6, --on-primary #0D151C), plus a `05_today_dark_390px.png` screenshot. | theme |
+| C2-01 | Done (verified links only) | Sources screen, rebuilt from v41 (it was missing in the rebuild, although the inventory ticked it): 20 sources, each with "Last read", where it's used here, "Open source ↗" (new tab, rel="noopener noreferrer"), and "This source changed", which raises one action due in 30 days. Added the NSW Health law overview, changes for pharmacists, the FAQ and the Intention form pages (all in the 20 Nov crawl). Incident cards already link their NSW Health pages. | content2 |
+| C2-02 | Held | The My Health Record breach card. Not in our sources: Gemini's "Rule 21 replaces Rule 42", the 5-year retention, the 7-day production deadline, and the s 75 steps. Incident steps must be exact, so it waits for the pages to be read. | — |
+| C2-03 | Already in | The A3 review already cites the Board guideline from 1 Oct 2026: resources and risk, people, learning from mistakes, privacy and patient choice. Cultural safety and the conflicts-of-interest interim guidance aren't in our notes, so they're held. | — |
+| C2-04 | Done (verified rows) | "Law and practice updates" under More, plus a one-line "N law updates to read" on Today. Three entries: the NSW laws from 5 Nov 2026, the Board guideline from 1 Oct 2026, and prescribing authorities. Each has What changed, No longer required, where it shows in the app, and source links. "I've read this" is saved per pharmacy, survives a reload and is logged in History. Held rows: ADHA/My Health Record and the expanded-scope trial. | content2 |
+| C2-05 | Done (corrected) | Gemini's Tier 2 doesn't match NSW Health. The extra 5 conditions (musculoskeletal pain, reflux, rhinitis, acne, nausea and vomiting) are for **Queensland-trained** pharmacists who have submitted the "Intention to provide expanded community pharmacy services" form. It isn't a Grad Cert tier, and OCP initiation isn't among them. Added as options marked "Queensland-trained pharmacists only". The readiness checklist gains: contraception limits (vaginal ring supply only; DMPA only with the PSA injection course and indemnity), Working with Children Check, the Intention form, and the Class Authority expiry (4 Nov 2027). The v41 items and options are unchanged, and all 17 drafts are still identical. Held: Tier 3 (the Sep 2026 trial) and OCP initiation. | content2, check-procgen-all |
+| C2-06 | Already in | The cannabis review already covers independence, patient choice and conflicts (q1), and no stock of unregistered products unless the TGA approved it for a patient. "No approval number for compounded or psychostimulant S8" is in the updates feed. Held: Gemini's "clinical trial S8 still needs approval" (not in our notes) and a separate S8 spot-audit tool (the S8 review already covers register checks). | — |
+
+**Not built, per the brief:** QSPP/8CPA accreditation, and Payday Super, payroll or HR.
+
+**Owner decision respected:** "No longer need to record the GP when vaccinating" is in the NSW notes, but the owner decided to leave the vaccination "record the GP" wording as it is. So it isn't in the updates feed.

@@ -11,6 +11,8 @@ import './views/more.js';
 import './views/services.js';
 import './views/procedures.js';
 import './views/law.js';
+import './views/sources.js';
+import './views/updates.js';
 import './views/settings.js';
 const st = document.createElement('style'); st.textContent = css; document.head.append(st);
 start(document.getElementById('app'));
