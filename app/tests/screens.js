@@ -1,6 +1,6 @@
 // Walks every screen by tapping, like a person, at phone size. Saves a screenshot of each and checks the measurable
 // design rules: no console errors, no sideways scroll, nothing said twice, tap targets at least 44 px.
-const { phone, ok, done, tap } = require('./helpers.js'); const fs = require('fs'); const path = require('path');
+const { phone, ok, done, tap, otherDeviceSaves } = require('./helpers.js'); const fs = require('fs'); const path = require('path');
 const OUT = path.resolve(__dirname, '../shots'); fs.mkdirSync(OUT, { recursive: true });
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-24T10:00:00+11:00', scale: 2 });
@@ -72,5 +72,18 @@ const OUT = path.resolve(__dirname, '../shots'); fs.mkdirSync(OUT, { recursive: 
   // 320×568: the five main tabs must not scroll sideways
   await p.setViewportSize({ width: 320, height: 568 });
   for (const t of ['Today', 'Reviews', 'Actions', 'Staff', 'More']) { await tap(p, t); await p.waitForTimeout(150); ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), '320×568 ' + t + ': no sideways scroll'); }
+  // P-05: the dense secondary screens at 320×568 too
+  const fits = async name => { await p.waitForTimeout(200); const m = await p.evaluate(() => ({ over: document.documentElement.scrollWidth > innerWidth + 1, wide: [...document.querySelectorAll('main *')].filter(e => { const r = e.getBoundingClientRect(); return r.width && r.right > innerWidth + 1 && !e.closest('.scrollx'); }).map(e => e.className || e.tagName).slice(0, 3) }));
+    ok(!m.over && !m.wide.length, '320×568 ' + name + ': no sideways scroll, nothing past the edge' + (m.wide.length ? ' (' + m.wide.join(', ') + ')' : '')); };
+  await tap(p, 'Today'); await tap(p, 'Resume visit'); await p.waitForTimeout(200); await otherDeviceSaves(p);
+  await p.locator('label.choice:not(:has(input:checked))').first().click(); await p.waitForTimeout(600); await p.getByRole('button', { name: 'Back', exact: true }).click();
+  await tap(p, 'More'); await p.getByRole('button', { name: /^Backup and devices/ }).click(); await p.waitForTimeout(300);
+  ok(await p.getByRole('button', { name: 'Copy its answers' }).count() === 1, '320×568 Backup shows a conflict copy'); await fits('Backup and devices · conflict copy');
+  await tap(p, 'Today'); await p.getByRole('button', { name: /Proprietor site visit/ }).first().click(); await tap(p, 'Start the checks');
+  for (let i = 0; i < 14; i++) { const t = await p.evaluate(() => document.body.innerText); await p.locator('label.choice', { hasText: /^Satisfactory$/ }).click(); await p.waitForTimeout(60);
+    if (/Dose administration aids/.test(t.split('Check ')[1] || '')) break; await p.getByRole('button', { name: 'Next', exact: true }).click(); }
+  ok(await p.locator('input[name=ref]').count() === 1, '320×568 site visit reached the service evidence panel'); await p.fill('input[name=ref]', 'Packing check log (fictional)'); await p.locator('input[name=ref]').blur(); await fits('Site visit · service evidence');
+  await p.getByRole('button', { name: 'Back', exact: true }).click();
+  await tap(p, 'More'); await p.getByRole('button', { name: /^Evidence locations/ }).click(); await fits('Evidence locations');
   await done(b, errors);
 })();

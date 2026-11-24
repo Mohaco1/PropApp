@@ -150,7 +150,7 @@ register('record', {
       ${Object.entries(rec.fields || {}).filter(([k, v]) => v && typeof v !== 'object' && !['date', 'notes', 'next', 'personId'].includes(k)).length ? h`<div class="card">${Object.entries(rec.fields).filter(([k, v]) => v && typeof v !== 'object' && !['date', 'notes', 'next', 'personId'].includes(k)).map(([k, v]) => h`<p class="meta">${label(rec.type, k)}: ${isDate(v) ? fmt(v) : v}</p>`)}</div>` : ''}` });
   },
 });
-const label = (type, k) => (EXTRA[type] || []).find(x => x[0] === k)?.[1] || { stockPharmacist: 'Pharmacist who did the stock check', stockDate: 'Stock-check date', stockBy: 'Pharmacist who did the stock check' }[k] || k;
+const label = (type, k) => (EXTRA[type] || []).find(x => x[0] === k)?.[1] || { owner: 'Who follows it up', stockPharmacist: 'Pharmacist who did the stock check', stockDate: 'Stock-check date', stockBy: 'Pharmacist who did the stock check' }[k] || k;
 register('due-date', {
   tab: 'reviews',
   render(c, r) {

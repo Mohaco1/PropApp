@@ -1,6 +1,6 @@
 // Core loop, tapped like a person on a phone: example pharmacy → Today → quarterly visit while an extra visit is open
 // → answer every check (one issue) → save → action raised → close it with what you saw. Fails on any console error.
-const { phone, ok, done, tap, text } = require('./helpers.js');
+const { phone, ok, done, tap, text, saved } = require('./helpers.js');
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-24T10:00:00+11:00' });
   await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(500);
@@ -19,9 +19,10 @@ const { phone, ok, done, tap, text } = require('./helpers.js');
     await p.locator('label.choice', { hasText: new RegExp('^' + label + '$') }).click(); await p.waitForTimeout(80);
     if (i === 1) { await p.fill('textarea[name=text]', 'Fridge log missing Sunday readings'); await p.locator('textarea[name=text]').blur(); }
     if (await p.locator('input[name=vaccEvent]').count()) { await p.locator('label.choice', { hasText: /^No$/ }).click(); await p.locator('label.choice', { hasText: /^Yes$/ }).last().click(); await p.waitForTimeout(80); await p.fill('input[name=vaccDate]', '2026-10-01'); await p.locator('input[name=vaccDate]').blur(); }
-    await p.getByRole('button', { name: i === 13 ? 'Finish' : 'Next' }).click(); await p.waitForTimeout(80);
+    await p.getByRole('button', { name: i === 13 ? 'Finish' : 'Next' }).click(); if (i < 13) await p.waitForFunction(n => document.body.innerText.includes('Check ' + n + ' of 14'), i + 2); await p.waitForTimeout(80);
   }
   t = await text(p); ok(/1 issue becomes an action/.test(t), 'finish screen: 1 issue becomes an action');
+  await p.waitForTimeout(300); ok(Object.entries(await saved(p)).every(([k, v]) => !k.startsWith('propapp:drafts:') || !Object.keys(v || {}).some(x => x.includes('/conflict-'))), 'quick saves on one phone never make a conflict copy');
   await tap(p, 'Save visit'); await p.waitForTimeout(400);
   t = await text(p); ok(/Extra visit · 4 checked/.test(t), 'extra visit still in progress after saving the quarterly one');
   const st = await p.evaluate(async () => { const r = indexedDB.open('propapp'); return await new Promise(res => { r.onsuccess = () => { const tx = r.result.transaction('kv'); const g = tx.objectStore('kv').getAll(); g.onsuccess = () => res(g.result.filter(v => v && v.records).map(ph => ({ visits: ph.records.filter(x => x.type === 'Q1').length, q1: ph.schedule.Q1, acts: Object.values(ph.actions).filter(a => a.title === 'Fridge log missing Sunday readings').length }))); }; }); });

@@ -33,23 +33,26 @@ async function readStored(k) { if (useLS || !db) { try { return JSON.parse(local
   return await new Promise(res => { try { const r = db.transaction(ST).objectStore(ST).get(k); r.onsuccess = () => res(r.result); r.onerror = () => res(undefined); } catch { res(undefined); } }); }
 export async function flush() {
   clearTimeout(timer); if (!pending.size) return true;
-  const batch = [...pending]; pending.clear();
+  const batch = [...pending]; pending.clear(); let kept = false;
   for (const item of batch) { const [k, v] = item; if (!k.startsWith('propapp:drafts:') || !v || !bases.has(k)) continue;
     const stored = await readStored(k), base = bases.get(k); bases.delete(k); if (!stored) continue;
     const merged = { ...v };
     for (const [dk, sv] of Object.entries(stored)) { if (dk.includes('/conflict-')) { merged[dk] ??= sv; continue; }
       const mine = v[dk], b0 = base[dk];
-      if (sv && sv.rev && sv.rev !== b0 && (!mine || mine.rev !== sv.rev)) { if (mine && mine.rev !== b0) merged[dk + '/conflict-' + Date.now()] = { ...mine }; merged[dk] = sv; } }
+      if (sv && sv.rev && sv.rev !== b0 && (!mine || mine.rev !== sv.rev)) { if (mine && mine.rev !== b0) { merged[dk + '/conflict-' + Date.now()] = { ...mine }; kept = true; } merged[dk] = sv; } }
     item[1] = merged; if (mem.get(k) === v) mem.set(k, merged); else if (pending.has(k)) { const later = pending.get(k); for (const [dk, x] of Object.entries(merged)) if (dk.includes('/conflict-') && !later[dk]) later[dk] = x; } }
   try {
     if (useLS || !db) { for (const [k, v] of batch) v === undefined ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); return true; }
     await new Promise((res, rej) => { const tx = db.transaction(ST, 'readwrite'), s = tx.objectStore(ST); for (const [k, v] of batch) v === undefined ? s.delete(k) : s.put(clone(v), k); tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
     chan?.postMessage({ keys: batch.map(b => b[0]) });
+    // A conflict copy was kept: this window now shows the newer copy, and Backup lists ours, without a reload.
+    if (kept) onChange?.();
     return true;
   } catch (e) { console.error(e); for (const [k, v] of batch) pending.set(k, v); return false; }
 }
-let chan = null;
+let chan = null, onChange = null;
 export async function init(onExternalChange) {
+  onChange = onExternalChange;
   await open(); await getAll();
   try { chan = new BroadcastChannel('propapp'); chan.onmessage = async () => { mem.clear(); await getAll(); onExternalChange?.(); }; } catch {}
   addEventListener('pagehide', () => { flush(); });

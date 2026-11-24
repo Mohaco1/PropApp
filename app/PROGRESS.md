@@ -109,3 +109,53 @@ Commits: Sprint 3 b875cfb · Sprint 4 58c9c87 and 972bb31 · Sprint 5 (this comm
 - **S3-01:** for DAA packed on site, the current app checks it inside the site visit, so the date offered is the site visit's. No new separate DAA review was invented.
 - **S4-04:** the brief mentions phone links for Pharmaceutical Services, but no phone number for them is in our sources. The screen lists the sourced numbers instead: the public health unit and indemnity incident advice, plus emails.
 - **Still deferred, per the brief:** Express setup, and account or sign-in placeholders.
+
+## Post-parity polish brief (P-01 to P-06) · 25 Nov 2026 · build 246a96f3c1
+Brief: "PropApp — Post-Parity Polish & Lock-In Brief (For Claude)" and its tracker sheet (owner's Drive, read only).
+
+| ID | Status | What was done | Test |
+|---|---|---|---|
+| P-01 | Done | The one leftover, the Home delivery setup note, now says "(Procedures)". It is fixed at the source in `tools/extract-procgen.js` (one rename, so a re-extract can't bring it back). The bundle has 0 matches for "(Policies)" in both files. | sprint2 (bundle grep, both files), polish |
+| P-02 | Done | Year plan: the review-name column is fixed at 140 px and long names wrap (CSS `max-width` alone is ignored on table cells, so the table uses fixed layout with 34 px month columns). 6 months are fully in view at 390 px. "Find a date" placeholder is now "e.g. 1 Dec, next Friday" and fits. | polish (measured) |
+| P-03 | Done | See the audit below. 0 "Responsible person" fields on any Action, Review, Staff or Visit form. | sprint2 (bundle grep) |
+| P-04 | Done | With the UAT pill showing, toasts sit above it (12 px clear, measured on the DAA "Skip for now" toast). FEATURE-INVENTORY.md line 139 now says storage status is shown. | polish |
+| P-05 | Done | All 4 blind spots closed (below). | sprint2, sprint5, screens, handoff-overnight |
+| P-06 | Waiting | Waiting for the owner to pick a look in the Grand Finale Studio. Nothing changed. | — |
+
+**P-03 audit: "Responsible person or role".** The brief counted 32. The extracted content actually had 28, all in `src/content/reviews.json`, and none in the procedure generator. Each was the label of the old app's follow-up "owner" text box on a review form (`forms.<id>.fields[n]`, id `owner`), in:
+- B1 and A3;
+- CO-P and CO-F;
+- 16 service reviews (service-otp, -staged, -vaccination, -prescribing, -reviews, -delivery, -simple, -complex, -aged, -screening, -nsp, -certificates, -vaping, -cannabis, -funding, and annual-adherence);
+- otp-full, otp-amenity, daa-house, daa-external, daa-external-b, vacc-ready, vacc-storage and prescribing-ready.
+
+None of the 28 is shown in the rebuild: review forms use their own short field list, and issues ask "What needs fixing?" and "Fix by" (a date). None is SOP text either. All 28 were renamed "Who follows it up" (in `tools/extract-content.js` and the JSON), which is also the label an imported v41 record with that field now shows.
+
+Four "responsible person" phrases remain, all in `src/content/law.json`. They are the Regulation's own words (s 108 and s 122) on S8 at a glance and Legal obligations, and stay word for word (CLAUDE.md: obligations keep their exact wording).
+
+Elsewhere in the old app the phrase was on the task form and the task filter. Those were replaced in the rebuild, where actions have no person field.
+
+**P-05: the 4 blind spots.**
+1. sprint2 greps both bundle files for "(Policies)" and "Responsible person or role" (0 each). That covers all 17 services' setup notes and drafts.
+2. sprint5 checks every Copy button against a clipboard stand-in (a file:// page can't use the real clipboard):
+   - review "Copy as text";
+   - action "Copy full history";
+   - conflict copy "Copy its answers";
+   - UAT "Copy all".
+   Each checks the text copied and the "Copied" confirmation.
+3. handoff-overnight takes `8-conflict-copies.png` with an active conflict copy, before anything is dismissed.
+4. screens checks at 320×568, beyond the 5 tabs:
+   - Site visit with the service evidence panel open;
+   - Backup and devices with a conflict copy;
+   - Evidence locations.
+   Each checks for no sideways scroll and nothing past the edge.
+
+**Two real bugs the new tests found, both fixed:**
+- **Copy buttons showed no confirmation.** They copied the text, but "Copied" never appeared, because a toast only showed on the next re-render. Toasts now show straight away.
+- **A conflict copy only appeared after a reload.** When a save kept a conflict copy, the open screen kept showing this phone's older copy, and Backup didn't list it until reload. The store now tells the app straight away.
+
+**v41 retirement gate.** Gate 1 (P-01 to P-05 green) is done. Gates 2–5 need the owner's own phone:
+- backup and restore;
+- Print to PDF outside claude.ai;
+- calendar file import;
+- airplane-mode reload.
+Gate 6 (archive v41) follows those.

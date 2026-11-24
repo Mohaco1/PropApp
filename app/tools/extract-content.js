@@ -30,6 +30,8 @@ const plain=v=>JSON.parse(JSON.stringify(v,(k,x)=>typeof x==='function'?undefine
    const questions=[...f.querySelectorAll('[data-question]')].map(q=>({n:+q.dataset.question,text:txt(q.querySelector('legend'))||txt(q.querySelector('h3,h4,label')),options:[...q.querySelectorAll('input[type=radio]')].map(r=>({value:r.value,issue:r.dataset.issue==='1'}))}));
    const fields=[...f.querySelectorAll('label')].filter(l=>!l.closest('[data-question]')&&l.querySelector('input:not([type=radio]):not([type=checkbox]),select,textarea')).map(l=>{const i=l.querySelector('input,select,textarea');return {label:txt(l).slice(0,140),type:i.tagName==='SELECT'?'select':i.type||i.tagName.toLowerCase(),id:i.id||i.name||'',required:i.required,options:i.tagName==='SELECT'?[...i.options].map(o=>o.textContent.trim()).filter(Boolean):undefined};});
    const notes=[...f.querySelectorAll('p,.label')].map(txt).filter(t=>t&&t.length>12&&!/Draft|saves as you|Proprietor oversight\. Refer/.test(t));
+   // Proprietor words (design rule 6, P-03): the old follow-up field label is not carried across.
+   for(const x of fields)if(x.label==='Responsible person or role')x.label='Who follows it up';
    const out={title:txt(e.querySelector('h2,#dialog-title')),questions,fields,notes:[...new Set(notes)]};e.close();return out;},a.id);
  }
  fs.mkdirSync(OUT,{recursive:true});

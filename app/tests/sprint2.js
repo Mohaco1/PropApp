@@ -54,6 +54,9 @@ const { phone, ok, done, tap, text, activePh, download } = require('./helpers.js
   let policies = 0;
   for (let i = 0; i < 40; i++) { if (/What happens next/.test(await text(p))) break; if (/\(Policies\)/.test(await text(p))) policies++; if (await p.getByRole('button', { name: 'Answer now' }).count()) await tap(p, 'Answer now'); const ch = p.locator('form label.choice, form label.tick').first(); if (await ch.count()) await ch.click(); else { const inp = p.locator('form input.input').first(); if (await inp.count()) { await inp.fill('Fictional'); await inp.blur(); } } await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(50); }
   ok(policies === 0, 'N-16 no "(Policies)" anywhere in DAA setup');
+  // P-01/P-03: the whole bundle (all 17 services' setup notes, drafts and review forms) has neither leftover
+  for (const f of ['propapp.html', 'propapp-standalone.html']) { const src = require('fs').readFileSync(require('path').resolve(__dirname, '../dist/' + f), 'utf8');
+    ok(!src.includes('(Policies)'), 'P-01 ' + f + ': 0 matches for "(Policies)"'); ok(!src.includes('Responsible person or role'), 'P-03 ' + f + ': 0 "Responsible person or role" labels'); }
   ok(await p.locator('input[name="d:Q1"]').count() === 1, 'N-15 DAA offers the site visit date (DAA is checked there)');
   await p.fill('input[name="d:Q1"]', '2027-01-20'); await tap(p, 'Save dates and finish'); await p.waitForTimeout(300);
   t = await text(p); ok(/Next: Home delivery/.test(t), 'N-17 finishing hands over to the next service');

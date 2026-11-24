@@ -292,7 +292,7 @@ const SQ_VACCINES=['COVID-19','Diphtheria/tetanus/pertussis (e.g. dTpa or ADT)',
  add('vaccination','funding',{type:'multi',label:'Which government-funded vaccine programs do you take part in?',options:['National Immunisation Program (NIP)','NSW state-funded vaccines','Private (paid) vaccines only'],legacy:{Participating:'National Immunisation Program (NIP)','Private only':'Private (paid) vaccines only'}});
  const vrow=sopFields.vaccination.find(f=>f[0]==='vaccines');if(vrow)vrow[2]=null;
  add('vaccination','vaccines',{type:'multi',options:SQ_VACCINES,display:{Other:'Other (describe)'},describe:['Other'],source:'List from the NSW Health table of vaccines pharmacist immunisers may give (provided by the owner, 20 Nov 2026). Ages, brands and funded eligibility apply: see the NSW Pharmacist Vaccination Standards and the Australian Immunisation Handbook. Each immuniser needs accredited training for each vaccine.'});
- add('delivery','failure',{note:'This becomes a step in your Home delivery procedure (Policies).'});
+ add('delivery','failure',{note:'This becomes a step in your Home delivery procedure (Procedures).'});
 })();
 
 /* "Who runs services": the first lead question asked becomes the pharmacy-wide answer; the others are filled from it. */

@@ -1,6 +1,6 @@
 # Feature inventory of the current app (v41.1)
 
-Re-audited 25 Nov 2026 against rebuild build 383803d03e (overnight Sprints 3–5). Every [x] was checked in the app at phone size; main flows are covered by tests in app/tests: core, sprint1–sprint5, setup-questions, extras; screens.js opens every screen and checks fit, repeats and 44 px targets (plus 320×568).
+Re-audited 25 Nov 2026 against rebuild build 383803d03e (overnight Sprints 3–5); rechecked after the post-parity polish (P-01–P-05). Every [x] was checked in the app at phone size; main flows are covered by tests in app/tests: core, sprint1–sprint5, setup-questions, extras; screens.js opens every screen and checks fit, repeats and 44 px targets (plus 320×568).
 
 This is the checklist the rebuild must match before the old app is retired (rule in `/CLAUDE.md`). Each line is something the current app does, sourced from the layers, the engine and the 25 Nov audit. `[ ]` means not yet in the rebuild. Tick it only when it works in the new app at phone size and has a test.
 
@@ -136,7 +136,7 @@ This is the checklist the rebuild must match before the old app is retired (rule
 - [x] Pharmacy details. Proprietors and oversight (recording as …, switch reviewer). Services and configuration.
 - [x] Bought, selling or closing (what NSW Health requires). First visit after buying: inherited facts to confirm.
 - [x] Tell me once: a change to how DAAs are packed (in-house / outside packer / another pharmacy) shows only the dependent items, each Done or Later.
-- [x] Settings: last backup and changes since; backup download; restore with a receipt. (Storage status is not shown yet.)
+- [x] Settings: last backup and changes since; backup download; restore with a receipt; storage status (where records are kept, conflict copies).
 - [x] More than one pharmacy on a device (switch, add). Directory of sites.
 - [ ] (Deferred by the overnight brief: out of scope until sign-in, D3) Account or sign-in placeholders (not live).
 
