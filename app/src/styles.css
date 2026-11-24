@@ -225,3 +225,17 @@ table.yearplan{border-collapse:collapse;font-size:13px;table-layout:fixed;width:
 a.linkbtn{text-decoration:none}
 .updline{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:8px 12px;border:0;border-radius:12px;background:var(--tint);color:var(--primary);font:inherit;font-weight:600;text-align:left;cursor:pointer}.updline span{flex:1}
 .upd{gap:6px}.upd .upd-title{font-size:19px;margin-bottom:4px}.upd .sec-title{margin:8px 0 0}.upd ul.plain{gap:6px}.upd.read{box-shadow:none}
+/* Evidence pack (V3-03): on screen as a preview; printed on A4 in high-contrast ink */
+.pack.print-only{display:block}.pack{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;overflow-x:auto}
+.phead h1{font-size:20px;margin:0 0 6px}.phead p{margin:2px 0;color:var(--muted);font-size:14px}
+.psec{margin-top:16px}.psec h2{font-size:15px;margin:0 0 6px}
+.ptable{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:normal}.ptable th,.ptable td{text-align:left;vertical-align:top;padding:6px 6px;border-bottom:1px solid var(--line)}.ptable th{font-weight:600;color:var(--muted)}
+@media print{@page{size:A4 portrait;margin:14mm 12mm}
+ html,body,#app,.body,.pack{background:#fff!important;color:#111827!important;box-shadow:none!important;border:0!important}
+ .no-print,.btn,.dock,.dock-inline,.filters,.ph-switch,.updline{display:none!important}
+ .body>.pack{display:block!important;padding:0;overflow:visible}.pack *{color:#111827!important}
+ .phead p{color:#374151!important}.ptable{font-size:10.5pt}.ptable th,.ptable td{border-bottom:1px solid #9ca3af}
+ thead{display:table-header-group}tr,.phead{break-inside:avoid;page-break-inside:avoid}.psec h2{break-after:avoid}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}#app.has-nav{padding:0!important}}
+.siteline{display:block;width:100%;min-height:44px;padding:10px 12px;border:0;border-radius:12px;background:var(--track);color:var(--fg);font:inherit;font-weight:600;text-align:left;cursor:pointer;font-variant-numeric:tabular-nums}
+.installline{display:flex;align-items:center;gap:4px}.installline .quietline{flex:1}

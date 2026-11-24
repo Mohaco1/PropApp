@@ -2,12 +2,13 @@
 import { register } from '../app.js';
 import { h } from '../util.js';
 import { screen, row, btn, empty, icon } from '../ui.js';
-import { items, ranked, counts, sentence } from '../summary.js';
+import { items, ranked, counts, sentence, inWeek } from '../summary.js';
 import { fmt, dueText, today, daysBetween, isDate } from '../dates.js';
 import { C } from '../content.js';
 import { undated } from './services.js';
 import { serviceName } from '../rules.js';
 import { unreadUpdates } from './updates.js';
+import { isPWA, standalone } from '../pwa.js';
 const FILTERS = [['overdue', 'Overdue'], ['week', 'This week'], ['waiting', 'Waiting · to confirm'], ['all', 'All']];
 export function openItem(c, it) {
   if (it.kind === 'visit') return c.go('visit-start', { extra: it.ref === 'extra' });
@@ -44,12 +45,15 @@ register('today', {
   tab: 'today',
   render(c) {
     const all = items(c.ph, c.drafts), n = counts(all), f = c.ui.todayFilter || (n.overdue ? 'overdue' : 'all');
-    const pick = f === 'all' ? all.filter(i => i.bucket !== 'tocheck') : f === 'week' ? all.filter(i => ['today', 'week', 'started'].includes(i.bucket) || (i.started && i.bucket !== 'overdue')) : f === 'waiting' ? all.filter(i => i.waiting || i.bucket === 'tocheck') : f === 'nodate' ? all.filter(i => i.bucket === 'nodate') : all.filter(i => i.bucket === f);
-    const cnt = { overdue: n.overdue, week: all.filter(i => ['today', 'week', 'started'].includes(i.bucket) || (i.started && i.bucket !== 'overdue')).length, waiting: n.waiting + n.tocheck, all: n.all - n.tocheck };
+    const pick = f === 'all' ? all.filter(i => i.bucket !== 'tocheck') : f === 'week' ? all.filter(inWeek) : f === 'waiting' ? all.filter(i => i.waiting || i.bucket === 'tocheck') : f === 'nodate' ? all.filter(i => i.bucket === 'nodate') : all.filter(i => i.bucket === f);
+    const cnt = { overdue: n.overdue, week: all.filter(inWeek).length, waiting: n.waiting + n.tocheck, all: n.all - n.tocheck };
     const s = sentence(all);
     const list = ranked(pick);
     return screen({ title: 'Today', sub: c.ph.name, right: switcher(c), body: h`
       <p class="status"><span class="date">${fmt(today(), { weekday: true })}</span><span class="${s.tone}">${s.text}</span>${s.start && s.tone !== 'ok' ? h` Start with ${s.start.title}.` : ''}</p>
+      ${(() => { const ids = c.store.dir().ids; if (ids.length < 2) return ''; const tot = ids.reduce((t, id) => { const p = c.store.pharmacy(id); return t + (p ? counts(items(p, c.store.drafts(id))).overdue : 0); }, 0);
+        return h`<button class="siteline" data-act="go" data-to="allsites">${tot === 1 ? '1 overdue' : tot + ' overdue'} across your ${ids.length} pharmacies · see all</button>`; })()}
+      ${isPWA() && !standalone() && !c.ph.flags?.installHintDone ? h`<div class="installline"><button class="quietline" data-act="go" data-to="backup">Add R.Pharmacy to your Home Screen before you enter records · how</button><button class="iconbtn" data-act="hideinstall" aria-label="Hide this">✕</button></div>` : ''}
       ${topCard(c, all)}
       <div class="filters" role="tablist">${FILTERS.map(([k, l]) => h`<button role="tab" aria-selected="${String(k === f)}" class="${k === f ? 'on' : ''}" data-act="filter" data-f="${k}"><b>${cnt[k]}</b><span>${l}</span></button>`)}</div>
       ${(u => u ? h`<button class="updline" data-act="go" data-to="updates">${icon('bell')}<span>${u === 1 ? '1 law update' : u + ' law updates'} to read</span>${icon('chev', 'chev')}</button>` : '')(unreadUpdates(c.ph).length)}
@@ -58,6 +62,7 @@ register('today', {
 
   },
   acts: {
+    hideinstall: c => c.change(ph => { (ph.flags ??= {}).installHintDone = true; }),
     filter: (c, d) => { c.ui.todayFilter = d.f; c.rerender(); },
     open: (c, d) => { const it = items(c.ph, c.drafts).find(i => i.key === d.key); if (it) openItem(c, it); },
     'resume-visit': (c, d) => c.go('visit', { extra: !!d.extra }),

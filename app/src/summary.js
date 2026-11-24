@@ -69,6 +69,8 @@ export function ranked(list) {
   return [...list].sort((a, b) => (b.legal && ['overdue', 'today'].includes(b.bucket) ? 1 : 0) - (a.legal && ['overdue', 'today'].includes(a.bucket) ? 1 : 0)
     || (ORDER[a.bucket] - ORDER[b.bucket]) || ((b.legal ? 1 : 0) - (a.legal ? 1 : 0)) || (a.date || '9').localeCompare(b.date || '9') || a.title.localeCompare(b.title));
 }
+// "This week" on Today and across pharmacies: due today or this week, started, or started and not yet overdue.
+export const inWeek = i => ['today', 'week', 'started'].includes(i.bucket) || (i.started && i.bucket !== 'overdue');
 export function counts(list) {
   const c = { overdue: 0, today: 0, started: 0, week: 0, nodate: 0, tocheck: 0, waiting: 0, all: list.length, actionsOpen: 0, actionsOverdue: 0 };
   for (const i of list) {

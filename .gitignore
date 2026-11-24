@@ -6,3 +6,4 @@ uat/tests/diffres/
 node_modules/
 *.zip
 app/handoff/
+app/dist/pwa/

@@ -2,6 +2,7 @@
 import * as store from './store.js';
 import { clone, html } from './util.js';
 import { nav, env } from './ui.js';
+import { startPWA, askToKeep } from './pwa.js';
 const views = {};
 export const register = (name, v) => { views[name] = v; };
 const S = { ph: null, drafts: {}, stack: [], tab: 'today', toast: '', ui: {} };
@@ -13,7 +14,7 @@ export const ctx = {
   tab(name) { S.toast = ''; S.tab = name; S.stack = []; render(true); },
   change(fn, message) {
     const next = clone(S.ph); const r = fn(next); if (r === false) return false;
-    S.ph = next; store.savePharmacy(next); if (message) ctx.toast(message); render(); return true;
+    S.ph = next; store.savePharmacy(next); askToKeep(); if (message) ctx.toast(message); render(); return true;
   },
   draft(key) { return S.drafts[key] || null; },
   saveDraft(key, value) { const rev = S.drafts[key]?.rev; store.saveDraft(S.ph.id, key, value, rev); S.drafts = store.drafts(S.ph.id); },
@@ -56,6 +57,7 @@ const common = { acts: {
 export async function start(el) {
   root = el;
   await store.init(() => { load(); render(); });
+  startPWA();
   load();
   document.addEventListener('click', e => handle(e, 'click'));
   document.addEventListener('submit', e => handle(e, 'submit'));

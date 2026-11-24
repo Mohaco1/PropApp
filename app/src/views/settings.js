@@ -1,5 +1,6 @@
 // Your pharmacy (mode 3): details and owners, backup and restore, pharmacies on this device, and "Tell me once" for a
 // change to how DAAs are packed (current app's change.js wording and sources).
+import { isPWA, standalone, keptStatus } from '../pwa.js';
 import { register } from '../app.js';
 import { h, uid } from '../util.js';
 import { screen, btn, row, field, textInput, choice, note, why, empty, section, pill } from '../ui.js';
@@ -27,13 +28,17 @@ register('backup', {
     return screen({ title: 'Backup and devices', back: true, body: h`
       <div class="card"><h2>${last ? 'Last backup ' + fmt(last.slice(0, 10)) : 'No backup yet'}</h2><p class="muted">${n} changes since. Your records are kept only in this browser on this device, so keep a backup somewhere safe (for example your email or cloud drive).</p>
         ${btn('Download a backup', 'dl', { kind: 'primary', cls: 'block' })}</div>
+      ${isPWA() ? h`<div class="card" id="device"><h2>This device</h2><p class="muted">${standalone() ? 'Opened from your Home Screen.' : 'Opened in the browser. Add it to your Home Screen so your phone keeps your records: on iPhone, tap Share, then Add to Home Screen; on Android, tap ⋮, then Install app.'}</p>
+        ${standalone() ? '' : h`<p class="note warn">On iPhone, the Home Screen app keeps its own records, separate from Safari. If you’ve already entered records here, download a backup first, then restore it in the Home Screen app.</p>`}
+        <p class="meta">${c.ui.kept === true ? 'This browser has agreed to keep this app’s records.' : c.ui.kept === false ? 'This browser may clear the records if the phone runs short of space: keep backups.' : ''}</p></div>` : ''}
       <div class="card"><h2>Restore</h2><p class="muted">Open a PropApp backup, or a backup from the earlier R.Pharmacy app. If the pharmacy is already here you’re asked before anything is replaced.</p>
         <label class="btn secondary block" style="display:grid;place-items:center">Choose a backup file<input type="file" accept="application/json,.json" data-change="restore" hidden></label></div>
       ${(() => { const cf = Object.entries(c.drafts).filter(([k]) => k.includes('/conflict-')); return h`<section class="sec"><h2 class="sec-title">Conflict copies · ${cf.length}</h2><p class="muted">If the same draft was changed in two places (for example two tabs), the newer one is kept and the other is saved here instead of being lost.</p>
         ${cf.length ? h`<div class="list">${cf.map(([k, v]) => { const n = Object.values(v.items || v.answers || {}).filter(x => x && (x.status || typeof x === 'string')).length; return h`<div class="row static"><span class="row-main"><span class="row-title">${k.startsWith('visit/') ? (k.startsWith('visit/extra') ? 'Extra visit' : 'Quarterly visit') : 'Review ' + k.split('/')[1]} · copy from ${fmt(new Date(+k.split('conflict-')[1]).toISOString().slice(0, 10))}</span><span class="row-sub">${n} answer${n === 1 ? '' : 's'}${v.notes ? ' · note: ' + v.notes : ''}${v.date ? ' · visit date ' + fmt(v.date) : ''}</span><span class="btnrow">${btn('Copy its answers', 'cfcopy', { data: { k } })}${btn('Dismiss', 'cfdel', { kind: 'link', data: { k } })}</span></span></div>`; })}</div>` : h`<p class="muted">None.</p>`}</section>`; })()}
       <section class="sec"><h2 class="sec-title">Storage on this device</h2><div class="card" id="storage"><p class="muted">Checking…</p></div></section>
       <p class="hint">Downloads don’t work inside the claude.ai preview. Open the app file in your phone’s browser to download.</p>` }); },
-  after: async () => { const el = document.getElementById('storage'); if (!el) return; let txt = 'This browser doesn’t report storage details.';
+  after: async c => { if (isPWA() && c.ui.kept === undefined) { c.ui.kept = null; keptStatus().then(k => { c.ui.kept = k; c.rerender(); }); }
+    const el = document.getElementById('storage'); if (!el) return; let txt = 'This browser doesn’t report storage details.';
     try { const e = await navigator.storage?.estimate?.(), pers = await navigator.storage?.persisted?.(); if (e) txt = 'Using ' + (e.usage / 1048576).toFixed(1) + ' MB of about ' + Math.round(e.quota / 1048576) + ' MB available. ' + (pers ? 'The browser has agreed to keep this data.' : 'The browser may clear it if the device runs short of space: keep backups.'); } catch {}
     el.innerHTML = ''; const p = document.createElement('p'); p.textContent = txt; el.append(p); },
   acts: { cfdel: (c, d) => { c.saveDraft(d.k, null); c.rerender(); c.toast('Conflict copy dismissed'); },
@@ -44,7 +49,7 @@ register('backup', {
 register('pharmacies', {
   tab: 'more',
   render(c) { const d = c.store.dir();
-    return screen({ title: 'Pharmacies', back: true, body: h`<div class="list">${d.ids.map(id => { const p = c.store.pharmacy(id); if (!p) return ''; const n = counts(items(p, c.store.drafts(id))).overdue; return row({ title: p.name, sub: (n ? n + ' overdue' : 'Nothing overdue') + (p.address ? ' · ' + p.address : ''), right: id === c.ph.id ? 'Open now' : 'Switch', tone: id === c.ph.id ? 'ok' : '', act: 'sw', data: { id } }); })}</div>
+    return screen({ title: 'Pharmacies', back: true, body: h`${d.ids.length > 1 ? h`<div class="list">${row({ title: 'All pharmacies', sub: 'Overdue and this week, side by side', act: 'go', data: { to: 'allsites' } })}</div>` : ''}<div class="list">${d.ids.map(id => { const p = c.store.pharmacy(id); if (!p) return ''; const n = counts(items(p, c.store.drafts(id))).overdue; return row({ title: p.name, sub: (n ? n + ' overdue' : 'Nothing overdue') + (p.address ? ' · ' + p.address : ''), right: id === c.ph.id ? 'Open now' : 'Switch', tone: id === c.ph.id ? 'ok' : '', act: 'sw', data: { id } }); })}</div>
       ${btn('Set up another pharmacy', 'add')}${window.PROPAPP_EXAMPLE ? btn('Open the example pharmacy (fictional)', 'ex', { kind: 'link' }) : ''}` }); },
   acts: { sw: (c, d) => c.open(d.id), ex: c => openExample(c), add: async c => { const dd = c.store.dir(); dd.active = ''; c.store.setDir(dd); await c.store.flush(); c.ui.setupStep = 1; c.ui.setup = null; c.load(); c.rerender(); } },
 });
