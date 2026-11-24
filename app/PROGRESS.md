@@ -263,3 +263,20 @@ Gemini's feedback: "PropApp — v3 Roadmap & Architecture Brief" (owner's Drive,
 - **V3-05:** clinical content; it needs the pages read first.
 
 **Full run on build 76de97c792:** 12 suites, 202 checks, all pass with no console errors. check-procgen-all: all 17 services identical.
+
+## Content v2 (part 3): held items, now primary-sourced · 25 Nov 2026 · build 5828ff53c0
+**Owner, 25 Nov:**
+- allowed web access;
+- un-deferred the evidence pack and the multi-site view;
+- asked for the installable app to be prepared but not deployed (CLAUDE.md updated).
+
+The pages were read directly. Exact quotes are in `uat/research/content-v2-sources-2026-11-25.md`. tga.gov.au, health.gov.au and digitalhealth.gov.au fail through the egress proxy (502), and OAIC shows a bot check. The My Health Record law was read on the Federal Register of Legislation instead.
+
+| Item | Status | What was done | Primary source |
+|---|---|---|---|
+| 1 · My Health Record | Done | A 4th incident card, "Privacy or My Health Record data breach": contain it; notify both the System Operator and the OAIC as soon as practicable; ask the System Operator to notify affected people; for the pharmacy's own records, assess within 30 days, then a statement to the Commissioner and notice to the people affected; note it in My log without names. A 4th update, "My Health Record: new security and access policy rules" (from 1 Oct 2026). **Correction to Gemini:** rule 45 keeps user-account and training records 5 years, and breach-process and security-measure records 2 years (Gemini grouped "access logs" with 2 years; the rule's example lists access logs without assigning them, so the app follows the rule's own grouping). | My Health Records Act 2012 s 75; My Health Records Rules 2026 rr 21, 43, 44, 45, 72; Privacy Act 1988 ss 26WH–26WL |
+| 2 · Cultural safety, conflicts of interest | Done | 2 questions added at the end of the governance review (A3), so existing answers keep their places. 2 lines added to the Board update. **Correction:** the interim guidance is on ahpra.gov.au/Resources/Managing-financial-or-commercial-conflicts-of-interest, not Gemini's link. | Pharmacy Board newsletter, Oct 2026; Ahpra interim guidance page |
+| 4 · OCP initiation | Done | A prescribing option, "Initiation of the oral contraceptive pill (JCU-trained pharmacists only)", plus a checklist item (JCU Grad Cert, Intention form, fee and private-cost disclosure) and a line in the prescribing update. The page is "current as at 24 Aug 2026" and cites the 2008 Regulation (cl 48B), so the update says to check the page for the current authority. | NSW Health OCP initiation page |
+| 5 · Clinical trial S8 | Confirmed | The wording added in part 2 matches the FAQ word for word. | NSW Health pharmacists FAQ, 20 Nov 2026 |
+| 3 · Trial | Still held | The release says eligible pharmacists "will be invited" and that safeguards "will be put in place". | Ministerial release, 10 Sep 2026 |
+| 6, 7 · TGA, eNRMC links | Unchanged | Still marked "not yet checked": those sites can't be reached from here. | — |

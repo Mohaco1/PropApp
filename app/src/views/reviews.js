@@ -23,9 +23,14 @@ const OTP_MONTHLY = [
   { text: 'Dosing equipment (pump or measuring device)', options: [{ value: 'No update', issue: false }, { value: 'Equipment evidence checked', issue: false }, { value: 'Fault or gap', issue: true }] },
   { text: 'Any new OTP incident since last month?', options: [{ value: 'No', issue: false }, { value: 'Yes', issue: true }] },
 ];
+// Content v2 (C2-03): added to the end of A3 (earlier answers keep their positions). Pharmacy Board newsletter, Oct 2026,
+// and National Boards' interim guidance on conflicts of interest (uat/research/content-v2-sources-2026-11-25.md).
+const EXTRA_Q = { A3: ['Cultural safety (Pharmacy Board guidelines, Oct 2026): the pharmacy’s services and team practices support culturally safe care.',
+  'Conflicts of interest (National Boards’ interim guidance): clinical decisions and patient choice stay independent of financial or commercial pressures.'] };
 export function questionsFor(id) {
   if (id === 'service-otp') return OTP_MONTHLY;
-  return (C.reviews.forms[id]?.questions || []).map(q => ({ text: q.text, options: q.options.map(o => ({ value: o.value, label: o.value === 'Needs verification' ? 'Check later' : o.value, issue: o.issue && o.value !== 'Needs verification' })) }));
+  const base = C.reviews.forms[id]?.questions || [];
+  return [...base, ...(EXTRA_Q[id] || []).map(text => ({ text, options: base[0].options }))].map(q => ({ text: q.text, options: q.options.map(o => ({ value: o.value, label: o.value === 'Needs verification' ? 'Check later' : o.value, issue: o.issue && o.value !== 'Needs verification' })) }));
 }
 export function legalLine(a) { return a.legal?.line || (a.event ? 'When you start or change this service' : a.frequency + (a.service ? ' · ' + serviceName(a.service) : '')); }
 const whyText = a => [a.check, ...(C.reviews.forms[a.id]?.notes || []).filter(n => n !== a.check && n.length > 40)].join('\n\n');

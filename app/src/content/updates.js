@@ -1,6 +1,7 @@
 // Law and practice updates (Content v2, C2-04): a fixed, versioned list shipped with the app (no network). Every line
 // is from a page read on 20–21 Nov 2026 (uat/research: nsw-health-site-findings p051, p036, p108, p010/p027,
-// Class Authorities; pharmacy-board-findings). Claims that couldn't be checked against a primary source are left out.
+// Class Authorities; pharmacy-board-findings) or read on 25 Nov 2026 (content-v2-sources-2026-11-25.md). Claims that
+// couldn't be checked against a primary source are left out.
 // [id, effective date, title, source keys (content/sources.js), what changed, no longer required, where it shows in the app]
 export const UPDATES = [
   ['nsw-laws-2026-11-05', '2026-11-05', 'New NSW medicines laws', ['nswlaw', 'nswpharm', 'reg'],
@@ -17,18 +18,29 @@ export const UPDATES = [
       'A NSW approval number on psychostimulant or compounded S8 prescriptions (don’t refuse a prescription for that). An unregistered S8 medicine in a clinical trial still needs NSW Health approval.',
       'Reporting explained S8 or S4D losses (S8 losses are still recorded in the register).'],
     'S8 stock check review, Legal obligations, S8 at a glance'],
-  ['pba-guidelines-2026-10-01', '2026-10-01', 'One Pharmacy Board guideline for safe pharmacy services', ['pba'],
+  ['pba-guidelines-2026-10-01', '2026-10-01', 'One Pharmacy Board guideline for safe pharmacy services', ['pba', 'pbanews', 'coi'],
     ['“Guidelines on the safe provision of pharmacy services including medicines and advice” apply from 1 October 2026.',
       'Proprietors can’t delegate their legal or professional responsibilities, wherever they are.',
       'Risks to safe services are assessed systematically; the Board may ask to see the assessment.',
-      'Patient choice: no patient is told they must use the pharmacy because of an arrangement, and consent to exclusive dispensing can be withdrawn at any time.'],
+      'Patient choice: no patient is told they must use the pharmacy because of an arrangement, and consent to exclusive dispensing can be withdrawn at any time.',
+      'A clearer focus on cultural safety in the safe provision of services.',
+      'National Boards’ interim guidance, “Managing financial and commercial conflicts of interest”: practitioners should be able to show that financial or commercial interests didn’t influence clinical decisions. Directing or inciting a practitioner to put commercial interests first is an offence (up to $120,000 for a company).'],
     ['The separate proprietor, dispensing, DAA and staged supply, and practice-specific guidelines (they applied until 30 September 2026).'],
     'Governance, access and continuity review'],
-  ['nsw-scope-2026-11-05', '2026-11-05', 'Pharmacist prescribing: Class Authorities and who can do what', ['ca', 'intent'],
+  ['nsw-scope-2026-11-05', '2026-11-05', 'Pharmacist prescribing: Class Authorities and who can do what', ['ca', 'intent', 'ocp'],
     ['Class Authorities and Practice Standards apply from 5 November 2026; the authorities expire on 4 November 2027.',
       'Contraception continuation includes vaginal ring supply (supply only) and DMPA (give the injection only with the PSA injection course; check indemnity).',
       'Queensland-trained pharmacists may also treat 5 more conditions (musculoskeletal pain, reflux, rhinitis, acne, nausea and vomiting), after submitting NSW Health’s “Intention to provide expanded community pharmacy services” form.',
+      'OCP initiation: pharmacists with the James Cook University Graduate Certificate who have submitted the Intention form can start, change or resupply the pill for low-risk women aged 18–39. NSW Health’s pilot funds the first 5,000 eligible consultations. (NSW Health page current as at 24 Aug 2026, before the new laws: check it for the current authority.)',
       'Every service: a private consulting room, the GP sent a record within a week (with consent), digital records kept 7 years (under 18: until 25), and the healthdirect listing kept current. A Working with Children Check may be needed.'],
     [],
     'Pharmacist prescribing setup and readiness review'],
+  ['mhr-rules-2026-10-01', '2026-10-01', 'My Health Record: new security and access policy rules', ['mhrrules', 'mhract'],
+    ['The My Health Records Rules 2026 replace the 2016 Rule. For pharmacies already registered, the new policy rule (r 21) applies from 1 October 2026; it replaces rules 42 and 44 of the 2016 Rule.',
+      'Staff are trained before they get access to My Health Record, then every year, and after any significant change to the law or the system (r 21).',
+      'Keep each version of the policy for 5 years (r 43). Keep records of user accounts and of training for 5 years, and records of your breach processes and security measures for 2 years (r 45).',
+      'If the System Operator asks for your security and access policy, give it within 7 days (r 44).',
+      'A compromised account is suspended as soon as practicable (r 21), and a data breach is notified under s 75 of the Act: see “If something goes wrong”.'],
+    ['A security and access policy written only to the 2016 Rule (rules 42 and 44).'],
+    'If something goes wrong (data breach), Governance review'],
 ];
