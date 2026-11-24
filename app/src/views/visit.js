@@ -53,7 +53,7 @@ register('visit', {
   tab: 'today',
   render(c, r) {
     const k = key(r.extra), d = c.draft(k); if (!d) return screen({ title: 'Site visit', back: true, body: empty('This visit has finished.') });
-    const items = visitItems(c.ph), step = Math.min(d.step || 0, items.length);
+    const items = visitItems(c.ph), first = items.findIndex(it => !d.items[it.key]?.status), step = Math.min(d.step ?? (first < 0 ? items.length : first), items.length);
     const prog = h`<div class="prog">${items.map((it, i) => h`<i class="${i === step ? 'cur' : d.items[it.key]?.status === 'issue' ? 'bad' : d.items[it.key]?.status ? 'done' : ''}"></i>`)}</div>`;
     const title = r.extra ? 'Extra visit' : 'Quarterly visit';
     if (step >= items.length) return finish(c, r, d, items, prog, title);
@@ -73,7 +73,7 @@ register('visit', {
       <div class="btnrow">${btn('Previous', 'step', { data: { s: step - 1 }, disabled: step === 0 })}${btn(step === items.length - 1 ? 'Finish' : 'Next', 'step', { kind: 'primary', data: { s: step + 1 } })}</div>` });
   },
   changes: {
-    ans: (c, el, r) => { const form = el.closest('form'); const k = key(r.extra), d = structuredClone(c.draft(k)); const it = visitItems(c.ph)[d.step || 0]; const f = Object.fromEntries(new FormData(form));
+    ans: (c, el, r) => { const form = el.closest('form'); const k = key(r.extra), d = structuredClone(c.draft(k)); const its = visitItems(c.ph), f0 = its.findIndex(x => !d.items[x.key]?.status), it = its[d.step ?? (f0 < 0 ? 0 : f0)]; const f = Object.fromEntries(new FormData(form));
       d.items[it.key] = { ...(d.items[it.key] || {}), status: f.status || '', text: f.text ?? d.items[it.key]?.text ?? '', due: f.due ?? d.items[it.key]?.due ?? '', ref: f.ref ?? d.items[it.key]?.ref ?? '' };
       if ('vaccEvent' in f || 'vaccSighted' in f) d.vacc = { event: f.vaccEvent || '', sighted: f.vaccSighted || '', auditDate: f.vaccDate || '' };
       const redraw = (f.status || '') !== (c.draft(k).items[it.key]?.status || '') || ('vaccSighted' in f && f.vaccSighted !== c.draft(k).vacc?.sighted);
@@ -88,8 +88,8 @@ register('visit', {
   forms: { fin: () => {} },
 });
 function vacc(v) {
-  return h`<div class="card"><p class="field-label">Since the last visit, was there a cold-chain breach or fridge failure?</p>${choice('vaccEvent', [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }], v.event || '')}
-    <p class="field-label">Did you see this year’s vaccine storage self-audit?</p>${choice('vaccSighted', [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'Not yet' }], v.sighted || '')}
+  return h`<div class="card"><p class="field-label">Since the last visit, was there a cold-chain breach or fridge failure?</p>${choice('vaccEvent', [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }], v.event || '', { inline: true })}
+    <p class="field-label">Did you see this year’s vaccine storage self-audit?</p>${choice('vaccSighted', [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'Not yet' }], v.sighted || '', { inline: true })}
     ${v.sighted === 'yes' ? field('Self-audit date', textInput('vaccDate', v.auditDate || '', { type: 'date', max: today() })) : ''}</div>`;
 }
 function finish(c, r, d, items, prog, title) {

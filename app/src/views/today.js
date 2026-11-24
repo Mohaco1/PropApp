@@ -5,11 +5,13 @@ import { screen, row, btn, empty, icon } from '../ui.js';
 import { items, ranked, counts, sentence } from '../summary.js';
 import { fmt, dueText, today, daysBetween, isDate } from '../dates.js';
 import { C } from '../content.js';
+import { undated } from './services.js';
 const FILTERS = [['overdue', 'Overdue'], ['today', 'Today'], ['started', 'Started'], ['all', 'All']];
 const MORE = [['week', 'Next 7 days'], ['nodate', 'No date'], ['waiting', 'Waiting'], ['tocheck', 'To confirm']];
 export function openItem(c, it) {
   if (it.kind === 'visit') return c.go('visit-start', { extra: it.ref === 'extra' });
-  if (it.kind === 'review' || it.kind === 'meeting') return c.go('review', { id: it.ref });
+  if (it.kind === 'meeting') return c.go('meeting', { id: it.ref });
+  if (it.kind === 'review') return c.go('review', { id: it.ref });
   if (it.kind === 'action') return c.go('action', { id: it.ref });
   if (it.kind === 'person') return c.go('person', { id: it.ref });
   if (it.kind === 'verify') return c.go('service', { id: it.ref });
@@ -21,6 +23,8 @@ function topCard(c, list) {
     return h`<div class="card hero"><p class="eyebrow">Visit in progress</p><h2>${vq ? 'Quarterly visit' : 'Extra visit'} · ${n} checked</h2><p class="muted">Started ${fmt(d.date)}. Your answers are saved on this device.</p>${btn('Resume visit', 'resume-visit', { kind: 'primary', data: { extra: vq ? '' : '1' } })}</div>`; }
   const todo = Object.entries(ph.services).filter(([, s]) => s.active && s.setup !== 'done');
   if (todo.length) return h`<div class="card hero"><p class="eyebrow">Finish setting up</p><h2>${todo.length === 1 ? '1 service' : todo.length + ' services'} to set up</h2><p class="muted">A few questions each, about how your pharmacy does it. About 3 minutes a service.</p>${btn('Set up services', 'go', { kind: 'primary', data: { to: 'services' } })}</div>`;
+  const nd = undated(ph).length;
+  if (nd) return h`<div class="card hero"><p class="eyebrow">Almost there</p><h2>${nd === 1 ? '1 review needs' : nd + ' reviews need'} a first date</h2><p class="muted">The app suggests dates. You check them and save.</p>${btn('Plan the dates', 'go', { kind: 'primary', data: { to: 'first-dates' } })}</div>`;
   const last = ph.settings.lastBackup, changes = ph.history.filter(x => !last || x.at > last).length;
   if (changes > 25 && (!last || daysBetween(last.slice(0, 10), today()) > 30)) return h`<div class="card"><h2>Save a backup</h2><p class="muted">${last ? 'Last backup ' + fmt(last.slice(0, 10)) : 'No backup yet'} · ${changes} changes since. Your records live only on this device.</p>${btn('Back up now', 'go', { data: { to: 'backup' } })}</div>`;
   const q1 = list.find(i => i.ref === 'Q1');

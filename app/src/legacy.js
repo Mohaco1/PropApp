@@ -16,7 +16,9 @@ export function importLegacy(backup) {
   ph.flags = { ...(d.flags || {}) };
   for (const id of d.active || []) {
     const cfg = d.serviceConfig?.[id];
-    ph.services[id] = { active: true, setup: cfg?.complete ? 'done' : cfg ? 'doing' : 'todo', answers: { ...(cfg?.procedureProfile?.answers || {}) } };
+    const answers = { ...(cfg?.procedureProfile?.answers || {}) };
+    for (const [k, sw] of Object.entries(cfg?.procedureProfile?.software || {})) { const row = (d.software || []).find(r => r.id === sw); if (row) answers[k] = row.name; }
+    ph.services[id] = { active: true, setup: cfg?.complete ? 'done' : cfg ? 'doing' : 'todo', answers };
   }
   for (const [k, v] of Object.entries(d.schedule || {})) if (isDate(v)) ph.schedule[k] = v;
   // records
@@ -62,11 +64,14 @@ export function importLegacy(backup) {
   }
   // procedures and document references
   for (const doc of d.documents || []) {
-    if (doc.serviceProcedure) ph.procedures.push({ id: doc.id, service: doc.serviceProcedure, title: doc.title, status: doc.lifecycle === 'Approved' || doc.lifecycle === 'Adopted' ? 'adopted' : 'draft', versions: (doc.versions || []).map(v => ({ v: v.version, body: v.body || '', at: v.at, status: v.status })), amendment: doc.localAmendment || '' });
+    if (doc.serviceProcedure) ph.procedures.push({ id: doc.id, service: doc.serviceProcedure, title: doc.title, status: doc.lifecycle === 'Approved' || doc.lifecycle === 'Adopted' ? 'adopted' : 'draft', versions: (doc.versions || []).map(v => ({ v: v.version, body: v.body || '', generated: v.body || '', at: v.at, status: v.status })), amendment: doc.localAmendment || '' });
     else ph.documents.push({ id: doc.id, title: doc.title, url: doc.url || '', ref: doc.reference || '', version: doc.version || '', reviewDate: doc.reviewDate || '' });
   }
   ph.history = (d.history || []).map(x => ({ at: x.at, by: x.by || '', what: x.message }));
-  ph.log = [...(d.notesLog || d.myLog || [])];
+  ph.log = (d.ownerLog || []).map(x => ({ id: x.id, date: x.date, what: x.what, kind: x.kind || '', ref: x.ref || '', by: x.by || '' }));
+  ph.obligations = { ...(d.legalEvidence || {}) };
+  ph.lead = d.serviceLead || '';
+  ph.siteScope = { ...(d.siteScope || {}) };
   ph.settings.setupDone = !!d.onboarded;
   // drafts: site visits keep their answers; other review drafts keep their chosen answers
   const drafts = {};

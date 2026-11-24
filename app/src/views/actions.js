@@ -17,7 +17,7 @@ register('actions', {
       <p class="status">${n.open === 1 ? '1 open' : n.open + ' open'}${n.overdue ? h` · <span class="bad">${n.overdue} overdue</span>` : ''}. Only you close an action, once you've seen the fix.</p>
       <div class="tabs">${F.map(([k, l]) => h`<button class="${k === f ? 'on' : ''}" data-act="f" data-f="${k}">${l} <b>${k === 'overdue' ? n.overdue : n[k]}</b></button>`)}</div>
       <label class="search">${icon('search')}<input class="input" name="q" placeholder="Search actions" value="${c.ui.actQ || ''}" data-change="q"></label>
-      <div class="list">${list.length ? list.map(a => row({ title: a.title, sub: [a.person, a.source?.label?.replace(/ · \d{4}-\d{2}-\d{2}$/, '')].filter(Boolean).join(' · ') || 'Action', right: a.status === 'closed' ? 'Closed ' + fmt(a.closed?.date) : a.waiting ? 'Waiting' : dueText(a.due), tone: a.status === 'open' && isDate(a.due) && a.due < t ? 'bad' : '', act: 'open', data: { id: a.id } })) : empty('No actions here.')}</div>` });
+      <div class="list">${list.length ? list.map(a => row({ title: a.title, sub: [a.title.includes(a.person) ? '' : a.person, a.source?.label?.replace(/ · \d{4}-\d{2}-\d{2}$/, '')].filter(Boolean).join(' · ') || 'Action', right: a.status === 'closed' ? 'Closed ' + fmt(a.closed?.date) : a.waiting ? 'Waiting' : dueText(a.due), tone: a.status === 'open' && isDate(a.due) && a.due < t ? 'bad' : '', act: 'open', data: { id: a.id } })) : empty('No actions here.')}</div>` });
   },
   acts: { f: (c, d) => { c.ui.actF = d.f; c.rerender(); }, open: (c, d) => c.go('action', { id: d.id }), add: c => c.go('action-new') },
   changes: { q: (c, el) => { c.ui.actQ = el.value; c.rerender(); } },
@@ -38,7 +38,7 @@ register('action', {
     const src = a.source?.type === 'visit' ? h`<p class="muted">Found at the ${a.source.label.toLowerCase().replace(/ · (\d{4}-\d{2}-\d{2})$/, (m, d) => ' on ' + fmt(d))}${a.source.item ? ' · ' + a.source.item : ''}</p>` : a.source?.label ? h`<p class="muted">From ${a.source.label}${a.person ? ' · ' + a.person : ''}</p>` : '';
     const open = a.status === 'open';
     let body = h`<h2 class="big-title">${a.title}</h2>${src}
-      <p class="meta">${open ? (a.waiting ? 'Waiting · ' : '') + dueText(a.due) + (a.due ? ' (' + fmt(a.due) + ')' : '') : 'Closed ' + fmt(a.closed?.date)}</p>`;
+      <p class="meta">${open ? (a.waiting ? 'Waiting · ' : '') + dueText(a.due) + (a.due && /Overdue/.test(dueText(a.due)) ? ' · ' + fmt(a.due) : '') : 'Closed ' + fmt(a.closed?.date)}</p>`;
     if (!open) body = h`${body}<div class="card"><p class="eyebrow">What you saw</p><p>${a.closed?.what || '—'}</p></div>${btn('Reopen', 'reopen')}`;
     else if (mode === 'close') body = h`${body}<form data-form="close" class="form">${field('What did you see?', textArea('what', '', { rows: 3, placeholder: 'For example: door closer adjusted, latches every time' }))}
       ${field('Date', textInput('date', today(), { type: 'date', max: today() }))}<div class="dock-inline">${btn('Close action', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'mode', { data: { m: '' } })}</div></form>`;

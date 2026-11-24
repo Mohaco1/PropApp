@@ -38,8 +38,8 @@ export function seg(name, options, value) {
   return h`<div class="seg" role="tablist">${options.map(([v, l]) => h`<button role="tab" aria-selected="${String(v === value)}" class="${v === value ? 'on' : ''}" data-act="seg" data-name="${name}" data-value="${v}">${l}</button>`)}</div>`;
 }
 // Big tap-to-choose answers (rule 5): one control per question.
-export function choice(name, options, value, { issueValues = [] } = {}) {
-  return h`<div class="choices">${options.map(o => { const v = typeof o === 'string' ? o : o.value, l = typeof o === 'string' ? o : o.label;
+export function choice(name, options, value, { issueValues = [], inline = false } = {}) {
+  return h`<div class="choices${inline ? ' inline' : ''}">${options.map(o => { const v = typeof o === 'string' ? o : o.value, l = typeof o === 'string' ? o : o.label;
     return h`<label class="choice${v === value ? ' on' : ''}${issueValues.includes(v) ? ' issue' : ''}"><input type="radio" name="${name}" value="${v}" ${v === value ? raw('checked') : ''}><span>${l}</span></label>`; })}</div>`;
 }
 export const field = (label, input, hint = '') => h`<label class="field"><span class="field-label">${label}</span>${input}${hint ? h`<span class="hint">${hint}</span>` : ''}</label>`;
