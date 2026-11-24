@@ -17,6 +17,8 @@ const { phone, ok, done, tap, text, activePh, download } = require('./helpers.js
   await p.getByRole('button', { name: 'Back', exact: true }).click(); await tap(p, 'More'); await p.getByRole('button', { name: /^Calendar/ }).click();
   const ics = await download(p, 'Download calendar file');
   ok(/^BEGIN:VCALENDAR/.test(ics) && /TRIGGER:-P1D/.test(ics) && /SUMMARY:\[Required by law\] S8 stock check/.test(ics), 'calendar file is a valid VCALENDAR with day-before reminders');
+  { const ev = ics.split('BEGIN:VEVENT').slice(1), uids = ev.map(e => (e.match(/UID:(.*)/) || [])[1]);
+    ok(/\r\n/.test(ics) && !/[^\r]\n/.test(ics) && ev.every(e => /TRIGGER:-P7D/.test(e) && /TRIGGER:-P1D/.test(e) && /DTSTART;VALUE=DATE:\d{8}/.test(e)) && new Set(uids).size === uids.length, 'V3-02 calendar file: CRLF lines, all-day dates, a week-before and a day-before reminder on every event, unique UIDs'); }
   // waiting on someone: "Still waiting" keeps the due date
   await tap(p, 'Actions'); await p.getByRole('button', { name: /fire extinguisher/ }).click(); const due0 = Object.values((await activePh(p)).actions).find(a => /extinguisher/.test(a.title)).due;
   await tap(p, 'Still waiting · new date'); await p.fill('textarea[name=asked]', 'Chased FireSafe again (fictional)'); await p.locator('label.chip', { hasText: 'In 2 weeks' }).click(); await tap(p, 'Save'); await p.waitForTimeout(200);

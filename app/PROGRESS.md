@@ -235,3 +235,29 @@ Brief: "PropApp — Content v2 Brief: NSW Prescribing, 2026 Law Updates & Clinic
 **Owner decision respected:** "No longer need to record the GP when vaccinating" is in the NSW notes, but the owner decided to leave the vaccination "record the GP" wording as it is. So it isn't in the updates feed.
 
 **Full run on build 1edd311f09:** 12 suites (adding theme and content2), 201 checks, all pass with no console errors. check-procgen-all: all 17 services identical.
+
+## Content v2 (part 2) and V3-02 calendar file · 25 Nov 2026 · build 76de97c792
+Gemini's feedback: "PropApp — v3 Roadmap & Architecture Brief" (owner's Drive, read only). Section 0 signs off part 1 on 1edd311f09 and agrees the Tier 2 correction.
+
+| Item | Status | What was done |
+|---|---|---|
+| 5 · Clinical trial S8 | Done | The "no longer required" approval-number line adds: an unregistered S8 medicine in a clinical trial still needs NSW Health approval. It's a caution, from the NSW Health pharmacists FAQ as cited by the review. |
+| 6 · TGA vapes | Done | Both TGA links are added to Sources. The vaping review already had all four checks, word for word from NSW Health's self-assessment (TGA notified list, the over-20 mg/mL prescription pathway, S3 18+ with a SAS C notification, adverse event reporting), so no wording changed. |
+| 7 · eNRMC | Done | The Department of Health link is added to Sources (the 31 March 2027 date was already shown). |
+| 1 · My Health Record card and update | Held | The review gives wording and links but no quotes. The claims are specific: "My Health Records Rules 2026", Rules 21/43/44/45, 5- and 2-year retention, and 7 days. Incident steps must be exact, so they wait until the pages can be read. |
+| 2 · Cultural safety, conflicts of interest | Held | The Ahpra link given (`/sitecore/content/medical/…`) doesn't look like a real public page. It waits for the guidance's exact title and URL. |
+| 3 · Ear, wound and chronic illness trial | Held | Gemini agrees: there are no protocols yet. |
+| 4 · OCP initiation (JCU-trained) | Held | This page wasn't among the 174 NSW Health pages crawled on 20 Nov, and the "5,000 funded consultations" detail needs the page itself. |
+
+**Honest labelling:** the three new links (2 TGA, 1 eNRMC) say "Link from the 25 Nov review, not yet checked" on Sources, not "Last read".
+
+**V3-02, calendar file:**
+- Every event now has a week-before and a day-before reminder.
+- On phones that support it, the file opens the share sheet (on iPhone, tap Calendar).
+- **Bug found by the new check:** a person with several items due the same day got events with the same UID, so a phone calendar kept only one. Each part now has its own UID.
+
+**v3 items waiting for owner decisions:**
+- **V3-01:** static hosting on GitHub Pages (deployment, and the D3 hosting decision).
+- **V3-03:** the evidence pack (the inspector pack is deferred).
+- **V3-04:** the multi-pharmacy summary (deferred).
+- **V3-05:** clinical content; it needs the pages read first.

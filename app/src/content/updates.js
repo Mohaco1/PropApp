@@ -14,7 +14,7 @@ export const UPDATES = [
       'Samples of S4D and S8 medicines are no longer allowed. Nitrous oxide supply is restricted.'],
     ['Handing over S3 medicines personally (give adequate verbal or written instructions instead).',
       'Recording pseudoephedrine sales.',
-      'A NSW approval number on psychostimulant or compounded S8 prescriptions (don’t refuse a prescription for that).',
+      'A NSW approval number on psychostimulant or compounded S8 prescriptions (don’t refuse a prescription for that). An unregistered S8 medicine in a clinical trial still needs NSW Health approval.',
       'Reporting explained S8 or S4D losses (S8 losses are still recorded in the register).'],
     'S8 stock check review, Legal obligations, S8 at a glance'],
   ['pba-guidelines-2026-10-01', '2026-10-01', 'One Pharmacy Board guideline for safe pharmacy services', ['pba'],
