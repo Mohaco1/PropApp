@@ -9,6 +9,7 @@ import { reviewDue, bucket } from '../summary.js';
 import { fmt, today, addDays, dueText, isDate } from '../dates.js';
 import { addRecord, newAction, note as log } from '../model.js';
 import { saveFile } from '../ics.js';
+import { copyText } from '../clip.js';
 // Review-specific fields, from the current app's forms.
 const EXTRA = {
   B1: [['stockDate', 'Date the pharmacist did the stock check', 'date', true], ['stockBy', 'Pharmacist who did the stock check', 'text']],
@@ -135,7 +136,7 @@ register('record', {
   tab: 'reviews',
   acts: { dlrec: (c, d) => { const rec = c.ph.records.find(x => x.id === d.id); const ok = saveFile((c.ph.name + ' ' + (reviewById(rec.type)?.name || rec.title) + ' ' + rec.date).replace(/[^\w]+/g, '-') + '.txt', recordText(c.ph, rec)); c.toast(ok ? 'Summary ready' : 'Downloads are blocked here. Use Copy as text.'); },
     copyrec: async (c, d) => { const rec = c.ph.records.find(x => x.id === d.id); const t = recordText(c.ph, rec);
-    try { await navigator.clipboard.writeText(t); c.toast('Copied'); } catch { c.toast('Copy didn’t work here.'); } } },
+    if (await copyText(t)) { c.toast('Copied'); } else { c.toast('Copy didn’t work here.'); } } },
   render(c, r) {
     const rec = c.ph.records.find(x => x.id === r.id); if (!rec) return screen({ title: 'Record', back: true, body: empty('Not found.') });
     const a = reviewById(rec.type);

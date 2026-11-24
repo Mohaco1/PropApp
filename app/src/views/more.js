@@ -103,12 +103,13 @@ register('history', {
   acts: { t: (c, d) => { c.ui.histT = d.t; c.rerender(); }, more: c => { c.ui.histN = (c.ui.histN || 40) + 60; c.rerender(); }, act: (c, d) => c.go('action', { id: d.id }), rec: (c, d) => c.go('record', { id: d.id }),
     print: c => { try { window.print(); } catch {} setTimeout(() => c.toast('If no print window opened, open the app file in your browser to print or save a PDF.'), 400); },
     csv: c => { const ok = saveFile('history-' + c.ph.name.replace(/\W+/g, '-') + '-' + today() + '.csv', csv(c.ph, filtered(c)), 'text/csv'); c.toast(ok ? 'CSV ready' : 'Downloads are blocked here. Use Copy as text.'); },
-    copy: async c => { try { await navigator.clipboard.writeText(printable(c.ph, filtered(c))); c.toast('Copied'); } catch { c.toast('Copy didn’t work here.'); } } },
+    copy: async c => { if (await copyText(printable(c.ph, filtered(c)))) { c.toast('Copied'); } else { c.toast('Copy didn’t work here.'); } } },
 });
 
 // Search or jump to: reviews, actions, staff, procedures, legal obligations and setup questions, in one box.
 import { catalog } from '../rules.js';
 import { C } from '../content.js';
+import { copyText } from '../clip.js';
 function searchResults(c) { const q = (c.ui.q || '').trim().toLowerCase(), R = [];
   if (q.length < 2) return h`<p class="muted">Type at least two letters.</p>`;
   for (const a of catalog()) if (a.name.toLowerCase().includes(q)) R.push({ t: a.name, s: 'Review · ' + a.frequency, to: a.kind === 'visit' ? 'visit-start' : a.kind === 'meeting' ? 'meeting' : 'review', id: a.id });

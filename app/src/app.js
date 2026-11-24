@@ -1,7 +1,7 @@
 // App state, navigation and the one way data changes: ctx.change(fn, message) edits a copy, saves it, logs it, redraws.
 import * as store from './store.js';
 import { clone, html } from './util.js';
-import { nav } from './ui.js';
+import { nav, env } from './ui.js';
 const views = {};
 export const register = (name, v) => { views[name] = v; };
 const S = { ph: null, drafts: {}, stack: [], tab: 'today', toast: '', ui: {} };
@@ -28,6 +28,7 @@ function load() {
 }
 let root;
 export function render(scrollTop = false) {
+  env.sites = store.dir().ids.length;
   const r = S.ph ? ctx.route : { name: 'welcome' };
   const v = views[r.name] || views.today;
   let out = '';

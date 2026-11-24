@@ -7,6 +7,7 @@ import { dueText, fmt, today, addDays, isDate } from '../dates.js';
 import { newAction, closeAction, reopenAction, updateAction, waitOn, stopWaiting } from '../model.js';
 import { otpPartsLeft } from './services.js';
 import { saveFile } from '../ics.js';
+import { copyText } from '../clip.js';
 const F = [['open', 'Open'], ['overdue', 'Overdue'], ['closed', 'Closed'], ['all', 'All']];
 register('actions', {
   tab: 'actions',
@@ -63,7 +64,7 @@ register('action', {
   acts: {
     mode: (c, d, el, r) => { c.ui.actMode = { ...(c.ui.actMode || {}), [r.id]: d.m }; c.rerender(); setTimeout(() => document.querySelector('form textarea, form input')?.focus(), 0); },
     reopen: (c, d, el, r) => c.change(ph => reopenAction(ph, r.id), 'Action reopened'),
-    cphist: async (c, d, el, r) => { try { await navigator.clipboard.writeText(histText(c.ph, c.ph.actions[r.id])); c.toast('Copied'); } catch { c.toast('Copy didn’t work here.'); } },
+    cphist: async (c, d, el, r) => { if (await copyText(histText(c.ph, c.ph.actions[r.id]))) { c.toast('Copied'); } else { c.toast('Copy didn’t work here.'); } },
     dlhist: (c, d, el, r) => { const a = c.ph.actions[r.id]; c.toast(saveFile(('Action ' + a.title).replace(/[^\w]+/g, '-').slice(0, 60) + '.txt', histText(c.ph, a)) ? 'History ready' : 'Downloads are blocked here.'); },
     unwait: (c, d, el, r) => c.change(ph => stopWaiting(ph, r.id, 'Not waiting any more'), 'Saved'),
   },

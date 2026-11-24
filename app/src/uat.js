@@ -1,6 +1,7 @@
 // UAT only (not part of the real app): a "UAT notes" button that saves notes to the UAT page's shared store, in the
 // same "uatnotes" collection and shape as the current app, so Claude can read them. Falls back to this browser.
 import { esc } from './util.js';
+import { copyText } from './clip.js';
 let db = null, notes = [], live = false, marks = {};
 const KEY = 'propapp-uat-notes';
 const local = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
@@ -20,7 +21,7 @@ export async function initUat(pageName) {
       const n = { kind: 'note', page: pageName(), text, type: '', status: 'Open', fix: '', createdAt: new Date().toISOString(), by: '', app: 'rebuild' };
       try { if (db) await db.collection('uatnotes').add(n); else { const l = local(); l.push(n); localStorage.setItem(KEY, JSON.stringify(l)); notes = l; } ta.value = ''; draw(); paint(); } catch (e) { ta.insertAdjacentHTML('afterend', '<p class="note bad">Not saved: ' + esc(e?.code || e?.message || e) + '</p>'); } };
     dlg.querySelector('[data-copy]').onclick = async () => { const t = 'R.Pharmacy UAT notes · build ' + (window.PROPAPP_BUILD || '') + '\n\n' + notes.map(n => '- [' + (n.status || 'Open') + '] [' + n.page + '] ' + n.text).join('\n') + (Object.keys(marks).length ? '\n\nSetup questions:\n' + Object.entries(marks).map(([k, m]) => '- ' + k + ': ' + m.choice + (m.note ? ' · ' + m.note : '')).join('\n') : '');
-      try { await navigator.clipboard.writeText(t); dlg.querySelector('[data-copy]').textContent = 'Copied'; } catch { const ta = dlg.querySelector('textarea'); ta.value = t; ta.select(); } };
+      if (await copyText(t)) { dlg.querySelector('[data-copy]').textContent = 'Copied'; } else { const ta = dlg.querySelector('textarea'); ta.value = t; ta.select(); } };
     dlg.querySelector('[data-clear]').onclick = async () => { if (!dlg.dataset.armClear) { dlg.dataset.armClear = '1'; draw(); return; } delete dlg.dataset.armClear;
       if (db) { for (const n of notes) if (n.id) { try { await db.collection('uatnotes').doc(n.id).delete(); } catch {} } } else { localStorage.removeItem(KEY); notes = []; } notes = db ? notes.filter(n => !n.id) : []; draw(); paint(); };
     dlg.querySelector('[data-reset]').onclick = async () => { if (!dlg.dataset.armReset) { dlg.dataset.armReset = '1'; draw(); return; }

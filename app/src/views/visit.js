@@ -9,6 +9,7 @@ import { activeServices } from '../rules.js';
 import { addRecord, newAction } from '../model.js';
 import { reviewDue } from '../summary.js';
 import { questionIndex, questionLabel } from './services.js';
+import { copyText } from '../clip.js';
 const DISPLAY = 'Displayed names (Council Guide Note 24): owner names at or near the main entrance; the name of the pharmacist on duty next to the dispensing area (it can change day to day).';
 export function visitItems(ph) {
   const act = activeServices(ph);
@@ -61,7 +62,7 @@ register('visit-start', {
     ws: (c, d) => c.go(d.a, { id: d.id }),
     begin: (c, d, el, r) => { const extra = c.ui.visitExtra ?? !!r.extra; c.ui.visitExtra = undefined; if (!c.draft(key(extra))) c.saveDraft(key(extra), { date: today(), items: {}, vacc: {}, notes: '', next: '', step: 0 }); c.replace('visit', { extra }); },
     copy: async c => { const ws = worthSeeing(c.ph); const t = c.ph.name + ' · site visit ' + fmt(today()) + '\n' + (ws.length ? ws.map(w => '- ' + w.title + ' (' + w.why + ')').join('\n') : 'Nothing open from earlier visits.') + '\nNo patient names or identifiers, please.';
-      try { await navigator.clipboard.writeText(t); c.toast('Copied. Paste it into a message.'); } catch { c.toast('Copy didn’t work here. Long-press to select the list instead.'); } },
+      if (await copyText(t)) { c.toast('Copied. Paste it into a message.'); } else { c.toast('Copy didn’t work here. Long-press to select the list instead.'); } },
   },
 });
 register('visit', {

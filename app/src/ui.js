@@ -1,5 +1,7 @@
 // Shared building blocks. One shell for every screen (design rule 4), thumb-sized controls (rule 11).
 import { h, raw } from './util.js';
+// How many pharmacies are on this device (set by app.js each render): the site switch is a pill only when there are several.
+export const env = { sites: 1 };
 const I = {
   today: '<path d="M4 6h16M4 12h16M4 18h10"/>',
   reviews: '<path d="M9 11l2 2 4-4"/><rect x="4" y="4" width="16" height="16" rx="3"/>',
@@ -19,7 +21,7 @@ export const icon = (n, cls = '') => raw(`<svg class="ic ${cls}" viewBox="0 0 24
 export function screen({ title, sub = '', back = null, saved = '', body, primary = null, wide = false, right = '' }) {
   return h`<div class="screen${wide ? ' wide' : ''}">
     <header class="bar">${back ? h`<button class="iconbtn" data-act="back" aria-label="Back">${icon('back')}</button>` : h`<span class="mark" aria-hidden="true">R.</span>`}
-      <h1 class="bar-title">${title}${sub ? h`<button class="ph-sub ph-switch" data-act="go" data-to="pharmacies" aria-label="Pharmacy: ${sub}. Switch pharmacy">${sub} ▾</button>` : ''}</h1>${saved ? h`<span class="saved" aria-live="polite">${saved}</span>` : ''}${right}</header>
+      <h1 class="bar-title">${title}${sub ? (env.sites > 1 ? h`<button class="ph-sub ph-switch multi" data-act="go" data-to="pharmacies" aria-label="Pharmacy: ${sub}. Switch pharmacy"><span class="sw-pill">${sub} ▾</span></button>` : h`<button class="ph-sub ph-switch single" data-act="go" data-to="pharmacies" aria-label="Pharmacy: ${sub}. Pharmacies on this device">${sub}</button>`) : ''}</h1>${saved ? h`<span class="saved" aria-live="polite">${saved}</span>` : ''}${right}</header>
     <main class="body">${body}</main>
     ${primary ? h`<div class="dock">${primary}</div>` : ''}
   </div>`;

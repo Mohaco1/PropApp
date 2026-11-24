@@ -8,6 +8,7 @@ import { note as log, me, newAction } from '../model.js';
 import { pharmacyBackup, importBackup, openExample } from './backup.js';
 import { saveFile } from '../ics.js';
 import { items, counts } from '../summary.js';
+import { copyText } from '../clip.js';
 register('details', {
   tab: 'more',
   render(c) { const ph = c.ph;
@@ -36,7 +37,7 @@ register('backup', {
     try { const e = await navigator.storage?.estimate?.(), pers = await navigator.storage?.persisted?.(); if (e) txt = 'Using ' + (e.usage / 1048576).toFixed(1) + ' MB of about ' + Math.round(e.quota / 1048576) + ' MB available. ' + (pers ? 'The browser has agreed to keep this data.' : 'The browser may clear it if the device runs short of space: keep backups.'); } catch {}
     el.innerHTML = ''; const p = document.createElement('p'); p.textContent = txt; el.append(p); },
   acts: { cfdel: (c, d) => { c.saveDraft(d.k, null); c.rerender(); c.toast('Conflict copy dismissed'); },
-    cfcopy: async (c, d) => { try { await navigator.clipboard.writeText(JSON.stringify(c.drafts[d.k], null, 1)); c.toast('Copied'); } catch { c.toast('Copy didn’t work here.'); } },
+    cfcopy: async (c, d) => { if (await copyText(JSON.stringify(c.drafts[d.k], null, 1))) { c.toast('Copied'); } else { c.toast('Copy didn’t work here.'); } },
     dl: c => { const ok = saveFile(c.ph.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify(pharmacyBackup(c)), 'application/json'); if (ok) c.change(ph => { ph.settings.lastBackup = new Date().toISOString(); }, 'Backup downloaded'); } },
   changes: { restore: (c, el) => importBackup(c, el.files[0]) },
 });

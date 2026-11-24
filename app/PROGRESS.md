@@ -161,3 +161,51 @@ Elsewhere in the old app the phrase was on the task form and the task filter. Th
 - calendar file import;
 - airplane-mode reload.
 Gate 6 (archive v41) follows those.
+
+## P-06 E+++ Coastal Precision and F-P06-01 · 25 Nov 2026 · build 8973bcb25d
+Brief: "PropApp — P-06 E+++ Coastal Precision & Final Lock-In Brief (For Claude)" (owner's Drive, read only). It confirms gate 1 of the v41 retirement gate is met for build 246a96f3c1.
+
+| ID | Status | What was done | Test |
+|---|---|---|---|
+| F-P06-01 | Done | One `copyText` helper (`src/clip.js`) behind all 6 Copy buttons. It tries the clipboard API first. If that's missing or refused (the app file opened from a phone's files), it uses a hidden text box and the older copy command, then removes the box. "Copied" shows either way. | theme (clipboard API removed; checks the copied text, the "Copied" message and that the box is removed) |
+| P-06 | Done | E+++ tokens for light and night mode, exactly as specified, in one block at the end of `src/styles.css`. | theme |
+
+**What P-06 changed on screen:**
+1. **Header:** white, with the 3.5 px teal-to-ocean strip and a 22×22 "R." badge.
+2. **Site switch:**
+   - more than one pharmacy: an ocean pill on a soft track, with a 44 px tap area;
+   - one pharmacy: no pill and no ▾. The name stays as plain text, and tapping it still opens Pharmacies (rule 2 keeps the pharmacy name in the header).
+3. **Today:**
+   - the date is a 600-weight editorial heading;
+   - the Overdue and This week counts are tinted;
+   - all numbers use tabular figures.
+4. **Lists:**
+   - 14 px cards with inset dividers;
+   - a 3 px urgency rail only on overdue (#B81D3A) and due-soon (#A84B00) rows;
+   - open items get status pills;
+   - "Done" is quiet muted text.
+5. **Type:** fonts in the order Public Sans, Inter, then the system font. Nothing heavier than 600.
+6. **Bottom bar:**
+   - icon strokes of 1.85;
+   - a 22×2.5 gradient pill above the active tab;
+   - all 5 tabs are at least 44 px.
+
+**Two markup touches, both presentation only:**
+- the site-switch markup (pill only when there are several pharmacies);
+- Today's status line, where the " · " after the date was dropped now the date sits on its own line.
+No data, storage keys, wording or workflow changed.
+
+**Judgement calls:**
+- Public Sans and Inter aren't bundled: the strict CSP allows no font downloads. Phones use their system font (San Francisco or Roboto) until a font file is embedded.
+- Tabular figures are on dates, counts and year-plan cells, but not on review names: in the fallback font they spread the hyphens ("check - in").
+- Hover tints now apply only on devices with a mouse. A tapped row on a phone no longer stays grey.
+
+**Tests:** theme (new, 26 checks) covers:
+- the tokens, strip, badge and font stack;
+- the site switch with one pharmacy and with two;
+- the date heading, tinted chips and tabular figures;
+- the rails, the bottom bar and the weight limit;
+- the Copy fallback;
+- the year plan;
+- 320×568 on all 5 tabs.
+Night mode was also looked at by eye. Screenshots for the brief: `01_today_390px.png`, `02_site_visit_evidence.png`, `03_year_plan_390px.png` and `04_actions_view.png`.
