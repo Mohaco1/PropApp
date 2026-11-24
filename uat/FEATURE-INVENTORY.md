@@ -1,9 +1,11 @@
 # Feature inventory of the current app (v41.1)
 
+Re-audited 24 Nov 2026 against rebuild build 81a46c3cfa, after Gemini's review: every [x] was checked in the app at phone size. The main flows have their own tests in app/tests (core, sprint1, sprint2, setup-questions, extras); screens.js opens every screen but only checks that it works and fits.
+
 This is the checklist the rebuild must match before the old app is retired (rule in `/CLAUDE.md`). Each line is something the current app does, sourced from the layers, the engine and the 25 Nov audit. `[ ]` means not yet in the rebuild. Tick it only when it works in the new app at phone size and has a test.
 
 ## 1. First use and setup
-- [ ] Welcome screen. Rebuild: wordmark, one line and one button (owner's note).
+- [x] Welcome screen. Rebuild: wordmark, one line and one button (owner's note).
 - [x] Core setup: pharmacy details (name, address, region, identifier) → proprietors (one or more, with financial-interest holders) → services.
 - [ ] Setup can be stopped and resumed (fresh-resume).
 - [ ] Express setup: assumed standard answers are marked "Assumed – confirm". Evidence and record questions default to "Needs verification".
@@ -118,8 +120,8 @@ This is the checklist the rebuild must match before the old app is retired (rule
 - [x] Rebuild: calendar feed (.ics) — owner decision.
 
 ## 9. History and exports
-- [x] History: every record (reviews, actions, meetings, setup changes), filters (pharmacy, search, source, record type, review, from and through dates), page through.
-- [x] Print or save a filtered PDF. Download a filtered CSV. Rebuild: readable rows with title, status, due date, resolution and who.
+- [x] History: every record (reviews, actions, meetings, setup changes), filters (pharmacy, search, source, record type, review, from and through dates), page through. Rebuild: search, record type, from and through dates; one pharmacy at a time.
+- [x] Print or save a filtered PDF. Download a filtered CSV. Rebuild: readable rows with title, status, due date, resolution and who. Rebuild: print or save as PDF from the filtered list (not available inside the claude.ai preview).
 - [ ] Review detail download. Full history text per action.
 - [x] My log: what the owner reported or sent (date, what, to whom, reference).
 
@@ -134,7 +136,7 @@ This is the checklist the rebuild must match before the old app is retired (rule
 - [x] Pharmacy details. Proprietors and oversight (recording as …, switch reviewer). Services and configuration.
 - [x] Bought, selling or closing (what NSW Health requires). First visit after buying: inherited facts to confirm.
 - [x] Tell me once: a change to how DAAs are packed (in-house / outside packer / another pharmacy) shows only the dependent items, each Done or Later.
-- [ ] Settings: last backup and changes since; backup download; restore with a receipt; storage status.
+- [x] Settings: last backup and changes since; backup download; restore with a receipt. (Storage status is not shown yet.)
 - [x] More than one pharmacy on a device (switch, add). Directory of sites.
 - [ ] Account or sign-in placeholders (not live).
 
@@ -145,6 +147,6 @@ This is the checklist the rebuild must match before the old app is retired (rule
 - [x] Every change goes to history (who, when, what). Configuration history.
 
 ## 13. UAT-only (not in the real app)
-- [x] UAT notes (page notes, setup question marks, synced to the UAT page).
+- [ ] UAT notes (page notes, setup question marks, synced to the UAT page). Rebuild has page notes saved to the UAT page; the setup-question marks, Copy all and Clear all are not built yet.
 - [x] Example pharmacy (Wattle Grove, fictional), dates shifted to today.
 - [ ] Reset test data.

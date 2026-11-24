@@ -7,6 +7,7 @@ import { fmt, today, addDays } from '../dates.js';
 import { note as log, me, newAction } from '../model.js';
 import { pharmacyBackup, importBackup, openExample } from './backup.js';
 import { saveFile } from '../ics.js';
+import { items, counts } from '../summary.js';
 register('details', {
   tab: 'more',
   render(c) { const ph = c.ph;
@@ -34,7 +35,7 @@ register('backup', {
 register('pharmacies', {
   tab: 'more',
   render(c) { const d = c.store.dir();
-    return screen({ title: 'Pharmacies', back: true, body: h`<div class="list">${d.ids.map(id => { const p = c.store.pharmacy(id); return p ? row({ title: p.name, sub: p.address || '', right: id === c.ph.id ? 'Open' : 'Switch', tone: id === c.ph.id ? 'ok' : '', act: 'sw', data: { id } }) : ''; })}</div>
+    return screen({ title: 'Pharmacies', back: true, body: h`<div class="list">${d.ids.map(id => { const p = c.store.pharmacy(id); if (!p) return ''; const n = counts(items(p, c.store.drafts(id))).overdue; return row({ title: p.name, sub: (n ? n + ' overdue' : 'Nothing overdue') + (p.address ? ' · ' + p.address : ''), right: id === c.ph.id ? 'Open now' : 'Switch', tone: id === c.ph.id ? 'ok' : '', act: 'sw', data: { id } }); })}</div>
       ${btn('Set up another pharmacy', 'add')}${window.PROPAPP_EXAMPLE ? btn('Open the example pharmacy (fictional)', 'ex', { kind: 'link' }) : ''}` }); },
   acts: { sw: (c, d) => c.open(d.id), ex: c => openExample(c), add: async c => { const dd = c.store.dir(); dd.active = ''; c.store.setDir(dd); await c.store.flush(); c.ui.setupStep = 1; c.ui.setup = null; c.load(); c.rerender(); } },
 });

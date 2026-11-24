@@ -23,7 +23,7 @@ register('staff', {
     const list = all.filter(p => f === 'former' ? p.active === false : f === 'locum' ? p.active !== false && p.engagement === 'Locum' : p.active !== false);
     return screen({ title: 'Staff', right: h`<button class="iconbtn" data-act="go" data-to="person-edit" aria-label="Add a staff member">${icon('plus')}</button>`, body: h`
       <div class="tabs">${[['active', 'Active'], ['locum', 'Locums'], ['former', 'Former']].map(([k, l]) => h`<button class="${k === f ? 'on' : ''}" data-act="f" data-f="${k}">${l} <b>${all.filter(p => k === 'former' ? p.active === false : k === 'locum' ? p.active !== false && p.engagement === 'Locum' : p.active !== false).length}</b></button>`)}</div>
-      <div class="list">${list.length ? list.map(p => { const [s, t] = p.active === false ? ['Left ' + fmt(p.end), ''] : personStatus(p); return row({ title: p.name, sub: p.role + (p.engagement && p.engagement !== 'Regular' ? ' · ' + p.engagement : ''), right: s, tone: t, act: 'go', data: { to: 'person', id: p.id } }); }) : empty(f === 'locum' ? 'No locums recorded. Add one with +, or use the locum check.' : 'Nobody here yet.')}</div>
+      <div class="list">${list.length ? list.map(p => { const [s, t] = p.active === false ? ['Left ' + fmt(p.end), ''] : personStatus(p); return row({ title: p.name, sub: p.role + (p.engagement && p.engagement !== 'Regular' ? ' · ' + p.engagement : ''), right: s, tone: t, act: 'go', data: { to: 'person', id: p.id } }); }) : (f === 'active' ? h`<div class="empty-card"><b>No staff yet</b><span class="muted">Add pharmacists and support staff to keep track of registrations, training and their annual check.</span>${btn('+ Add a staff member', 'go', { kind: 'primary', data: { to: 'person-edit' } })}</div>` : empty(f === 'locum' ? 'No locums recorded. Use the locum quick check below.' : 'Nobody here yet.'))}</div>
       ${f === 'locum' ? btn('Locum on duty · quick check', 'go', { kind: 'secondary', cls: 'block', data: { to: 'locum' } }) : ''}
       <p class="hint">Dates come from your records. Check registrations yourself on the public register.</p>` });
   },
@@ -51,12 +51,12 @@ register('person-edit', {
     const p = c.ph.staff.find(x => x.id === r.id) || { name: '', role: '', engagement: 'Regular', start: '', services: [], annualDue: '' };
     const act = Object.entries(c.ph.services).filter(([, s]) => s.active).map(([id]) => id);
     return screen({ title: r.id ? 'Edit ' + p.name : 'Add staff member', back: true, body: h`<form class="form" data-form="save">
-      ${field('Name', textInput('name', p.name, { required: true }))}${field('Role', select('role', [['', 'Choose…'], ...C.staff.roles.filter(x => !/in charge/i.test(x)).map(x => [x, x])], p.role))}
+      ${field('Name', textInput('name', p.name, { required: true }))}${field('Role', select('role', [['', 'Choose…'], ...C.staff.roles.filter(x => !/in charge/i.test(x)).map(x => [x, x])], c.ui.roleTry ?? p.role), c.ui.roleErr ? h`<span class="err">Choose a role.</span>` : '')}
       ${field('Engagement', select('engagement', C.staff.engagements.map(x => [x, x]), p.engagement))}${field('Start date (optional)', textInput('start', p.start, { type: 'date' }))}
       ${act.length ? h`<fieldset class="field"><legend class="field-label">Services they do</legend><div class="ticks">${act.map(s => h`<label class="tick"><input type="checkbox" name="svc" value="${s}" ${p.services.includes(s) ? h`checked` : ''}><span>${serviceName(s)}</span></label>`)}</div></fieldset>` : ''}
       <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` });
   },
-  forms: { save: (c, f, el, r) => { if (!f.role) { c.toast('Choose a role.'); return; } const svcs = [...el.querySelectorAll('input[name=svc]:checked')].map(i => i.value); let id = r.id;
+  forms: { save: (c, f, el, r) => { if (!f.role) { c.ui.roleErr = true; c.rerender(); document.querySelector('select[name=role]')?.focus(); return; } c.ui.roleErr = false; const svcs = [...el.querySelectorAll('input[name=svc]:checked')].map(i => i.value); let id = r.id;
     c.change(ph => { let p = ph.staff.find(x => x.id === r.id);
       if (!p) { p = { id: uid(), name: '', role: '', engagement: 'Regular', start: '', end: '', active: true, services: [], annualDue: '', checks: {} }; ph.staff.push(p); id = p.id; }
       const changed = p.role && (p.role !== f.role || p.engagement !== f.engagement);

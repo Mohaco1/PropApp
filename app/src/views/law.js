@@ -9,6 +9,11 @@ import { s8Limit, latestStockCheck, activeServices } from '../rules.js';
 import { reviewDue } from '../summary.js';
 import { note as log, me } from '../model.js';
 const L = C.law;
+// Phone numbers and emails as tap-to-call / tap-to-email links (they may do nothing inside some app views, so the text stays too).
+function links(t) { const out = [];
+  for (const m of String(t).matchAll(/\b(1[38]00[\s\d]{6,9}\d|\(?0\d\)?[\s\d]{8,10}\d|13\s?\d{2}\s?\d{2})\b/g)) out.push(h`<a class="btn secondary" href="tel:${m[1].replace(/[^\d]/g, '')}">Call ${m[1].trim()}</a>`);
+  for (const m of String(t).matchAll(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g)) out.push(h`<a class="btn secondary" href="mailto:${m[0]}">Email</a>`);
+  return out; }
 const applies = (ph, o) => !o[5].length || o[5].some(s => activeServices(ph).includes(s));
 register('s8', {
   tab: 'more',
@@ -26,7 +31,8 @@ register('s8', {
   },
 });
 function obRow(ph, o) { const ev = ph.obligations?.[o[0]] || {};
-  return row({ title: o[2], sub: o[1] + (ev.where ? ' · kept: ' + ev.where : ''), right: ev.date ? 'Seen ' + fmt(ev.date) : 'Not seen yet', tone: ev.date ? '' : 'warn', act: 'go', data: { to: 'obligation', id: o[0] } }); }
+  const s8 = /S8|drug register|s 1(0[89]|1[0-9]|2[0-2])\b/.test(o[1] + ' ' + o[2]), lastB1 = s8 ? ph.records.filter(r => r.type === 'B1').map(r => r.date).sort().at(-1) : '';
+  return row({ title: o[2], sub: o[1] + (ev.where ? ' · kept: ' + ev.where : '') + (lastB1 ? ' · last S8 review ' + fmt(lastB1) : ''), right: ev.date ? 'Seen ' + fmt(ev.date) : 'Not seen yet', tone: ev.date ? '' : 'warn', act: 'go', data: { to: 'obligation', id: o[0] } }); }
 register('obligations', {
   tab: 'more',
   render(c) { const rows = L.OBL.filter(o => applies(c.ph, o)), seen = rows.filter(o => c.ph.obligations?.[o[0]]?.date).length;
@@ -46,7 +52,7 @@ register('contacts', {
   render(c) { const act = activeServices(c.ph), dates = L.DATES.filter(d => !d[3]?.length || d[3].some(s => act.includes(s))).sort((a, b) => a[0].localeCompare(b[0]));
     return screen({ title: 'NSW Health dates and contacts', back: true, body: h`
       ${section('Dates that affect you', h`<div class="list">${dates.map(d => row({ title: d[1], sub: d[2], right: fmt(d[0]), tone: d[0] < today() ? '' : '', chev: false }))}</div>`)}
-      ${section('Contacts', h`<div class="list">${L.CONTACTS.map(x => h`<div class="row static"><span class="row-main"><span class="row-title">${x[0]}</span><span class="row-sub sel">${x[1]}</span></span></div>`)}</div>`)}
+      ${section('Contacts', h`<div class="list">${L.CONTACTS.map(x => h`<div class="row static"><span class="row-main"><span class="row-title">${x[0]}</span><span class="row-sub sel">${x[1]}</span><span class="btnrow">${links(x[1])}</span></span></div>`)}</div>`)}
       <p class="hint">Contact details are shown as text: copy them into your phone or email.</p>` }); },
 });
 register('mylog', {

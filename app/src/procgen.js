@@ -8,10 +8,12 @@ const env = { state: {}, sopValues: id => RPH.qm.migrate(id, { ...(cur?.ph.servi
 const { RPH, fsFields, normalise } = install(env);
 // Same adjustments the current app's otp-parts layer makes: one OTP procedure action, no per-part actions.
 (() => { const M = RPH.qm.meta.otp; if (M.otpGovernance) M.otpGovernance.checkTask = 'Finish your OTP procedure (OTP Standards, item 1)'; for (const k of ['incidents', 'incidentProcess', 'films', 'takeawayControls', 'maintenance']) if (M[k]) delete M[k].task; })();
+// The only wording change from the current app: drafts are adopted in Procedures (not "approved in Policies").
+export const procWording = t => String(t).replace('and approve it in Policies.', 'and adopt it in Procedures.').replace(/\(Policies\)/g, '(Procedures)');
 export function draftText(ph, id) {
   const t = RPH.proc.templates[id]; if (!t) return '';
   cur = { ph }; env.state.pharmacyName = ph.name; env.state.serviceLead = ph.lead || ''; env.state.siteScope = ph.siteScope || {}; env.state.active = Object.keys(ph.services).filter(k => ph.services[k].active);
-  try { const text = RPH.proc.build(id, t); return text.split('\n').filter(l => !/Full Draft 0\.2|workflow handover/i.test(l)).join('\n'); } finally { cur = null; }
+  try { const text = RPH.proc.build(id, t); return procWording(text.split('\n').filter(l => !/Full Draft 0\.2|workflow handover/i.test(l)).join('\n')); } finally { cur = null; }
 }
 // Items still marked [Confirm: …] or "— verify": adoption is blocked while any remain (owner decision, current app).
 export function blockers(text) {

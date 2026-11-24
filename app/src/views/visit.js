@@ -2,7 +2,7 @@
 // One check per screen, big answers, "Last time" and "still open" from earlier visits, finish lists what's missing.
 import { register } from '../app.js';
 import { h } from '../util.js';
-import { screen, btn, field, textInput, textArea, choice, note, why, row, empty } from '../ui.js';
+import { screen, btn, field, textInput, textArea, choice, note, why, row, empty, select } from '../ui.js';
 import { C } from '../content.js';
 import { fmt, today, addDays, addMonths, dueText, isDate } from '../dates.js';
 import { activeServices } from '../rules.js';
@@ -80,7 +80,8 @@ register('visit', {
       ${last ? note(h`Last time (${fmt(last.date)}): ${last.text}${last.closed ? ' · fixed ' + fmt(last.closed) : ''}`, last.closed ? 'ok' : 'warn') : ''}
       ${stillOpen.map(x => h`<div class="card wait"><p class="eyebrow">Still open from an earlier visit</p><p>${x.title}</p>${btn('Seen the fix? Close it', 'ws', { data: { id: x.id } })}</div>`)}
       <form data-form="ans" class="form" data-change="ans">${choice('status', ANS.map(([v, l]) => ({ value: v, label: l })), a.status || '', { issueValues: ['issue'] })}
-        ${a.status === 'issue' ? h`${field('What did you find?', textArea('text', a.text || '', { rows: 2 }))}${field('Fix by', textInput('due', a.due || addDays(today(), 30), { type: 'date' }))}` : ''}
+        ${a.status === 'issue' ? h`${field('What did you find?', textArea('text', a.text || '', { rows: 2 }))}${field('Fix by', textInput('due', a.due || addDays(today(), 30), { type: 'date' }))}
+          ${(() => { const open = Object.values(c.ph.actions).filter(x => x.status === 'open'); return open.length ? field('Already an open action for this?', select('link', [['', 'No, raise a new action'], ...open.map(x => [x.id, 'Link to: ' + x.title.slice(0, 70)])], a.link || '')) : ''; })()}` : ''}
         ${a.status === 'verify' ? field('What do you need to check?', textArea('text', a.text || '', { rows: 2 })) : ''}
         ${!it.core && ['staged', 'vaccination'].includes(it.service) && a.status && a.status !== 'na' ? field('Evidence reference (optional)', textInput('ref', a.ref || '', { placeholder: 'Where you saw it, e.g. fridge log folder' })) : ''}
         ${it.service === 'vaccination' ? vacc(d.vacc || {}) : ''}
@@ -89,7 +90,7 @@ register('visit', {
   },
   changes: {
     ans: (c, el, r) => { const form = el.closest('form'); const k = key(r.extra), d = structuredClone(c.draft(k)); const its = visitItems(c.ph), f0 = its.findIndex(x => !d.items[x.key]?.status), it = its[d.step ?? (f0 < 0 ? 0 : f0)]; const f = Object.fromEntries(new FormData(form));
-      d.items[it.key] = { ...(d.items[it.key] || {}), status: f.status || '', text: f.text ?? d.items[it.key]?.text ?? '', due: f.due ?? d.items[it.key]?.due ?? '', ref: f.ref ?? d.items[it.key]?.ref ?? '' };
+      d.items[it.key] = { ...(d.items[it.key] || {}), status: f.status || '', text: f.text ?? d.items[it.key]?.text ?? '', due: f.due ?? d.items[it.key]?.due ?? '', ref: f.ref ?? d.items[it.key]?.ref ?? '', link: f.link ?? d.items[it.key]?.link ?? '' };
       if ('vaccEvent' in f || 'vaccSighted' in f) d.vacc = { event: f.vaccEvent || '', sighted: f.vaccSighted || '', auditDate: f.vaccDate || '' };
       d.step = its.indexOf(it);
       const redraw = (f.status || '') !== (c.draft(k).items[it.key]?.status || '') || ('vaccSighted' in f && f.vaccSighted !== c.draft(k).vacc?.sighted);
@@ -130,6 +131,7 @@ function save(c, r) {
       answers: items.map(it => { const a = d.items[it.key]; return { item: it.key, text: it.title, answer: C.visit.answerText[a.status] || a.status, note: (a.text || '').trim(), ref: a.ref || '' }; }),
       fields: { vacc: d.vacc || {} } });
     for (const it of items) { const a = d.items[it.key]; if (a.status !== 'issue') continue;
+      if (a.link && ph.actions[a.link]?.status === 'open') { const la = ph.actions[a.link]; la.log.push({ at: new Date().toISOString(), by: rec.by, kind: 'updated', text: 'Seen again at the ' + (r.extra ? 'extra visit' : 'site visit') + ' on ' + d.date + ': ' + a.text.trim() }); rec.actionIds.push(la.id); continue; }
       const ac = newAction(ph, { title: a.text.trim(), due: a.due, source: { type: 'visit', recordId: rec.id, label: (r.extra ? 'Extra visit' : 'Site visit') + ' · ' + d.date, item: it.title } }); rec.actionIds.push(ac.id); }
     if (!r.extra && isDate(f.next)) ph.schedule.Q1 = f.next;
   }, 'Visit saved');

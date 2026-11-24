@@ -12,6 +12,7 @@ async function phone(opts = {}) {
 }
 let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) fails++; };
 const done = async (b, errors) => { ok(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.slice(0, 3).join(' | ') : '')); await b.close(); console.log(fails ? fails + ' FAILED' : 'ALL PASS'); process.exit(fails ? 1 : 0); };
-const tap = (p, text, scope = 'body') => p.locator(scope).getByRole('button', { name: text }).first().click();
+// Tap a button by its exact name first (so 'Reviews' means the tab, not a line that mentions reviews), else by partial name.
+const tap = async (p, text, scope = 'body') => { const exact = p.locator(scope).getByRole('button', { name: text, exact: true }); if (await exact.count()) return exact.first().click(); return p.locator(scope).getByRole('button', { name: text }).first().click(); };
 const text = p => p.evaluate(() => document.body.innerText);
 module.exports = { phone, ok, done, tap, text, APP };

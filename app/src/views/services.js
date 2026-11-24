@@ -4,11 +4,13 @@ import { register } from '../app.js';
 import { h } from '../util.js';
 import { screen, btn, row, field, textInput, textArea, choice, note, why, empty, pill } from '../ui.js';
 import { C } from '../content.js';
-import { RPH, visibleFields, tidyAnswers } from '../procgen.js';
+import { RPH, visibleFields, tidyAnswers, draftText } from '../procgen.js';
+import { uid } from '../util.js';
 import { catalog, applies, serviceName, suggestedNext } from '../rules.js';
 import { today, addDays, fmt } from '../dates.js';
 import { note as log, newAction } from '../model.js';
 const NV = 'Needs verification';
+const procWord = t => String(t).replace(/\(Policies\)/g, '(Procedures)').replace(/\bin Policies\b/g, 'in Procedures');
 const ROLE_SHOW = v => v === 'Pharmacist in charge' ? 'The pharmacist on duty' : v; // owner decision: no pharmacist-in-charge role
 const show = (id, k, v) => ROLE_SHOW(RPH.qm.showFor(id, k, v));
 const split = v => RPH.qm.split(v);
@@ -33,13 +35,14 @@ register('services', {
     const lead = needsLead(c.ph);
     return screen({ title: 'Services', back: true, body: h`
       <p class="muted">Each service asks a few questions about how your pharmacy does it. Your answers write its draft procedure and set its reviews.</p>
+      ${c.ui.justDone && act.some(k => S[k].setup !== 'done') ? (() => { const nx = act.find(k => S[k].setup !== 'done'); return h`<div class="card hero"><p class="eyebrow">${serviceName(c.ui.justDone)} is set up</p><h2>Next: ${serviceName(nx)}</h2><div class="btnrow">${btn('Set up ' + serviceName(nx), 'open', { kind: 'primary', data: { id: nx } })}${btn('Back to Today', 'tab', { data: { tab: 'today' } })}</div></div>`; })() : c.ui.justDone ? note('All your services are set up.', 'ok') : ''}
       ${lead ? h`<div class="card hero"><h2>Who runs your services day to day?</h2><p class="muted">Asked once and used for every service.</p>${btn('Answer', 'go', { kind: 'primary', data: { to: 'lead' } })}</div>` : ''}
-      <div class="list">${act.length ? act.map(id => { const s = S[id], p = serviceProgress(c.ph, id); const st = s.setup === 'done' ? ['Done', 'ok'] : p.n ? ['In progress · ' + p.n + ' of ' + p.total, 'warn'] : ['To do', ''];
+      <div class="list">${act.length ? act.map(id => { const s = S[id], p = serviceProgress(c.ph, id); const st = s.setup === 'done' ? ['Done', 'ok'] : p.n && p.n >= p.total ? ['Answered · tap to finish', 'warn'] : p.n ? ['In progress', 'warn'] : ['To do', ''];
         return row({ title: serviceName(id), sub: p.later ? p.later + ' to check later' : '', right: st[0], tone: st[1], act: 'open', data: { id } }); }) : empty('No services yet.')}</div>
       ${why('Add a service · ' + off.length, h`<div class="list">${off.map(s => row({ title: s.name, sub: s.frequency, right: 'Add', act: 'add', data: { id: s.id } }))}</div>`)}` });
   },
   acts: {
-    open: (c, d) => c.go(c.ph.services[d.id].setup === 'done' ? 'service' : 'service-setup', { id: d.id }),
+    open: (c, d) => { c.ui.justDone = null; c.go(c.ph.services[d.id].setup === 'done' ? 'service' : 'service-setup', { id: d.id }); },
     add: (c, d) => { c.change(ph => { ph.services[d.id] = { ...(ph.services[d.id] || { answers: {} }), active: true, setup: 'todo' }; log(ph, 'Service added · ' + serviceName(d.id)); }, serviceName(d.id) + ' added'); },
   },
 });
@@ -81,15 +84,17 @@ register('service-setup', {
       ${field('Where exactly? (optional)', textInput('d', detail, { placeholder: 'e.g. DAA consent folder, dispensary shelf 2' }), 'Used in the procedure so anyone can find it.')}
       <label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
     else if (k === 'proc') { const p = RPH.sq.PROC[id][f.key]; input = h`${choice('v', [{ value: 'Draft it for me', label: 'Draft it for me' }, { value: 'We have our own procedure', label: 'We have our own procedure' }, { value: NV, label: 'Check later' }], v.split(':')[0])}
-      ${v.startsWith('We have our own') ? field('Where is it kept?', textInput('d', v.split(':').slice(1).join(':').trim())) : ''}${why('What “Draft it for me” writes', p.text)}`; }
+      ${v.startsWith('We have our own') ? field('Where is it kept?', textInput('d', v.split(':').slice(1).join(':').trim())) : ''}${why('What “Draft it for me” writes', procWord(p.text))}`; }
     else input = h`${textInput('d', v === NV ? '' : v, { placeholder: 'Type your answer' })}<label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`;
-    return screen({ title: serviceName(id), back: true, saved: 'Saved', body: h`${prog}<p class="steps">Question ${idx + 1} of ${fs.length}</p>
-      <form class="form" data-form="next" data-change="ans"><p class="qtext">${label}</p>${m.note ? h`<p class="muted">${m.note}</p>` : ''}${input}</form>
-      <div class="btnrow">${btn('Previous', 'step', { data: { s: idx - 1 }, disabled: idx === 0 })}${btn(idx === fs.length - 1 ? 'Finish' : 'Next', 'step', { kind: 'primary', data: { s: idx + 1 } })}</div>` });
+    const maxQ = (C.services.setupFields[id] || []).length;
+    return screen({ title: serviceName(id), back: true, saved: 'Saved', body: h`${prog}<p class="steps">Question ${idx + 1}${maxQ > fs.length ? ' · more may follow, depending on your answers' : ' of ' + fs.length}</p>
+      <form class="form" data-form="next" data-change="ans"><p class="qtext">${procWord(label)}</p>${m.note ? h`<p class="muted">${procWord(m.note)}</p>` : ''}${input}</form>
+      ${c.ui.returnTo?.id === id ? h`<div class="btnrow">${btn('Save and back to the procedure', 'ret', { kind: 'primary', cls: 'block' })}</div>` : h`<div class="btnrow">${btn('Previous', 'step', { data: { s: idx - 1 }, disabled: idx === 0 })}${btn(idx === fs.length - 1 ? 'Finish' : 'Next', 'step', { kind: 'primary', data: { s: idx + 1 } })}</div>`}` });
   },
-  changes: { ans: (c, el, r) => { const form = el.closest('form'), id = r.id, fs = fieldsFor(c.ph, id), a = c.ph.services[id].answers || {};
+  changes: { ans: (c, el, r, ev) => { const form = el.closest('form'), id = r.id, fs = fieldsFor(c.ph, id), a = c.ph.services[id].answers || {};
     const idx = Math.min(c.ui['ss:' + id] ?? fs.findIndex(f => !answered(a, f.key)), fs.length); const f = fs[idx < 0 ? 0 : idx]; if (!f) return;
-    const k = kindOf(id, f), fd = new FormData(form), d = (fd.get('d') || '').toString().trim(), nv = fd.get('nv');
+    // A real answer always replaces "Check later"; ticking "Check later" itself sets it.
+    const k = kindOf(id, f), fd = new FormData(form), d = (fd.get('d') || '').toString().trim(), nv = ev?.target?.name === 'nv' ? fd.get('nv') : (ev?.target?.name ? null : fd.get('nv'));
     let v;
     if (nv) v = NV;
     else if (k === 'routes') v = fd.getAll('m').join(',');
@@ -101,18 +106,26 @@ register('service-setup', {
     c.change(ph => { const s = ph.services[id]; s.answers = { ...s.answers, [f.key]: v }; if (s.setup === 'todo') s.setup = 'doing';
       if (k === 'routes') { const r = split(v); ph.flags = { ...ph.flags, house: r.includes('house'), routeA: r.includes('routeA'), routeB: r.includes('routeB') }; } });
     c.ui['ss:' + id] = idx; if (before !== v) c.rerender(); } },
+  forms: { fin: (c, f, el, r) => finishService(c, r.id, f) },
   acts: { vall: (c, d, el) => { const fs = el.closest('fieldset'); fs.querySelectorAll('input[type=checkbox]').forEach(i => { i.checked = true; }); fs.closest('form').dispatchEvent(new Event('change', { bubbles: true })); },
     step: (c, d, el, r) => { c.ui['ss:' + r.id] = Math.max(0, +d.s); c.rerender(); window.scrollTo(0, 0); },
-    finish: (c, d, el, r) => finishService(c, r.id), dates: (c, d, el, r) => saveDates(c, r.id) },
+    finish: (c, d, el, r) => finishService(c, r.id),
+    ret: (c, d, el, r) => { c.ui.returnTo = null; c.ui['ss:' + r.id] = undefined;
+      c.change(ph => { const p = ph.procedures.find(x => x.service === r.id); if (!p || p.status === 'adopted') return; const v = p.versions.at(-1), t = draftText(ph, r.id);
+        if (!v.edited && t && t !== v.generated) { const m = String(v.v).match(/^(\d+)\.(\d+)/); p.versions.push({ v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }); log(ph, 'Procedure redrafted from a setup answer · ' + serviceName(r.id)); } }, 'Saved. The draft is updated.');
+      c.back(); } },
 });
 function svcReviews(ph, id) { return catalog().filter(a => a.service === id); }
 function doneScreen(c, id, prog) {
-  const p = serviceProgress(c.ph, id), revs = svcReviews(c.ph, id);
+  const p = serviceProgress(c.ph, id), probe = { ...c.ph, services: { ...c.ph.services, [id]: { ...c.ph.services[id], active: true } } };
+  const revs = svcReviews(c.ph, id).filter(a => !a.event && applies(probe, a).applies), events = svcReviews(c.ph, id).filter(a => a.event);
   return screen({ title: serviceName(id), back: true, body: h`${prog}<h2 class="big-title">What happens next</h2>
     ${p.later ? note(p.later + (p.later === 1 ? ' answer is' : ' answers are') + ' marked “Check later”. They stay on Today until you confirm them.', 'warn') : note('Every question answered.', 'ok')}
-    <section class="sec"><h2 class="sec-title">Its reviews</h2><div class="list">${revs.map(a => { const ap = applies({ ...c.ph, services: { ...c.ph.services, [id]: { ...c.ph.services[id], active: true } } }, a); return row({ title: a.name, sub: ap.applies ? a.frequency + (c.ph.schedule[a.id] ? ' · due ' + fmt(c.ph.schedule[a.id]) : ' · first due ' + fmt(suggestedNext(c.ph, a.id, today()) || today())) : ap.why, chev: false }); })}</div></section>
-    <section class="sec"><h2 class="sec-title">Its procedure</h2><p class="muted">A draft is written from your answers in Procedures. Nothing is approved until you adopt it.</p></section>
-    ${btn('Finish ' + serviceName(id), 'finish', { kind: 'primary', cls: 'block' })}` });
+    <form class="form" data-form="fin">
+    ${revs.length ? h`<section class="sec"><h2 class="sec-title">Its reviews · first dates</h2><p class="muted">Suggested dates. Change any of them.</p>${revs.map(a => field(a.name + ' · ' + a.frequency.toLowerCase(), textInput('d:' + a.id, c.ph.schedule[a.id] || suggestedNext(c.ph, a.id, today()), { type: 'date', min: today() })))}</section>` : ''}
+    ${events.length ? h`<p class="muted">${events.map(a => a.name).join(', ')}: done when you start or change the service.</p>` : ''}
+    <section class="sec"><h2 class="sec-title">Its procedure</h2><p class="muted">Finishing writes a draft procedure from your answers (version 0.1) in Procedures. Nothing is adopted until you say so.</p></section>
+    <div class="dock-inline">${btn('Save dates and finish', null, { kind: 'primary', type: 'submit', cls: 'block' })}</div></form>` });
 }
 // Setup actions (current app's "setup-answer-tasks" rule): a 2026 checklist with unticked items raises one action, and
 // some answers raise a follow-up. Due in 30 days (otp-parts rule). Never raised twice while one is open.
@@ -126,11 +139,12 @@ export function setupActions(ph, id) {
     for (const [value, text] of Object.entries(m.task || {})) if (RPH.qm.has(a[k], value) && !open(k)) newAction(ph, { title: text + ' · ' + serviceName(id), due: addDays(today(), 30), source: { type: 'service', service: id, issue: k, label: serviceName(id) + ' setup' } });
   }
 }
-function finishService(c, id) {
+function finishService(c, id, f = {}) {
   c.change(ph => { const s = ph.services[id]; s.answers = tidyAnswers(ph, id, { ...s.answers }); s.setup = 'done'; setupActions(ph, id);
-    for (const a of catalog().filter(x => x.service === id && !x.event)) if (!ph.schedule[a.id] && applies(ph, a).applies) ph.schedule[a.id] = suggestedNext(ph, a.id, today());
-    log(ph, 'Setup finished · ' + serviceName(id)); }, serviceName(id) + ' set up. Its review dates are in the Calendar.');
-  c.ui['ss:' + id] = undefined; c.replace('service', { id });
+    for (const a of catalog().filter(x => x.service === id && !x.event)) { if (!applies(ph, a).applies) continue; const v = f['d:' + a.id]; if (v) ph.schedule[a.id] = v; else if (!ph.schedule[a.id]) ph.schedule[a.id] = suggestedNext(ph, a.id, today()); }
+    if (!ph.procedures.some(p => p.service === id)) { const t = draftText(ph, id); if (t) ph.procedures.push({ id: uid(), service: id, title: serviceName(id) + ' procedure', status: 'draft', versions: [{ v: '0.1', body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }] }); }
+    log(ph, 'Setup finished · ' + serviceName(id)); }, serviceName(id) + ' set up. Its draft procedure is in Procedures.');
+  c.ui['ss:' + id] = undefined; c.ui.justDone = id; c.replace('services');
 }
 register('service', {
   tab: 'more',
@@ -139,6 +153,7 @@ register('service', {
     const proc = c.ph.procedures.find(p => p.service === id);
     return screen({ title: serviceName(id), back: true, body: h`<p>${pill(s.setup === 'done' ? 'Set up' : 'Setup not finished', s.setup === 'done' ? 'ok' : 'warn')}</p>
       <div class="btnrow">${btn('Edit answers', 'edit')}${btn(proc ? 'Open procedure' : 'Draft its procedure', 'go', { data: { to: 'procedure', id } })}</div>
+      ${id === 'daa' ? btn('Change how DAAs are packed', 'go', { kind: 'link', data: { to: 'tellmeonce' } }) : ''}
       <section class="sec"><h2 class="sec-title">Your answers</h2><div class="list">${fs.map((f, i) => row({ title: RPH.qm.metaFor(id, f.key).label || f.label, sub: a[f.key] === NV ? 'Check later' : a[f.key] ? split(a[f.key]).map(v => (ROUTES.find(r => r[0] === v) || [])[1] || show(id, f.key, v)).join(', ') : 'Not answered', tone: a[f.key] === NV ? 'warn' : '', act: 'q', data: { i } }))}</div></section>
       ${btn('Stop offering this service', 'stop', { kind: 'link' })}` });
   },

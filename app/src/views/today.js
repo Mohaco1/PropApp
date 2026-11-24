@@ -6,8 +6,7 @@ import { items, ranked, counts, sentence } from '../summary.js';
 import { fmt, dueText, today, daysBetween, isDate } from '../dates.js';
 import { C } from '../content.js';
 import { undated } from './services.js';
-const FILTERS = [['overdue', 'Overdue'], ['today', 'Today'], ['started', 'Started'], ['all', 'All']];
-const MORE = [['week', 'Next 7 days'], ['nodate', 'No date'], ['waiting', 'Waiting'], ['tocheck', 'To confirm']];
+const FILTERS = [['overdue', 'Overdue'], ['week', 'This week'], ['waiting', 'Waiting · to confirm'], ['all', 'All']];
 export function openItem(c, it) {
   if (it.kind === 'visit') return c.go('visit-start', { extra: it.ref === 'extra' });
   if (it.kind === 'meeting') return c.go('meeting', { id: it.ref });
@@ -20,7 +19,7 @@ function topCard(c, list) {
   const ph = c.ph;
   const vx = c.draft('visit/extra'), vq = c.draft('visit/quarterly');
   if (vq || vx) { const d = vq || vx, n = Object.values(d.items || {}).filter(s => s?.status).length;
-    return h`<div class="card hero"><p class="eyebrow">Visit in progress</p><h2>${vq ? 'Quarterly visit' : 'Extra visit'} · ${n} checked</h2><p class="muted">Started ${fmt(d.date)}. Your answers are saved on this device.</p>${btn('Resume visit', 'resume-visit', { kind: 'primary', data: { extra: vq ? '' : '1' } })}</div>`; }
+    return h`<div class="card hero warm"><p class="eyebrow">Visit in progress</p><h2>${vq ? 'Quarterly visit' : 'Extra visit'} · ${n} checked</h2><p class="muted">Started ${fmt(d.date)}. Your answers are saved on this device.</p>${btn('Resume visit', 'resume-visit', { kind: 'primary', data: { extra: vq ? '' : '1' } })}</div>`; }
   const todo = Object.entries(ph.services).filter(([, s]) => s.active && s.setup !== 'done');
   if (todo.length) return h`<div class="card hero"><p class="eyebrow">Finish setting up</p><h2>${todo.length === 1 ? '1 service' : todo.length + ' services'} to set up</h2><p class="muted">A few questions each, about how your pharmacy does it. About 3 minutes a service.</p>${btn('Set up services', 'go', { kind: 'primary', data: { to: 'services' } })}</div>`;
   const nd = undated(ph).length;
@@ -33,20 +32,21 @@ function topCard(c, list) {
 }
 export function switcher(c) {
   const n = c.store.dir().ids.length;
-  return h`<button class="iconbtn" data-act="go" data-to="search" aria-label="Search">${icon('search')}</button>${n > 1 ? h`<button class="iconbtn" data-act="go" data-to="pharmacies" aria-label="Switch pharmacy">${icon('home')}</button>` : ''}`;
+  return h`<button class="iconbtn" data-act="go" data-to="search" aria-label="Search">${icon('search')}</button>`;
 }
 register('today', {
   tab: 'today',
   render(c) {
     const all = items(c.ph, c.drafts), n = counts(all), f = c.ui.todayFilter || (n.overdue ? 'overdue' : 'all');
-    const pick = f === 'all' ? all.filter(i => i.bucket !== 'tocheck') : f === 'started' ? all.filter(i => i.started) : f === 'waiting' ? all.filter(i => i.waiting) : all.filter(i => i.bucket === f);
+    const pick = f === 'all' ? all.filter(i => i.bucket !== 'tocheck') : f === 'week' ? all.filter(i => ['today', 'week', 'started'].includes(i.bucket) || (i.started && i.bucket !== 'overdue')) : f === 'waiting' ? all.filter(i => i.waiting || i.bucket === 'tocheck') : f === 'nodate' ? all.filter(i => i.bucket === 'nodate') : all.filter(i => i.bucket === f);
+    const cnt = { overdue: n.overdue, week: all.filter(i => ['today', 'week', 'started'].includes(i.bucket) || (i.started && i.bucket !== 'overdue')).length, waiting: n.waiting + n.tocheck, all: n.all - n.tocheck };
     const s = sentence(all);
     const list = ranked(pick);
     return screen({ title: 'Today', sub: c.ph.name, right: switcher(c), body: h`
       <p class="status"><span class="date">${fmt(today(), { weekday: true })}</span> · <span class="${s.tone}">${s.text}</span>${s.start && s.tone !== 'ok' ? h` Start with ${s.start.title}.` : ''}</p>
       ${topCard(c, all)}
-      <div class="filters" role="tablist">${FILTERS.map(([k, l]) => h`<button role="tab" aria-selected="${String(k === f)}" class="${k === f ? 'on' : ''}" data-act="filter" data-f="${k}"><b>${k === 'all' ? n.all - n.tocheck : n[k]}</b><span>${l}</span></button>`)}</div>
-      <div class="chips">${MORE.map(([k, l]) => h`<button class="chip ${k === f ? 'on' : ''}" data-act="filter" data-f="${k}">${l} · ${n[k]}</button>`)}</div>
+      <div class="filters" role="tablist">${FILTERS.map(([k, l]) => h`<button role="tab" aria-selected="${String(k === f)}" class="${k === f ? 'on' : ''}" data-act="filter" data-f="${k}"><b>${cnt[k]}</b><span>${l}</span></button>`)}</div>
+      ${n.nodate && f !== 'nodate' ? h`<button class="quietline" data-act="filter" data-f="nodate">${n.nodate === 1 ? '1 review has' : n.nodate + ' reviews have'} no date yet · show</button>` : ''}
       <div class="list">${list.length ? list.map(i => row({ title: i.title, sub: i.sub, legal: i.legal, right: i.bucket === 'started' ? 'In progress' : i.started ? 'Started · ' + dueText(i.date) : i.bucket === 'tocheck' ? 'When you can' : dueText(i.date), tone: i.bucket === 'overdue' ? 'bad' : i.bucket === 'today' ? 'warn' : '', act: 'open', data: { key: i.key } })) : empty(f === 'overdue' ? 'Nothing overdue.' : 'Nothing here.')}</div>` })
 
   },

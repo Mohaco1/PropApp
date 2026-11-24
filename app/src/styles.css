@@ -137,3 +137,15 @@ table.cal{width:100%;border-collapse:collapse;font-size:14px} table.cal td,table
 #uat-btn{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:15;min-height:44px;padding:8px 14px;border-radius:999px;border:1px dashed var(--warn);background:var(--warnbg);color:var(--fg);font-weight:600}
 #uat-dlg{border:0;border-radius:14px;padding:16px;width:min(520px,calc(100% - 24px));background:var(--surface);color:var(--fg)}#uat-dlg::backdrop{background:rgb(0 0 0/.5)}
 .uat-h{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:10px}.uat-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:40vh;overflow:auto}
+.daterange{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.print-only{display:none}
+@media print{.nav,.bar,#uat-btn,.toast,.body>*:not(.print-only){display:none!important}.print-only{display:block}.print-only h1{font-size:18px}body{background:#fff;color:#000}table.cal td,table.cal th{border-bottom:1px solid #999;font-size:12px}}
+.err{display:block;color:var(--bad);font-weight:600;font-size:14px;margin-top:4px}
+.ph-switch{display:block;border:0;background:none;padding:12px 0;margin:-12px 0;min-height:44px;text-align:left;cursor:pointer;font:inherit;font-size:13px;color:var(--muted)}
+.quietline{border:0;background:none;color:var(--muted);text-align:left;min-height:44px;padding:0;font:inherit;font-size:15px;text-decoration:underline;cursor:pointer}
+.filters button span{text-align:center;line-height:1.2}
+.card.hero.warm{background:var(--warnbg);border-color:transparent}
+.filters b,.row-right,.status,.pill,.meta{font-variant-numeric:tabular-nums}
+.nav{backdrop-filter:saturate(1.4) blur(8px)}
+body:has(#uat-btn) #app.has-nav{padding-bottom:calc(132px + env(safe-area-inset-bottom,0px))}
+.empty-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:18px;background:var(--surface);border:1px dashed var(--line);border-radius:12px}

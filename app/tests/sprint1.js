@@ -28,6 +28,7 @@ const { phone, ok, done, tap, text } = require('./helpers.js');
   ok(before === after && /What did you find\?/.test(t), `N-03 Issue stays on check ${before} (now ${after}) and asks what you found`);
   await p.fill('textarea[name=text]', 'Two open actions have no due date'); await p.locator('textarea[name=text]').blur(); await p.waitForTimeout(150);
   ok(((await text(p)).match(/Check (\d+) of 14/) || [])[1] === before, 'N-03 still on the same check after typing the finding');
+  ok(await p.locator('select[name=link] option', { hasText: /Link to:/ }).count() >= 1, 'N-03 an issue can be linked to an existing open action');
   await p.getByRole('button', { name: 'Back' }).click();
   // N-01: adopt a ready procedure
   await tap(p, 'More'); await p.getByRole('button', { name: /^Procedures/ }).click(); await p.getByRole('button', { name: /Staged supply/ }).click();

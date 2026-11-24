@@ -34,8 +34,9 @@ const OUT = path.resolve(__dirname, '../shots'); fs.mkdirSync(OUT, { recursive: 
     if (i === 3) await shot('DAA setup · a later question');
     await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(60);
   }
-  await shot('DAA · what happens next'); await p.getByRole('button', { name: /^Finish Dose/ }).click(); await p.waitForTimeout(300); await shot('DAA · service page');
-  await p.getByRole('button', { name: /Draft its procedure|Open procedure/ }).click(); await shot('Procedure · first draft');
+  await shot('DAA · what happens next'); await tap(p, 'Save dates and finish'); await p.waitForTimeout(300); await shot('Services · next service');
+  await p.getByRole('button', { name: /^Dose administration aids/ }).click(); await shot('DAA · service page');
+  await p.getByRole('button', { name: /Open procedure|Draft its procedure/ }).click(); await shot('Procedure · first draft');
   // example pharmacy
   await tap(p, 'More'); await p.getByRole('button', { name: /Pharmacies on this device/ }).click(); await tap(p, 'Open the example pharmacy (fictional)'); await p.waitForTimeout(600);
   await shot('Today · example pharmacy');

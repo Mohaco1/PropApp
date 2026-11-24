@@ -52,10 +52,10 @@ register('action', {
       ${a.waiting ? h`<div class="card wait"><p class="eyebrow">Waiting on someone</p><p>Asked ${fmt(a.waiting.on)}: ${a.waiting.asked}. Check back ${fmt(a.waiting.checkBack)}.</p>
         <div class="btnrow">${btn('It’s arrived · close it', 'mode', { kind: 'primary', data: { m: 'close' } })}${btn('Still waiting · new date', 'mode', { data: { m: 'wait' } })}${btn('Not waiting any more', 'unwait', { kind: 'link' })}</div></div>`
         : h`${btn('Seen the fix · close it', 'mode', { kind: 'primary', cls: 'block', data: { m: 'close' } })}${btn('Waiting on someone', 'mode', { cls: 'block', data: { m: 'wait' } })}`}
-      ${btn('Edit', 'mode', { kind: 'link', data: { m: 'edit' } })}`;
+`;
     if (open && !mode && /Finish your OTP procedure|documented OTP procedures/.test(a.title) && c.ph.services.otp) { const o = otpPartsLeft(c.ph); body = h`${body}<div class="card"><p>${o.left} of ${o.total} OTP Standards parts to write.</p>${btn('Mark the parts', 'go', { data: { to: 'otp-parts' } })}</div>`; }
     const hist = [...(a.log || [])].reverse();
-    return screen({ title: 'Action', back: true, body: h`${body}
+    return screen({ title: 'Action', back: true, right: open && !mode ? h`<button class="btn link" data-act="mode" data-m="edit">Edit</button>` : '', body: h`${body}
       <details class="why"><summary>Full history · ${hist.length}</summary><ol class="timeline">${hist.map(e => h`<li><span class="muted">${fmt(String(e.at).slice(0, 10))}${e.by ? ' · ' + e.by : ''}</span><span>${e.text}</span></li>`)}</ol></details>` });
   },
   acts: {

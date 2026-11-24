@@ -11,7 +11,7 @@ register('more', {
   render(c) {
     const R = (t, s, to, ic) => h`<button class="row" data-act="go" data-to="${to}">${icon(ic)}<span class="row-main"><span class="row-title">${t}</span><span class="row-sub">${s}</span></span>${icon('chev', 'chev')}</button>`;
     return screen({ title: 'More', sub: c.ph.name, body: h`
-      ${section('Plan', h`<div class="list">${R('Calendar', 'This week, next week and the year', 'calendar', 'cal')}${R('Meetings', 'Staff safety, check-ins, governance', 'meetings', 'people')}</div>`)}
+      ${section('Plan', h`<div class="list">${R('Calendar', 'This week, next week and the year', 'calendar', 'cal')}${R('Meetings', 'Staff safety, check-ins, governance', 'meetings', 'staff')}</div>`)}
       ${section('Rules', h`<div class="list">${R('S8 at a glance', 'Inventory, storage, register, keys and codes', 's8', 'lock')}${R('Legal obligations', 'Each Regulation section that applies here', 'obligations', 'shield')}${R('NSW Health dates and contacts', 'Who to call and when', 'contacts', 'bell')}${R('Procedures', 'Drafts from your setup answers, and adopted versions', 'procedures', 'doc')}</div>`)}
       ${section('Proof', h`<div class="list">${R('History', 'Everything recorded, with a readable export', 'history', 'history')}${R('My log', 'What you reported or sent, and to whom', 'mylog', 'log')}</div>`)}
       ${section('Your pharmacy', h`<div class="list">${R('Pharmacy details', c.ph.address || 'Name, address, owners', 'details', 'home')}${R('Services', Object.values(c.ph.services).filter(s => s.active).length + ' offered', 'services', 'box')}${R('Bought, selling or closing', 'What NSW Health requires', 'changes', 'gear')}${R('Backup and devices', c.ph.settings.lastBackup ? 'Last backup ' + fmt(c.ph.settings.lastBackup.slice(0, 10)) : 'No backup yet', 'backup', 'backup')}${c.store.dir().ids.length > 1 || true ? R('Pharmacies on this device', c.store.dir().ids.length + ' here', 'pharmacies', 'home') : ''}</div>`)}
@@ -35,24 +35,30 @@ register('calendar', {
   acts: { v: (c, d) => { c.ui.calV = d.v; c.rerender(); }, open: async (c, d) => { const { openItem } = await import('./today.js'); const it = items(c.ph, c.drafts).find(i => i.key === d.key); if (it) openItem(c, it); },
     ics: c => { const ok = saveFile(c.ph.name.replace(/\W+/g, '-') + '-due-dates.ics', ics(c.ph, c.drafts), 'text/calendar'); c.toast(ok ? 'Calendar file ready. If nothing downloads here, open PropApp in your phone’s browser.' : 'Downloads are blocked here.'); } },
 });
+const filtered = c => { const q = (c.ui.histQ || '').toLowerCase(), type = c.ui.histT || 'all', from = c.ui.histFrom || '', thru = c.ui.histThru || ''; return historyRows(c.ph).filter(r => (type === 'all' || r.type === type) && (!q || (r.title + ' ' + r.detail + ' ' + r.by).toLowerCase().includes(q)) && (!from || r.date >= from) && (!thru || r.date <= thru)); };
 register('history', {
   tab: 'more',
   render(c) {
     const q = (c.ui.histQ || '').toLowerCase(), type = c.ui.histT || 'all', all = historyRows(c.ph);
-    const rows = all.filter(r => (type === 'all' || r.type === type) && (!q || (r.title + ' ' + r.detail + ' ' + r.by).toLowerCase().includes(q)));
+    const from = c.ui.histFrom || '', thru = c.ui.histThru || '';
+    const rows = all.filter(r => (type === 'all' || r.type === type) && (!q || (r.title + ' ' + r.detail + ' ' + r.by).toLowerCase().includes(q)) && (!from || r.date >= from) && (!thru || r.date <= thru));
     const types = ['all', ...new Set(all.map(r => r.type))], n = c.ui.histN || 40;
     return screen({ title: 'History', back: true, body: h`
       <label class="search">${icon('search')}<input class="input" name="q" type="search" placeholder="Search history" value="${c.ui.histQ || ''}" data-input="q" autocomplete="off"></label>
       <div class="chips">${types.map(t => h`<button class="chip ${t === type ? 'on' : ''}" data-act="t" data-t="${t}">${t === 'all' ? 'All' : t}</button>`)}</div>
+      <div class="daterange">${field('From', h`<input class="input" type="date" name="from" value="${from}" data-change="from">`)}${field('Through', h`<input class="input" type="date" name="thru" value="${thru}" data-change="thru">`)}</div>
       <p class="muted">${rows.length} ${rows.length === 1 ? 'entry' : 'entries'} · kept on this device</p>
-      <div class="btnrow">${btn('Download CSV', 'csv')}${btn('Copy as text', 'copy')}</div>
+      <div class="btnrow">${btn('Download CSV', 'csv')}${btn('Print or save as PDF', 'print')}${btn('Copy as text', 'copy')}</div>
+      <div class="print-only"><h1>${c.ph.name} · history${from || thru ? ' · ' + (from ? fmt(from) : 'start') + ' to ' + (thru ? fmt(thru) : 'today') : ''}</h1><table class="cal"><tr><th>Date</th><th>Type</th><th>What</th><th>Status</th><th>By</th><th>Details</th></tr>${rows.map(r => h`<tr><td>${fmt(r.date)}</td><td>${r.type}</td><td>${r.title}</td><td>${r.status}</td><td>${r.by}</td><td>${r.detail}</td></tr>`)}</table></div>
       <div class="list">${rows.slice(0, n).map(r => row({ title: r.title, sub: [r.type, r.status, r.detail].filter(Boolean).join(' · '), right: fmt(r.date), act: r.type === 'Action' ? 'act' : r.id ? 'rec' : '', data: { id: r.id }, chev: !!r.id }))}</div>
       ${rows.length > n ? btn('Show more', 'more', { kind: 'link' }) : ''}` });
   },
   inputs: { q: (c, el) => { c.ui.histQ = el.value; c.rerender(); } },
+  changes: { from: (c, el) => { c.ui.histFrom = el.value; c.rerender(); }, thru: (c, el) => { c.ui.histThru = el.value; c.rerender(); } },
   acts: { t: (c, d) => { c.ui.histT = d.t; c.rerender(); }, more: c => { c.ui.histN = (c.ui.histN || 40) + 60; c.rerender(); }, act: (c, d) => c.go('action', { id: d.id }), rec: (c, d) => c.go('record', { id: d.id }),
-    csv: c => { const ok = saveFile('history-' + c.ph.name.replace(/\W+/g, '-') + '-' + today() + '.csv', csv(c.ph, historyRows(c.ph)), 'text/csv'); c.toast(ok ? 'CSV ready' : 'Downloads are blocked here. Use Copy as text.'); },
-    copy: async c => { try { await navigator.clipboard.writeText(printable(c.ph, historyRows(c.ph))); c.toast('Copied'); } catch { c.toast('Copy didn’t work here.'); } } },
+    print: c => { try { window.print(); } catch {} setTimeout(() => c.toast('If no print window opened, open the app file in your browser to print or save a PDF.'), 400); },
+    csv: c => { const ok = saveFile('history-' + c.ph.name.replace(/\W+/g, '-') + '-' + today() + '.csv', csv(c.ph, filtered(c)), 'text/csv'); c.toast(ok ? 'CSV ready' : 'Downloads are blocked here. Use Copy as text.'); },
+    copy: async c => { try { await navigator.clipboard.writeText(printable(c.ph, filtered(c))); c.toast('Copied'); } catch { c.toast('Copy didn’t work here.'); } } },
 });
 
 // Search or jump to: reviews, actions, staff, procedures, legal obligations and setup questions, in one box.

@@ -4,11 +4,15 @@
 import { register } from '../app.js';
 import { h, uid } from '../util.js';
 import { screen, btn, row, field, textArea, note, empty, pill, why } from '../ui.js';
-import { draftText, blockers } from '../procgen.js';
+import { draftText, blockers, procWording, visibleFields } from '../procgen.js';
 import { serviceName } from '../rules.js';
 import { fmt, today } from '../dates.js';
 import { note as log } from '../model.js';
 const current = p => p?.versions?.at(-1);
+// Which setup question fills a "[Confirm: …]" gap: the unanswered or "Check later" question sharing the most words.
+const words = t => new Set(String(t).toLowerCase().match(/[a-z0-9]{4,}/g) || []);
+function bestQuestion(ph, id, gap) { const fs = visibleFields(ph, id, ph.services[id]?.answers || {}), a = ph.services[id]?.answers || {}, g = words(gap);
+  let best = -1, score = 0; fs.forEach((f, i) => { const w = words(f[1]), s = [...g].filter(x => w.has(x)).length + (!a[f[0]] || a[f[0]] === 'Needs verification' ? 0.5 : 0); if (s > score) { score = s; best = i; } }); return score >= 1 ? best : -1; }
 register('procedures', {
   tab: 'more',
   render(c) {
@@ -30,16 +34,16 @@ register('procedure', {
     return screen({ title: serviceName(id) + ' procedure', back: true, body: h`
       <p>${pill(p.status === 'adopted' ? 'Adopted · version ' + v.v : 'Draft ' + v.v, p.status === 'adopted' ? 'ok' : 'warn')} <span class="muted">${fmt(String(v.at).slice(0, 10))}</span></p>
       ${changed ? note(h`Your setup answers changed since this draft. ${btn('Update the draft', 'regen', { kind: 'link' })}`, 'warn') : ''}
-      ${b.length && p.status !== 'adopted' ? h`<section class="sec"><h2 class="sec-title">To confirm before adopting · ${b.length}</h2><div class="list">${b.map(x => row({ title: x.charAt(0).toUpperCase() + x.slice(1), sub: 'Answer it in setup, or edit the wording', act: 'fix' }))}</div></section>` : ''}
+      ${b.length && p.status !== 'adopted' ? h`<section class="sec"><h2 class="sec-title">To confirm before adopting · ${b.length}</h2><div class="list">${b.map(x => row({ title: x.charAt(0).toUpperCase() + x.slice(1), sub: 'Tap to answer it now', act: 'fix', data: { q: x } }))}</div></section>` : ''}
       ${c.ui['ad:' + id] ? h`<div class="card hero"><h2>Adopt version ${adoptVersion(p)} for use here?</h2><p class="muted">This records that you, ${c.ph.proprietors.find(x => x.id === c.ph.recordingAs)?.name || 'the proprietor'}, have read it and it matches how your pharmacy works. You can change it later; earlier versions are kept.</p><div class="btnrow">${btn('Yes, adopt it', 'adoptyes', { kind: 'primary' })}${btn('Cancel', 'adoptno')}</div></div>`
         : h`<div class="btnrow">${btn('Edit', 'mode', { data: { m: 'edit' } })}${p.status !== 'adopted' ? btn('Adopt for use here', 'adopt', { kind: 'primary', disabled: b.length > 0 }) : ''}</div>`}
       ${b.length && p.status !== 'adopted' ? h`<p class="hint">Adopt unlocks when nothing is left to confirm.</p>` : ''}
-      <div class="doc">${v.body}</div>
+      <div class="doc">${v.edited ? v.body : procWording(v.body)}</div>
       ${p.versions.length > 1 ? why('Earlier versions · ' + (p.versions.length - 1), h`<div class="list">${p.versions.slice(0, -1).reverse().map(x => row({ title: 'Version ' + x.v, sub: (x.status || '') + ' · ' + fmt(String(x.at).slice(0, 10)), chev: false }))}</div>`) : ''}` });
   },
   acts: {
     mode: (c, d, el, r) => { c.ui['pm:' + r.id] = d.m; c.rerender(); },
-    fix: (c, d, el, r) => { c.go('service', { id: r.id }); },
+    fix: (c, d, el, r) => { const i = bestQuestion(c.ph, r.id, d.q); if (i < 0) { c.go('service', { id: r.id }); return; } c.ui['ss:' + r.id] = i; c.ui.returnTo = { id: r.id }; c.go('service-setup', { id: r.id }); },
     save: (c, d, el, r) => c.change(ph => { ph.procedures.push({ id: uid(), service: r.id, title: serviceName(r.id) + ' procedure', status: 'draft', versions: [{ v: '0.1', body: draftText(ph, r.id), generated: draftText(ph, r.id), at: new Date().toISOString(), status: 'Draft' }] }); log(ph, 'Procedure drafted · ' + serviceName(r.id)); }, 'Draft saved'),
     regen: (c, d, el, r) => c.change(ph => { const p = ph.procedures.find(x => x.service === r.id), t = draftText(ph, r.id); p.versions.push({ v: next(current(p).v), body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }); p.status = 'draft'; log(ph, 'Procedure redrafted · ' + serviceName(r.id)); }, 'Draft updated'),
     adopt: (c, d, el, r) => { const p = c.ph.procedures.find(x => x.service === r.id); if (blockers(current(p).body).length) return; c.ui['ad:' + r.id] = true; c.rerender(); },
