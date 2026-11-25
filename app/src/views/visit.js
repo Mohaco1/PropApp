@@ -131,7 +131,7 @@ function save(c, r) {
   if (items.some(it => !d.items[it.key]?.status)) return;
   c.change(ph => {
     const rec = addRecord(ph, { type: 'Q1', kind: 'visit', extra: !!r.extra, title: r.extra ? 'Extra site visit' : 'Site visit', date: d.date, notes: (f.notes || '').trim(), next: r.extra ? '' : f.next,
-      answers: items.map(it => { const a = d.items[it.key]; return { item: it.key, text: it.title, answer: C.visit.answerText[a.status] || a.status, note: (a.text || '').trim(), ref: a.ref || '' }; }),
+      answers: items.map(it => { const a = d.items[it.key]; return { item: it.key, text: it.title, answer: C.visit.answerText[a.status] || a.status, isIssue: a.status === 'issue', note: (a.text || '').trim(), ref: a.ref || '' }; }),
       fields: { vacc: d.vacc || {}, serviceEvidence: Object.fromEntries(items.filter(it => !it.core && d.items[it.key]?.ev).map(it => [it.service, { status: d.items[it.key].ev, ref: d.items[it.key].ref || '' }])) } });
     for (const it of items) { const a = d.items[it.key]; if (a.status !== 'issue') continue;
       if (a.link && ph.actions[a.link]?.status === 'open') { const la = ph.actions[a.link]; la.log.push({ at: new Date().toISOString(), by: rec.by, kind: 'updated', text: 'Seen again at the ' + (r.extra ? 'extra visit' : 'site visit') + ' on ' + d.date + ': ' + a.text.trim() }); rec.actionIds.push(la.id); continue; }

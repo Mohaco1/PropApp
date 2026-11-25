@@ -5,6 +5,7 @@ import { h } from '../util.js';
 import { screen, btn, row, field, textInput, textArea, choice, note, why, empty, select, icon } from '../ui.js';
 import { C } from '../content.js';
 import { catalog, reviewById, applies, suggestedNext, s8Limit, LEGAL, serviceName } from '../rules.js';
+import { addMonths } from '../dates.js';
 import { reviewDue, bucket } from '../summary.js';
 import { fmt, today, addDays, dueText, isDate } from '../dates.js';
 import { addRecord, newAction, note as log } from '../model.js';
@@ -90,7 +91,7 @@ register('review', {
     q: (c, el, r) => { const d = structuredClone(c.draft(dkey(r.id))); const f = Object.fromEntries(new FormData(el.closest('form'))); const s = d.step || 0; const before = d.answers[s];
       d.answers[s] = f.ans || ''; d.issues ??= {}; d.notesQ ??= {}; if ('issue' in f) d.issues[s] = { text: f.issue, due: f.due }; if ('note' in f) d.notesQ[s] = f.note;
       c.saveDraft(dkey(r.id), d); if (before !== d.answers[s]) c.rerender(); },
-    fin: (c, el, r) => { const d = structuredClone(c.draft(dkey(r.id))); d.fields = { ...(d.fields || {}), ...Object.fromEntries(new FormData(el.closest('form'))) }; c.saveDraft(dkey(r.id), d); if (r.id === 'B1' && el.name === 'stockDate') c.rerender(); },
+    fin: (c, el, r, e) => { const d = structuredClone(c.draft(dkey(r.id))); d.fields = { ...(d.fields || {}), ...Object.fromEntries(new FormData(el.closest('form'))) }; c.saveDraft(dkey(r.id), d); if (r.id === 'B1' && e?.target?.name === 'stockDate') c.rerender(); }, // el is the form; the changed field is e.target
   },
   acts: {
     start: (c, d, el, r) => { c.saveDraft(dkey(r.id), { date: today(), answers: {}, step: 0 }); c.rerender(); },
@@ -102,28 +103,35 @@ register('review', {
 function finishReview(c, a, d, qs, prog) {
   const fields = d.fields || {}, missing = qs.map((q, i) => i).filter(i => !d.answers[i] || (qs[i].options.find(o => o.value === d.answers[i])?.issue && !d.issues?.[i]?.text?.trim()));
   const issues = qs.filter((q, i) => q.options.find(o => o.value === d.answers[i])?.issue).length;
-  const lim = a.id === 'B1' && isDate(fields.stockDate) ? (() => { const x = new Date(fields.stockDate); x.setMonth(x.getMonth() + 3); return x.toISOString().slice(0, 10); })() : '';
+  // R02/R05: an incomplete stock check doesn't move the S8 deadline (the last completed one still sets it); every date
+  // here uses the one calendar-month helper (addMonths), so screens agree across month ends and daylight saving.
+  const inc = a.id === 'B1' && d.answers[0] === 'Incomplete', future = a.id === 'B1' && isDate(fields.stockDate) && fields.stockDate > today();
+  const lim = a.id !== 'B1' ? '' : inc ? s8Limit(c.ph) : isDate(fields.stockDate) && !future ? addMonths(fields.stockDate, 3) : '';
   const sug = a.months ? (a.id === 'B1' ? lim : suggestedNext(c.ph, a.id, d.date)) : '';
-  const ex = EXTRA[a.id] || [], needs = ex.filter(([k, , , req]) => req && !String(fields[k] || '').trim());
+  const ex = (EXTRA[a.id] || []).filter(([k]) => !(inc && (k === 'stockDate' || k === 'stockBy'))), needs = ex.filter(([k, , , req]) => req && !String(fields[k] || '').trim());
   return screen({ title: a.name, back: true, saved: 'Saved', body: h`${prog}<h2 class="big-title">Finish the review</h2>
     ${missing.length ? h`<div class="list">${missing.map(i => row({ title: qs[i].text, sub: d.answers[i] ? 'Say what needs fixing' : 'Not answered yet', act: 'step', data: { s: i } }))}</div>` : note(issues ? issues + (issues === 1 ? ' issue becomes an action.' : ' issues become actions.') : 'Every question answered.', issues ? 'warn' : 'ok')}
     <form class="form" data-form="fin" data-change="fin">
       ${field('Review date', textInput('date', fields.date || d.date, { type: 'date', max: today() }))}
       ${ex.map(([k, l, t, req]) => field(l + (req ? '' : ''), Array.isArray(t) ? select(k, t.map(o => [o, o || 'Choose…']), fields[k] || '') : textInput(k, fields[k] || '', { type: t, max: t === 'date' ? today() : '' })))}
       ${field('Note (optional)', textArea('notes', fields.notes || '', { rows: 2 }))}
-      ${a.months ? field('Next due', textInput('next', fields.next || sug, { type: 'date', max: lim || '' }), a.id === 'B1' ? (lim ? 'The law sets the latest date: 3 months after the stock check (' + fmt(lim) + ').' : 'Enter the stock-check date first. The next date can’t be more than 3 months after it.') : '') : ''}
+      ${a.months ? field('Next due', textInput('next', fields.next || sug, { type: 'date', max: lim || '' }), a.id === 'B1' ? (inc ? (lim ? 'The stock check wasn’t finished, so the deadline stays 3 months after the last completed one (' + fmt(lim) + ').' : 'The stock check wasn’t finished and there’s no completed one on record: arrange it as soon as you can.') : lim ? 'The law sets the latest date: 3 months after the stock check (' + fmt(lim) + ').' : 'Enter the stock-check date first. The next date can’t be more than 3 months after it.') : '') : ''}
     </form>
+    ${future ? note('The stock-check date can’t be in the future.', 'warn') : ''}
     ${needs.length ? note('Still needed: ' + needs.map(x => x[1]).join(', ') + '.', 'warn') : ''}
-    ${btn('Save review', 'save', { kind: 'primary', cls: 'block', disabled: missing.length > 0 || needs.length > 0 })}${btn('Discard', 'discard', { kind: 'link' })}` });
+    ${btn('Save review', 'save', { kind: 'primary', cls: 'block', disabled: missing.length > 0 || needs.length > 0 || future })}${btn('Discard', 'discard', { kind: 'link' })}` });
 }
 function saveReview(c, id) {
   const a = reviewById(id), d = c.draft(dkey(id)), qs = questionsFor(id);
   const form = document.querySelector('form[data-form=fin]'); const f = { ...(d.fields || {}), ...(form ? Object.fromEntries(new FormData(form)) : {}) };
-  if (id === 'B1' && isDate(f.stockDate)) { const lim = (() => { const x = new Date(f.stockDate); x.setMonth(x.getMonth() + 3); return x.toISOString().slice(0, 10); })(); if (f.next > lim) f.next = lim; }
+  if (id === 'B1') { const inc = d.answers[0] === 'Incomplete';
+    if (!inc && isDate(f.stockDate) && f.stockDate > today()) { c.toast('The stock-check date can’t be in the future.'); return; }
+    if (inc) { f.stockIncomplete = true; delete f.stockDate; delete f.stockBy; }
+    const lim = inc ? s8Limit(c.ph) : isDate(f.stockDate) ? addMonths(f.stockDate, 3) : ''; if (lim && f.next > lim) f.next = lim; }
   c.change(ph => {
     const date = f.date || d.date;
     const rec = addRecord(ph, { type: id, kind: 'review', title: a.name, date, notes: (f.notes || '').trim(), next: f.next || '',
-      answers: qs.map((q, i) => ({ text: q.text, answer: d.answers[i], note: (q.options.find(o => o.value === d.answers[i])?.issue ? d.issues?.[i]?.text : d.notesQ?.[i]) || '' })), fields: { ...f } });
+      answers: qs.map((q, i) => ({ text: q.text, answer: d.answers[i], isIssue: !!q.options.find(o => o.value === d.answers[i])?.issue, note: (q.options.find(o => o.value === d.answers[i])?.issue ? d.issues?.[i]?.text : d.notesQ?.[i]) || '' })), fields: { ...f } });
     qs.forEach((q, i) => { if (!q.options.find(o => o.value === d.answers[i])?.issue) return; const it = d.issues[i];
       rec.actionIds.push(newAction(ph, { title: it.text.trim(), due: it.due, source: { type: 'review', recordId: rec.id, label: a.name + ' · ' + date, item: q.text } }).id); });
     if (a.months && isDate(f.next)) ph.schedule[id] = f.next;

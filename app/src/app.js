@@ -28,6 +28,9 @@ function load() {
   const d = store.dir(); S.ph = d.active ? store.pharmacy(d.active) : null; S.drafts = S.ph ? store.drafts(S.ph.id) : {};
 }
 let root;
+// R06: the header's saved indicator says what storage really did: Saving…, Saved, or Save failed (retrying).
+const SAVE = { saving: 'Saving…', saved: 'Saved', failed: 'Save failed · retrying' };
+function showSave(s) { for (const el of document.querySelectorAll('.saved')) { el.textContent = SAVE[s]; el.classList.toggle('bad', s === 'failed'); } }
 export function render(scrollTop = false) {
   env.sites = store.dir().ids.length;
   const r = S.ph ? ctx.route : { name: 'welcome' };
@@ -40,6 +43,7 @@ export function render(scrollTop = false) {
   root.classList.toggle('has-nav', !!showNav);
   if (scrollTop) window.scrollTo(0, 0);
   if (focusName && !scrollTop) { const el = root.querySelector(`[name="${focusName}"]`); if (el) { el.focus(); try { el.setSelectionRange(caret, caret); } catch {} } }
+  showSave(store.saveStatus());
   v.after?.(ctx, r, root);
 }
 function handle(e, type) {
@@ -57,6 +61,7 @@ const common = { acts: {
 export async function start(el) {
   root = el;
   await store.init(() => { load(); render(); });
+  store.watchStatus(s => { showSave(s); if (s === 'failed') ctx.toast('Couldn’t save just now. Trying again; keep this page open.'); });
   startPWA();
   load();
   document.addEventListener('click', e => handle(e, 'click'));

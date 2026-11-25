@@ -297,3 +297,20 @@ From Gemini's "v3 Roadmap" brief, with the owner's decisions of 25 Nov: the evid
 **Example data note:** in the evidence pack, the S8 "Pharmacist" column for Wattle Grove shows "Office filing cabinet, drawer 1 (fictional)". The v41 example generator (`uat/demo`) put a location in the stock-check pharmacist field. The pack reads the right field. `uat/` stays untouched, so this wasn't changed.
 
 **Full run on build 67c049eff2:** 14 suites (adding v3 and pwa), 230 checks, all pass with no console errors. check-procgen-all: all 17 services identical.
+
+## Audit Wave 1 (Codex R01–R08) · 25 Nov 2026 · build c5cf5012fe
+Brief: "PropApp — Audit Fixes (Wave 1 & Wave 2) + V3-05 Clinical Brief" (owner's Drive, read only). Findings come from Codex's read-only code audit and Gemini's visual and PDF audit. The brief asks for Wave 1 first, then commit, push and hand off.
+
+| ID | Status | What was done | Test |
+|---|---|---|---|
+| R01 | Fixed | A restore is now checked in full before anything is written: id, name, records, actions, staff, procedures, history, services, each entry's shape, and the drafts. This applies to both PropApp and old R.Pharmacy backups. The receipt is built from the checked backup first. The pharmacy, drafts and directory are then queued together, so they're written in one storage transaction. A damaged file reads "This backup is damaged (…). Nothing was changed." | wave1 (a damaged copy with Wattle Grove's id is refused; after reload, everything is untouched) |
+| R02 | Fixed | An "Incomplete" S8 check no longer asks for a stock-check date and never counts toward the 3-month deadline (`stockIncomplete`; `latestStockCheck` skips it). The finish screen says the deadline stays 3 months after the last completed check. A future stock-check date is refused. | wave1 |
+| R05 | Fixed | The finish screen and the save used `new Date().setMonth` (local time). Both now use the one UTC calendar-month `addMonths`: 30 Nov 2026 → 28 Feb 2027; 30 Nov 2027 → 29 Feb 2028; 15 Jul → 15 Oct. | wave1 |
+| R03 | Fixed | One shared rule (`src/issues.js`) for History, the CSV and the evidence pack. New answers save an explicit `isIssue` from the question's own definition: reviews, visits, annual checks, locum and leaving checks. Older answers are judged against their review's own questions. "Yes" is never an issue just by being "Yes". | wave1 (fridge records: "Yes" = 0 issues, "No" = 1, in both the pack and the CSV) |
+| R04 | Fixed | The new and edit action forms say "No patient names. For example: 'Check fridge log' or 'Service fire extinguisher'." The calendar file shows actions as "PropApp action due · pharmacy", never their own words. The pack says "Designed for de-identified proprietor records: check your notes before sharing." | wave1 |
+| R08 | Fixed | A conflict copy this window saw and dismissed isn't merged back when saving. One it never saw is still kept. | wave1 (dismiss → another save → reload → still gone) |
+| R06 | Fixed | **Pharmacy saves:** if storage changed since this window last read or wrote it (another tab), the save now does a three-way merge (`merge3`): per field, and per record, action and staff member by id. It no longer overwrites. A message from another tab no longer replaces this window's unsaved change. **Header:** it shows the real state: "Saving…", "Saved" once the write has finished, or "Save failed · retrying", with a retry after 1, 2, 4… up to 30 seconds and a toast. | wave1 (two tabs add different actions; a stale write underneath is merged; Saving… → Saved) |
+
+**A bug the new test found:** the S8 finish screen never redrew when the stock-check date changed, because the handler checked the form's name instead of the field's. So the "latest date" line and the "still needed" note went stale. Fixed.
+
+**Remaining:** Wave 2 (R07, R09–R12, F-V3-01 to F-V3-06) and Wave 3 (marking the TGA and eNRMC links checked, and the V3-05 clinical content) are not started.

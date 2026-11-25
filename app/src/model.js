@@ -71,7 +71,7 @@ export function annualCheck(ph, personId, date, items, next) {
   const answers = [];
   for (const it of items) {
     p.checks[it.id] = { result: it.result, date, method: it.method || '', expiry: it.expiry || '', ref: it.ref || '', note: it.note || '' };
-    answers.push({ id: it.id, text: it.label, answer: it.result, note: it.note || '', expiry: it.expiry || '' });
+    answers.push({ id: it.id, text: it.label, answer: it.result, isIssue: it.result === 'issue', note: it.note || '', expiry: it.expiry || '' });
   }
   p.lastCheck = date; p.annualDue = next || addMonths(date, 12);
   return addRecord(ph, { type: 'A1', kind: 'staff', title: 'Annual check · ' + p.name, date, answers, fields: { personId, next: p.annualDue } });

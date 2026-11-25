@@ -8,7 +8,7 @@ const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive
   const before = JSON.stringify(await saved(p));
   await tap(p, 'More'); await p.getByRole('button', { name: /^Evidence pack/ }).click(); await p.waitForTimeout(300);
   let t = await text(p);
-  ok(/Wattle Grove Pharmacy · evidence pack/.test(t) && /Proprietor: Jordan Avery/.test(t) && /no patient information/.test(t), 'V3-03 the pack has a header: pharmacy, proprietor, period, “no patient information”');
+  ok(/Wattle Grove Pharmacy · evidence pack/.test(t) && /Proprietor: Jordan Avery/.test(t) && /Designed for de-identified proprietor records/.test(t), 'V3-03 the pack has a header: pharmacy, proprietor, period, de-identified framing');
   const secs = await p.evaluate(() => [...document.querySelectorAll('.psec h2')].map(e => e.innerText));
   ok(['Reviews, visits and meetings', 'S8 stock checks', 'Open actions', 'Actions closed', 'Staff', 'Legal obligations', 'Procedures'].every(s => secs.some(x => x.startsWith(s))), 'V3-03 seven sections: reviews, S8 checks, open and closed actions, staff, obligations, procedures');
   ok(/S8 stock checks · [1-9]/.test(secs.join('|')) && /Open actions · [1-9]/.test(secs.join('|')) && /Staff · 4/.test(secs.join('|')), 'V3-03 it reads the example’s records (S8 checks, open actions, 4 staff)');

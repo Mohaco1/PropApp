@@ -8,7 +8,9 @@ export function ics(ph, drafts) {
   for (const it of items(ph, drafts)) {
     // One event per part, each with its own UID (a person can have several items due the same day).
     const dates = it.kind === 'person' ? it.parts.filter(x => isDate(x.date)).map((x, i) => [x.date, it.title + ' · ' + x.title, '-' + (x.key || i)]) : isDate(it.date) ? [[it.date, it.title, '']] : [];
-    for (const [d, title, part] of dates) {
+    for (const [d, rawTitle, part] of dates) {
+      // R04: an action's own words can contain anything, so the calendar only says an action is due.
+      const title = it.kind === 'action' ? 'PropApp action due · ' + ph.name : rawTitle;
       const day = d.replace(/-/g, ''), next = addDays(d, 1).replace(/-/g, '');
       L.push('BEGIN:VEVENT', 'UID:' + esc(ph.id + '-' + it.key + part + '-' + d) + '@propapp', 'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
         'DTSTART;VALUE=DATE:' + day, 'DTEND;VALUE=DATE:' + next, 'SUMMARY:' + esc((it.legal ? '[Required by law] ' : '') + title), 'DESCRIPTION:' + esc('Due at ' + ph.name + '. Open PropApp to record it.'),

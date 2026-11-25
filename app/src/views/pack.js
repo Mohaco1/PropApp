@@ -9,8 +9,8 @@ import { fmt, today, addMonths, isDate, daysBetween } from '../dates.js';
 import { reviewById, activeServices, serviceName } from '../rules.js';
 import { items, counts } from '../summary.js';
 import { requirements, credentialState } from '../model.js';
+import { issueCount } from '../issues.js';
 const L = C.law;
-const ISSUE = /^(Issue|Outstanding|Yes|Gap identified|Unable to verify|Incomplete|Completed with issues|Not yet|Fault or gap|issue)$/;
 const table = (head, rows, empty) => rows.length ? h`<table class="ptable"><thead><tr>${head.map(x => h`<th>${x}</th>`)}</tr></thead><tbody>${rows.map(r => h`<tr>${r.map(x => h`<td>${x}</td>`)}</tr>`)}</tbody></table>` : h`<p class="meta">${empty}</p>`;
 export function packData(ph, drafts, from = addMonths(today(), -12)) {
   const recs = ph.records.filter(r => r.date >= from).sort((a, b) => b.date.localeCompare(a.date));
@@ -18,7 +18,7 @@ export function packData(ph, drafts, from = addMonths(today(), -12)) {
   const n = counts(items(ph, drafts));
   return {
     from, n,
-    reviews: recs.filter(r => r.kind !== 'staff' && r.kind !== 'departure').map(r => [fmt(r.date), r.extra ? 'Extra site visit' : r.title || reviewById(r.type)?.name || r.type, r.by || '', String(r.answers.filter(a => ISSUE.test(a.answer)).length), isDate(r.fields?.next) ? fmt(r.fields.next) : '']),
+    reviews: recs.filter(r => r.kind !== 'staff' && r.kind !== 'departure').map(r => [fmt(r.date), r.extra ? 'Extra site visit' : r.title || reviewById(r.type)?.name || r.type, r.by || '', String(issueCount(r)), isDate(r.fields?.next) ? fmt(r.fields.next) : '']),
     s8: ph.records.filter(r => r.type === 'B1' && r.date >= from).sort((a, b) => b.date.localeCompare(a.date)).map(r => [fmt(r.date), isDate(r.fields?.stockDate) ? fmt(r.fields.stockDate) : '', r.fields?.stockBy || r.fields?.stockPharmacist || '', isDate(r.fields?.next) ? fmt(r.fields.next) : '']),
     open: acts.filter(a => a.status !== 'closed').sort((a, b) => (a.due || '9').localeCompare(b.due || '9')).map(a => [a.title, fmt(a.created), a.due ? fmt(a.due) : '', a.waiting ? 'Waiting · ' + a.waiting.asked : (a.due && a.due < today() ? 'Overdue' : 'Open')]),
     closed: acts.filter(a => a.status === 'closed' && (a.closed?.date || '') >= from).sort((a, b) => b.closed.date.localeCompare(a.closed.date)).map(a => [a.title, fmt(a.closed.date), a.closed.what || '', a.closed.by || '']),
@@ -36,14 +36,15 @@ register('pack', {
   render(c) {
     const ph = c.ph, d = packData(ph, c.drafts);
     const sec = (title, inner) => h`<section class="psec"><h2>${title}</h2>${inner}</section>`;
-    return screen({ title: 'Evidence pack', back: true, body: h`<p class="muted no-print">A summary of what you’ve recorded over the last 12 months, for an inspector or your own records. It has no patient information.</p>
+    return screen({ title: 'Evidence pack', back: true, body: h`<p class="muted no-print">A summary of what you’ve recorded over the last 12 months, for an inspector or your own records. Check your notes for patient details before sharing it.</p>
       <div class="dock-inline no-print">${btn('Print or save as PDF', 'print', { kind: 'primary', cls: 'block' })}</div>
       <p class="hint no-print">Printing isn’t available inside the claude.ai preview: open the app file in your phone’s browser.</p>
       <div class="pack print-only">
         <header class="phead"><h1>${ph.name} · evidence pack</h1>
           <p>${[ph.address, ph.identifier && 'Pharmacy ' + ph.identifier].filter(Boolean).join(' · ')}</p>
           <p>Proprietor${ph.proprietors.length === 1 ? '' : 's'}: ${ph.proprietors.map(p => p.name).join(', ') || '—'}</p>
-          <p>From ${fmt(d.from)} to ${fmt(today())} · made ${fmt(today())} · no patient information</p>
+          <p>From ${fmt(d.from)} to ${fmt(today())} · made ${fmt(today())}</p>
+          <p>Designed for de-identified proprietor records: check your notes before sharing.</p>
           <p>Today: ${d.n.overdue === 1 ? '1 item overdue' : d.n.overdue + ' items overdue'} · ${d.n.all - d.n.tocheck === 1 ? '1 item' : (d.n.all - d.n.tocheck) + ' items'} in the plan</p></header>
         ${sec('Reviews, visits and meetings · ' + d.reviews.length, table(['Date', 'What', 'Recorded by', 'Issues', 'Next due'], d.reviews, 'None recorded in this period.'))}
         ${sec('S8 stock checks · ' + d.s8.length, table(['Reviewed', 'Stock check', 'Pharmacist', 'Next due'], d.s8, 'None recorded in this period.'))}

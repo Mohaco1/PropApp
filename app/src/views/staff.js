@@ -115,7 +115,7 @@ register('leaving', {
       <p class="hint">Anything marked “Not yet” becomes an action.</p><div class="dock-inline">${btn('Move to former staff', null, { kind: 'primary', type: 'submit' })}</div></form>` }); },
   forms: { save: (c, f, el, r) => { if (LEAVE.some(([k]) => !f[k])) { c.toast('Answer each item.'); return; }
     c.change(ph => { const p = ph.staff.find(x => x.id === r.id); p.active = false; p.end = f.end;
-      const rec = addRecord(ph, { type: 'A1', kind: 'departure', title: 'Leaving · ' + p.name, date: f.end, answers: LEAVE.map(([k, l]) => ({ item: k, text: l, answer: { done: 'Done', later: 'Not yet', na: 'N/A' }[f[k]] })), fields: { personId: p.id } });
+      const rec = addRecord(ph, { type: 'A1', kind: 'departure', title: 'Leaving · ' + p.name, date: f.end, answers: LEAVE.map(([k, l]) => ({ item: k, text: l, answer: { done: 'Done', later: 'Not yet', na: 'N/A' }[f[k]], isIssue: f[k] === 'later' })), fields: { personId: p.id } });
       for (const [k, l] of LEAVE.filter(([k]) => f[k] === 'later')) rec.actionIds.push(newAction(ph, { title: l.replace(/ \(.*\)$/, '') + ' · ' + p.name, due: addDays(f.end, 1), source: { type: 'leaving', recordId: rec.id, label: 'Leaving · ' + p.name } }).id);
     }, 'Moved to former staff'); c.tab('staff'); } },
 });
@@ -128,7 +128,7 @@ register('locum', {
     <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` }); },
   forms: { save: (c, f) => { if (LOCUM.some(([k]) => !f[k])) { c.toast('Answer each item.'); return; }
     c.change(ph => { let p = ph.staff.find(x => x.name === f.name.trim() && x.engagement === 'Locum'); if (!p) { p = { id: uid(), name: f.name.trim(), role: 'Pharmacist', engagement: 'Locum', start: f.date, end: '', active: true, services: [], annualDue: '', checks: {} }; ph.staff.push(p); }
-      const rec = addRecord(ph, { type: 'A1', kind: 'staff', title: 'Locum check · ' + p.name, date: f.date, answers: LOCUM.map(([k, l]) => ({ item: k, text: l, answer: f[k] === 'yes' ? 'Done' : 'Not yet' })), fields: { personId: p.id } });
+      const rec = addRecord(ph, { type: 'A1', kind: 'staff', title: 'Locum check · ' + p.name, date: f.date, answers: LOCUM.map(([k, l]) => ({ item: k, text: l, answer: f[k] === 'yes' ? 'Done' : 'Not yet', isIssue: f[k] !== 'yes' })), fields: { personId: p.id } });
       for (const [k, l] of LOCUM.filter(([k]) => f[k] === 'no')) rec.actionIds.push(newAction(ph, { title: l + ' · ' + p.name, due: f.date, source: { type: 'staff', staffId: p.id, label: 'Locum check' } }).id);
     }, 'Locum check saved'); c.back(); } },
 });

@@ -28,7 +28,7 @@ register('actions', {
 register('action-new', {
   tab: 'actions',
   render: () => screen({ title: 'New action', back: true, body: h`<form data-form="new" class="form">
-    ${field('What needs fixing', textInput('title', '', { required: true }))}${field('Due', textInput('due', addDays(today(), 14), { type: 'date' }))}
+    ${field('What needs fixing', textInput('title', '', { required: true }), 'No patient names. For example: “Check fridge log” or “Service fire extinguisher”.')}${field('Due', textInput('due', addDays(today(), 14), { type: 'date' }))}
     <div class="dock-inline">${btn('Save action', null, { kind: 'primary', type: 'submit' })}</div></form>` }),
   forms: { new: (c, f) => { let id; c.change(ph => { id = newAction(ph, { title: f.title.trim(), due: f.due }).id; }, 'Action saved'); c.replace('action', { id }); } },
 });
@@ -49,7 +49,7 @@ register('action', {
     else if (mode === 'wait') body = h`${body}<form data-form="wait" class="form">${field('What did you ask for, and from whom?', textArea('asked', '', { rows: 2 }))}
       <p class="field-label">Check back</p><div class="chips">${CHIPS.map(([l, n]) => h`<label class="chip"><input type="radio" name="cb" value="${addDays(today(), n)}" ${n === 7 ? h`checked` : ''}>${l}</label>`)}</div>
       <p class="hint">The due date stays as it is. The action stays open until you see it done.</p><div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'mode', { data: { m: '' } })}</div></form>`;
-    else if (mode === 'edit') body = h`${body}<form data-form="edit" class="form">${field('Title', textInput('title', a.title, { required: true }))}${field('Due', textInput('due', a.due, { type: 'date' }))}${field('Progress note', textArea('progress', a.progress || ''))}
+    else if (mode === 'edit') body = h`${body}<form data-form="edit" class="form">${field('Title', textInput('title', a.title, { required: true }), 'No patient names. For example: “Check fridge log” or “Service fire extinguisher”.')}${field('Due', textInput('due', a.due, { type: 'date' }))}${field('Progress note', textArea('progress', a.progress || ''))}
       <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'mode', { data: { m: '' } })}</div></form>`;
     else body = h`${body}
       ${a.waiting ? h`<div class="card wait"><p class="eyebrow">Waiting on someone</p><p>Asked ${fmt(a.waiting.on)}: ${a.waiting.asked}. Check back ${fmt(a.waiting.checkBack)}.</p>

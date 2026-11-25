@@ -39,8 +39,10 @@ export function applies(ph, a) {
 }
 export function plan(ph) { return catalog().filter(a => a.id !== 'A1' && applies(ph, a).applies); }
 // Latest stock-check (inventory) date from S8 reviews.
+// R02: only a stock check that was completed counts. One marked "Incomplete" never moves the legal deadline.
+export const stockIncomplete = r => !!r.fields?.stockIncomplete || /^Incomplete$/.test(r.answers?.[0]?.answer || '');
 export function latestStockCheck(ph) {
-  return (ph.records || []).filter(r => r.type === 'B1' && isDate(r.fields?.stockDate)).map(r => r.fields.stockDate).sort().at(-1) || '';
+  return (ph.records || []).filter(r => r.type === 'B1' && isDate(r.fields?.stockDate) && !stockIncomplete(r)).map(r => r.fields.stockDate).sort().at(-1) || '';
 }
 // s 111: the next S8 inventory can't be later than 3 months after the latest stock-check date.
 export function s8Limit(ph) { const d = latestStockCheck(ph); return d ? addMonths(d, 3) : ''; }
