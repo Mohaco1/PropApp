@@ -449,3 +449,27 @@ From Gemini's "Locked Pre-Trial Brief & Claude Prompts" and the "Final Pre-Beta 
 
 **Tests**
 - New suite `tests/pretrial.js`, plus updated counts: governance has 14 questions, the S8 review 9, and there are 5 incident cards.
+
+## Final micro-patch (on 79d8e858d3) · 25 Nov 2026 · build 153a40378e
+**1. Align to 4 quarters (Calendar › Year plan)**
+- One button moves upcoming due dates to the first Monday of Feb, May, Aug or Nov:
+  - S8, site visit and governance meeting every quarter;
+  - staff annual checks in Feb;
+  - the governance review in May;
+  - service annual reviews in Aug.
+- The S8 review (B1) is never moved past its s 111 limit; if the next anchor is later, it stays where it is.
+- It never touches:
+  - overdue or undated items;
+  - premises renewal and the financial-interest declaration;
+  - monthly or six-monthly reviews;
+  - procedure reviews.
+- It's logged in History and can be undone with one tap. The previous dates are kept in `flags.alignUndo`.
+- Nov has no item of its own, because there's no equipment or year-ahead review to move.
+
+**2. Three Track D lines**
+- **PBS approval and PRODA/HPOS/HPI-O on takeover:** owner-supplied source, which couldn't be read from here.
+- **Unlawful financial interest (Blooms [2025] NSWSC 1211):** via the King & Wood Mallesons summary.
+- **NASH and PRODA B2B expiry:** governance review question 15.
+- **SafeWork UN3291 clinical waste and sharps bins:** added to the site visit block "Equipment and clinical waste". Verified.
+
+**Tests:** `tests/pretrial.js` checks the alignment (the B1 limit with a stock check on 20 Oct, dates landing on anchors, overdue dates left alone, Undo) and the new lines. The governance review now has 15 questions.

@@ -9,6 +9,7 @@ import { note as log } from '../model.js';
 import { ics, saveFile } from '../ics.js';
 import { historyRows, csv, printable } from '../export.js';
 import { unreadUpdates } from './updates.js';
+import { alignPlan, applyAlign, undoAlign } from '../align.js';
 register('more', {
   tab: 'more',
   render(c) {
@@ -58,7 +59,11 @@ register('calendar', {
       const mark = (a, m) => { const done = c.ph.records.some(r => r.type === a.id && r.date.slice(0, 7) === m), due = reviewDue(c.ph, a.id); if (done) return ['✓', 'done']; if (due && due.slice(0, 7) === m) return ['●', due < t ? 'bad' : 'due'];
         const mo = monthsFor(c.ph, a); if (due && mo && m > due.slice(0, 7)) { const diff = (+m.slice(0, 4) - +due.slice(0, 4)) * 12 + (+m.slice(5) - +due.slice(5, 7)); if (diff % mo === 0) return ['○', 'rep']; } return ['', '']; };
       body = h`<p class="muted yp-legend"><span class="bad">●</span> overdue · <span class="due">●</span> due · ○ expected repeat · <span class="ok">✓</span> done · from ${monthName(months[0] + '-01')} to ${monthName(months[11] + '-01')}</p><div class="scrollx"><table class="yearplan"><thead><tr><th>Review</th>${months.map(m => h`<th>${['J','F','M','A','M','J','J','A','S','O','N','D'][+m.slice(5) - 1]}</th>`)}</tr></thead>
-        <tbody>${revs.map(a => h`<tr><th scope="row">${a.name}</th>${months.map(m => { const [s, k] = mark(a, m); return h`<td class="${k}">${s}</td>`; })}</tr>`)}</tbody></table></div>`;
+        <tbody>${revs.map(a => h`<tr><th scope="row">${a.name}</th>${months.map(m => { const [s, k] = mark(a, m); return h`<td class="${k}">${s}</td>`; })}</tr>`)}</tbody></table></div>
+        ${(() => { const n = alignPlan(c.ph).length, u = c.ph.flags?.alignUndo;
+          return h`<div class="card align"><h2>Align to 4 quarters (Feb · May · Aug · Nov)</h2><p class="muted">Moves upcoming dates to the first Monday of Feb, May, Aug or Nov: S8, site visit and governance meeting every quarter; staff checks in Feb, the governance review in May, service reviews in Aug. The S8 check never goes past its 3-month limit (s 111). Overdue items stay as they are, and you can change any date afterwards.</p>
+            ${n ? btn(n === 1 ? 'Align 1 date' : 'Align ' + n + ' dates', 'align') : h`<p class="meta">Your upcoming dates are already on the quarters.</p>`}
+            ${u ? btn('Undo the alignment of ' + fmt(u.at) + ' (' + (u.changes.length === 1 ? '1 date' : u.changes.length + ' dates') + ')', 'unalign', { kind: 'link' }) : ''}</div>`; })()}`;
     }
     const found = c.ui.calFind ? parsePlain(c.ui.calFind) : '';
     return screen({ title: 'Calendar', back: true, body: h`
@@ -70,7 +75,9 @@ register('calendar', {
       <div class="card"><h2>Put these dates in your phone calendar</h2><p class="muted">Download a calendar file and open it on your phone. Your due dates appear in your own calendar with a reminder the day before. Download it again when dates change.</p>${btn('Download calendar file', 'ics')}</div>` });
   },
   forms: { find: (c, f) => { c.ui.calFind = f.find.trim(); c.rerender(); } },
-  acts: { v: (c, d) => { c.ui.calV = d.v; c.rerender(); }, open: async (c, d) => { const { openItem } = await import('./today.js'); const it = items(c.ph, c.drafts).find(i => i.key === d.key); if (it) openItem(c, it); },
+  acts: { v: (c, d) => { c.ui.calV = d.v; c.rerender(); },
+    align: c => { const ch = alignPlan(c.ph); if (!ch.length) return; c.change(ph => { applyAlign(ph, ch); log(ph, 'Due dates aligned to 4 quarters · ' + ch.length + (ch.length === 1 ? ' date' : ' dates')); }, ch.length === 1 ? '1 date aligned' : ch.length + ' dates aligned'); },
+    unalign: c => c.change(ph => { const n = undoAlign(ph); log(ph, 'Quarter alignment undone · ' + n + (n === 1 ? ' date' : ' dates')); }, 'Alignment undone'), open: async (c, d) => { const { openItem } = await import('./today.js'); const it = items(c.ph, c.drafts).find(i => i.key === d.key); if (it) openItem(c, it); },
     mon: (c, d) => { c.ui.calM = addMonths((c.ui.calM || today().slice(0, 7)) + '-01', +d.d).slice(0, 7); c.ui.calDay = ''; c.rerender(); }, day: (c, d) => { c.ui.calDay = c.ui.calDay === d.d ? '' : d.d; c.rerender(); },
     ics: c => { const ok = saveFile(c.ph.name.replace(/\W+/g, '-') + '-due-dates.ics', ics(c.ph, c.drafts), 'text/calendar'); c.toast(ok ? 'Calendar file ready. If nothing downloads here, open the app in your phone’s browser.' : 'Downloads are blocked here.'); } },
 });

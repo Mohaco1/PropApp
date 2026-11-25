@@ -19,7 +19,7 @@ const { phone, ok, done, tap, text } = require('./helpers.js');
   await p.getByRole('button', { name: 'Back', exact: true }).click();
   // B. SafeScript in the governance review
   await tap(p, 'Reviews'); await p.locator('.chip', { hasText: /^All/ }).first().click(); await p.fill('input[type=search]', 'governance'); await p.waitForTimeout(300); await p.getByRole('button', { name: /Governance, access and continuity/ }).first().click(); await tap(p, 'Start review');
-  ok(/Question 1 of 14/.test(await text(p)), 'V3-05 the governance review has 14 questions');
+  ok(/Question 1 of 15/.test(await text(p)), 'V3-05 the governance review has 15 questions');
   for (let i = 0; i < 11; i++) { await p.locator('label.choice', { hasText: /^Checked$/ }).first().click(); await p.waitForTimeout(40); await tap(p, 'Next'); await p.waitForTimeout(40); }
   ok(/SafeScript NSW \(NSW Health, Privacy and security\): each pharmacist uses their own login with multi-factor authentication/.test(await text(p)), 'V3-05 question 12: SafeScript own logins, MFA, penalties, no overseas logins');
   await p.getByRole('button', { name: 'Back', exact: true }).click();

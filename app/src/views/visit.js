@@ -13,10 +13,11 @@ import { copyText } from '../clip.js';
 const DISPLAY = 'Displayed names (Council Guide Note 24): owner names at or near the main entrance; the name of the pharmacist on duty next to the dispensing area (it can change day to day).';
 // Track C: what to look at for equipment (best practice, no legal claim); the OTP pump only when the pharmacy runs OTP.
 const EQUIP = ['Fridge thermometers or data loggers: calibration certificate in date, or checked against a reference thermometer', 'Dispensary and compounding scales: checked with test weights, and serviced as the maker says', 'Screening devices (such as blood pressure monitors): serviced or calibrated as the maker says'];
+const WASTE = 'Clinical waste and sharps bins: marked UN3291 with the Division 6.2 label and a shipping name such as CLINICAL WASTE (SafeWork NSW, Packing and transporting clinical waste); kept closed and collected regularly (best practice)';
 const EQUIP_OTP = 'OTP dosing pump: calibrated and checked as the maker and your OTP procedure say, with each check recorded';
 export function visitItems(ph) {
   const act = activeServices(ph);
-  return C.visit.items.filter(i => i.core || act.includes(i.service)).map(i => i.key === 'premises' ? { ...i, guide: i.guide + ' ' + DISPLAY, block: ['Equipment calibration · best practice', [...EQUIP, ...(act.includes('otp') ? [EQUIP_OTP] : [])]] } : i);
+  return C.visit.items.filter(i => i.core || act.includes(i.service)).map(i => i.key === 'premises' ? { ...i, guide: i.guide + ' ' + DISPLAY, block: ['Equipment and clinical waste', [...EQUIP, ...(act.includes('otp') ? [EQUIP_OTP] : []), WASTE]] } : i);
 }
 const ANS = [['ok', 'Satisfactory'], ['issue', 'Issue'], ['verify', 'Check later'], ['na', 'N/A']];
 const key = extra => extra ? 'visit/extra' : 'visit/quarterly';
