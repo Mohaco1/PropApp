@@ -317,7 +317,7 @@ Brief: "PropApp — Audit Fixes (Wave 1 & Wave 2) + V3-05 Clinical Brief" (owner
 
 **Full run on build c5cf5012fe:** 15 suites (adding wave1), 250 checks, all pass with no console errors. check-procgen-all: all 17 services identical. Wave 1 code is in commit 43e824c on Mohaco1/PropApp main. **Next session:** start at Wave 2 (R07 first) from that commit.
 
-## Audit Wave 2 · 25 Nov 2026 · commits 592c9b1 and the Wave 2 part 2 commit
+## Audit Wave 2 · 25 Nov 2026 · build a687563fdd · commits 592c9b1, 5c593d7
 | ID | Status | What was done | Test |
 |---|---|---|---|
 | R07 | Fixed | With 2 or more pharmacies, New action, the action screen and review screens show the pharmacy's name under the title (plain text, not a switch). | wave2 |
@@ -332,3 +332,5 @@ Brief: "PropApp — Audit Fixes (Wave 1 & Wave 2) + V3-05 Clinical Brief" (owner
 | F-V3-06 | Fixed | The manifest lists the icons as "any" and "maskable" (the icon is full-bleed), and the page has the Apple status-bar meta. | pwa |
 
 **Remaining:** Wave 3, which marks the TGA and eNRMC links as checked from Gemini's quotes, and builds the V3-05 clinical content (each line read against its page first).
+
+**Full run on build a687563fdd:** 16 suites (adding wave2), 265 checks, all pass with no console errors. check-procgen-all: all 17 services identical. **Next session:** Wave 3, from the latest commit on main.
