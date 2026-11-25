@@ -55,5 +55,38 @@ const TMP = path.join(require('os').tmpdir(), 'sigil-test'); fs.mkdirSync(TMP, {
   ok(ph.name === 'Second Store Pharmacy (fictional)' && wgSvc.every(k => ph.services[k]?.active && JSON.stringify(ph.services[k].answers) === JSON.stringify(wg.services[k].answers)), 'Clone: services and their setup answers are copied');
   ok(ph.procedures.length === wg.procedures.filter(x => wg.services[x.service]?.active).length && ph.procedures.every(x => x.status === 'draft' && x.versions.length === 1 && !/Wattle Grove/.test(x.versions[0].body)), 'Clone: procedures arrive as drafts to adopt here (never adopted for you), with this pharmacy’s name');
   ok(!ph.records.length && !ph.staff.length && !Object.keys(ph.actions).length && !Object.keys(ph.schedule || {}).length, 'Clone: records, staff, actions and S8 dates start empty');
+  // 4. Ease of use, on Wattle Grove
+  await tap(p, 'Today'); await p.locator('.ph-switch').click(); await p.getByRole('button', { name: /^Wattle Grove Pharmacy/ }).first().click(); await p.waitForTimeout(600);
+  // Defer 3 days: only on overdue or due-today rows that aren't required by law
+  const defers = await p.evaluate(() => [...document.querySelectorAll('.rowwrap')].map(w => ({ legal: /Required by law/.test(w.innerText), t: w.querySelector('.row-title')?.innerText })));
+  ok(defers.length >= 1 && defers.every(x => !x.legal), 'Defer: “+3 days” only on rows not required by law (' + defers.map(x => x.t).join(', ') + ')');
+  ok(await p.locator('.row', { hasText: 'S8 stock check' }).count() === 1 && await p.locator('.rowwrap', { hasText: 'S8 stock check' }).count() === 0, 'Defer: never on the S8 stock check (its s 111 limit stands)');
+  const fridge = p.locator('.rowwrap', { hasText: 'Fridge min/max' }); const before3 = Object.values((await activePh(p)).actions).find(a => /Fridge min\/max/.test(a.title)).due;
+  await fridge.locator('.defer').click(); await p.waitForTimeout(300);
+  ph = await activePh(p); const fa = Object.values(ph.actions).find(a => /Fridge min\/max/.test(a.title));
+  ok(fa.due === '2026-11-28' && fa.status === 'open' && fa.log.some(l => l.kind === 'deferred') && before3 < '2026-11-25', 'Defer: the overdue fridge action moves to 28 Nov, stays open, and the deferral is in its log');
+  ok(!/Fridge min\/max[\s\S]{0,80}Overdue/.test(await text(p)), 'Defer: no overdue badge on it now');
+  // Copy summary for the pharmacist on duty (Actions)
+  await tap(p, 'Actions'); const cp = await copied(p, 'Copy summary for the pharmacist on duty');
+  ok(/^Wattle Grove Pharmacy · open actions · 25 Nov/.test(cp.clip) && /- Fridge min\/max readings not recorded on two weekends · due 28 Nov/.test(cp.clip) && /No patient names or identifiers, please\.$/.test(cp.clip), 'Copy summary: open actions with due dates, de-identified reminder');
+  // Inspector view
+  await tap(p, 'More'); await p.getByRole('button', { name: /^Evidence pack/ }).first().click(); await tap(p, 'Show on screen (read-only)'); await p.waitForTimeout(300);
+  t = await text(p);
+  ok(/Inspector view/.test(t) && /Read-only view/.test(t) && await p.locator('.nav').count() === 0 && await p.locator('main input, main .chip, main .btn.primary').count() === 0 && /Wattle Grove Pharmacy · evidence pack/.test(t), 'Inspector view: the pack on screen, read-only, with no edit controls or tab bar');
+  await p.screenshot({ path: path.join(OUT, '33_inspector_view_390px.png') });
+  await p.getByRole('button', { name: 'Back', exact: true }).click();
+  // Pre-fill from last time: shown, never selected
+  await tap(p, 'Reviews'); await p.locator('.chip', { hasText: /^All/ }).first().click(); await p.getByRole('button', { name: /Governance, access and continuity/ }).first().click();
+  await tap(p, 'Start review'); await p.waitForTimeout(200);
+  const lt = await p.locator('.lasttime').count(), checked = await p.locator('input[name=ans]:checked').count();
+  ok(checked === 0 && (lt === 0 || /Last time ·/i.test(await p.locator('.lasttime').innerText())), 'Pre-fill: last time’s answer is shown when there is one, and nothing is selected for you');
+  // site visit summary: answer every check, then copy
+  await tap(p, 'Today'); await p.getByRole('button', { name: /Proprietor site visit/ }).first().click(); await tap(p, 'Start the checks');
+  for (let i = 0; i < 20; i++) { if (await p.getByRole('button', { name: 'Save visit' }).count()) break; await p.locator('label.choice', { hasText: /^Satisfactory$/ }).first().click(); await p.waitForTimeout(40);
+    if (await p.locator('input[name=vaccEvent]').count()) { await p.locator('label.choice', { hasText: /^No$/ }).first().click(); await p.locator('label.choice', { hasText: /^Yes$/ }).last().click(); await p.fill('input[name=vaccDate]', '2026-10-01'); await p.locator('input[name=vaccDate]').blur(); }
+    if (await p.locator('label.choice', { hasText: 'Verified operational review' }).count()) await p.locator('label.choice', { hasText: 'Verified operational review' }).click();
+    await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(60); }
+  const vs = await copied(p, 'Copy summary for the pharmacist on duty');
+  ok(/^Wattle Grove Pharmacy · site visit 25 Nov/.test(vs.clip) && /No issues found\.|To fix:/.test(vs.clip) && /other checks fine\./.test(vs.clip) && /No patient names or identifiers, please\.$/.test(vs.clip), 'Copy summary: the finished visit’s findings, de-identified');
   await done(b, errors);
 })();

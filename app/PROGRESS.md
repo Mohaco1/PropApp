@@ -473,3 +473,26 @@ From Gemini's "Locked Pre-Trial Brief & Claude Prompts" and the "Final Pre-Beta 
 - **SafeWork UN3291 clinical waste and sharps bins:** added to the site visit block "Equipment and clinical waste". Verified.
 
 **Tests:** `tests/pretrial.js` checks the alignment (the B1 limit with a stock check on 20 Oct, dates landing on anchors, overdue dates left alone, Undo) and the new lines. The governance review now has 15 questions.
+
+## Sigil brief (rebrand, Quarter Balancer, ease of use) · 25 Nov 2026 · build b6ec378b23
+**Rebrand**
+- R.Pharmacy/PropApp is now **Sigil**: the S. badge and icons, the title, the installable-app name, Welcome with the tagline "Built for the owner's side of the counter.", the pack footer, calendar labels and the restore wording.
+- Storage keys (`propapp:*`) and the backup marker (`app: 'PropApp', format 1`, now with `product: 'Sigil'`) are unchanged, so every earlier backup and saved pharmacy still opens.
+
+**Quarter Balancer (Calendar › Year plan)**
+- Service annual reviews are spread evenly over Feb, May, Aug and Nov: 12 services gives 3·3·3·3.
+- Seasonal defaults: PPA supply programs in May; NSP, vaping and cannabis in Nov. Vaccination and prescribing reviews are quarterly, so they aren't moved.
+- Each quarter shows its load count. You move a service by tapping it and picking a quarter from a 1-tap bar, or by dragging it on a desktop. Moves are saved and logged.
+- "Align" uses these quarters. S8, the site visit and the governance meeting stay in every quarter, and S8 still never goes past s 111.
+
+**Ease of use**
+1. **Copy setup from another pharmacy** (on setup's Services step): copies services, setup answers and the quarter rhythm. Procedures come across as drafts for you to adopt here, never adopted for you. Records, staff, actions and S8 dates start empty.
+2. **"Copy summary for the pharmacist on duty"** on Actions and on the finished site visit. It's de-identified and ends with the no-patient-names reminder. The label says "pharmacist on duty", not "PIC" (design rule 6).
+3. **"+3 days"** on Today, only on overdue or due-today rows that aren't required by law. Never on S8; `deferItem` also refuses anything past the S8 limit. A deferred action's log says so.
+4. **Evidence pack › "Show on screen (read-only)"**: the Inspector view, with no edit controls or tab bar.
+5. **Last time**:
+   - Review questions show last time's answer and note, with nothing selected, plus a one-tap "Use last time's note".
+   - Evidence locations show "Last saved".
+   - Nothing is completed or saved for you.
+
+**Tests:** new suite `tests/sigil.js` (rebrand, backup compatibility, balancer spread, tap and drag moves, clone, copy summaries, defer and the S8 guard, Inspector view, last time).

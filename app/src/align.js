@@ -59,3 +59,13 @@ export function undoAlign(ph) {
   for (const x of u.changes) { if (x.kind === 'review') { if (ph.schedule?.[x.id] === x.to) ph.schedule[x.id] = x.from; } else { const p = ph.staff.find(s => s.id === x.id); if (p && p.annualDue === x.to) p.annualDue = x.from; } }
   delete ph.flags.alignUndo; return u.changes.length;
 }
+// Sigil brief: "Defer 3 days" for an owner who isn't on site. Only actions and reviews or meetings that aren't
+// required by law, only when they're due today or overdue, and never anything already in progress. The S8 review is
+// never moved past its s 111 limit (checked here too, whatever calls it).
+export const canDefer = it => !it.legal && !it.started && ['action', 'review', 'meeting'].includes(it.kind) && (it.bucket === 'overdue' || it.bucket === 'today');
+export function deferItem(ph, it, t = today()) {
+  const nd = addDays(isDate(it.date) && it.date > t ? it.date : t, 3);
+  if (it.kind === 'action') { const a = ph.actions[it.ref]; if (!a) return null; a.due = nd; a.log.push({ at: new Date().toISOString(), by: ph.proprietors.find(p => p.id === ph.recordingAs)?.name || '', kind: 'deferred', text: 'Deferred 3 days to ' + nd }); return nd; }
+  if (it.ref === 'B1') { const lim = s8Limit(ph); if (!lim || nd > lim) return null; }
+  (ph.schedule ??= {})[it.ref] = nd; return nd;
+}

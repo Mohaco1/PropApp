@@ -4,7 +4,7 @@ import { register } from '../app.js';
 import { h, uid } from '../util.js';
 import { screen, btn, row, field, textInput, textArea, select, note, why, empty, section } from '../ui.js';
 import { C } from '../content.js';
-import { fmt, today, dueText, isDate } from '../dates.js';
+import { fmt, today, dueText, isDate, day } from '../dates.js';
 import { s8Limit, latestStockCheck, activeServices, serviceName } from '../rules.js';
 import { RPH } from '../procgen.js';
 import { questionLabel } from './services.js';
@@ -123,7 +123,9 @@ export const ARCHIVES = [['pbs', 'Archive · National Health (Pharmaceutical Ben
 register('location', {
   tab: 'more',
   render(c, r) { const row0 = locationRows(c.ph).find(x => x.k === r.id) || {};
+    const [kind, id] = r.id.split(':'), prev = kind === 'obl' ? c.ph.obligations?.[id] : kind === 'arch' ? c.ph.archives?.[id] : null;
     return screen({ title: 'Where is it kept?', back: true, body: h`<h2 class="big-title">${row0.title}</h2><p class="muted">${row0.group}</p>
+      ${row0.where ? h`<p class="lasttime"><span class="eyebrow">Last saved${prev?.at ? ' · ' + fmt(day(prev.at)) : ''}</span> ${row0.where}</p>` : ''}
       <form class="form" data-form="save">${field('Where it is kept', textInput('where', row0.where || '', { required: true, placeholder: 'e.g. Dispensary office, drawer 2' }))}<div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` }); },
   forms: { save: (c, f, el, r) => { const [kind, a, b] = r.id.split(':'), where = f.where.trim(); if (!where) return;
     c.change(ph => { if (kind === 'svc') ph.services[a].answers = { ...ph.services[a].answers, [b]: where }; else if (kind === 'arch') (ph.archives ??= {})[a] = { where, by: me(ph).name, at: new Date().toISOString() }; else (ph.obligations ??= {})[a] = { ...(ph.obligations?.[a] || {}), where, by: me(ph).name, at: new Date().toISOString() };

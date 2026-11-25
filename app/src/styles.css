@@ -260,3 +260,13 @@ a.linkbtn{text-decoration:none}
 .qpill.on{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary) inset}
 .qbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
 .qbar span{flex-basis:100%;font-size:14px;color:var(--muted)}
+
+/* Sigil: Defer 3 days */
+.rowwrap{display:flex;align-items:stretch}
+.rowwrap>.row{flex:1;min-width:0}
+.defer{flex:none;width:48px;min-height:44px;border:0;border-left:1px solid var(--line);background:none;color:var(--muted);font:inherit;font-size:12px;line-height:1.2;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center}.defer b{font-size:15px;color:var(--fg)}
+.rowwrap+.row,.row+.rowwrap,.rowwrap+.rowwrap{border-top:1px solid var(--line)}
+
+/* Sigil: last time's answer */
+.lasttime{margin:0;padding:8px 12px;border-left:3px solid var(--primary);background:var(--surface);border-radius:8px;font-size:14px;color:var(--muted)}
+.lasttime .eyebrow{display:block}

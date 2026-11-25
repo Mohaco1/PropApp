@@ -10,6 +10,8 @@ import { serviceName } from '../rules.js';
 import { backupNow } from './backup.js';
 import { saveFile, ics } from '../ics.js';
 import { isPWA, standalone } from '../pwa.js';
+import { canDefer, deferItem } from '../align.js';
+import { note as logNote } from '../model.js';
 const FILTERS = [['overdue', 'Overdue'], ['week', 'This week'], ['waiting', 'Waiting · to confirm'], ['all', 'All']];
 export function openItem(c, it) {
   if (it.kind === 'visit') return c.go('visit-start', { extra: it.ref === 'extra' });
@@ -67,12 +69,15 @@ register('today', {
       <div class="filters" role="tablist">${FILTERS.map(([k, l]) => h`<button role="tab" aria-selected="${String(k === f)}" class="${k === f ? 'on' : ''}" data-act="filter" data-f="${k}"><b>${cnt[k]}</b><span>${l}</span></button>`)}</div>
       ${!c.ph.records.length ? h`<p class="hint">Dates set themselves after your first review. Start with your last S8 stock check, or tap any item to set a due date.</p>` : ''}
       ${n.nodate && f !== 'nodate' && f !== 'all' ? h`<button class="quietline" data-act="filter" data-f="nodate">${n.nodate === 1 ? '1 review has' : n.nodate + ' reviews have'} no date yet · show</button>` : ''}
-      <div class="list">${list.length ? list.map(i => row({ title: i.title, sub: i.sub, legal: i.legal, right: i.bucket === 'started' || (i.started && !i.date) ? 'In progress' : i.started ? 'Started · ' + dueText(i.date) : i.bucket === 'tocheck' ? 'When you can' : dueText(i.date), tone: i.bucket === 'overdue' ? 'bad' : i.bucket === 'today' ? 'warn' : '', act: 'open', data: { key: i.key } })) : empty(f === 'overdue' ? 'Nothing overdue.' : 'Nothing here.')}</div>` })
+      <div class="list">${list.length ? list.map(i => { const r = row({ title: i.title, sub: i.sub, legal: i.legal, right: i.bucket === 'started' || (i.started && !i.date) ? 'In progress' : i.started ? 'Started · ' + dueText(i.date) : i.bucket === 'tocheck' ? 'When you can' : dueText(i.date), tone: i.bucket === 'overdue' ? 'bad' : i.bucket === 'today' ? 'warn' : '', act: 'open', data: { key: i.key } });
+        return canDefer(i) ? h`<div class="rowwrap">${r}<button class="defer" data-act="defer" data-key="${i.key}" aria-label="Defer ${i.title} 3 days"><b>+3</b><span>days</span></button></div>` : r; }) : empty(f === 'overdue' ? 'Nothing overdue.' : 'Nothing here.')}</div>` })
 
   },
   acts: {
     backupnow: c => backupNow(c),
     backupsnooze: c => c.change(ph => { (ph.flags ??= {}).backupSnooze = today(); }),
+    defer: (c, d) => { const it = items(c.ph, c.drafts).find(x => x.key === d.key); if (!it || !canDefer(it)) return;
+      let nd = null; c.change(ph => { nd = deferItem(ph, it); if (nd) logNote(ph, 'Deferred 3 days · ' + it.title); }, 'Moved 3 days later'); },
     icsnow: c => { const ok = saveFile(c.ph.name.replace(/\W+/g, '-') + '-due-dates.ics', ics(c.ph, c.drafts), 'text/calendar'); c.change(ph => { (ph.flags ??= {}).icsHint = true; }, ok ? 'Calendar file ready: open it to add the dates.' : 'Couldn’t make the file here.'); },
     icshide: c => c.change(ph => { (ph.flags ??= {}).icsHint = true; }),
     hideinstall: c => c.change(ph => { (ph.flags ??= {}).installHintDone = true; }),

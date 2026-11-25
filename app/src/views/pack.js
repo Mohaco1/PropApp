@@ -54,21 +54,30 @@ export function packData(ph, drafts, from = addMonths(today(), -12)) {
 const RANGES = [['12', 'Last 12 months'], ['24', 'Last 24 months'], ['all', 'All']];
 const SECS = [['rev', 'Reviews, visits and meetings'], ['s8', 'S8 stock checks'], ['act', 'Actions'], ['staff', 'Staff'], ['obl', 'Evidence locations'], ['proc', 'Procedures']];
 const has = d => ({ rev: d.reviews.length > 0, s8: d.s8.length > 0, act: d.open.length + d.closed.length + d.staffClosed.length > 0, staff: d.staff.length > 0, obl: d.obligations.length + d.archives.length > 0, proc: d.procedures.length > 0 });
+// Sigil brief: "Show on screen (read-only)". The same pack, with the period and sections already chosen, on its own
+// screen with no edit controls or tab bar, to hand the phone to an inspector.
+register('inspect', { tab: 'more', noNav: true, render: c => packScreen(c, true) });
 register('pack', {
   tab: 'more',
-  render(c) {
+  render: c => packScreen(c, false),
+  changes: { sec: (c, el) => { c.ui.pack.on[el.dataset.k] = el.checked; c.rerender(); } },
+  acts: { print: () => window.print(), inspect: c => c.go('inspect'), range: (c, d) => { c.ui.pack.range = d.r; c.rerender(); } },
+});
+function packScreen(c, inspect) {
+  {
     const ph = c.ph, ui = c.ui.pack ||= { range: '12', on: {} }, range = ui.range;
     const d = packData(ph, c.drafts, range === 'all' ? '0000-00-00' : addMonths(today(), -Number(range)));
     const hasData = has(d), on = k => ui.on[k] ?? hasData[k];
     const sec = (k, title, inner) => on(k) ? h`<section class="psec"><h2>${title}</h2>${inner}</section>` : '';
     const period = range === 'all' ? 'all records' : 'the last ' + range + ' months';
     const first = range === 'all' ? ph.records.map(r => r.date).filter(isDate).sort()[0] : d.from;
-    return screen({ title: 'Evidence pack', back: true, body: h`<p class="muted no-print">What you’ve recorded, for an inspector or your own records. Check your notes for patient details before sharing it.</p>
+    const controls = inspect ? h`<p class="note ok no-print">Read-only view of what you’ve recorded (${period}). Nothing can be changed from here.</p>` : h`<p class="muted no-print">What you’ve recorded, for an inspector or your own records. Check your notes for patient details before sharing it.</p>
       <div class="chips no-print" role="group" aria-label="Period">${RANGES.map(([k, l]) => h`<button class="chip ${k === range ? 'on' : ''}" data-act="range" data-r="${k}">${l}</button>`)}</div>
       <fieldset class="field no-print"><legend class="field-label">Include</legend><div class="ticks pticks">${SECS.map(([k, l]) => h`<label class="tick"><input type="checkbox" data-change="sec" data-k="${k}" ${on(k) ? h`checked` : ''}><span>${l}${hasData[k] ? '' : h` <span class="meta">· nothing yet</span>`}</span></label>`)}</div></fieldset>
-      <div class="dock-inline no-print">${btn('Print or save as PDF', 'print', { kind: 'primary', cls: 'block' })}</div>
-      <p class="hint no-print">Printing isn’t available inside the claude.ai preview: open the app file in your phone’s browser.</p>
-      <div class="pack print-only">
+      <div class="dock-inline no-print">${btn('Print or save as PDF', 'print', { kind: 'primary', cls: 'block' })}${btn('Show on screen (read-only)', 'inspect', { kind: 'link' })}</div>
+      <p class="hint no-print">Printing isn’t available inside the claude.ai preview: open the app file in your phone’s browser.</p>`;
+    return screen({ title: inspect ? 'Inspector view' : 'Evidence pack', back: true, body: h`${controls}
+      <div class="pack print-only${inspect ? ' inspect' : ''}">
         <header class="phead"><h1>${ph.name} · evidence pack</h1>
           <p>${[ph.address, ph.identifier && 'Pharmacy ' + ph.identifier].filter(Boolean).join(' · ')}</p>
           <p>Proprietor${ph.proprietors.length === 1 ? '' : 's'}: ${ph.proprietors.map(p => p.name).join(', ') || '—'}</p>
@@ -85,7 +94,5 @@ register('pack', {
         ${sec('obl', 'Legal obligations: where the evidence is', h`${table(['Section', 'Where it’s kept', 'Last seen'], [...d.obligations, ...d.archives], 'No evidence locations recorded yet.')}${d.unrecorded ? h`<p class="meta pfoot">${d.unrecorded === 1 ? '1 other obligation' : d.unrecorded + ' other obligations'} not yet recorded in Evidence locations.</p>` : ''}`)}
         ${sec('proc', 'Procedures', table(['Service', 'Version', 'Status', 'Last reviewed'], d.procedures, 'No services set up.'))}
       </div>` });
-  },
-  changes: { sec: (c, el) => { c.ui.pack.on[el.dataset.k] = el.checked; c.rerender(); } },
-  acts: { print: () => window.print(), range: (c, d) => { c.ui.pack.range = d.r; c.rerender(); } },
-});
+  }
+}

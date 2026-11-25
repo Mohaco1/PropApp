@@ -105,6 +105,8 @@ register('visit', {
       c.saveDraft(k, d); if (redraw) c.rerender(); },
   },
   acts: {
+    pdsum: async (c, d, el, r) => { const t = visitSummary(c.ph, c.draft(key(r.extra)), visitItems(c.ph));
+      if (await copyText(t)) c.toast('Copied. Check it has no patient details, then paste it into a message.'); else c.toast('Copy didn’t work here.'); },
     step: (c, dd, el, r) => { const k = key(r.extra), d = structuredClone(c.draft(k)); d.step = Math.max(0, +dd.s); c.saveDraft(k, d); c.rerender(); window.scrollTo(0, 0); },
     ws: (c, d) => c.go('action', { id: d.id }),
     save: (c, d, el, r) => save(c, r),
@@ -127,8 +129,12 @@ function finish(c, r, d, items, prog, title) {
     <form class="form" data-form="fin" data-change="fin">${field('Visit note (optional)', textArea('notes', d.notes || '', { rows: 3 }))}
       ${r.extra ? note('Your quarterly visit date stays ' + (q1 ? fmt(q1) : 'unset') + '.') : field('Next quarterly visit', textInput('next', next, { type: 'date', min: today() }))}</form>
     ${btn('Save visit', 'save', { kind: 'primary', cls: 'block', disabled: missing.length > 0 })}
+    ${missing.length ? '' : btn('Copy summary for the pharmacist on duty', 'pdsum', { kind: 'link' })}
     ${btn('Discard this visit', 'discard', { kind: 'link' })}` });
 }
+// Sigil brief: what the visit found, de-identified, to paste into a message for the pharmacist on duty.
+export function visitSummary(ph, d, items) { const found = items.filter(it => d.items[it.key]?.status === 'issue');
+  return ph.name + ' · site visit ' + fmt(d.date || today()) + '\n' + (found.length ? 'To fix:\n' + found.map(it => '- ' + it.title + ': ' + (d.items[it.key].text || '').trim() + (d.items[it.key].due ? ' · by ' + fmt(d.items[it.key].due) : '')).join('\n') : 'No issues found.') + '\n' + (items.length - found.length) + ' other checks fine.\nNo patient names or identifiers, please.'; }
 register('visit-fin-hook', { render: () => '' });
 function save(c, r) {
   const k = key(r.extra), d = c.draft(k), items = visitItems(c.ph);

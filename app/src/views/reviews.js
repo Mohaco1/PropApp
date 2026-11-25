@@ -92,11 +92,16 @@ register('review', {
     const prog = h`<div class="prog">${qs.map((q, i) => h`<i class="${i === step ? 'cur' : d.answers[i] ? (q.options.find(o => o.value === d.answers[i])?.issue ? 'bad' : 'done') : ''}"></i>`)}<i class="${step >= total ? 'cur' : ''}"></i></div>`;
     if (step >= total) return finishReview(c, a, d, qs, prog);
     const q = qs[step], ans = d.answers[step] || '', isIssue = q.options.find(o => o.value === ans)?.issue;
+    // Sigil brief: the previous record's answer for this question, shown (never selected for the owner). Its note,
+    // which often says where the evidence is kept, can be copied into this answer's note with one tap.
+    const prevRec = c.ph.records.filter(x => x.type === a.id).sort((x, y) => y.date.localeCompare(x.date))[0];
+    const prevAns = prevRec?.answers?.find(x => x.text === q.text) || (prevRec?.answers?.length === total ? prevRec.answers[step] : null);
     return screen({ title: a.name, back: true, site: c.ph.name, saved: 'Saved', body: h`${prog}<p class="steps">Question ${step + 1} of ${total}</p>
       <form class="form" data-form="q" data-change="q" data-input="qi"><p class="qtext">${q.text}</p>
+        ${prevAns ? h`<p class="lasttime"><span class="eyebrow">Last time · ${fmt(prevRec.date)}</span> ${prevAns.answer}${prevAns.note ? ' · ' + prevAns.note : ''}${prevAns.ref ? ' · kept: ' + prevAns.ref : ''}</p>` : ''}
         ${choice('ans', q.options.map(o => ({ value: o.value, label: o.label || o.value })), ans, { issueValues: q.options.filter(o => o.issue).map(o => o.value) })}
         ${isIssue ? h`${field('What needs fixing?', textArea('issue', d.issues?.[step]?.text || '', { rows: 2 }))}${field('Fix by', textInput('due', d.issues?.[step]?.due || addDays(today(), 30), { type: 'date' }))}` : ''}
-        ${ans && !isIssue ? field('Note (optional)', textArea('note', d.notesQ?.[step] || '', { rows: 2 })) : ''}</form>
+        ${ans && !isIssue ? h`${field('Note (optional)', textArea('note', d.notesQ?.[step] || '', { rows: 2 }))}${prevAns?.note && !d.notesQ?.[step] ? btn('Use last time’s note', 'uselast', { kind: 'link', data: { s: step } }) : ''}` : ''}</form>
       <div class="btnrow">${btn('Previous', 'step', { data: { s: step - 1 }, disabled: step === 0 })}${btn(step === total - 1 ? 'Finish' : 'Next', 'step', { kind: 'primary', data: { s: step + 1 } })}</div>` });
   },
   // R09: notes and issue text are kept as they're typed (not only when the box loses focus), so a reload or a phone
@@ -119,6 +124,9 @@ register('review', {
   },
   acts: {
     start: (c, d, el, r) => { c.saveDraft(dkey(r.id), { date: today(), answers: {}, step: 0 }); c.rerender(); },
+    uselast: (c, dd, el, r) => { const a = reviewById(r.id), qs = questionsFor(r.id), s = +dd.s, prev = c.ph.records.filter(x => x.type === r.id).sort((x, y) => y.date.localeCompare(x.date))[0];
+      const pa = prev?.answers?.find(x => x.text === qs[s]?.text) || (prev?.answers?.length === qs.length ? prev.answers[s] : null); if (!pa?.note) return;
+      const d = structuredClone(c.draft(dkey(r.id))); (d.notesQ ??= {})[s] = pa.note; c.saveDraft(dkey(r.id), d); c.rerender(); },
     step: (c, dd, el, r) => { const d = structuredClone(c.draft(dkey(r.id))); d.step = Math.max(0, +dd.s); c.saveDraft(dkey(r.id), d); c.rerender(); window.scrollTo(0, 0); },
     save: (c, d, el, r) => saveReview(c, r.id),
     discard: (c, d, el, r) => { if (c.ui.armed !== r.id) { c.ui.armed = r.id; c.toast('Tap “Discard” again to delete this review’s answers.'); return; } c.ui.armed = ''; c.saveDraft(dkey(r.id), null); c.rerender(); c.toast('Discarded'); },
