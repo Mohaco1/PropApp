@@ -42,7 +42,8 @@ register('action', {
     const src = a.source?.type === 'visit' ? h`<p class="muted">Found at the ${a.source.label.toLowerCase().replace(/ · (\d{4}-\d{2}-\d{2})$/, (m, d) => ' on ' + fmt(d))}${a.source.item ? ' · ' + a.source.item : ''}</p>` : a.source?.label ? h`<p class="muted">From ${a.source.label}${a.person ? ' · ' + a.person : ''}</p>` : '';
     const open = a.status === 'open';
     let body = h`<h2 class="big-title">${a.title}</h2>${src}
-      <p class="meta">${open ? (a.waiting ? 'Waiting · ' : '') + dueText(a.due) + (a.due && /Overdue/.test(dueText(a.due)) ? ' · ' + fmt(a.due) : '') : 'Closed ' + fmt(a.closed?.date)}</p>`;
+      <p class="meta">${open ? (a.waiting ? 'Waiting · ' : '') + dueText(a.due) + (a.due && /Overdue/.test(dueText(a.due)) ? ' · ' + fmt(a.due) : '') : 'Closed ' + fmt(a.closed?.date)}</p>
+      ${a.recheck?.length ? h`<div class="card"><p class="eyebrow">What to look at again · ${a.recheck.length}</p><ul class="plain">${a.recheck.map(x => h`<li>${x}</li>`)}</ul></div>` : ''}`;
     if (!open) body = h`${body}<div class="card"><p class="eyebrow">What you saw</p><p>${a.closed?.what || '—'}</p></div>${btn('Reopen', 'reopen')}`;
     else if (mode === 'close') body = h`${body}<form data-form="close" class="form">${field('What did you see?', textArea('what', '', { rows: 3, placeholder: 'For example: door closer adjusted, latches every time' }))}
       ${field('Date', textInput('date', today(), { type: 'date', max: today() }))}<div class="dock-inline">${btn('Close action', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'mode', { data: { m: '' } })}</div></form>`;
@@ -53,7 +54,7 @@ register('action', {
       <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'mode', { data: { m: '' } })}</div></form>`;
     else body = h`${body}
       ${a.waiting ? h`<div class="card wait"><p class="eyebrow">Waiting on someone</p><p>Asked ${fmt(a.waiting.on)}: ${a.waiting.asked}. Check back ${fmt(a.waiting.checkBack)}.</p>
-        <div class="btnrow">${btn('It’s arrived · close it', 'mode', { kind: 'primary', data: { m: 'close' } })}${btn('Still waiting · new date', 'mode', { data: { m: 'wait' } })}${btn('Not waiting any more', 'unwait', { kind: 'link' })}</div></div>`
+        <div class="btnrow">${btn('Got it · close it', 'mode', { kind: 'primary', data: { m: 'close' } })}${btn('Still waiting · new date', 'mode', { data: { m: 'wait' } })}${btn('Not waiting any more', 'unwait', { kind: 'link' })}</div></div>`
         : h`${btn('Seen the fix · close it', 'mode', { kind: 'primary', cls: 'block', data: { m: 'close' } })}${btn('Waiting on someone', 'mode', { cls: 'block', data: { m: 'wait' } })}`}
 `;
     if (open && !mode && /Finish your OTP procedure|documented OTP procedures/.test(a.title) && c.ph.services.otp) { const o = otpPartsLeft(c.ph); body = h`${body}<div class="card"><p>${o.left} of ${o.total} OTP Standards parts to write.</p>${btn('Mark the parts', 'go', { data: { to: 'otp-parts' } })}</div>`; }

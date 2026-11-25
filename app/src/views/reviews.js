@@ -4,7 +4,7 @@ import { register } from '../app.js';
 import { h } from '../util.js';
 import { screen, btn, row, field, textInput, textArea, choice, note, why, empty, select, icon } from '../ui.js';
 import { C } from '../content.js';
-import { catalog, reviewById, applies, suggestedNext, s8Limit, LEGAL, serviceName } from '../rules.js';
+import { catalog, reviewById, applies, suggestedNext, s8Limit, LEGAL, serviceName, stockIncomplete, latestStockCheck } from '../rules.js';
 import { addMonths } from '../dates.js';
 import { reviewDue, bucket } from '../summary.js';
 import { fmt, today, addDays, dueText, isDate } from '../dates.js';
@@ -69,7 +69,8 @@ register('review', {
     if (!d) return screen({ title: a.name, back: true, site: c.ph.name, body: h`
       <p class="muted">${a.legal ? h`<span class="law">Required by law</span> ` : ''}${legalLine(a)}</p>${why('Why?', whyText(a))}
       ${!ap.applies ? note('Preview only: ' + ap.why + '.', 'warn') : ''}
-      <dl class="facts"><dt>How often</dt><dd>${c.ph.intervals?.[a.id] || a.frequency}</dd><dt>Last done</dt><dd>${last ? fmt(last.date) + ' by ' + last.by : 'Not yet'}</dd>
+      <dl class="facts"><dt>How often</dt><dd>${c.ph.intervals?.[a.id] || a.frequency}</dd>${a.id === 'B1' ? (() => { const done = c.ph.records.filter(x => x.type === 'B1' && !stockIncomplete(x)).sort((x, y) => x.date.localeCompare(y.date)).at(-1), stock = latestStockCheck(c.ph);
+          return h`<dt>Last proprietor review</dt><dd>${last ? fmt(last.date) + ' by ' + last.by + (stockIncomplete(last) ? ' · stock check incomplete' : '') : 'Not yet'}</dd><dt>Last completed stocktake</dt><dd>${stock ? fmt(stock) + (done?.fields?.stockBy ? ' · ' + done.fields.stockBy : '') : 'None on record'}</dd>`; })() : h`<dt>Last done</dt><dd>${last ? fmt(last.date) + ' by ' + last.by : 'Not yet'}</dd>`}
         <dt>Set by</dt><dd>${a.legal ? 'The law (' + a.legal.line.replace(/^.*\((.*)\)$/, '$1') + ')' : c.ph.intervals?.[a.id] ? 'You' : a.service ? 'Your ' + serviceName(a.service) + ' service' : 'Good practice for proprietors'}</dd>
         <dt>Why it's here</dt><dd>${ap.applies ? (a.service ? 'You offer ' + serviceName(a.service) + '.' : 'Every pharmacy.') : ap.why + '.'}</dd></dl>
       <div class="card"><p class="meta">${a.event ? 'Done when you start or change the service.' : due ? dueText(due) + ' · ' + fmt(due) : 'No date yet'}</p>

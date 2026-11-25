@@ -27,7 +27,7 @@ export function validate(b) {
   checkPharmacy(got.pharmacy, got.drafts);
   return got;
 }
-const b2from = got => got.pharmacy.legacy ? 'an earlier R.Pharmacy backup' : 'a PropApp backup';
+const b2from = got => got.pharmacy.legacy ? 'a backup from the earlier R.Pharmacy app' : 'an R.Pharmacy backup';
 export async function importBackup(c, file) {
   if (!file) return;
   try {
@@ -37,7 +37,7 @@ export async function importBackup(c, file) {
     // The receipt is built from the checked backup first; the pharmacy, its drafts and the directory are then queued
     // together and written in one storage transaction (store.flush), so nothing is half-restored.
     const receipt = { name: got.pharmacy.name, records: got.pharmacy.records.length, actions: Object.keys(got.pharmacy.actions).length, staff: got.pharmacy.staff.length, procedures: got.pharmacy.procedures.length, drafts: Object.keys(got.drafts || {}).length, from: b2from(got) };
-    c.store.savePharmacy(got.pharmacy); c.store.setDrafts(got.pharmacy.id, got.drafts);
+    c.store.savePharmacy(got.pharmacy, { replace: true }); c.store.setDrafts(got.pharmacy.id, got.drafts, { replace: true });
     await c.open(got.pharmacy.id); c.ui.receipt = receipt; c.go('receipt');
   } catch (e) { c.toast(e.message); c.rerender(); }
 }

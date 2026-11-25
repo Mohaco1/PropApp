@@ -24,13 +24,15 @@ register('meeting', {
     const prev = Object.fromEntries((last?.fields?.sections || []).map(s => [s.heading, s.text]));
     const openActs = Object.values(c.ph.actions).filter(x => x.status === 'open' && x.source?.recordId && x.source.recordId === last?.id);
     const staff = c.ph.staff.filter(p => p.active !== false);
+    // Bug 5: say "filled in" only when something really was (an attendee still on staff, or some discussion text).
+    const filled = !!last && (staff.some(p => (last.fields?.attendees || []).includes(p.name)) || Object.values(prev).some(t => String(t || '').trim()));
     return screen({ title: a.name, back: true, body: h`<p class="muted">${a.frequency}${reviewDue(c.ph, r.id) ? ' · ' + dueText(reviewDue(c.ph, r.id)) : ''}${last ? ' · last ' + fmt(last.date) : ''}</p>
-      ${last ? note('Filled in from your last meeting (' + fmt(last.date) + '). Change anything that’s different.', 'ok') : ''}
+      ${filled ? note('Filled in from your last meeting (' + fmt(last.date) + '). Change anything that’s different.', 'ok') : ''}
       ${openActs.length ? h`<section class="sec"><h2 class="sec-title">Still open from last time</h2><div class="list">${openActs.map(x => row({ title: x.title, right: dueText(x.due), act: 'go', data: { to: 'action', id: x.id } }))}</div></section>` : ''}
       <form class="form" data-form="save">${field('Date', textInput('date', today(), { type: 'date', max: today() }))}
         ${staff.length ? h`<fieldset class="field"><legend class="field-label">Who was there</legend><div class="ticks">${staff.map(p => h`<label class="tick"><input type="checkbox" name="who" value="${p.name}" ${(last?.fields?.attendees || []).includes(p.name) ? h`checked` : ''}><span>${p.name}</span></label>`)}</div></fieldset>` : ''}
         ${field('Others there (optional)', textInput('others', ''))}
-        ${SECTIONS.map((s, i) => field(s, textArea('s' + i, prev[s] || '', { rows: 3, noPatient: i === SECTIONS.length - 1 })))}
+        ${SECTIONS.map((s, i) => field(s, textArea('s' + i, prev[s] || '', { rows: 3, noPatient: i === 0 })))}
         ${field('New action from this meeting (optional)', textInput('action', ''))}
         ${field('Next meeting', textInput('next', suggestedNext(c.ph, r.id, today()), { type: 'date' }))}
         <div class="dock-inline">${btn('Save meeting', null, { kind: 'primary', type: 'submit' })}</div></form>` });

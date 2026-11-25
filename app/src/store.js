@@ -53,29 +53,49 @@ function put(k, v) {
 const bases = new Map();
 async function readStored(k) { if (useLS || !db) { try { return JSON.parse(localStorage.getItem(k)); } catch { return undefined; } }
   return await new Promise(res => { try { const r = db.transaction(ST).objectStore(ST).get(k); r.onsuccess = () => res(r.result); r.onerror = () => res(undefined); } catch { res(undefined); } }); }
-export async function flush() {
+// Merges for one key, run with the stored value read inside the same write transaction (bug 1: no gap between read
+// and write, so two tabs can't both read the old copy and overwrite each other).
+let kept = false, merged3 = false;
+function mergeDrafts(k, v, stored) {
+  const base = bases.get(k) || {}; if (!stored) return v;
+  const merged = { ...v };
+  for (const [dk, sv] of Object.entries(stored)) { if (dk.includes('/conflict-')) { if (!(dk in v) && dk in base) continue; merged[dk] ??= sv; continue; } // R08: one this window saw and dismissed stays dismissed
+    const mine = v[dk], b0 = base[dk];
+    if (sv && sv.rev && sv.rev !== b0 && (!mine || mine.rev !== sv.rev)) { if (mine && mine.rev !== b0) { merged[dk + '/conflict-' + Date.now()] = { ...mine }; kept = true; } merged[dk] = sv; } }
+  return merged;
+}
+function mergeOne(k, v, stored) {
+  if (!v) return v;
+  if (k.startsWith('propapp:ph:')) { if (replacing.has(k) || !seen.has(k) || !stored || same(stored, seen.get(k))) return v; merged3 = true; return merge3(seen.get(k), v, stored); }
+  if (k.startsWith('propapp:drafts:') && bases.has(k)) return mergeDrafts(k, v, stored);
+  return v;
+}
+const needsRead = (k, v) => !!v && ((k.startsWith('propapp:ph:') && seen.has(k) && !replacing.has(k)) || (k.startsWith('propapp:drafts:') && bases.has(k)));
+// A restore the owner confirmed replaces the pharmacy outright: nothing from another tab is blended into it.
+const replacing = new Set();
+let running = null, quota = 0;
+export function flush() { running = (running || Promise.resolve()).then(flushNow, flushNow); return running; }
+async function flushNow() {
   clearTimeout(timer); if (!pending.size) return true;
-  const batch = [...pending]; pending.clear(); let kept = false, merged3 = false;
-  for (const item of batch) { const [k, v] = item; if (!k.startsWith('propapp:ph:') || !v || !seen.has(k)) continue;
-    const stored = await readStored(k), base = seen.get(k); if (!stored || same(stored, base)) continue;
-    const m = merge3(base, v, stored); item[1] = m; merged3 = true; if (mem.get(k) === v) mem.set(k, m); }
-  for (const item of batch) { const [k, v] = item; if (!k.startsWith('propapp:drafts:') || !v || !bases.has(k)) continue;
-    const stored = await readStored(k), base = bases.get(k); bases.delete(k); if (!stored) continue;
-    const merged = { ...v };
-    for (const [dk, sv] of Object.entries(stored)) { if (dk.includes('/conflict-')) { if (!(dk in v) && dk in base) continue; merged[dk] ??= sv; continue; } // R08: one this window saw and dismissed stays dismissed
-      const mine = v[dk], b0 = base[dk];
-      if (sv && sv.rev && sv.rev !== b0 && (!mine || mine.rev !== sv.rev)) { if (mine && mine.rev !== b0) { merged[dk + '/conflict-' + Date.now()] = { ...mine }; kept = true; } merged[dk] = sv; } }
-    item[1] = merged; if (mem.get(k) === v) mem.set(k, merged); else if (pending.has(k)) { const later = pending.get(k); for (const [dk, x] of Object.entries(merged)) if (dk.includes('/conflict-') && !later[dk]) later[dk] = x; } }
+  const batch = [...pending].map(([k, v]) => [k, v, v]); pending.clear(); kept = false; merged3 = false;
   try {
-    if (useLS || !db) { for (const [k, v] of batch) v === undefined ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); }
-    else await new Promise((res, rej) => { const tx = db.transaction(ST, 'readwrite'), s = tx.objectStore(ST); for (const [k, v] of batch) v === undefined ? s.delete(k) : s.put(clone(v), k); tx.oncomplete = res; tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); });
-    for (const [k, v] of batch) if (k.startsWith('propapp:ph:')) v === undefined ? seen.delete(k) : seen.set(k, clone(v));
+    if (useLS || !db) { for (const item of batch) { const [k, v] = item; let stored; try { stored = JSON.parse(localStorage.getItem(k)); } catch {} item[1] = needsRead(k, v) ? mergeOne(k, v, stored) : v; item[1] === undefined ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(item[1])); } }
+    else await new Promise((res, rej) => { const tx = db.transaction(ST, 'readwrite'), s = tx.objectStore(ST);
+      const write = item => item[1] === undefined ? s.delete(item[0]) : s.put(clone(item[1]), item[0]);
+      for (const item of batch) { const [k, v] = item; if (!needsRead(k, v)) { write(item); continue; }
+        const g = s.get(k); g.onsuccess = () => { item[1] = mergeOne(k, v, g.result); write(item); }; }
+      tx.oncomplete = res; tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); });
+    for (const [k, v, orig] of batch) { if (k.startsWith('propapp:ph:')) v === undefined ? seen.delete(k) : seen.set(k, clone(v)); replacing.delete(k); bases.delete(k);
+      if (v !== orig) { if (mem.get(k) === orig) mem.set(k, v); else if (pending.has(k) && k.startsWith('propapp:drafts:')) { const later = pending.get(k); for (const [dk, x] of Object.entries(v)) if (dk.includes('/conflict-') && !later[dk]) later[dk] = x; } } }
     chan?.postMessage({ keys: batch.map(b => b[0]) });
-    tries = 0; if (!pending.size) setStatus('saved');
+    tries = 0; quota = 0; if (!pending.size) setStatus('saved');
     // A conflict copy was kept, or another tab's changes were merged in: show the result without a reload.
     if (kept || merged3) onChange?.();
     return true;
-  } catch (e) { console.error(e); for (const [k, v] of batch) if (!pending.has(k)) pending.set(k, v); setStatus('failed'); tries++; clearTimeout(timer); timer = setTimeout(flush, Math.min(30000, 1000 * 2 ** tries)); return false; }
+  } catch (e) { console.error(e); for (const [k, , orig] of batch) if (!pending.has(k)) pending.set(k, orig);
+    // Storage full: stop retrying after 5 attempts and ask for a backup (the records stay in this window meanwhile).
+    if (e?.name === 'QuotaExceededError' && ++quota >= 5) { setStatus('full'); return false; }
+    setStatus('failed'); tries++; clearTimeout(timer); timer = setTimeout(flush, Math.min(30000, 1000 * 2 ** tries)); return false; }
 }
 let chan = null, onChange = null;
 export async function init(onExternalChange) {
@@ -87,7 +107,7 @@ export async function init(onExternalChange) {
 export const dir = () => mem.get('propapp:dir') || { active: '', ids: [] };
 export function setDir(d) { put('propapp:dir', d); }
 export const pharmacy = id => mem.get('propapp:ph:' + id) || null;
-export function savePharmacy(ph) { put('propapp:ph:' + ph.id, ph); const d = dir(); if (!d.ids.includes(ph.id)) { d.ids.push(ph.id); setDir(d); } }
+export function savePharmacy(ph, { replace = false } = {}) { if (replace) replacing.add('propapp:ph:' + ph.id); put('propapp:ph:' + ph.id, ph); const d = dir(); if (!d.ids.includes(ph.id)) { d.ids.push(ph.id); setDir(d); } }
 export const drafts = id => mem.get('propapp:drafts:' + id) || {};
 export function saveDraft(phId, key, value, readRev) {
   const all = { ...drafts(phId) }, cur = all[key], K = 'propapp:drafts:' + phId;
@@ -96,7 +116,7 @@ export function saveDraft(phId, key, value, readRev) {
   if (cur && readRev !== undefined && cur.rev !== readRev) { all[key + '/conflict-' + Date.now()] = { ...value, rev: Date.now() }; put('propapp:drafts:' + phId, all); return false; }
   all[key] = { ...value, rev: Date.now() }; put('propapp:drafts:' + phId, all); return true;
 }
-export function setDrafts(phId, all) { put('propapp:drafts:' + phId, all); }
+export function setDrafts(phId, all, { replace = false } = {}) { if (replace) bases.delete('propapp:drafts:' + phId); put('propapp:drafts:' + phId, all); }
 export function removePharmacy(id) { put('propapp:ph:' + id, undefined); put('propapp:drafts:' + id, undefined); const d = dir(); d.ids = d.ids.filter(x => x !== id); if (d.active === id) d.active = d.ids[0] || ''; setDir(d); }
 export const getPref = k => mem.get('propapp:pref:' + k);
 export const setPref = (k, v) => put('propapp:pref:' + k, v);

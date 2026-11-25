@@ -26,24 +26,24 @@ register('backup', {
   tab: 'more',
   render(c) { const last = c.ph.settings.lastBackup, n = c.ph.history.filter(x => !last || x.at > last).length;
     return screen({ title: 'Backup and devices', back: true, body: h`
-      <div class="card"><h2>${last ? 'Last backup ' + fmt(last.slice(0, 10)) : 'No backup yet'}</h2><p class="muted">${n} changes since. Your records are kept only in this browser on this device, so keep a backup somewhere safe (for example your email or cloud drive).</p>
+      <div class="card"><h2>${last ? 'Last requested ' + fmt(last.slice(0, 10)) : 'No backup yet'}</h2><p class="muted">${last ? (n === 1 ? '1 change' : n + ' changes') + ' since last request.' : ''} A browser can’t tell the app whether the file was saved, so check it’s in your files. Your records are kept only in this browser on this device, so keep a backup somewhere safe (for example your email or cloud drive).</p>
         ${btn('Download a backup', 'dl', { kind: 'primary', cls: 'block' })}</div>
       ${isPWA() ? h`<div class="card" id="device"><h2>This device</h2><p class="muted">${standalone() ? 'Opened from your Home Screen.' : 'Opened in the browser. Add it to your Home Screen so your phone keeps your records: on iPhone, tap Share, then Add to Home Screen; on Android, tap ⋮, then Install app.'}</p>
         ${standalone() ? '' : h`<p class="note warn">On iPhone, the Home Screen app keeps its own records, separate from Safari. If you’ve already entered records here, download a backup first, then restore it in the Home Screen app.</p>`}
         <p class="meta">${c.ui.kept === true ? 'This browser has agreed to keep this app’s records.' : c.ui.kept === false ? 'This browser may clear the records if the phone runs short of space: keep backups.' : ''}</p></div>` : ''}
-      <div class="card"><h2>Restore</h2><p class="muted">Open a PropApp backup, or a backup from the earlier R.Pharmacy app. If the pharmacy is already here you’re asked before anything is replaced.</p>
+      <div class="card"><h2>Restore</h2><p class="muted">Open an R.Pharmacy backup (from this app or the earlier version). If the pharmacy is already here you’re asked before anything is replaced.</p>
         <label class="btn secondary block" style="display:grid;place-items:center">Choose a backup file<input type="file" accept="application/json,.json" data-change="restore" hidden></label></div>
       ${(() => { const cf = Object.entries(c.drafts).filter(([k]) => k.includes('/conflict-')); return h`<section class="sec"><h2 class="sec-title">Conflict copies · ${cf.length}</h2><p class="muted">If the same draft was changed in two places (for example two tabs), the newer one is kept and the other is saved here instead of being lost.</p>
         ${cf.length ? h`<div class="list">${cf.map(([k, v]) => { const n = Object.values(v.items || v.answers || {}).filter(x => x && (x.status || typeof x === 'string')).length; return h`<div class="row static"><span class="row-main"><span class="row-title">${k.startsWith('visit/') ? (k.startsWith('visit/extra') ? 'Extra visit' : 'Quarterly visit') : 'Review ' + k.split('/')[1]} · copy from ${fmt(new Date(+k.split('conflict-')[1]).toISOString().slice(0, 10))}</span><span class="row-sub">${n} answer${n === 1 ? '' : 's'}${v.notes ? ' · note: ' + v.notes : ''}${v.date ? ' · visit date ' + fmt(v.date) : ''}</span><span class="btnrow">${btn('Copy its answers', 'cfcopy', { data: { k } })}${btn('Dismiss', 'cfdel', { kind: 'link', data: { k } })}</span></span></div>`; })}</div>` : h`<p class="muted">None.</p>`}</section>`; })()}
       <section class="sec"><h2 class="sec-title">Storage on this device</h2><div class="card" id="storage"><p class="muted">Checking…</p></div></section>
-      <p class="hint">Downloads don’t work inside the claude.ai preview. Open the app file in your phone’s browser to download.</p>` }); },
+      <p class="hint">If nothing downloads (some previews block files), open the app file in your phone’s browser.</p>` }); },
   after: async c => { if (isPWA() && c.ui.kept === undefined) { c.ui.kept = null; keptStatus().then(k => { c.ui.kept = k; c.rerender(); }); }
     const el = document.getElementById('storage'); if (!el) return; let txt = 'This browser doesn’t report storage details.';
     try { const e = await navigator.storage?.estimate?.(), pers = await navigator.storage?.persisted?.(); if (e) txt = 'Using ' + (e.usage / 1048576).toFixed(1) + ' MB of about ' + Math.round(e.quota / 1048576) + ' MB available. ' + (pers ? 'The browser has agreed to keep this data.' : 'The browser may clear it if the device runs short of space: keep backups.'); } catch {}
     el.innerHTML = ''; const p = document.createElement('p'); p.textContent = txt; el.append(p); },
   acts: { cfdel: (c, d) => { c.saveDraft(d.k, null); c.rerender(); c.toast('Conflict copy dismissed'); },
     cfcopy: async (c, d) => { if (await copyText(JSON.stringify(c.drafts[d.k], null, 1))) { c.toast('Copied'); } else { c.toast('Copy didn’t work here.'); } },
-    dl: c => { const ok = saveFile(c.ph.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify(pharmacyBackup(c)), 'application/json'); if (ok) c.change(ph => { ph.settings.lastBackup = new Date().toISOString(); }, 'Backup downloaded'); } },
+    dl: c => { const ok = saveFile(c.ph.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify(pharmacyBackup(c)), 'application/json'); if (ok) c.change(ph => { ph.settings.lastBackup = new Date().toISOString(); }, 'Backup download requested'); } },
   changes: { restore: (c, el) => importBackup(c, el.files[0]) },
 });
 register('pharmacies', {

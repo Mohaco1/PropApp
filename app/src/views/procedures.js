@@ -12,6 +12,9 @@ import { addDays, addMonths } from '../dates.js';
 import { questionIndex } from './services.js';
 const current = p => p?.versions?.at(-1);
 // Annual procedure review: 12 months after the last review, or after adoption.
+// F-LIVE-08: an adopted version never calls itself a draft. Only how it's shown changes; the stored text is untouched.
+export const adoptedWording = (v, t) => v.status !== 'Adopted' ? t : String(t).replace(/Draft generated from (.+?)’s setup answers and the sources listed at the end\. Review it, adjust it to how you work, and (?:adopt it in Procedures|approve it in Policies)\./,
+  (m, who) => 'Adopted procedure (version ' + v.v + ', adopted ' + fmt(String(v.adoptedAt || v.at).slice(0, 10)) + '), prepared from ' + who + '’s setup answers and the sources listed at the end.');
 export const procReviewDue = p => addMonths(String((p.reviews || []).at(-1)?.date || p.versions.filter(v => v.status === 'Adopted').at(-1)?.adoptedAt || p.versions.at(-1).at).slice(0, 10), 12);
 // Which setup question fills a "[Confirm: …]" gap: the unanswered or "Check later" question sharing the most words.
 const words = t => new Set(String(t).toLowerCase().match(/[a-z0-9]{4,}/g) || []);
@@ -51,7 +54,7 @@ register('procedure', {
         ${c.ui['am:' + id] ? h`<form class="form" data-form="amend">${field('Local amendment (how your pharmacy does this differently)', textArea('amendment', p.amendment || '', { rows: 3 }))}<div class="btnrow">${btn('Save amendment', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'amno')}</div></form>` : btn(p.amendment ? 'Change the local amendment' : 'Add a local amendment', 'am', { kind: 'link' })}
         </div></section>` : ''}
       ${(() => { const acts = Object.values(c.ph.actions).filter(a => a.source?.type === 'procedure' && a.source.service === id); return h`<section class="sec"><h2 class="sec-title">Actions for this procedure · ${acts.length}</h2>${acts.length ? h`<div class="list">${acts.map(a => row({ title: a.title, right: a.status === 'closed' ? 'Closed' : 'Open', act: 'go', data: { to: 'action', id: a.id } }))}</div>` : ''}${btn('+ Add an action for this procedure', 'linkact', { kind: 'link' })}</section>`; })()}
-      <div class="doc">${v.edited ? v.body : procWording(v.body)}</div>
+      <div class="doc">${adoptedWording(v, v.edited ? v.body : procWording(v.body))}</div>
       ${p.versions.length > 1 ? why('Version history · ' + p.versions.length, h`<div class="list">${p.versions.slice().reverse().map((x, i) => row({ title: 'Version ' + x.v + (i === 0 ? ' (current)' : ''), sub: [x.status, fmt(String(x.at).slice(0, 10)), x.adoptedBy && 'adopted by ' + x.adoptedBy, x.edited && 'wording edited'].filter(Boolean).join(' · '), chev: false }))}</div>`) : ''}` });
   },
   acts: {

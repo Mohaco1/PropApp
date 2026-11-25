@@ -52,8 +52,8 @@ register('services', {
 function needsLead(ph) { return !ph.lead && Object.keys(ph.services).some(id => ph.services[id].active && (RPH.sq.LEAD[id] || []).length); }
 register('lead', {
   tab: 'more',
-  render(c) { const opts = ['Pharmacist in charge', 'Designated pharmacist', 'Proprietor', 'Someone else'];
-    return screen({ title: 'Day to day', back: true, body: h`<h2 class="big-title">Who runs your services day to day?</h2><p class="muted">For example, who handles exceptions and escalations. You stay responsible overall.</p>
+  render(c, r) { const opts = ['Pharmacist in charge', 'Designated pharmacist', 'Proprietor', 'Someone else'];
+    return screen({ title: 'Day to day', back: true, body: h`<h2 class="big-title">Who runs your services day to day?</h2>${r?.from ? h`<p class="note ok">Asked once for all your services. Then you’ll carry on with ${serviceName(r.from)}.</p>` : ''}<p class="muted">For example, who handles exceptions and escalations. You stay responsible overall.</p>
       <form class="form" data-form="save">${choice('lead', opts.map(v => ({ value: v, label: ROLE_SHOW(v) })), c.ph.lead || '')}${field('If someone else, who (role, not a name is fine)', textInput('other', ''))}
       <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` }); },
   forms: { save: (c, f) => { if (!f.lead) return; c.change(ph => { ph.lead = f.lead === 'Someone else' && f.other ? 'Someone else: ' + f.other.trim() : f.lead; }, 'Saved'); c.back(); } },
@@ -62,7 +62,7 @@ register('service-setup', {
   tab: 'more',
   render(c, r) {
     const id = r.id, s = c.ph.services[id]; if (!s) return screen({ title: 'Service', back: true, body: empty('Not found.') });
-    if (needsLead(c.ph) && (RPH.sq.LEAD[id] || []).length) return screen({ title: serviceName(id), back: true, body: h`<p>First, one question for all services.</p>${btn('Who runs your services day to day?', 'go', { kind: 'primary', data: { to: 'lead' } })}` });
+    if (needsLead(c.ph) && (RPH.sq.LEAD[id] || []).length) return screen({ title: serviceName(id), back: true, body: h`<p>First, one question for all services.</p>${btn('Who runs your services day to day?', 'go', { kind: 'primary', data: { to: 'lead', from: id } })}` });
     const fs = fieldsFor(c.ph, id), a = s.answers || {}, step = Math.min(c.ui['ss:' + id] ?? s.pos ?? fs.findIndex(f => !answered(a, f.key)), fs.length);
     const idx = step < 0 ? fs.length : step;
     const prog = h`<div class="prog">${fs.map((f, i) => h`<i class="${i === idx ? 'cur' : answered(a, f.key) ? 'done' : ''}"></i>`)}</div>`;

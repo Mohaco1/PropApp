@@ -44,7 +44,7 @@ register('obligations', {
 register('obligation', {
   tab: 'more',
   render(c, r) { const o = L.OBL.find(x => x[0] === r.id), ev = c.ph.obligations?.[r.id] || {};
-    return screen({ title: o[2], back: true, body: h`<p class="muted">${L.REG}, ${o[1]}</p><div class="card"><p>${o[3]}</p></div>${why('What the section says about who', o[4])}
+    return screen({ title: o[2], back: true, body: h`<p class="muted">${L.REG}, ${o[1]}</p><div class="card"><p>${o[3]}</p></div>${String(o[4] || '').trim() ? why('What the section says about who', o[4]) : ''}
       <form class="form" data-form="save">${field('Where is the evidence kept?', textInput('where', ev.where || '', { placeholder: 'e.g. drug register, dispensary safe shelf' }))}${field('When did you last see it?', textInput('date', ev.date || '', { type: 'date', max: today() }))}
       <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form><p class="hint">Read the section itself before relying on this summary.</p>` }); },
   forms: { save: (c, f, el, r) => { c.change(ph => { (ph.obligations ??= {})[r.id] = { where: f.where.trim(), date: f.date, by: me(ph).name, at: new Date().toISOString() }; log(ph, 'Evidence recorded · ' + r.id); }, 'Saved'); c.back(); } },

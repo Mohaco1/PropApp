@@ -38,7 +38,7 @@ register('sources', {
   },
   acts: {
     changed: (c, d) => { const s = SOURCES.find(x => x[0] === d.k), u = usedBy(c.ph)[d.k];
-      c.change(ph => { newAction(ph, { title: 'Re-check after a change to ' + s[1] + ': ' + u.join('; '), due: addDays(today(), 30), source: { kind: 'source', label: 'Sources · ' + s[1] } });
+      c.change(ph => { const act = newAction(ph, { title: 'Re-check after a change to ' + s[1], due: addDays(today(), 30), source: { kind: 'source', label: 'Sources · ' + s[1] } }); act.recheck = u; // F-LIVE-05: short title; the places are listed on the action
         ((ph.flags ??= {}).sourceChecks ??= {})[d.k] = today(); }, 'Action raised. It’s in Actions.'); },
   },
 });

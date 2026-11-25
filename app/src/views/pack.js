@@ -6,12 +6,16 @@ import { h } from '../util.js';
 import { screen, btn } from '../ui.js';
 import { C } from '../content.js';
 import { fmt, today, addMonths, isDate, daysBetween } from '../dates.js';
-import { reviewById, activeServices, serviceName } from '../rules.js';
+import { reviewById, activeServices, serviceName, stockIncomplete } from '../rules.js';
 import { UPDATES } from '../content/updates.js';
 import { items, counts } from '../summary.js';
 import { requirements, credentialState } from '../model.js';
 import { issueCount } from '../issues.js';
 const L = C.law;
+// Bug 3: one reading of a record's next due date (reviews keep it in fields.next, visits on the record itself).
+const nextOf = r => { const n = r.fields?.next || r.next || ''; return isDate(n) ? fmt(n) : ''; };
+const s8Count = rows => { const done = rows.filter(r => r[1] === 'Completed stocktake').length, inc = rows.length - done;
+  return [done === 1 ? '1 completed stocktake' : done + ' completed stocktakes', inc ? (inc === 1 ? '1 incomplete review' : inc + ' incomplete reviews') : ''].filter(Boolean).join(' · '); };
 const closedBy = a => a.closed?.by || [...(a.log || [])].reverse().find(e => e.kind === 'closed' && e.by)?.by || '';
 // F-V3-04: the pack's own dates always carry the year.
 const full = s => { const f = fmt(s); return /\d{4}$/.test(f) ? f : f + ' ' + String(s).slice(0, 4); };
@@ -22,8 +26,9 @@ export function packData(ph, drafts, from = addMonths(today(), -12)) {
   const n = counts(items(ph, drafts));
   return {
     from, n,
-    reviews: recs.filter(r => r.kind !== 'staff' && r.kind !== 'departure').map(r => [fmt(r.date), r.extra ? 'Extra site visit' : r.title || reviewById(r.type)?.name || r.type, r.by || '', String(issueCount(r)), isDate(r.fields?.next) ? fmt(r.fields.next) : '']),
-    s8: ph.records.filter(r => r.type === 'B1' && r.date >= from).sort((a, b) => b.date.localeCompare(a.date)).map(r => [fmt(r.date), isDate(r.fields?.stockDate) ? fmt(r.fields.stockDate) : '', r.fields?.stockBy || r.fields?.stockPharmacist || '', isDate(r.fields?.next) ? fmt(r.fields.next) : '']),
+    reviews: recs.filter(r => r.kind !== 'staff' && r.kind !== 'departure').map(r => [fmt(r.date), r.extra ? 'Extra site visit' : r.title || reviewById(r.type)?.name || r.type, r.by || '', String(issueCount(r)), nextOf(r)]),
+    // Bug 3: completed and incomplete S8 entries are both shown, each labelled, and counted separately.
+    s8: ph.records.filter(r => r.type === 'B1' && r.date >= from).sort((a, b) => b.date.localeCompare(a.date)).map(r => [fmt(r.date), stockIncomplete(r) ? 'Incomplete review' : 'Completed stocktake', isDate(r.fields?.stockDate) ? fmt(r.fields.stockDate) : '—', r.fields?.stockBy || r.fields?.stockPharmacist || '—', nextOf(r)]),
     open: acts.filter(a => a.status !== 'closed').sort((a, b) => (a.due || '9').localeCompare(b.due || '9')).map(a => [a.title, fmt(a.created), a.due ? fmt(a.due) : '', a.waiting ? 'Waiting · ' + a.waiting.asked : (a.due && a.due < today() ? 'Overdue' : 'Open')]),
     // F-V3-02: who closed it (from the close itself, or the log of an older record). F-V3-03: routine staff-check
     // actions are one line per person, so the real fixes stand out.
@@ -57,7 +62,7 @@ register('pack', {
           <p>Designed for de-identified proprietor records: check your notes before sharing.</p>
           <p>Today: ${d.n.overdue === 1 ? '1 item overdue' : d.n.overdue + ' items overdue'} · ${d.n.all - d.n.tocheck === 1 ? '1 item' : (d.n.all - d.n.tocheck) + ' items'} in the plan · law and practice updates read: ${d.updatesRead} of ${UPDATES.length}</p></header>
         ${sec('Reviews, visits and meetings · ' + d.reviews.length, table(['Date', 'What', 'Recorded by', 'Issues', 'Next due'], d.reviews, 'None recorded in this period.'))}
-        ${sec('S8 stock checks · ' + d.s8.length, table(['Reviewed', 'Stock check', 'Pharmacist', 'Next due'], d.s8, 'None recorded in this period.'))}
+        ${sec('S8 stock checks · ' + s8Count(d.s8), table(['Reviewed', 'Outcome', 'Stock check', 'Pharmacist', 'Next due'], d.s8, 'None recorded in this period.'))}
         ${sec('Open actions · ' + d.open.length, table(['Action', 'Raised', 'Due', 'Status'], d.open, 'No open actions.'))}
         ${sec('Actions closed · ' + d.closed.length, d.closed.some(r => r[3]) ? table(['Action', 'Closed', 'What was seen', 'By'], d.closed, 'None closed in this period.') : table(['Action', 'Closed', 'What was seen'], d.closed.map(r => r.slice(0, 3)), 'None closed in this period.'))}
         ${d.staffClosed.length ? sec('Staff checks closed', table(['Person', 'What', 'Latest'], d.staffClosed, '')) : ''}

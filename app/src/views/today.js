@@ -32,7 +32,7 @@ function topCard(c, list) {
   const nd = undated(ph).length;
   if (nd) return h`<div class="card hero"><p class="eyebrow">Almost there</p><h2>${nd === 1 ? '1 review needs' : nd + ' reviews need'} a first date</h2><p class="muted">The app suggests dates. You check them and save.</p>${btn('Plan the dates', 'go', { kind: 'primary', data: { to: 'first-dates' } })}</div>`;
   const last = ph.settings.lastBackup, changes = ph.history.filter(x => !last || x.at > last).length;
-  if (changes > 25 && (!last || daysBetween(last.slice(0, 10), today()) > 30)) return h`<div class="card"><h2>Save a backup</h2><p class="muted">${last ? 'Last backup ' + fmt(last.slice(0, 10)) : 'No backup yet'} · ${changes} changes since. Your records live only on this device.</p>${btn('Back up now', 'go', { data: { to: 'backup' } })}</div>`;
+  if (changes > 25 && (!last || daysBetween(last.slice(0, 10), today()) > 30)) return h`<div class="card"><h2>Save a backup</h2><p class="muted">${last ? 'Last requested ' + fmt(last.slice(0, 10)) : 'No backup yet'} · ${changes} changes since${last ? ' last request' : ''}. Your records live only on this device.</p>${btn('Back up now', 'go', { data: { to: 'backup' } })}</div>`;
   const q1 = list.find(i => i.ref === 'Q1');
   if (q1 && (!isDate(q1.date) || daysBetween(today(), q1.date) <= 14)) return h`<div class="card hero"><p class="eyebrow">Site visit</p><h2>${q1.bucket === 'overdue' ? 'Your quarterly visit is overdue' : q1.date ? 'Quarterly visit due ' + fmt(q1.date) : 'Plan your first site visit'}</h2>${btn('Start a visit', 'go', { kind: 'primary', data: { to: 'visit-start' } })}</div>`;
   return '';
@@ -58,7 +58,7 @@ register('today', {
       <div class="filters" role="tablist">${FILTERS.map(([k, l]) => h`<button role="tab" aria-selected="${String(k === f)}" class="${k === f ? 'on' : ''}" data-act="filter" data-f="${k}"><b>${cnt[k]}</b><span>${l}</span></button>`)}</div>
       ${(u => u ? h`<button class="updline" data-act="go" data-to="updates">${icon('bell')}<span>${u === 1 ? '1 law update' : u + ' law updates'} to read</span>${icon('chev', 'chev')}</button>` : '')(unreadUpdates(c.ph).length)}
       ${n.nodate && f !== 'nodate' ? h`<button class="quietline" data-act="filter" data-f="nodate">${n.nodate === 1 ? '1 review has' : n.nodate + ' reviews have'} no date yet · show</button>` : ''}
-      <div class="list">${list.length ? list.map(i => row({ title: i.title, sub: i.sub, legal: i.legal, right: i.bucket === 'started' ? 'In progress' : i.started ? 'Started · ' + dueText(i.date) : i.bucket === 'tocheck' ? 'When you can' : dueText(i.date), tone: i.bucket === 'overdue' ? 'bad' : i.bucket === 'today' ? 'warn' : '', act: 'open', data: { key: i.key } })) : empty(f === 'overdue' ? 'Nothing overdue.' : 'Nothing here.')}</div>` })
+      <div class="list">${list.length ? list.map(i => row({ title: i.title, sub: i.sub, legal: i.legal, right: i.bucket === 'started' || (i.started && !i.date) ? 'In progress' : i.started ? 'Started · ' + dueText(i.date) : i.bucket === 'tocheck' ? 'When you can' : dueText(i.date), tone: i.bucket === 'overdue' ? 'bad' : i.bucket === 'today' ? 'warn' : '', act: 'open', data: { key: i.key } })) : empty(f === 'overdue' ? 'Nothing overdue.' : 'Nothing here.')}</div>` })
 
   },
   acts: {

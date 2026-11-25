@@ -240,3 +240,8 @@ a.linkbtn{text-decoration:none}
 /* R12: UAT notes button lives in the header bar (UAT builds only) */
 #uat-btn{top:calc(10px + env(safe-area-inset-top,0px));bottom:auto;right:max(12px,env(safe-area-inset-right,0px));min-width:44px;min-height:44px;padding:0 10px;font-size:13px}
 #uat-btn.inbar{position:static;flex:none;z-index:auto}
+/* Bug 4 (F-LIVE-01): an active tile without its own tint (Waiting, All) uses the soft ocean tint, never the solid fill */
+.filters button.on:not([data-f=overdue]):not([data-f=week]){background:var(--tint)}
+.filters button.on b{color:var(--fg)}.filters button.on[data-f=overdue] b{color:var(--bad)}.filters button.on[data-f=week] b{color:var(--warn)}
+#sr .row-title,.list .row .row-title{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.yp-legend .due{color:var(--accent)}.yearplan th:last-child,.yearplan td:last-child{padding-right:14px}

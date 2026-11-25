@@ -31,8 +31,8 @@ function load() {
 }
 let root;
 // R06: the header's saved indicator says what storage really did: Saving…, Saved, or Save failed (retrying).
-const SAVE = { saving: 'Saving…', saved: 'Saved', failed: 'Save failed · retrying' };
-function showSave(s) { for (const el of document.querySelectorAll('.saved')) { el.textContent = SAVE[s]; el.classList.toggle('bad', s === 'failed'); } }
+const SAVE = { saving: 'Saving…', saved: 'Saved', failed: 'Save failed · retrying', full: 'Storage full · back up now' };
+function showSave(s) { for (const el of document.querySelectorAll('.saved')) { el.textContent = SAVE[s]; el.classList.toggle('bad', s === 'failed' || s === 'full'); } }
 let lastTap = null;
 function trigger() { const el = (lastTap && lastTap.isConnected ? lastTap : null) || document.activeElement?.closest?.('[data-act]'); if (!el) return ''; return [...el.attributes].filter(a => a.name.startsWith('data-')).map(a => `[${a.name}="${CSS.escape(a.value)}"]`).join(''); }
 function refocus(sel) { if (!sel) return false; const el = root.querySelector(sel); if (!el) return false; el.focus({ preventScroll: false }); return true; }
@@ -61,13 +61,13 @@ function handle(e, type) {
   fn(ctx, el.dataset, el, r, e);
 }
 const common = { acts: {
-  back: c => c.back(), tab: (c, d) => c.tab(d.tab), go: (c, d) => c.go(d.to, { id: d.id || '' }),
+  back: c => c.back(), tab: (c, d) => c.tab(d.tab), go: (c, d) => c.go(d.to, { id: d.id || '', ...(d.from ? { from: d.from } : {}) }),
   seg: (c, d) => { c.ui[d.name] = d.value; render(); },
 }, forms: {} };
 export async function start(el) {
   root = el;
   await store.init(() => { load(); render(); });
-  store.watchStatus(s => { showSave(s); if (s === 'failed') ctx.toast('Couldn’t save just now. Trying again; keep this page open.'); });
+  store.watchStatus(s => { showSave(s); if (s === 'failed') ctx.toast('Couldn’t save just now. Trying again; keep this page open.'); if (s === 'full') ctx.toast('Storage full: download a backup now (More → Backup and devices). Keep this page open.'); });
   startPWA();
   load();
   document.addEventListener('click', e => { lastTap = e.target.closest?.('[data-act]') || null; handle(e, 'click'); });
