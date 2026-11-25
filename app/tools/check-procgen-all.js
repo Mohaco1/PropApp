@@ -19,7 +19,7 @@ const { chromium } = require('playwright'); const path = require('path'); const 
       if (!state.active.includes(id)) state.active.push(id);
       state.serviceConfig[id] = { ...(state.serviceConfig[id] || {}), serviceId: id, complete: true, procedureProfile: { answers: a, software: {} } };
       let doc = ''; try { doc = sopDocument(id); } catch (e) { doc = 'ERROR ' + e.message; }
-      out[id] = { answers: a, doc: doc.replace('and approve it in Policies.', 'and adopt it in Procedures.').replace(/\(Policies\)/g, '(Procedures)') };
+      out[id] = { answers: a, doc: doc.replace('and approve it in Policies.', 'and adopt it in Procedures.').replace(/\(Policies\)/g, '(Procedures)').replace('No advertising, signage, brochures or social posts about medicinal cannabis (NSW Health/TGA, per your research — verify).', 'No advertising, signage, brochures or social posts about medicinal cannabis (NSW Health, Cannabis medicines FAQ).').replace(/\(NSW Health\/TGA, per your research — verify\)/g, '(source to confirm with NSW Health or the TGA — verify)').replace(/\(Strive for 5 \/ NSW Health, per your plan — verify\)/g, '(Strive for 5 / NSW Health — check against the current edition — verify)').replace(/Steps marked “per your research — verify”/g, 'Steps marked “source to confirm with NSW Health or the TGA — verify”').replace(/Steps marked “per your plan — verify”/g, 'Steps marked “check against the current edition — verify”') };
     }
     return { name: state.pharmacyName, out };
   });

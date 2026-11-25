@@ -476,8 +476,8 @@ RPH.proc.build=function(id,t){
  sec(2,'Scope',p.scope);sec(3,'Responsibilities',p.roles);sec(4,'Procedure',p.steps,true);sec(5,'Records',p.records);sec(6,'Incidents and escalation',p.incidents);
  sec(7,'Proprietor oversight',p.oversight||['The proprietor reviews exceptions and open actions for this service at the site visit, and reviews this procedure at least annually or after a material change, incident or rule change.']);
  for(const m of L.join('\n').matchAll(/\[Confirm: ([^\]]+)\]/g))if(!confirm.includes(m[1]))confirm.push(m[1]);
- if(/per your research — verify/.test(L.join('\n')))confirm.push('steps marked “per your research — verify”: check each against the live NSW Health and TGA pages');
- if(/per your plan — verify/.test(L.join('\n')))confirm.push('steps marked “per your plan — verify”: check each against the current Strive for 5 and NSW Health cold-chain guidance');
+ if(/source to confirm with NSW Health or the TGA — verify/.test(L.join('\n')))confirm.push('steps marked “source to confirm with NSW Health or the TGA — verify”: check each against the live NSW Health and TGA pages');
+ if(/check against the current edition — verify/.test(L.join('\n')))confirm.push('steps marked “check against the current edition — verify”: check each against the current Strive for 5 and NSW Health cold-chain guidance');
  L.push('8. Confirm before adoption',...(confirm.length?confirm.map(x=>'• '+x.charAt(0).toUpperCase()+x.slice(1)):['• Nothing outstanding from setup.']),'• Check the steps match how your pharmacy works before approving.','');
  L.push('9. Sources',...p.sources.map(s=>'• '+s));
  return L.join('\n');
@@ -673,7 +673,7 @@ sopDocument=function(id){
  * not copied). Items from the research are marked "(NSW Health/TGA, per your research — verify)" until checked
  * against the live pages. Regulation 2026 citations are from the Regulation text.
  */
-(()=>{const T=RPH.proc.templates,REG='Medicines, Poisons and Therapeutic Goods Regulation 2026 (NSW), 2026 No 330',RS='(NSW Health/TGA, per your research — verify)',NV='(NSW Health, Legislative requirements for vaping products, Aug 2026; Vaping goods pharmacy self-assessment, June 2026)',NC='(NSW Health, Cannabis medicines page and FAQ, Nov 2026)';
+(()=>{const T=RPH.proc.templates,REG='Medicines, Poisons and Therapeutic Goods Regulation 2026 (NSW), 2026 No 330',RS='(source to confirm with NSW Health or the TGA — verify)',NV='(NSW Health, Legislative requirements for vaping products, Aug 2026; Vaping goods pharmacy self-assessment, June 2026)',NC='(NSW Health, Cannabis medicines page and FAQ, Nov 2026)';
  const REC='Records are kept for at least 2 years and available for inspection; corrections only by an initialled, dated marginal note (Regulation 2026 s 185).';
  const base={roles:['Pharmacist: supplies only after their own clinical check; no sales assistant authorises supply.','Proprietor: reviews exceptions, stock status and advertising for this service at the site visit.'],incidents:[],oversight:null};
  T.vaping=(a,c)=>Object.assign({},base,{
@@ -708,7 +708,7 @@ sopDocument=function(id){
    'Flower products: supply with an approved vaporiser and instructions; don’t supply if the patient intends to smoke it.',
    thc?'Store THC products in the S8 safe or locked room, keys or codes held only by pharmacists (Regulation 2026 s 122); enter every receipt and supply in the drug register on the day (s 109–110) and include them in the 3-monthly S8 inventory (s 111).':'Store products out of public reach, like other prescription medicines.',
    'No exclusive supply arrangements with a prescriber, clinic or other third party (Ahpra Shared Code of Conduct) '+NC,
-   'No advertising, signage, brochures or social posts about medicinal cannabis '+RS+'.',
+   'No advertising, signage, brochures or social posts about medicinal cannabis (NSW Health, Cannabis medicines FAQ)'+'.',
    'Label and record each supply (Regulation 2026 s 115, s 134).'],
   records:['Prescriptions, TGA approvals and counselling notes are kept in the dispensing system; patient details stay there.',thc?'Drug register entries and the S8 inventory; uncollected, expired or returned S8 stock is destroyed only as the Regulation allows.':null,REC],
   incidents:['An adverse effect, a recall or a product problem: follow the incident, TGA adverse-event and recall processes; an S8 loss or theft is reported as the Regulation requires.'],
@@ -729,7 +729,7 @@ sopDocument=function(id){
  * cold chain breach protocol and pharmacist ordering/storage page, and a PHN VAN toolkit (Sept 2026). Site names,
  * contacts and numbers are not copied. Steps from it are marked "(Strive for 5 / NSW Health, per your plan — verify)".
  */
-(()=>{const T=RPH.proc.templates,REG='Medicines, Poisons and Therapeutic Goods Regulation 2026 (NSW), 2026 No 330',V='(Strive for 5 / NSW Health, per your plan — verify)';
+(()=>{const T=RPH.proc.templates,REG='Medicines, Poisons and Therapeutic Goods Regulation 2026 (NSW), 2026 No 330',V='(Strive for 5 / NSW Health — check against the current edition — verify)';
  T.vaccination=(a,c)=>({
   purpose:'Give vaccinations safely and keep every vaccine within +2°C to +8°C from delivery to administration, with complete records, as the Regulation 2026, the NSW Pharmacist Vaccination Standards and Strive for 5 require.',
   scope:[c('venue',(v,s)=>'Where: '+s.toLowerCase()+'.','where vaccination is provided'),c('vaccines',(v,s)=>'Vaccines offered: '+s+'.','which vaccines are offered'),c('funding',(v,s)=>'Funded programs: '+s+'.','government-funded programs'),'Covers ordering, receipt, storage, monitoring, transport, administration, incidents and records.'],

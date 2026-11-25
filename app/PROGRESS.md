@@ -365,3 +365,20 @@ Brief: "PropApp — Consolidated 1:51 PM Resume Brief" (owner's Drive, read only
 4. Dark sweep: Today (0 overdue), Reviews and More have no text below AA, and the 0-overdue All tile passes in both modes. Screenshots: `05_today_dark_390px.png`, `13_today_zero_overdue_390px.png`.
 
 **Full run on build a6c2a18fad (commit 9159fcf):** 17 suites (adding gates), 301 checks, all pass with no console errors. check-procgen-all: all 17 services identical. Sections 1–3 were committed and pushed before Section 4 started, as the brief asks.
+
+## Consolidated brief, Section 4 (Wave 3 / V3-05) · 25 Nov 2026 · build 1cb60e8784
+Each line was read on its primary page today. Quotes are in `uat/research/content-v2-sources-2026-11-25.md`. tga.gov.au and health.gov.au still can't be reached from this session.
+
+| Item | Status | What was done |
+|---|---|---|
+| 4A TGA vapes x2, eNRMC | Labelled honestly | Sources says "Quoted by the 25 Nov independent review (this site blocks automated reading here)". The review's quotes are saved in research. The app's vaping and eNRMC obligations already rest on NSW Health pages that were read: the vaping self-assessment, and the RCF page (31 March 2027). |
+| B1 Vaccination: fridge, logger, anaphylaxis | Refined | The vaccination readiness question now says "continuous temperature data logger set to alarm outside +2°C to +8°C" and "twice-daily temperature recording" (Vaccination Standards I; NSW cold chain page). The anaphylaxis kit was already a question. |
+| B2 Self-audit, PHU breach, "Do not use" | Already in | Already in the readiness, storage and service reviews, and in the procedure (1300 066 055, quarantine at +2 to +8 °C, labelled "Do not use"). |
+| B3 Cold-chain module | **Corrected** | The old question said "every staff member handling vaccine storage has completed" the module. NSW Health requires **at least two staff who manage vaccines**, and only recommends it for everyone. The wording now says exactly that. |
+| B4, B5, B6 OTP and LAIB | Already in | The OTP procedure and the amenity review already cover: the amenity plan and signed staffing declaration at 80 or more patients, the nominated dosing point, repeats, directions straight from the prescriber, and LAIB training and room (checked against the OTP Standards PDF). |
+| B7 SafeScript | Added | A governance question (A3, #12): own logins with multi-factor authentication, no shared logins, penalties for unauthorised access, use or disclosure, and overseas logins blocked. The NSW laws update gains "Pharmacists can now see NSW Health medicine approvals in SafeScript NSW…". |
+| B8 eNRMC | Already in | The aged care review already asks about electronic charts being conformant after 31 March 2027, and NSW Health dates shows the date. |
+| F-LIVE-11 | Done | The procedures no longer say "per your research" or "per your plan". The one claim that could be checked (no advertising of medicinal cannabis) now cites "NSW Health, Cannabis medicines FAQ". The rest keep "— verify", so adoption still waits for the owner, but with honest wording: "source to confirm with NSW Health or the TGA" and "Strive for 5 / NSW Health — check against the current edition". The procedures' own "to confirm" list follows the new wording. Drafts stored from the old app keep their text until the owner taps "Update the draft". |
+| New sources | Added | NSW Pharmacist Vaccination Standards, NSW cold chain management, and SafeScript NSW privacy and security. |
+
+**Tests:** wave3 (new), check-procgen and check-procgen-all (all 17 identical apart from the intended wording, which the checks now expect).

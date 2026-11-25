@@ -27,7 +27,7 @@ register('sources', {
   render(c) {
     const used = usedBy(c.ph), raised = c.ph.flags?.sourceChecks || {};
     const card = ([k, title, read, , url]) => { const u = used[k];
-      return h`<div class="row static src"><span class="row-main"><span class="row-title">${title}</span><span class="row-sub">${read ? 'Last read ' + fmt(read) : 'Link from the 25 Nov review, not yet checked'}${u.length ? ' · used in ' + u.length + (u.length === 1 ? ' place' : ' places') : ''}</span>
+      return h`<div class="row static src"><span class="row-main"><span class="row-title">${title}</span><span class="row-sub">${read === 'quoted' ? 'Quoted by the 25 Nov independent review (this site blocks automated reading here)' : read ? 'Last read ' + fmt(read) : 'Link from the 25 Nov review, not yet checked'}${u.length ? ' · used in ' + u.length + (u.length === 1 ? ' place' : ' places') : ''}</span>
         ${u.length ? h`<details class="src-used"><summary>Where it’s used</summary><ul class="plain">${u.map(x => h`<li>${x}</li>`)}</ul></details>` : ''}
         <span class="src-acts">${link(url)}${u.length ? (raised[k] ? h`<span class="meta">Re-check raised ${fmt(raised[k])}</span>` : btn('This source changed', 'changed', { kind: 'link', data: { k } })) : ''}</span></span></div>`; };
     const inUse = SOURCES.filter(s => used[s[0]].length), other = SOURCES.filter(s => !used[s[0]].length);

@@ -106,3 +106,29 @@ URL: https://www.nsw.gov.au/ministerial-releases/nsw-pharmacists-to-treat-more-c
 
 ## Not reachable from this session
 These failed through the egress proxy: tga.gov.au (502), health.gov.au (502), digitalhealth.gov.au (502) and oaic.gov.au (bot check). The TGA vape and eNRMC links stay marked "not yet checked".
+
+## Wave 3 / V3-05 sources (read 25 Nov 2026, afternoon)
+- **NSW Pharmacist Vaccination Standards (5 Nov 2026), pharmacist-new-standard.pdf:**
+  - "I. A purpose-built vaccine refrigerator with a continuous temperature data logger [programmed to alarm outside +2°C to +8°C]";
+  - "III. An in-date and complete anaphylaxis response kit, with in-date adrenaline (epinephrine)";
+  - self-audits per Strive for 5;
+  - funded vaccine excursions are reported to the local PHU on 1300 066 055, and affected vaccines are quarantined at +2°C to +8°C and labelled "Do not use".
+- **NSW Health, Vaccine storage and cold chain management:**
+  - "At least two staff members must successfully complete the NSW Health Vaccine Storage and Cold Chain Management online learning module to continue to receive government-funded vaccines. However, it is strongly recommended that all persons responsible for ordering, storing, receiving and administering vaccines complete…";
+  - "temperatures (current, minimum and maximum) should be checked and recorded manually twice daily";
+  - ">8°C to up to 12°C for no longer than 15 minutes may occur whilst restocking".
+- **NSW OTP Standards PDF:**
+  - "must implement an amenity plan" (80 or more patients on any day);
+  - "d. a signed declaration by the proprietor pharmacist(s) that commits to adequate daily staffing".
+  - The app already had all of this.
+- **SafeScript NSW, Privacy and security:**
+  - "There are penalties under the Regulation for unauthorised access, use or disclosure of information held in SafeScript NSW.";
+  - "Health practitioners will be required to use multi-factor authentication (a username/password and PIN)";
+  - "restricts users from being able to access the system if they are trying to log in from outside of Australia."
+- **NSW Health, Legislation changes for pharmacists:** "Pharmacists can now view medicine approvals in SafeScript NSW. Unless an exemption applies, approvals will be visible and may be used to aid decision making when dispensing medicines."
+- **NSW Health, Cannabis medicines FAQ:** "No, advertising Schedule 8 or Schedule 4 medicines to the public is illegal. Advertising or promoting unregistered medicines to any individual (including medical or nurse practitioners) is also illegal."
+- **Still unreachable** (tga.gov.au and health.gov.au fail through the egress proxy). Recorded from the independent review's quotes, not read here:
+  - TGA "Supplying therapeutic vapes in pharmacies" (10 Oct 2025);
+  - TGA "Vapes: information for pharmacists" (16 Nov 2026);
+  - the Department of Health eNRMC news item (22 Sep 2026).
+  - The app's vaping and eNRMC obligations rest on the NSW Health pages read above, not on these.

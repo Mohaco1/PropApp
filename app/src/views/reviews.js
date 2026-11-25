@@ -26,12 +26,18 @@ const OTP_MONTHLY = [
 ];
 // Content v2 (C2-03): added to the end of A3 (earlier answers keep their positions). Pharmacy Board newsletter, Oct 2026,
 // and National Boards' interim guidance on conflicts of interest (uat/research/content-v2-sources-2026-11-25.md).
+// V3-05 wording fixes, checked 25 Nov against the NSW Pharmacist Vaccination Standards (5 Nov 2026) and NSW Health's
+// cold chain page: the logger must alarm outside +2 to +8 °C; at least two staff who manage vaccines must complete the
+// cold-chain module (the old text said every staff member: that is NSW Health's recommendation, not the rule).
+const FIX_Q = { 'vacc-ready': { 3: 'Purpose-built vaccine fridge with a continuous temperature data logger set to alarm outside +2°C to +8°C; twice-daily temperature recording, cold chain and emergency backup arrangements confirmed (NSW Pharmacist Vaccination Standards).',
+  7: 'People (NSW Pharmacist Vaccination Standards; NSW Health): a named vaccine coordinator and a backup; at least two staff who manage vaccines have completed the NSW Health Vaccine Storage and Cold Chain Management module (recommended for everyone who handles vaccines), with certificates kept on file; each immuniser’s NSW Pharmacist Immuniser Declaration Form is kept on the premises.' } };
 const EXTRA_Q = { A3: ['Cultural safety (Pharmacy Board guidelines, Oct 2026): the pharmacy’s services and team practices support culturally safe care.',
-  'Conflicts of interest (National Boards’ interim guidance): clinical decisions and patient choice stay independent of financial or commercial pressures.'] };
+  'Conflicts of interest (National Boards’ interim guidance): clinical decisions and patient choice stay independent of financial or commercial pressures.',
+  'SafeScript NSW (NSW Health, Privacy and security): each pharmacist uses their own login with multi-factor authentication, no logins are shared, and staff know that unauthorised access, use or disclosure carries penalties under the Regulation (logins from outside Australia are blocked).'] };
 export function questionsFor(id) {
   if (id === 'service-otp') return OTP_MONTHLY;
   const base = C.reviews.forms[id]?.questions || [];
-  return [...base, ...(EXTRA_Q[id] || []).map(text => ({ text, options: base[0].options }))].map(q => ({ text: q.text, options: q.options.map(o => ({ value: o.value, label: o.value === 'Needs verification' ? 'Check later' : o.value, issue: o.issue && o.value !== 'Needs verification' })) }));
+  return [...base.map((q, i) => FIX_Q[id]?.[i] ? { ...q, text: FIX_Q[id][i] } : q), ...(EXTRA_Q[id] || []).map(text => ({ text, options: base[0].options }))].map(q => ({ text: q.text, options: q.options.map(o => ({ value: o.value, label: o.value === 'Needs verification' ? 'Check later' : o.value, issue: o.issue && o.value !== 'Needs verification' })) }));
 }
 export function legalLine(a) { return a.legal?.line || (a.event ? 'When you start or change this service' : a.frequency + (a.service ? ' · ' + serviceName(a.service) : '')); }
 const whyText = a => [a.check, ...(C.reviews.forms[a.id]?.notes || []).filter(n => n !== a.check && n.length > 40)].join('\n\n');
