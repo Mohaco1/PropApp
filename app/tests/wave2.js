@@ -32,7 +32,7 @@ const OUT = path.resolve(__dirname, '../handoff');
   ok(ics2.endsWith('\r\n') && ics2.split('\r\n').every(l => new TextEncoder().encode(l).length <= 75), 'R10 every line ≤ 75 bytes; file ends with CRLF');
   // F-V3-02/03/04 evidence pack
   await tap(p, 'More'); await p.getByRole('button', { name: /^Evidence pack/ }).click(); await p.waitForTimeout(300); const t = await text(p);
-  ok(/From \d{1,2} \w{3} 2025 to 25 Nov 2026 · made 25 Nov 2026/.test(t), 'F-V3-04 the pack’s period and made-on dates carry the year');
+  ok(/From \d{1,2} \w{3} 2025 to 25 Nov 2026 \(the last 12 months\) · made 25 Nov 2026/.test(t), 'F-V3-04 the pack’s period and made-on dates carry the year');
   ok(/Proprietor oversight record only: statutory S8 registers, dispensing records and cold-chain logs stay in their primary pharmacy systems\./.test(t) && /law and practice updates read: \d+ of \d+/.test(t), 'F-V3-04 inspector framing line and updates-read count');
   const pk = await p.evaluate(() => { const secs = [...document.querySelectorAll('.psec')]; const closed = secs.find(s => /^Actions closed/.test(s.querySelector('h2').innerText)), staff = secs.find(s => /^Staff checks closed/.test(s.querySelector('h2').innerText));
     const heads = [...closed.querySelectorAll('th')].map(x => x.innerText), byIdx = heads.indexOf('By'), rows = [...closed.querySelectorAll('tbody tr')];

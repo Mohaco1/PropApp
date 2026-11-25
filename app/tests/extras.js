@@ -4,7 +4,7 @@ const { phone, ok, done, tap, text, activePh, download } = require('./helpers.js
   const { b, p, errors } = await phone({ time: '2026-11-24T10:00:00+11:00' });
   const file = path.join(os.tmpdir(), 'wattle-old-backup.json'); fs.writeFileSync(file, JSON.stringify(require('../../uat/demo/wattle-grove.json').backup));
   await p.locator('input[type=file]').setInputFiles(file); await p.waitForTimeout(800);
-  let t = await text(p); ok(/Restored/.test(t) && /Wattle Grove Pharmacy/.test(t) && /\d+ recorded reviews/.test(t), 'restore receipt after an old R.Pharmacy backup');
+  let t = await text(p); ok(/Restored/.test(t) && /Wattle Grove Pharmacy/.test(t) && /\d+ reviews, visits and meetings/.test(t) && /Checked: every count matches the backup file/.test(t), 'restore receipt after an old R.Pharmacy backup');
   await tap(p, 'Go to Today'); await p.getByRole('button', { name: 'Search' }).click(); await p.locator('input[name=q]').click(); await p.keyboard.type('S8', { delay: 40 }); await p.waitForTimeout(200);
   t = await text(p); ok(/S8 stock check/.test(t) && /Legal obligation/.test(t), 'search finds the S8 review and S8 rules');
   await p.getByRole('button', { name: 'Back', exact: true }).click(); await tap(p, 'Reviews'); await p.getByRole('button', { name: /Home delivery/ }).first().click();

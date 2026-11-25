@@ -10,7 +10,7 @@ const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive
   let t = await text(p);
   ok(/Wattle Grove Pharmacy · evidence pack/.test(t) && /Proprietor: Jordan Avery/.test(t) && /Designed for de-identified proprietor records/.test(t), 'V3-03 the pack has a header: pharmacy, proprietor, period, de-identified framing');
   const secs = await p.evaluate(() => [...document.querySelectorAll('.psec h2')].map(e => e.innerText));
-  ok(['Reviews, visits and meetings', 'S8 stock checks', 'Open actions', 'Actions closed', 'Staff', 'Legal obligations', 'Procedures'].every(s => secs.some(x => x.startsWith(s))), 'V3-03 seven sections: reviews, S8 checks, open and closed actions, staff, obligations, procedures');
+  ok(['Reviews, visits and meetings', 'S8 stock checks', 'Open actions', 'Actions closed', 'Staff', 'Procedures'].every(s => secs.some(x => x.startsWith(s))), 'V3-03 sections with data are in the pack by default: reviews, S8 checks, open and closed actions, staff, procedures (evidence locations join once one is recorded, pre-trial B1)');
   ok(/S8 stock checks · [1-9]/.test(secs.join('|')) && /Open actions · [1-9]/.test(secs.join('|')) && /Staff · 4/.test(secs.join('|')), 'V3-03 it reads the example’s records (S8 checks, open actions, 4 staff)');
   ok(JSON.stringify(await saved(p)) === before, 'V3-03 opening the pack changes nothing');
   await p.screenshot({ path: path.join(OUT, '10_evidence_pack_390px.png') });

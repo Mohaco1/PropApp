@@ -385,7 +385,7 @@ Each line was read on its primary page today. Quotes are in `uat/research/conten
 
 **Full run on build 1cb60e8784:** 18 suites (adding wave3), 311 checks, all pass with no console errors. content2 was re-run after its expected question count went from 11 to 12 (SafeScript added). check-procgen and check-procgen-all: all 17 identical. dist/pwa stays undeployed.
 
-## Locked pre-trial brief, Tracks A–E · 25 Nov 2026 · build 7bcde83e13
+## Locked pre-trial brief, Tracks A–E · 25 Nov 2026 · build 79d8e858d3
 From Gemini's "Locked Pre-Trial Brief & Claude Prompts" and the "Final Pre-Beta Polish & UX Brief". Track A and B3–B6 were committed first, in 6ca162a.
 
 **A1 Backup**

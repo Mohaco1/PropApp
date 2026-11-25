@@ -31,7 +31,7 @@ export function ics(ph, drafts) {
     const t = what + ' · ' + ph.name;
     L.push('BEGIN:VEVENT', 'UID:' + esc(ph.id + '-authority-' + d) + '@propapp', 'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
       'DTSTART;VALUE=DATE:' + d.replace(/-/g, ''), 'DTEND;VALUE=DATE:' + addDays(d, 1).replace(/-/g, ''), 'SUMMARY:' + esc('[Required by law] ' + t), 'DESCRIPTION:' + esc('Check the replacement authority is in place (' + src + '). Open PropApp for details.'),
-      'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(t), 'TRIGGER:-P30D', 'END:VALARM', 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(t), 'TRIGGER:-P7D', 'END:VALARM', 'END:VEVENT');
+      'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(t), 'TRIGGER:-P30D', 'END:VALARM', 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(t), 'TRIGGER:-P7D', 'END:VALARM', 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(t), 'TRIGGER:-P1D', 'END:VALARM', 'END:VEVENT');
   }
   // R10: an action keeps one UID (its id), so a new due date moves the existing event; the file ends with CRLF.
   L.push('END:VCALENDAR'); return L.map(fold).join('\r\n') + '\r\n';
