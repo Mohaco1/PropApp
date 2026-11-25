@@ -39,9 +39,9 @@ const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive
   ph = await activePh(p); ok(Object.keys(ph.flags.updatesRead).length === 4 && ph.history.some(l => /Law update read/.test(l.what)), 'C2-04 read dates are kept per pharmacy and logged in History');
   // C2-03: two questions added to the end of the governance review
   await tap(p, 'Reviews'); await p.locator('.chip', { hasText: /^All/ }).first().click(); await p.getByRole('button', { name: /Governance, access and continuity/ }).first().click(); await tap(p, 'Start review');
-  ok(/Question 1 of 11/.test(await text(p)), 'C2-03 the governance review now has 11 questions');
+  ok(/Question 1 of 12/.test(await text(p)), 'C2-03 the governance review now has 12 questions (C2-03 adds 2, V3-05 adds SafeScript)');
   for (let i = 0; i < 9; i++) { await p.locator('label.choice', { hasText: /^Checked$/ }).first().click(); await p.waitForTimeout(40); await tap(p, 'Next'); await p.waitForTimeout(40); }
-  t = await text(p); ok(/Question 10 of 11/.test(t) && /Cultural safety \(Pharmacy Board guidelines, Oct 2026\)/.test(t), 'C2-03 question 10 is cultural safety');
+  t = await text(p); ok(/Question 10 of 12/.test(t) && /Cultural safety \(Pharmacy Board guidelines, Oct 2026\)/.test(t), 'C2-03 question 10 is cultural safety');
   await p.locator('label.choice', { hasText: /^Checked$/ }).first().click(); await tap(p, 'Next'); await p.waitForTimeout(60);
   ok(/Conflicts of interest \(National Boards’ interim guidance\)/.test(await text(p)), 'C2-03 question 11 is conflicts of interest');
   await p.getByRole('button', { name: 'Back', exact: true }).click(); await tap(p, 'Today');

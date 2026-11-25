@@ -382,3 +382,5 @@ Each line was read on its primary page today. Quotes are in `uat/research/conten
 | New sources | Added | NSW Pharmacist Vaccination Standards, NSW cold chain management, and SafeScript NSW privacy and security. |
 
 **Tests:** wave3 (new), check-procgen and check-procgen-all (all 17 identical apart from the intended wording, which the checks now expect).
+
+**Full run on build 1cb60e8784:** 18 suites (adding wave3), 311 checks, all pass with no console errors. content2 was re-run after its expected question count went from 11 to 12 (SafeScript added). check-procgen and check-procgen-all: all 17 identical. dist/pwa stays undeployed.
