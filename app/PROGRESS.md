@@ -316,3 +316,19 @@ Brief: "PropApp — Audit Fixes (Wave 1 & Wave 2) + V3-05 Clinical Brief" (owner
 **Remaining:** Wave 2 (R07, R09–R12, F-V3-01 to F-V3-06) and Wave 3 (marking the TGA and eNRMC links checked, and the V3-05 clinical content) are not started.
 
 **Full run on build c5cf5012fe:** 15 suites (adding wave1), 250 checks, all pass with no console errors. check-procgen-all: all 17 services identical. Wave 1 code is in commit 43e824c on Mohaco1/PropApp main. **Next session:** start at Wave 2 (R07 first) from that commit.
+
+## Audit Wave 2 · 25 Nov 2026 · commits 592c9b1 and the Wave 2 part 2 commit
+| ID | Status | What was done | Test |
+|---|---|---|---|
+| R07 | Fixed | With 2 or more pharmacies, New action, the action screen and review screens show the pharmacy's name under the title (plain text, not a switch). | wave2 |
+| R09 | Fixed | Review notes and issue text are saved as they're typed (\`inputs\`), without redrawing the screen. Opening a screen moves focus to its heading. Back returns focus to the row you came from. That row is remembered from the tap, because iPhone Safari doesn't focus tapped buttons. | wave2 (typed text survives a reload; Back focuses the row) |
+| R10 | Fixed | Calendar file lines are folded at 75 bytes (UTF-8, never splitting a character), and the file ends with CRLF. An open action's UID is now its id, not its date, so a new due date moves the event instead of duplicating it. | wave2, extras |
+| R11, F-V3-05 | Fixed | The worker refreshes the cached app page only from a good response (\`res.ok\`), only for the app page itself, and inside \`e.waitUntil\`. | pwa |
+| R12 | Fixed | The UAT notes button is now a 44 px "UAT" button in each screen's header bar. With no header (Welcome) it sits top right. Nothing floats over rows. The extra bottom padding and toast offset it needed are gone. | wave2 |
+| F-V3-01 | Fixed | Incident links use rel="noopener noreferrer". | wave2 |
+| F-V3-02 | Fixed | "By" on closed actions comes from the close itself, or from the action's log for older records. The column is left out if no row has a value. | wave2 |
+| F-V3-03 | Fixed | Routine staff-check actions are one line per person under "Staff checks closed". "Actions closed" now shows the real fixes. | wave2 |
+| F-V3-04 | Fixed | The pack's period and made-on dates carry the year. It gains a framing line ("Proprietor oversight record only: statutory S8 registers, dispensing records and cold-chain logs stay in their primary pharmacy systems.") and "law and practice updates read: N of 4". | wave2 |
+| F-V3-06 | Fixed | The manifest lists the icons as "any" and "maskable" (the icon is full-bleed), and the page has the Apple status-bar meta. | pwa |
+
+**Remaining:** Wave 3, which marks the TGA and eNRMC links as checked from Gemini's quotes, and builds the V3-05 clinical content (each line read against its page first).
