@@ -31,13 +31,17 @@ const OTP_MONTHLY = [
 // cold-chain module (the old text said every staff member: that is NSW Health's recommendation, not the rule).
 const FIX_Q = { 'vacc-ready': { 3: 'Purpose-built vaccine fridge with a continuous temperature data logger set to alarm outside +2°C to +8°C; twice-daily temperature recording, cold chain and emergency backup arrangements confirmed (NSW Pharmacist Vaccination Standards).',
   7: 'People (NSW Pharmacist Vaccination Standards; NSW Health): a named vaccine coordinator and a backup; at least two staff who manage vaccines have completed the NSW Health Vaccine Storage and Cold Chain Management module (recommended for everyone who handles vaccines), with certificates kept on file; each immuniser’s NSW Pharmacist Immuniser Declaration Form is kept on the premises.' } };
-const EXTRA_Q = { A3: ['Cultural safety (Pharmacy Board guidelines, Oct 2026): the pharmacy’s services and team practices support culturally safe care.',
+const EXTRA_Q = { B1: ['Invoice spot-check (Pharmacy Council, Supporting resources for managing S8, S4B and S4D medicines: recommended): a few wholesaler S8 invoices since the last review were compared with the register’s receipt entries, and they match.',
+  'Destruction (NSW Health, Management of Schedule 8 medicines): any S8 destroyed since the last review was destroyed by a pharmacist in the presence of an independent witness, and recorded in the drug register.'],
+  A3: ['Cultural safety (Pharmacy Board guidelines, Oct 2026): the pharmacy’s services and team practices support culturally safe care.',
   'Conflicts of interest (National Boards’ interim guidance): clinical decisions and patient choice stay independent of financial or commercial pressures.',
-  'SafeScript NSW (NSW Health, Privacy and security): each pharmacist uses their own login with multi-factor authentication, no logins are shared, and staff know that unauthorised access, use or disclosure carries penalties under the Regulation (logins from outside Australia are blocked).'] };
+  'SafeScript NSW (NSW Health, Privacy and security): each pharmacist uses their own login with multi-factor authentication, no logins are shared, and staff know that unauthorised access, use or disclosure carries penalties under the Regulation (logins from outside Australia are blocked).',
+  'IT backups (best practice): a restore from the dispensing and business system backups was tested this year, the backup is kept off the premises or in the cloud, and the result was recorded.',
+  'Workers compensation (icare): the NSW workers compensation policy is current, and at renewal the actual wages paid in the last policy period were declared (icare: a legal requirement).'] };
 export function questionsFor(id) {
   if (id === 'service-otp') return OTP_MONTHLY;
   const base = C.reviews.forms[id]?.questions || [];
-  return [...base.map((q, i) => FIX_Q[id]?.[i] ? { ...q, text: FIX_Q[id][i] } : q), ...(EXTRA_Q[id] || []).map(text => ({ text, options: base[0].options }))].map(q => ({ text: q.text, options: q.options.map(o => ({ value: o.value, label: o.value === 'Needs verification' ? 'Check later' : o.value, issue: o.issue && o.value !== 'Needs verification' })) }));
+  return [...base.map((q, i) => FIX_Q[id]?.[i] ? { ...q, text: FIX_Q[id][i] } : q), ...(EXTRA_Q[id] || []).map(text => ({ text, options: base.at(-1).options }))].map(q => ({ text: q.text, options: q.options.map(o => ({ value: o.value, label: o.value === 'Needs verification' ? 'Check later' : o.value, issue: o.issue && o.value !== 'Needs verification' })) }));
 }
 export function legalLine(a) { return a.legal?.line || (a.event ? 'When you start or change this service' : a.frequency + (a.service ? ' · ' + serviceName(a.service) : '')); }
 const whyText = a => [a.check, ...(C.reviews.forms[a.id]?.notes || []).filter(n => n !== a.check && n.length > 40)].join('\n\n');

@@ -22,7 +22,7 @@ const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive
   const inc = await (async () => { await more(/^If something goes wrong/); return p.evaluate(() => [...document.querySelectorAll('main a[href^="https://"]')].length); })();
   ok(inc >= 3, 'C2-01 incident steps link to their NSW Health pages (' + inc + ')');
   await p.locator('summary', { hasText: 'Privacy or My Health Record data breach' }).click(); let ib = await p.locator('details[open]').last().innerText();
-  ok(await p.locator('main details.why').count() === 4 && /notify both the System Operator .* and the Information Commissioner/.test(ib) && /s 75\(2\)/.test(ib) && /within 30 days \(Privacy Act 1988 s 26WH\)/.test(ib) && /without patient names/.test(ib), 'C2-02 a 4th incident card: My Health Record (s 75) and Privacy Act steps, sourced');
+  ok(await p.locator('main details.why').count() === 5 && /notify both the System Operator .* and the Information Commissioner/.test(ib) && /s 75\(2\)/.test(ib) && /within 30 days \(Privacy Act 1988 s 26WH\)/.test(ib) && /without patient names/.test(ib), 'C2-02 a 4th incident card: My Health Record (s 75) and Privacy Act steps, sourced');
   await p.screenshot({ path: path.join(OUT, '09_incident_privacy_390px.png') });
   // C2-04: updates feed
   await p.getByRole('button', { name: 'Back', exact: true }).click(); await more(/^Law and sources/); await tap(p, 'Law and practice updates'); await p.waitForTimeout(200);
@@ -39,9 +39,9 @@ const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive
   ph = await activePh(p); ok(Object.keys(ph.flags.updatesRead).length === 4 && ph.history.some(l => /Law update read/.test(l.what)), 'C2-04 read dates are kept per pharmacy and logged in History');
   // C2-03: two questions added to the end of the governance review
   await tap(p, 'Reviews'); await p.locator('.chip', { hasText: /^All/ }).first().click(); await p.getByRole('button', { name: /Governance, access and continuity/ }).first().click(); await tap(p, 'Start review');
-  ok(/Question 1 of 12/.test(await text(p)), 'C2-03 the governance review now has 12 questions (C2-03 adds 2, V3-05 adds SafeScript)');
+  ok(/Question 1 of 14/.test(await text(p)), 'C2-03 the governance review now has 14 questions (C2-03 adds 2, V3-05 SafeScript, Track C IT restore test)');
   for (let i = 0; i < 9; i++) { await p.locator('label.choice', { hasText: /^Checked$/ }).first().click(); await p.waitForTimeout(40); await tap(p, 'Next'); await p.waitForTimeout(40); }
-  t = await text(p); ok(/Question 10 of 12/.test(t) && /Cultural safety \(Pharmacy Board guidelines, Oct 2026\)/.test(t), 'C2-03 question 10 is cultural safety');
+  t = await text(p); ok(/Question 10 of 14/.test(t) && /Cultural safety \(Pharmacy Board guidelines, Oct 2026\)/.test(t), 'C2-03 question 10 is cultural safety');
   await p.locator('label.choice', { hasText: /^Checked$/ }).first().click(); await tap(p, 'Next'); await p.waitForTimeout(60);
   ok(/Conflicts of interest \(National Boards’ interim guidance\)/.test(await text(p)), 'C2-03 question 11 is conflicts of interest');
   await p.getByRole('button', { name: 'Back', exact: true }).click(); await tap(p, 'Today');

@@ -21,7 +21,7 @@ const { phone, ok, done, tap, text } = require('./helpers.js');
   await p.locator('#sr .row', { hasText: /Fridge/i }).first().click(); await p.waitForTimeout(200);
   ok(/Seen the fix · close it/.test(await text(p)), 'N-02 tapping the result opens the action');
   // N-03: Issue keeps you on the check
-  await tap(p, 'Today'); await tap(p, 'Resume visit'); await p.waitForTimeout(200);
+  await tap(p, 'Today'); await p.locator('[data-act=resume-visit]').first().click(); await p.waitForTimeout(200);
   const before = ((await text(p)).match(/Check (\d+) of 14/) || [])[1];
   await p.locator('label.choice', { hasText: /^Issue$/ }).click(); await p.waitForTimeout(250);
   let t = await text(p); const after = (t.match(/Check (\d+) of 14/) || [])[1];

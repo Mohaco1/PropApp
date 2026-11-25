@@ -74,7 +74,7 @@
   {
    "key": "premises",
    "title": "Premises, security & equipment",
-   "question": "Premises, security, equipment servicing and contingency arrangements reviewed",
+   "question": "Premises, security, equipment servicing and calibration, and contingency arrangements reviewed",
    "guide": "Walk the premises. Check security, general condition, equipment servicing records and contingency arrangements (power, IT or fridge failure).",
    "core": true
   },
@@ -144,8 +144,8 @@
   {
    "key": "recalls",
    "title": "Recalls and alerts",
-   "question": "Recalls (TGA, Procedure for recalls, product alerts and product corrections): any recall or alert received since the last visit was acted on as the notice says, affected stock checked, and the response recorded.",
-   "guide": "Ask to see the recall notices received since the last visit and what was done for each (TGA PRAC procedure). The sponsor’s deadlines are theirs; the pharmacy follows the notice and records its response.",
+   "question": "Recalls (TGA, Procedure for recalls, product alerts and product corrections): any recall or alert received since the last visit was acted on as the notice says, affected stock checked, and the response recorded; stock rotated so the earliest expiry is used first (best practice).",
+   "guide": "Ask to see the recall notices received since the last visit and what was done for each (TGA PRAC procedure). The sponsor’s deadlines are theirs; the pharmacy follows the notice and records its response. While there, check that shelves and the fridge are rotated so the earliest expiry is used first, and that short-dated stock is flagged (best practice).",
    "core": true
   },
   {

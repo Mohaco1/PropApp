@@ -19,7 +19,7 @@ const { phone, ok, done, tap, text } = require('./helpers.js');
   await p.getByRole('button', { name: 'Back', exact: true }).click();
   // B. SafeScript in the governance review
   await tap(p, 'Reviews'); await p.locator('.chip', { hasText: /^All/ }).first().click(); await p.fill('input[type=search]', 'governance'); await p.waitForTimeout(300); await p.getByRole('button', { name: /Governance, access and continuity/ }).first().click(); await tap(p, 'Start review');
-  ok(/Question 1 of 12/.test(await text(p)), 'V3-05 the governance review has 12 questions');
+  ok(/Question 1 of 14/.test(await text(p)), 'V3-05 the governance review has 14 questions');
   for (let i = 0; i < 11; i++) { await p.locator('label.choice', { hasText: /^Checked$/ }).first().click(); await p.waitForTimeout(40); await tap(p, 'Next'); await p.waitForTimeout(40); }
   ok(/SafeScript NSW \(NSW Health, Privacy and security\): each pharmacist uses their own login with multi-factor authentication/.test(await text(p)), 'V3-05 question 12: SafeScript own logins, MFA, penalties, no overseas logins');
   await p.getByRole('button', { name: 'Back', exact: true }).click();
@@ -31,6 +31,7 @@ const { phone, ok, done, tap, text } = require('./helpers.js');
   // Wattle Grove's draft comes from the old app; the owner chooses to update it (never automatic)
   ok(await p.getByRole('button', { name: 'Update the draft' }).count() === 1, 'F-LIVE-11 an older stored draft is offered “Update the draft” (not changed for the owner)');
   await tap(p, 'Update the draft'); await p.waitForTimeout(300);
-  t = await text(p); ok(!/per your (research|plan)/.test(t) && /check against the current edition — verify/.test(t), 'F-LIVE-11 the vaccination procedure has no “per your plan”; unconfirmed Strive for 5 steps say “check against the current edition — verify”');
+  t = await text(p); ok(!/per your (research|plan)/.test(t) && !/— verify/.test(t) && /NSW Health, Vaccine storage and cold chain management/.test(t) && /your pharmacy’s practice/.test(t), 'F-LIVE-11 + B7 the vaccination procedure has no “per your plan” and no “— verify”: steps cite NSW Health or say they are the pharmacy’s own practice');
+  ok(!/steps marked “— verify”/.test(t), 'B7 the vaccination draft has no “— verify” blocker left');
   await done(b, errors);
 })();

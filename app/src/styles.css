@@ -98,6 +98,7 @@ textarea.input{min-height:88px;resize:vertical}
 .choice input{width:20px;height:20px;accent-color:var(--primary);flex:none}
 .choice.on,.choice:has(input:checked){border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
 .choice.issue:has(input:checked){border-color:var(--bad);box-shadow:inset 0 0 0 1px var(--bad)}
+fieldset{border:0;padding:0;margin:0;min-width:0}legend{padding:0}
 .ticks{display:flex;flex-direction:column;gap:6px}
 .tick{display:flex;align-items:center;gap:12px;min-height:48px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer}
 .tick input{width:20px;height:20px;accent-color:var(--primary);flex:none}

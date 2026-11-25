@@ -3,7 +3,7 @@ const { phone, ok, done, tap, text, activePh, download } = require('./helpers.js
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-24T10:00:00+11:00' });
   await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(500);
-  ok(await p.locator('.status a, .status button').count() === 0, 'N-11 the Today status sentence has no link or button');
+  ok(await p.locator('.status a').count() === 0 && await p.locator('.status button').count() <= 1 && (await p.locator('.status button').count() === 0 || await p.locator('.status button.inline-link').count() === 1), 'N-11 (updated by pre-trial B4) the status sentence has no links; only the item it names is tappable');
   // N-20: tap the pharmacy name to switch, with a quiet overdue count
   await p.locator('.ph-switch').click(); await p.waitForTimeout(200);
   ok(/Pharmacies/.test(await text(p)) && /\d+ overdue|Nothing overdue/.test(await text(p)), 'N-20 header name opens Pharmacies with an overdue count per site');

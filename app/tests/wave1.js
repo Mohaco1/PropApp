@@ -42,7 +42,7 @@ const restore = async (p, file) => { await tap(p, 'More'); await p.getByRole('bu
   const lastDone = (await activePh(p)).records.filter(r => r.type === 'B1' && r.fields?.stockDate).map(r => r.fields.stockDate).sort().at(-1), keep = dm.fmt(dm.addMonths(lastDone, 3));
   await tap(p, 'Reviews'); await p.getByRole('button', { name: /S8 stock check/ }).first().click(); await tap(p, 'Start review');
   await p.locator('label.choice', { hasText: /^Incomplete$/ }).click(); await p.fill('textarea[name=issue]', 'Count not finished: interrupted (fictional)'); await p.locator('textarea[name=issue]').blur(); await tap(p, 'Next');
-  for (let i = 1; i < 7; i++) { await p.locator('label.choice').first().click(); await p.waitForTimeout(40); await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(40); }
+  for (let i = 1; i < 9; i++) { await p.locator('label.choice').first().click(); await p.waitForTimeout(40); await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(40); }
   let t = await text(p);
   ok(!/Date the pharmacist did the stock check/.test(t) && t.includes('wasn’t finished, so the deadline stays 3 months after the last completed one (' + keep + ')'), 'R02 incomplete: no stock-check date asked; the deadline stays 3 months after the last completed check (' + keep + ')');
   await tap(p, 'Save review'); await p.waitForTimeout(400);
@@ -52,7 +52,7 @@ const restore = async (p, file) => { await tap(p, 'More'); await p.getByRole('bu
   ok(t.includes('Last stock check ' + dm.fmt(lastDone)), 'R02 S8 at a glance still shows the last completed stock check (' + dm.fmt(lastDone) + ')');
   // completed check, future date refused, then 30 Nov -> 28 Feb 2027
   await tap(p, 'Reviews'); await p.getByRole('button', { name: /S8 stock check/ }).first().click(); await tap(p, 'Start review');
-  for (let i = 0; i < 7; i++) { await p.locator('label.choice').first().click(); await p.waitForTimeout(40); await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(40); }
+  for (let i = 0; i < 9; i++) { await p.locator('label.choice').first().click(); await p.waitForTimeout(40); await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(40); }
   await p.fill('input[name=stockDate]', '2026-12-05'); await p.locator('input[name=stockDate]').blur(); await p.waitForTimeout(150);
   ok(/The stock-check date can’t be in the future/.test(await text(p)) && await p.getByRole('button', { name: 'Save review' }).isDisabled(), 'R02 a future stock-check date is refused');
   await p.fill('input[name=stockDate]', '2026-11-30'); await p.locator('input[name=stockDate]').blur(); await p.waitForTimeout(150);
@@ -72,7 +72,7 @@ const restore = async (p, file) => { await tap(p, 'More'); await p.getByRole('bu
   ok(/Designed for de-identified proprietor records: check your notes before sharing\./.test(t) && !/no patient information/.test(t), 'R04 the pack no longer claims “no patient information”');
 
   // R08: a dismissed conflict copy stays dismissed after saving and a reload
-  await tap(p, 'Today'); await tap(p, 'Resume visit'); await p.waitForTimeout(200);
+  await tap(p, 'Today'); await p.locator('[data-act=resume-visit]').first().click(); await p.waitForTimeout(200);
   await p.evaluate(async () => { const r = indexedDB.open('propapp'); const dbh = await new Promise(res => { r.onsuccess = () => res(r.result); });
     const dir = await new Promise(res => { const g = dbh.transaction('kv').objectStore('kv').get('propapp:dir'); g.onsuccess = () => res(g.result); });
     const k = 'propapp:drafts:' + dir.active; const cur = await new Promise(res => { const g = dbh.transaction('kv').objectStore('kv').get(k); g.onsuccess = () => res(g.result); });
@@ -82,7 +82,7 @@ const restore = async (p, file) => { await tap(p, 'More'); await p.getByRole('bu
   await tap(p, 'More'); await p.getByRole('button', { name: /^Backup and devices/ }).click(); await p.waitForTimeout(300);
   ok(await p.getByRole('button', { name: 'Dismiss', exact: true }).count() === 1, 'R08 a conflict copy is listed');
   await p.getByRole('button', { name: 'Dismiss', exact: true }).click(); await p.waitForTimeout(150);
-  await tap(p, 'Today'); await tap(p, 'Resume visit'); await p.locator('label.choice:not(:has(input:checked))').first().click(); await p.waitForTimeout(700);
+  await tap(p, 'Today'); await p.locator('[data-act=resume-visit]').first().click(); await p.locator('label.choice:not(:has(input:checked))').first().click(); await p.waitForTimeout(700);
   await p.reload(); await p.waitForTimeout(800); await tap(p, 'More'); await p.getByRole('button', { name: /^Backup and devices/ }).click(); await p.waitForTimeout(300);
   const all2 = await saved(p); const cf = Object.keys(all2[dk] || {}).filter(k => k.includes('/conflict-'));
   ok(/CONFLICT COPIES · 0/i.test(await text(p)) && cf.length === 0, 'R08 after another save and a reload, the dismissed copy stays gone');
@@ -92,7 +92,7 @@ const restore = async (p, file) => { await tap(p, 'More'); await p.getByRole('bu
   await q.goto(p.url()); await q.waitForTimeout(800);
   for (const [pg, title] of [[p, 'Check the fridge log (tab one)'], [q, 'Service the extinguisher (tab two)']]) { await tap(pg, 'Actions'); await pg.getByRole('button', { name: 'Add an action' }).click(); await pg.fill('input[name=title]', title); }
   await tap(p, 'Save action'); await tap(q, 'Save action'); await p.waitForTimeout(1200);
-  await tap(p, 'Today'); await tap(p, 'Resume visit'); await p.locator('label.choice:not(:has(input:checked))').first().click();
+  await tap(p, 'Today'); await p.locator('[data-act=resume-visit]').first().click(); await p.locator('label.choice:not(:has(input:checked))').first().click();
   const during = await p.locator('.saved').first().innerText(); await p.waitForTimeout(800);
   ok(during === 'Saving…' && await p.locator('.saved').first().innerText() === 'Saved', 'R06 the header says “Saving…” then “Saved” once storage has it');
   await p.reload(); await p.waitForTimeout(800);

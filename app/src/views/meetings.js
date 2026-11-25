@@ -6,7 +6,9 @@ import { reviewById, catalog, suggestedNext } from '../rules.js';
 import { reviewDue } from '../summary.js';
 import { fmt, today, dueText, addDays, isDate } from '../dates.js';
 import { addRecord, newAction } from '../model.js';
-const SECTIONS = ['Incidents, complaints and patient safety', 'Previous actions and whether they worked', 'Staffing, resources and decisions'];
+const BASE = ['Incidents, complaints and patient safety', 'Previous actions and whether they worked', 'Staffing, resources and decisions'];
+// Track C: the quarterly governance meeting also looks at complaints and feedback as themes (no names or details).
+const sectionsFor = id => id === 'Q4' ? [...BASE, 'Complaints and feedback themes (no names): what keeps coming up, and what changed'] : BASE;
 register('meetings', {
   tab: 'more',
   render(c) {
@@ -32,13 +34,13 @@ register('meeting', {
       <form class="form" data-form="save">${field('Date', textInput('date', today(), { type: 'date', max: today() }))}
         ${staff.length ? h`<fieldset class="field"><legend class="field-label">Who was there</legend><div class="ticks">${staff.map(p => h`<label class="tick"><input type="checkbox" name="who" value="${p.name}" ${(last?.fields?.attendees || []).includes(p.name) ? h`checked` : ''}><span>${p.name}</span></label>`)}</div></fieldset>` : ''}
         ${field('Others there (optional)', textInput('others', ''))}
-        ${SECTIONS.map((s, i) => field(s, textArea('s' + i, prev[s] || '', { rows: 3, noPatient: i === 0 })))}
+        ${sectionsFor(r.id).map((s, i) => field(s, textArea('s' + i, prev[s] || '', { rows: 3, noPatient: i === 0 || i === 3 })))}
         ${field('New action from this meeting (optional)', textInput('action', ''))}
         ${field('Next meeting', textInput('next', suggestedNext(c.ph, r.id, today()), { type: 'date' }))}
         <div class="dock-inline">${btn('Save meeting', null, { kind: 'primary', type: 'submit' })}</div></form>` });
   },
   forms: { save: (c, f, el, r) => { const who = [...el.querySelectorAll('input[name=who]:checked')].map(i => i.value).concat(f.others ? [f.others.trim()] : []);
-    c.change(ph => { const rec = addRecord(ph, { type: r.id, kind: 'meeting', title: reviewById(r.id).name, date: f.date, next: f.next, fields: { attendees: who, sections: SECTIONS.map((s, i) => ({ heading: s, text: f['s' + i] || '' })) }, answers: [] });
+    c.change(ph => { const rec = addRecord(ph, { type: r.id, kind: 'meeting', title: reviewById(r.id).name, date: f.date, next: f.next, fields: { attendees: who, sections: sectionsFor(r.id).map((s, i) => ({ heading: s, text: f['s' + i] || '' })) }, answers: [] });
       if (f.action?.trim()) rec.actionIds.push(newAction(ph, { title: f.action.trim(), due: addDays(today(), 30), source: { type: 'meeting', recordId: rec.id, label: rec.title + ' · ' + f.date } }).id);
       if (isDate(f.next)) ph.schedule[r.id] = f.next; }, 'Meeting saved'); c.back(); } },
 });

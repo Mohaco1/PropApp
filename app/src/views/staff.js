@@ -106,7 +106,7 @@ register('annual', {
     }, 'Annual check saved'); c.ui.annual[p.id] = null; c.back(); } },
 });
 // Leaving: keys, IT access, handover, plus S8 items (NSW Medicine Storage Standards via uat/NSW-HEALTH-GAP-ANALYSIS.md G1).
-const LEAVE = [['keys', 'Keys and physical access returned'], ['access', 'IT accounts and service access removed'], ['s8codes', 'Personal S8 safe codes or biometrics removed (NSW Medicine Storage Standards)'], ['eregister', 'Electronic drug register login removed, if one is used'], ['handover', 'Open actions and records handed over']];
+const LEAVE = [['keys', 'Keys and physical access returned'], ['access', 'IT accounts and service access removed'], ['s8codes', 'Personal S8 safe codes or biometrics removed (NSW Medicine Storage Standards)'], ['eregister', 'Electronic drug register login removed, if one is used'], ['codes', 'Shared codes changed and keys accounted for: safe, alarm and door codes the person knew (best practice)'], ['handover', 'Open actions and records handed over']];
 register('leaving', {
   tab: 'staff',
   render(c, r) { const p = c.ph.staff.find(x => x.id === r.id);

@@ -13,7 +13,7 @@ const answerOne = async p => { const ch = p.locator('form label.choice, form lab
   await s('1-daa-what-happens-next');
   await tap(p, 'Today'); await p.locator('.ph-switch').click(); await tap(p, 'Open the example pharmacy (fictional)'); await p.waitForTimeout(600);
   // 8: an active conflict copy, captured before anything is dismissed (P-05)
-  await tap(p, 'Today'); await tap(p, 'Resume visit'); await p.waitForTimeout(200); await otherDeviceSaves(p); await p.locator('label.choice:not(:has(input:checked))').first().click(); await p.waitForTimeout(600); await p.getByRole('button', { name: 'Back', exact: true }).click();
+  await tap(p, 'Today'); await p.locator('[data-act=resume-visit]').first().click(); await p.waitForTimeout(200); await otherDeviceSaves(p); await p.locator('label.choice:not(:has(input:checked))').first().click(); await p.waitForTimeout(600); await p.getByRole('button', { name: 'Back', exact: true }).click();
   await tap(p, 'More'); await p.getByRole('button', { name: /^Backup and devices/ }).click(); await p.waitForTimeout(400); await p.evaluate(() => [...document.querySelectorAll('.sec-title')].find(e => /Conflict/i.test(e.textContent))?.scrollIntoView()); await s('8-conflict-copies');
   await tap(p, 'Today');
   await p.getByRole('button', { name: /Proprietor site visit/ }).first().click(); await tap(p, 'Start the checks');

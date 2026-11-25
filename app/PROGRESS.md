@@ -384,3 +384,68 @@ Each line was read on its primary page today. Quotes are in `uat/research/conten
 **Tests:** wave3 (new), check-procgen and check-procgen-all (all 17 identical apart from the intended wording, which the checks now expect).
 
 **Full run on build 1cb60e8784:** 18 suites (adding wave3), 311 checks, all pass with no console errors. content2 was re-run after its expected question count went from 11 to 12 (SafeScript added). check-procgen and check-procgen-all: all 17 identical. dist/pwa stays undeployed.
+
+## Locked pre-trial brief, Tracks A–E · 25 Nov 2026 · build 7bcde83e13
+From Gemini's "Locked Pre-Trial Brief & Claude Prompts" and the "Final Pre-Beta Polish & UX Brief". Track A and B3–B6 were committed first, in 6ca162a.
+
+**A1 Backup**
+- A nudge on Today after 7 days and 10 changes. It can be snoozed.
+- Backups go to the phone's share sheet where it can.
+- Storage-keep status is shown in Backup and devices on every build.
+- After a restore, every count (drafts and staff checks included) is checked against the file.
+
+**A2 Today and More**
+- Today has one notice slot. Law updates are a "N new" badge on More.
+- More has sections Plan, Rules, Proof and Pharmacy, with "Law and sources" (updates and sources) folded into one entry.
+- "No date" reviews stay where they were (owner override).
+- `tests/pretrial.js` fails if the first action on any primary screen isn't fully visible at 390 × 844. It checks 14 screens.
+
+**B1 and E1 Evidence pack**
+- A period choice: 12 months (the default), 24 months or All.
+- Six section checkboxes above Print, on by default only where something is recorded.
+- Incomplete S8 reviews say "(incomplete)" in the Reviews table.
+- Unrecorded obligations collapse to one footer line.
+
+**B2 Calendar**
+- The setup card offers "Add due dates to your phone calendar", with "Not now".
+- The .ics has the prescribing (4 Nov 2027) and vaccination (4 Nov 2028) authority expiries, for pharmacies with those services, with reminders 30 days and 7 days before.
+
+**B3–B6**
+- The "no date" line is hidden under All. A cold-start hint shows when there are no records.
+- The item in the top sentence is tappable. An extra visit is one line while a legal item is overdue.
+- Clean answers move to the next question by themselves; Issue and Incomplete pause.
+- C-01: the pharmacy directory is merged inside the save transaction.
+- C-02: title clamps apply in Search only; toasts are single-line.
+- C-08: no duplicated date; "1 action".
+- C-09: the lead question comes first.
+
+**B7 Procedures: no "— verify" left in any of the 17 drafts**
+- Each step was checked and re-cited (NSW Health cold-chain page, NSW Pharmacist Vaccination Standards, NSW Health NSP outlets, Fair Work Act s 97).
+- Where no reachable source states it, the step is labelled "(your pharmacy's practice)" and no longer claims a source.
+- The list is `src/content/verified-steps.json`. It applies to both apps in `check-procgen.js` and `check-procgen-all.js`, and all 17 drafts are still identical.
+- "[Confirm: …]" items that come from the owner's own answers still block Adopt, by design.
+
+**Track C (best practice, no legal claim)**
+- An equipment calibration block in the visit's premises check, with the OTP pump line only when OTP is offered.
+- Expiry rotation on the recalls check.
+- An IT backup restore test in the governance review.
+- Shared safe, alarm and door codes in Staff leaving.
+- A de-identified complaints and feedback themes section in the quarterly governance meeting.
+
+**E2 and E3**
+- The S8 review asks for a wholesaler invoice spot-check (Pharmacy Council S8 resources, a recommendation) and whether destruction was witnessed and recorded (NSW Health).
+- Evidence locations has PBS (2 years, Regulations s 59) and PPA (7 years, DAA Program Rules s 9) archive pointers, which also appear in the pack.
+
+**Track D (verified items only)**
+- Built:
+  - the Pharmacy Council's 14-day Notice of Completion and Notice of Disposal, plus a note that agreements are lodged;
+  - an Ahpra mandatory notifications card listing the four concerns;
+  - in the data breach card, that the small-business exemption doesn't apply (s 6D(4)(b));
+  - workers compensation (icare: wages declared at renewal) in the governance review.
+- Not built, because they can't be verified from here (details in `uat/research/pretrial-b7-sources-2026-11-25.md`):
+  - PBS approval, PRODA, HPI-O and NASH expiries: health.gov.au and servicesaustralia.gov.au can't be reached;
+  - the unlawful financial interest case: only secondary sources;
+  - the SafeWork sharps line: not found on the page.
+
+**Tests**
+- New suite `tests/pretrial.js`, plus updated counts: governance has 14 questions, the S8 review 9, and there are 5 incident cards.

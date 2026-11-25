@@ -64,7 +64,7 @@ const OUT = path.resolve(__dirname, '../shots'); fs.mkdirSync(OUT, { recursive: 
     if (name === 'Bought, selling or closing') { await tap(p, 'Changing how DAAs are packed?'); await shot('Tell me once · DAA'); await back(); }
     await back();
   }
-  await tap(p, 'Today'); await p.getByRole('button', { name: 'Resume visit' }).click(); await shot('Visit · resumed check');
+  await tap(p, 'Today'); await p.locator('[data-act=resume-visit]').first().click(); await shot('Visit · resumed check');
   await p.getByRole('button', { name: 'Back', exact: true }).click();
   fs.writeFileSync(path.join(OUT, 'shots.json'), JSON.stringify(shots, null, 1));
   for (const s of shots) { if (s.dup.length) ok(false, s.name + ': repeated text: ' + s.dup.slice(0, 2).join(' | ')); if (s.small.length) ok(false, s.name + ': small targets: ' + s.small.slice(0, 4).map(x => x.t + ' ' + x.w + 'x' + x.h).join(', ')); if (s.over) ok(false, s.name + ': sideways scroll'); }
@@ -75,7 +75,7 @@ const OUT = path.resolve(__dirname, '../shots'); fs.mkdirSync(OUT, { recursive: 
   // P-05: the dense secondary screens at 320×568 too
   const fits = async name => { await p.waitForTimeout(200); const m = await p.evaluate(() => ({ over: document.documentElement.scrollWidth > innerWidth + 1, wide: [...document.querySelectorAll('main *')].filter(e => { const r = e.getBoundingClientRect(); return r.width && r.right > innerWidth + 1 && !e.closest('.scrollx'); }).map(e => e.className || e.tagName).slice(0, 3) }));
     ok(!m.over && !m.wide.length, '320×568 ' + name + ': no sideways scroll, nothing past the edge' + (m.wide.length ? ' (' + m.wide.join(', ') + ')' : '')); };
-  await tap(p, 'Today'); await tap(p, 'Resume visit'); await p.waitForTimeout(200); await otherDeviceSaves(p);
+  await tap(p, 'Today'); await p.locator('[data-act=resume-visit]').first().click(); await p.waitForTimeout(200); await otherDeviceSaves(p);
   await p.locator('label.choice:not(:has(input:checked))').first().click(); await p.waitForTimeout(600); await p.getByRole('button', { name: 'Back', exact: true }).click();
   await tap(p, 'More'); await p.getByRole('button', { name: /^Backup and devices/ }).click(); await p.waitForTimeout(300);
   ok(await p.getByRole('button', { name: 'Copy its answers' }).count() === 1, '320×568 Backup shows a conflict copy'); await fits('Backup and devices · conflict copy');

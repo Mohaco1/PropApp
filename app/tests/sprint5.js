@@ -25,7 +25,7 @@ const { phone, ok, done, tap, text, activePh, saved, download, copied, otherDevi
   ok(await p.evaluate(() => ['.nav', '.bar', '#uat-btn'].every(s => !document.querySelector(s) || getComputedStyle(document.querySelector(s)).display === 'none') && getComputedStyle(document.querySelector('.print-only')).display !== 'none'), 'S5-01 printing History hides the bottom bar, header and UAT pill');
   await p.emulateMedia({ media: 'screen' });
   // S5-02 stale write: another device saves a newer extra-visit draft; this phone then changes its older copy
-  await tap(p, 'Today'); await tap(p, 'Resume visit'); await p.waitForTimeout(200);
+  await tap(p, 'Today'); await p.locator('[data-act=resume-visit]').first().click(); await p.waitForTimeout(200);
   await otherDeviceSaves(p);
   await p.locator('label.choice', { hasText: /^Satisfactory$/ }).click(); await p.waitForTimeout(600);
   const all = await saved(p), dk = Object.keys(all).find(k => k.startsWith('propapp:drafts:') && all[k]['visit/extra']), dr = all[dk];

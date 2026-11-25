@@ -44,11 +44,11 @@ const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
   // ---- Bug 3: S8 incomplete + completed; S8 detail; visit next due in Today and the pack
   await tap(p, 'Reviews'); await p.getByRole('button', { name: /S8 stock check/ }).first().click(); await tap(p, 'Start review');
   await p.locator('label.choice', { hasText: /^Incomplete$/ }).click(); await p.fill('textarea[name=issue]', 'Interrupted count (fictional)'); await tap(p, 'Next');
-  for (let i = 1; i < 7; i++) { await p.locator('label.choice').first().click(); await p.waitForTimeout(40); await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(40); }
+  for (let i = 1; i < 9; i++) { await p.locator('label.choice').first().click(); await p.waitForTimeout(40); await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(40); }
   await tap(p, 'Save review'); await p.waitForTimeout(300);
   await tap(p, 'Reviews'); await p.getByRole('button', { name: /S8 stock check/ }).first().click(); await p.waitForTimeout(200); t = await text(p);
   ok(/Last proprietor review\s*25 Nov by Jordan Avery · stock check incomplete/.test(t) && /Last completed stocktake\s*\d{1,2} \w{3}/.test(t) && !/Last done/.test(t), 'Bug 3 S8 detail separates “Last proprietor review” (incomplete) from “Last completed stocktake”');
-  await tap(p, 'Start review'); for (let i = 0; i < 7; i++) { await p.locator('label.choice').first().click(); await p.waitForTimeout(40); await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(40); }
+  await tap(p, 'Start review'); for (let i = 0; i < 9; i++) { await p.locator('label.choice').first().click(); await p.waitForTimeout(40); await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(40); }
   await p.fill('input[name=stockDate]', '2026-11-24'); await p.fill('input[name=stockBy]', 'Priya Sharma (fictional)'); await p.locator('input[name=stockBy]').blur(); await tap(p, 'Save review'); await p.waitForTimeout(300);
   await tap(p, 'Today'); await p.getByRole('button', { name: /Proprietor site visit/ }).first().click(); await tap(p, 'Start the checks');
   for (let i = 0; i < 16; i++) { if (await p.getByRole('button', { name: 'Save visit' }).count()) break; await p.locator('label.choice', { hasText: /^Satisfactory$/ }).first().click(); await p.waitForTimeout(40);
@@ -58,7 +58,8 @@ const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
   const visitNext = await p.locator('input[name=next]').inputValue(); await tap(p, 'Save visit'); await p.waitForTimeout(400);
   await more(/^Evidence pack/); await p.waitForTimeout(300);
   const pk = await p.evaluate(() => { const secs = [...document.querySelectorAll('.psec')], s8 = secs.find(s => /^S8 stock checks/.test(s.querySelector('h2').innerText)), rv = secs[0];
-    return { s8h: s8.querySelector('h2').innerText, s8rows: [...s8.querySelectorAll('tbody tr')].map(r => [...r.cells].map(c => c.innerText)), visit: [...rv.querySelectorAll('tbody tr')].map(r => [...r.cells].map(c => c.innerText)).find(r => /^Site visit|Proprietor site visit/.test(r[1])) }; });
+    return { s8h: s8.querySelector('h2').innerText, s8rows: [...s8.querySelectorAll('tbody tr')].map(r => [...r.cells].map(c => c.innerText)), visit: [...rv.querySelectorAll('tbody tr')].map(r => [...r.cells].map(c => c.innerText)).find(r => /^Site visit|Proprietor site visit/.test(r[1])), revS8: [...rv.querySelectorAll('tbody tr')].map(r => r.cells[1].innerText).filter(x => /^S8/.test(x)) }; });
+  ok(pk.revS8.filter(x => / \(incomplete\)$/.test(x)).length === 1, 'B1 the incomplete S8 review says “(incomplete)” in the Reviews table (' + pk.revS8.slice(0, 2).join(' / ') + ')');
   ok(/^S8 stock checks · \d+ completed stocktakes? · 1 incomplete review$/.test(pk.s8h) && pk.s8rows.some(r => r[1] === 'Incomplete review') && pk.s8rows.some(r => r[1] === 'Completed stocktake'), 'Bug 3 pack: “' + pk.s8h + '”, each row labelled Completed stocktake or Incomplete review');
   const dm = await import('file://' + path.resolve(__dirname, '../src/dates.js'));
   ok(pk.visit && pk.visit[4] === dm.fmt(visitNext), 'Bug 3 the new site visit’s Next due in the pack (' + (pk.visit?.[4] || 'blank') + ') matches what was saved (' + dm.fmt(visitNext) + ')');

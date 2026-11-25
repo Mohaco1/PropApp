@@ -11,9 +11,12 @@ import { reviewDue } from '../summary.js';
 import { questionIndex, questionLabel } from './services.js';
 import { copyText } from '../clip.js';
 const DISPLAY = 'Displayed names (Council Guide Note 24): owner names at or near the main entrance; the name of the pharmacist on duty next to the dispensing area (it can change day to day).';
+// Track C: what to look at for equipment (best practice, no legal claim); the OTP pump only when the pharmacy runs OTP.
+const EQUIP = ['Fridge thermometers or data loggers: calibration certificate in date, or checked against a reference thermometer', 'Dispensary and compounding scales: checked with test weights, and serviced as the maker says', 'Screening devices (such as blood pressure monitors): serviced or calibrated as the maker says'];
+const EQUIP_OTP = 'OTP dosing pump: calibrated and checked as the maker and your OTP procedure say, with each check recorded';
 export function visitItems(ph) {
   const act = activeServices(ph);
-  return C.visit.items.filter(i => i.core || act.includes(i.service)).map(i => i.key === 'premises' ? { ...i, guide: i.guide + ' ' + DISPLAY } : i);
+  return C.visit.items.filter(i => i.core || act.includes(i.service)).map(i => i.key === 'premises' ? { ...i, guide: i.guide + ' ' + DISPLAY, block: ['Equipment calibration · best practice', [...EQUIP, ...(act.includes('otp') ? [EQUIP_OTP] : [])]] } : i);
 }
 const ANS = [['ok', 'Satisfactory'], ['issue', 'Issue'], ['verify', 'Check later'], ['na', 'N/A']];
 const key = extra => extra ? 'visit/extra' : 'visit/quarterly';
@@ -83,6 +86,7 @@ register('visit', {
       <form data-form="ans" class="form" data-change="ans">${choice('status', ANS.map(([v, l]) => ({ value: v, label: l })), a.status || '', { issueValues: ['issue'] })}
         ${a.status === 'issue' ? h`${field('What did you find?', textArea('text', a.text || '', { rows: 2 }))}${field('Fix by', textInput('due', a.due || addDays(today(), 30), { type: 'date' }))}
           ${(() => { const open = Object.values(c.ph.actions).filter(x => x.status === 'open'); return open.length ? field('Already an open action for this?', select('link', [['', 'No, raise a new action'], ...open.map(x => [x.id, 'Link to: ' + x.title.slice(0, 70)])], a.link || '')) : ''; })()}` : ''}
+        ${it.block ? h`<div class="card"><p class="eyebrow">${it.block[0]}</p><ul class="plain">${it.block[1].map(x => h`<li>${x}</li>`)}</ul></div>` : ''}
         ${a.status === 'verify' ? field('What do you need to check?', textArea('text', a.text || '', { rows: 2 })) : ''}
         ${!it.core && a.status && a.status !== 'na' ? h`<div class="card"><p class="field-label">${it.service === 'daa' ? 'DAA operational sample since the last visit' : 'Evidence you looked at'}</p>
           ${choice('ev', (it.service === 'daa' ? ['Verified operational review', 'No new verification', 'Gap identified'] : ['Evidence reviewed', 'Issue identified', 'Unable to verify']).map(v => ({ value: v, label: v })), a.ev || '', { issueValues: ['Gap identified', 'Issue identified'] })}

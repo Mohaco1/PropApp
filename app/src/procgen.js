@@ -25,7 +25,12 @@ const { RPH, fsFields, normalise } = install(env);
     { v: 'Authorities expire 4 Nov 2027', t: 'The Class Authorities expire on 4 November 2027: check NSW Health for their replacements before then' });
 })();
 // The only wording change from the current app: drafts are adopted in Procedures (not "approved in Policies").
-export const procWording = t => String(t).replace('and approve it in Policies.', 'and adopt it in Procedures.').replace(/\(Policies\)/g, '(Procedures)');
+// B7: steps checked against their sources are re-cited (or labelled as the pharmacy's own practice); the same list is
+// applied to the old app's text in tools/check-procgen*.js, so the parity checks still compare like with like.
+import VERIFIED from './content/verified-steps.json';
+export const applyVerified = t => { let s = String(t); for (const [a, b] of VERIFIED.pairs) s = s.split(a).join(b);
+  return /— verify/.test(s.replace('• Steps marked “— verify”: check each against the full official document before approving', '')) ? s : s.replace('• Steps marked “— verify”: check each against the full official document before approving\n', ''); };
+export const procWording = t => applyVerified(String(t).replace('and approve it in Policies.', 'and adopt it in Procedures.').replace(/\(Policies\)/g, '(Procedures)'));
 export function draftText(ph, id) {
   const t = RPH.proc.templates[id]; if (!t) return '';
   cur = { ph }; env.state.pharmacyName = ph.name; env.state.serviceLead = ph.lead || ''; env.state.siteScope = ph.siteScope || {}; env.state.active = Object.keys(ph.services).filter(k => ph.services[k].active);

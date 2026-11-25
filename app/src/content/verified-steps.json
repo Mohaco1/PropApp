@@ -1,0 +1,101 @@
+{
+ "note": "Pre-trial brief B7 (25 Nov 2026): each “— verify” step was checked against a reachable primary source and re-cited, or relabelled as the pharmacy’s own practice. Sources: uat/research/pretrial-b7-sources-2026-11-25.md. Applied to the old app’s text in tools/check-procgen*.js too.",
+ "pairs": [
+  [
+   "Store vaccines only in a purpose-built vaccine fridge, never a domestic or bar fridge; keep the power outlet labelled “Do not switch off”; vaccines stay in original cartons in labelled baskets, funded and private apart, off the walls and vents; no food in the fridge (Strive for 5 / NSW Health — check against the current edition — verify).",
+   "Store vaccines only in a purpose-built vaccine refrigerator; domestic refrigerators must not be used, and the fridge is continuously monitored with a data logger (NSW Health, Vaccine storage and cold chain management). Keep the power outlet labelled “Do not switch off”, vaccines in their original cartons in labelled baskets, funded and private stock apart, off the walls and vents, and no food in the fridge (your pharmacy’s practice)."
+  ],
+  [
+   "Twice on every open day, before using any vaccine: record the current, minimum and maximum temperature with time and initials, then reset the min/max; after weekends or closures, review the logger for the unattended period first (Strive for 5 / NSW Health — check against the current edition — verify).",
+   "Twice daily, check and record by hand the fridge’s current, minimum and maximum temperatures, then reset the data logger or thermometer (NSW Health, Vaccine storage and cold chain management). Add the time and initials, and after weekends or closures review the logger for the unattended period before using any vaccine (your pharmacy’s practice)."
+  ],
+  [
+   "Deliveries: accept only when a trained person can unpack straight away; check the cold and heat indicators, names, quantities, batches and expiries; anything doubtful stays quarantined at +2°C to +8°C until the supplier or Public Health Unit advises (Strive for 5 / NSW Health — check against the current edition — verify).",
+   "Deliveries: before accepting one, check the cold chain monitors and record the check on the vaccine temperature chart; if a monitor has activated, call the NSW Vaccine Centre straight away on 1300 656 132 and, while waiting for advice, keep the vaccines in the purpose-built fridge, isolated and labelled “do not use” (NSW Health, Vaccine storage and cold chain management). Accept deliveries only when a trained person can unpack straight away, and check names, quantities, batches and expiries (your pharmacy’s practice)."
+  ],
+  [
+   "Every month and on each delivery: rotate stock so the earliest expiry is used first and list anything expiring within 2 months; never give an expired vaccine (Strive for 5 / NSW Health — check against the current edition — verify).",
+   "On each delivery, rotate stock so vaccines nearing expiry are used first (NSW Health, Vaccine storage and cold chain management); expired funded vaccines are discarded appropriately and recorded in the NSW Vaccine Centre Online Ordering System (NSW Pharmacist Vaccination Standards). Never give an expired vaccine, and each month list anything expiring within 2 months (your pharmacy’s practice)."
+  ],
+  [
+   "Off-site or emergency transport: a pre-chilled, monitored cooler with conditioned ice packs and insulation; confirm +2°C to +8°C before loading; check every 15 minutes for the first 2 hours, then hourly (Strive for 5 / NSW Health — check against the current edition — verify).",
+   "Off-site or emergency transport: vaccines stay within +2°C to +8°C in transport as in storage (NSW Health, Vaccine storage and cold chain management). Use a pre-chilled, monitored cooler with conditioned ice packs and insulation, confirm +2°C to +8°C before loading, and check every 15 minutes for the first 2 hours, then hourly (your pharmacy’s practice)."
+  ],
+  [
+   "Complete the national vaccine storage self-audit at least every 12 months, and after any breach or equipment change; service the vaccine fridge every 12 months (Strive for 5 / NSW Health — check against the current edition — verify).",
+   "Complete a vaccine storage self-audit every 12 months, and more often after equipment problems or cold chain breaches (NSW Health, Vaccine storage and cold chain management). Service the vaccine fridge every 12 months (your pharmacy’s practice)."
+  ],
+  [
+   "Below +2°C, above +12°C, or +8°C to +12°C for 15 minutes or more: a cold-chain breach. Stop using the vaccines, quarantine them (“DO NOT USE”) at +2°C to +8°C, download the logger 24 hours either side, and report funded stock to the Public Health Unit straight away; ask the manufacturer about private stock; don’t discard anything until advised (Strive for 5 / NSW Health — check against the current edition — verify).",
+   "Outside +2°C to +8°C is a cold chain breach (except above +8°C up to +12°C for no longer than 15 minutes while restocking). Report every breach to the local public health unit (1300 066 055) with the Cold Chain Breach and Vaccine Wastage Reporting Form; isolate the vaccines with a “DO NOT USE” sign and keep them at +2°C to +8°C (in another purpose-built fridge if one is available); don’t discard any; download and review the data logger report; for privately funded vaccines, consult the manufacturer (NSW Health, Vaccine storage and cold chain management; NSW Pharmacist Vaccination Standards)."
+  ],
+  [
+   "+8°C to +12°C for under 15 minutes with a clear reason: record the deviation and cause and keep monitoring; with no clear reason, treat it as a possible fridge fault and call the Public Health Unit (Strive for 5 / NSW Health — check against the current edition — verify).",
+   "Above +8°C up to +12°C for no longer than 15 minutes while restocking is acceptable (NSW Health, Vaccine storage and cold chain management). Record it and the cause and keep monitoring; with no clear reason, treat it as a possible fridge fault and call the public health unit (your pharmacy’s practice)."
+  ],
+  [
+   "Power failure: keep the fridge closed and monitor it; before it reaches +8°C, move vaccines to a monitored cooler or an agreed alternative vaccine fridge; when power returns, check it’s stable before restocking and monitor hourly for 4 hours (Strive for 5 / NSW Health — check against the current edition — verify).",
+   "Power failure: move vaccines to another purpose-built vaccine fridge if one is available; otherwise leave them in the fridge with the door closed, and don’t remove the data logger until the power is back (NSW Health, Vaccine storage and cold chain management). When power returns, check the fridge is stable before restocking and monitor hourly for 4 hours (your pharmacy’s practice)."
+  ],
+  [
+   "Steps marked “check against the current edition — verify”: check each against the current Strive for 5 and NSW Health cold-chain guidance",
+   "Steps marked “your pharmacy’s practice” are the pharmacy’s own choices, not legal requirements: change them to suit (Strive for 5, 4th edition 2025, has more detail)"
+  ],
+  [
+   "Supply injecting equipment with a safe disposal container (Pharmacy Guild NSW Pharmacy NSP Resource Manual, July 2022; NSW Health Community Sharps Guidance — verify).",
+   "Pharmacy NSP outlets sell Fitpacks, or exchange used Fitpacks free of charge, under the NSW Pharmacy Fitpack Scheme (NSW Health, NSP outlets). Supply injecting equipment with a safe disposal container (your pharmacy’s practice)."
+  ],
+  [
+   "Keep the sharps disposal unit in a secure area of the pharmacy that children cannot reach (Pharmacy Guild NSW Pharmacy NSP Resource Manual, July 2022; NSW Health Community Sharps Guidance — verify).",
+   "Keep the sharps disposal unit in a secure area of the pharmacy that children cannot reach (your pharmacy’s practice)."
+  ],
+  [
+   "The pharmacy is responsible for managing community sharps returned on its premises; where Fitpacks are supplied, provide sharps bins for disposal (Pharmacy Guild NSW Pharmacy NSP Resource Manual, July 2022; NSW Health Community Sharps Guidance — verify).",
+   "Used Fitpacks returned to the pharmacy go into the sharps disposal unit, and the pharmacy arranges for the unit to be collected and replaced (your pharmacy’s practice)."
+  ],
+  [
+   "Pharmacy Guild of Australia (NSW Branch), NSW Pharmacy Needle and Syringe Program Resource Manual (July 2022); NSW Health, NSW Community Sharps Guidance; NSW Health NSP outlets page (exempt program under the Drug Misuse and Trafficking Regulation 2021, cl 37) — found by search; verify current versions.",
+   "NSW Health, NSP outlets page (NSW Pharmacy Fitpack Scheme), read 25 Nov 2026. Also useful: Pharmacy Guild of Australia (NSW Branch), NSW Pharmacy Needle and Syringe Program Resource Manual (July 2022), and NSW Health Community Sharps Guidance (not checked by the app)."
+  ],
+  [
+   "Issue a certificate only when the person must be absent for their own illness or injury, or to care for an ill or injured family or household member (Fair Work Act 2009; PSA/Pharmacy Guild guideline on absence from work certificates — verify).",
+   "Issue a certificate only when the person is not fit for work because of their own illness or injury, or must care for or support a member of their immediate family or household who is ill or injured (Fair Work Act 2009 s 97)."
+  ],
+  [
+   "Only for illnesses or injuries the pharmacist is qualified to assess, and only if, in the pharmacist’s professional opinion, the person is unfit for work; refer to a doctor otherwise (Fair Work Act 2009; PSA/Pharmacy Guild guideline on absence from work certificates — verify).",
+   "Only for illnesses or injuries the pharmacist is qualified to assess, and only if, in the pharmacist’s professional opinion, the person is unfit for work; refer to a doctor otherwise (your pharmacy’s practice)."
+  ],
+  [
+   "Not for pregnancy or compassionate leave; short periods only; never backdated (Fair Work Act 2009; PSA/Pharmacy Guild guideline on absence from work certificates — verify).",
+   "Not for pregnancy or compassionate leave; short periods only; never backdated (your pharmacy’s practice)."
+  ],
+  [
+   "Fair Work Act 2009 (Cth); Pharmaceutical Society of Australia and Pharmacy Guild of Australia, guideline on absence from work certificates (citing Pharmacy Board of Australia expectations) — found by search; verify against the current guideline.",
+   "Fair Work Act 2009 (Cth) s 97 (read 25 Nov 2026). Also useful: Pharmaceutical Society of Australia and Pharmacy Guild of Australia, guideline on absence from work certificates (not checked by the app)."
+  ],
+  [
+   "Supply in person to the patient or their carer (source to confirm with NSW Health or the TGA — verify).",
+   "Hand the product to the patient or their carer at the pharmacy, and check the TGA’s guidance before posting or delivering vaping goods (your pharmacy’s practice)."
+  ],
+  [
+   "Steps marked “source to confirm with NSW Health or the TGA — verify”: check each against the live NSW Health and TGA pages",
+   "Steps marked “your pharmacy’s practice” are the pharmacy’s own choices, not legal requirements: change them to suit, and check the TGA’s pages for anything more"
+  ],
+  [
+   "NSW Health, Legislative requirements for vaping products (current 20 Aug 2026) and Vaping goods pharmacy self-assessment tool (June 2026) — read in full 20 Nov 2026. Steps still marked “verify” are TGA rules NSW Health does not restate.",
+   "NSW Health, Legislative requirements for vaping products (current 20 Aug 2026) and Vaping goods pharmacy self-assessment tool (June 2026) — read in full 20 Nov 2026."
+  ],
+  [
+   "CBD: advise against driving if it makes them drowsy (source to confirm with NSW Health or the TGA — verify).",
+   "CBD: advise against driving if it makes them drowsy (your pharmacy’s practice)."
+  ],
+  [
+   "Use your own clinical judgement for every prescription, including from single-condition telehealth clinics; if supply isn’t safe or appropriate, don’t supply and tell the patient and prescriber (source to confirm with NSW Health or the TGA — verify).",
+   "Use your own clinical judgement for every prescription, including from single-condition telehealth clinics; if supply isn’t safe or appropriate, don’t supply and tell the patient and prescriber (your pharmacy’s practice)."
+  ],
+  [
+   "NSW Health, Cannabis medicines (current 5 Nov 2026) and Cannabis medicines FAQ — read in full 20 Nov 2026. Steps still marked “verify” come from TGA guidance or your research and are not restated by NSW Health.",
+   "NSW Health, Cannabis medicines (current 5 Nov 2026) and Cannabis medicines FAQ — read in full 20 Nov 2026."
+  ]
+ ]
+}

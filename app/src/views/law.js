@@ -67,7 +67,7 @@ register('mylog', {
 });
 register('changes', {
   tab: 'more',
-  render(c) { return screen({ title: 'Bought, selling or closing', back: true, body: h`<p class="muted">What NSW Health requires when a pharmacy changes hands or closes.</p>
+  render(c) { return screen({ title: 'Bought, selling or closing', back: true, body: h`<p class="muted">What NSW Health and the Pharmacy Council require when a pharmacy changes hands or closes.</p>
     ${L.OWN.map(([t, xs]) => section(t, h`<div class="card"><ul class="plain">${xs.map(x => h`<li>${x}</li>`)}</ul></div>`))}
     ${btn('Changing how DAAs are packed?', 'go', { kind: 'link', data: { to: 'tellmeonce' } })}
     ${c.ph.inherited ? note('Marked as a newly bought pharmacy. Your next site visit asks you to confirm what the previous owner recorded.', 'ok') : btn('I’ve just bought this pharmacy', 'bought')}` }); },
@@ -86,8 +86,15 @@ const INCIDENTS = [
     'If it involves My Health Record (even if it only may have happened): as soon as practicable, notify both the System Operator (the Australian Digital Health Agency) and the Information Commissioner (OAIC) (My Health Records Act 2012 s 75(2)).',
     'Assess the risks. If the effects might be serious for anyone, ask the System Operator to notify the people affected; the System Operator does the notifying (s 75(5)–(6)). Then take steps to stop it happening again.',
     'If it involves only the pharmacy’s own records: if you suspect an eligible data breach, assess it quickly and within 30 days (Privacy Act 1988 s 26WH). If there are reasonable grounds to believe it is one, give the Commissioner a statement as soon as practicable and tell the people it affects (ss 26WK–26WL).',
+    'The Privacy Act’s small-business exemption doesn’t apply here: an organisation that provides a health service and holds health information is covered, so the notifiable data breach rules apply whatever the pharmacy’s turnover (Privacy Act 1988 s 6D(4)(b)).',
     'Note what happened and what you reported in My log, without patient names, and review your security and access policy.'],
     'My Health Records Act 2012 s 75 · Privacy Act 1988 Part IIIC', 'https://www.legislation.gov.au/C2012A00063/latest/text'],
+  // Track D: Ahpra and Pharmacy Board guidelines for mandatory notifications (read 25 Nov 2026).
+  ['Concern about a registered practitioner', ['By law, registered health practitioners and employers must make a mandatory notification to Ahpra in some limited circumstances (Ahpra).',
+    'There are four concerns that may trigger one, depending on the risk of harm to the public: impairment, intoxication while practising, significant departure from accepted professional standards, and sexual misconduct (Pharmacy Board guidelines for mandatory notifications).',
+    'Deciding can be difficult: read the guidelines, which explain who can help you decide and how notifiers are legally protected. Anyone can make a voluntary notification.',
+    'Note in My log that you notified and when, without patient names.'],
+    'Pharmacy Board of Australia · Guidelines for mandatory notifications', 'https://www.ahpra.gov.au/Notifications/mandatorynotifications/Mandatory-notifications.aspx'],
 ];
 register('incidents', {
   tab: 'more',
@@ -108,13 +115,17 @@ register('locations', {
 function locationRows(ph) { const out = [];
   for (const [sid, s] of Object.entries(ph.services)) if (s.active) for (const k of [...(RPH.sq.REC[sid] || [])]) { const v = s.answers?.[k]; out.push({ k: 'svc:' + sid + ':' + k, group: serviceName(sid), title: questionLabel(ph, sid, k), where: v && v !== 'Needs verification' ? v : '' }); }
   for (const o of L.OBL.filter(o => applies(ph, o))) out.push({ k: 'obl:' + o[0], group: 'Legal obligation · ' + o[1], title: o[2], where: ph.obligations?.[o[0]]?.where || '' });
+  for (const [id, group, title] of ARCHIVES) out.push({ k: 'arch:' + id, group, title, where: ph.archives?.[id]?.where || '' });
   return out; }
+// E3: where older claim records are archived (a pointer only; the records stay where they are).
+export const ARCHIVES = [['pbs', 'Archive · National Health (Pharmaceutical Benefits) Regulations 2017 s 59', 'PBS prescriptions and supply records: kept at least 2 years from supply'],
+  ['ppa', 'Archive · PPA Program Rules (for example DAA Program Rules s 9)', 'PPA program claim records, if you claim: kept at least 7 years after the claim']];
 register('location', {
   tab: 'more',
   render(c, r) { const row0 = locationRows(c.ph).find(x => x.k === r.id) || {};
     return screen({ title: 'Where is it kept?', back: true, body: h`<h2 class="big-title">${row0.title}</h2><p class="muted">${row0.group}</p>
       <form class="form" data-form="save">${field('Where it is kept', textInput('where', row0.where || '', { required: true, placeholder: 'e.g. Dispensary office, drawer 2' }))}<div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` }); },
   forms: { save: (c, f, el, r) => { const [kind, a, b] = r.id.split(':'), where = f.where.trim(); if (!where) return;
-    c.change(ph => { if (kind === 'svc') ph.services[a].answers = { ...ph.services[a].answers, [b]: where }; else (ph.obligations ??= {})[a] = { ...(ph.obligations?.[a] || {}), where, by: me(ph).name, at: new Date().toISOString() };
+    c.change(ph => { if (kind === 'svc') ph.services[a].answers = { ...ph.services[a].answers, [b]: where }; else if (kind === 'arch') (ph.archives ??= {})[a] = { where, by: me(ph).name, at: new Date().toISOString() }; else (ph.obligations ??= {})[a] = { ...(ph.obligations?.[a] || {}), where, by: me(ph).name, at: new Date().toISOString() };
       log(ph, 'Evidence location saved · ' + (kind === 'svc' ? serviceName(a) + ' · ' + b : a) + ' · ' + where); }, 'Saved'); c.back(); } },
 });

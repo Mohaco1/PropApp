@@ -1,7 +1,9 @@
 // Calendar feed (owner decision: reminders yes). An .ics file of due dates the owner adds to their phone calendar.
 // Inside a pharmacy only: no patient data. Each event says what's due; nothing is marked done.
 import { items } from './summary.js';
-import { isDate, addDays } from './dates.js';
+import { isDate, addDays, today } from './dates.js';
+import { C } from './content.js';
+import { activeServices } from './rules.js';
 const esc = s => String(s).replace(/\r\n?/g, '\n').replace(/([,;\\])/g, '\\$1').replace(/\n/g, '\\n');
 // R10: RFC 5545 lines are folded at 75 octets (UTF-8 bytes, never splitting a character), continuing with CRLF + space.
 function fold(line) { const enc = new TextEncoder(); if (enc.encode(line).length <= 75) return line;
@@ -21,6 +23,15 @@ export function ics(ph, drafts) {
         'DTSTART;VALUE=DATE:' + day, 'DTEND;VALUE=DATE:' + next, 'SUMMARY:' + esc((it.legal ? '[Required by law] ' : '') + title), 'DESCRIPTION:' + esc('Due at ' + ph.name + '. Open PropApp to record it.'),
         'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(title), 'TRIGGER:-P7D', 'END:VALARM', 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(title), 'TRIGGER:-P1D', 'END:VALARM', 'END:VEVENT');
     }
+  }
+  // B2: the NSW authorities the pharmacy's services rely on (prescribing 4 Nov 2027, vaccination 4 Nov 2028), from the
+  // law key dates, with a reminder about a month before (calendar alarms can't count months, so 30 days).
+  const act = activeServices(ph);
+  for (const [d, what, src, svc] of C.law.DATES.filter(x => /authorit/i.test(x[1]) && x[3]?.some(s => act.includes(s)) && x[0] >= today())) {
+    const t = what + ' · ' + ph.name;
+    L.push('BEGIN:VEVENT', 'UID:' + esc(ph.id + '-authority-' + d) + '@propapp', 'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
+      'DTSTART;VALUE=DATE:' + d.replace(/-/g, ''), 'DTEND;VALUE=DATE:' + addDays(d, 1).replace(/-/g, ''), 'SUMMARY:' + esc('[Required by law] ' + t), 'DESCRIPTION:' + esc('Check the replacement authority is in place (' + src + '). Open PropApp for details.'),
+      'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(t), 'TRIGGER:-P30D', 'END:VALARM', 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(t), 'TRIGGER:-P7D', 'END:VALARM', 'END:VEVENT');
   }
   // R10: an action keeps one UID (its id), so a new due date moves the existing event; the file ends with CRLF.
   L.push('END:VCALENDAR'); return L.map(fold).join('\r\n') + '\r\n';
