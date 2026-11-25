@@ -6,9 +6,12 @@ let db = null, notes = [], live = false, marks = {};
 const KEY = 'propapp-uat-notes';
 const local = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
 export async function initUat(pageName) {
-  const btn = document.createElement('button'); btn.id = 'uat-btn'; btn.type = 'button'; btn.textContent = 'UAT notes'; document.body.append(btn);
+  const btn = document.createElement('button'); btn.id = 'uat-btn'; btn.type = 'button'; btn.textContent = 'UAT'; btn.setAttribute('aria-label', 'UAT notes'); document.body.append(btn);
+  // R12: the button sits in each screen's header bar (never over rows); with no header (Welcome) it stays top right.
+  const place = () => { const bar = document.querySelector('#app .bar'); if (bar) { if (btn.parentElement !== bar) bar.append(btn); btn.classList.add('inbar'); } else { if (btn.parentElement !== document.body) document.body.append(btn); btn.classList.remove('inbar'); } };
+  new MutationObserver(place).observe(document.getElementById('app') || document.body, { childList: true, subtree: true }); place();
   const dlg = document.createElement('dialog'); dlg.id = 'uat-dlg'; document.body.append(dlg);
-  const paint = () => { const open = notes.filter(n => n.status !== 'Closed' && n.status !== 'Parked').length; btn.textContent = 'UAT notes' + (open ? ' · ' + open : ''); };
+  const paint = () => { const open = notes.filter(n => n.status !== 'Closed' && n.status !== 'Parked').length; btn.textContent = 'UAT' + (open ? ' · ' + open : ''); };
   const draw = () => {
     dlg.innerHTML = `<div class="uat-h"><b>UAT notes</b><span class="hint">Build ${esc(window.PROPAPP_BUILD || '')} · ${live ? 'saved to your UAT page' : 'this browser only'}</span><button type="button" class="btn" data-x>Close</button></div>
       <label class="field"><span class="field-label">Note about: ${esc(pageName())}</span><textarea class="input" rows="4" maxlength="2000" placeholder="What did you expect, and what happened?"></textarea></label>

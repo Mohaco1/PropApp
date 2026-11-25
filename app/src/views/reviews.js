@@ -81,11 +81,18 @@ register('review', {
     if (step >= total) return finishReview(c, a, d, qs, prog);
     const q = qs[step], ans = d.answers[step] || '', isIssue = q.options.find(o => o.value === ans)?.issue;
     return screen({ title: a.name, back: true, site: c.ph.name, saved: 'Saved', body: h`${prog}<p class="steps">Question ${step + 1} of ${total}</p>
-      <form class="form" data-form="q" data-change="q"><p class="qtext">${q.text}</p>
+      <form class="form" data-form="q" data-change="q" data-input="qi"><p class="qtext">${q.text}</p>
         ${choice('ans', q.options.map(o => ({ value: o.value, label: o.label || o.value })), ans, { issueValues: q.options.filter(o => o.issue).map(o => o.value) })}
         ${isIssue ? h`${field('What needs fixing?', textArea('issue', d.issues?.[step]?.text || '', { rows: 2 }))}${field('Fix by', textInput('due', d.issues?.[step]?.due || addDays(today(), 30), { type: 'date' }))}` : ''}
         ${ans && !isIssue ? field('Note (optional)', textArea('note', d.notesQ?.[step] || '', { rows: 2 })) : ''}</form>
       <div class="btnrow">${btn('Previous', 'step', { data: { s: step - 1 }, disabled: step === 0 })}${btn(step === total - 1 ? 'Finish' : 'Next', 'step', { kind: 'primary', data: { s: step + 1 } })}</div>` });
+  },
+  // R09: notes and issue text are kept as they're typed (not only when the box loses focus), so a reload or a phone
+  // call mid-sentence loses nothing. Typing never redraws the screen.
+  inputs: {
+    qi: (c, el, r, e) => { if (e.target.type === 'radio') return; const d = structuredClone(c.draft(dkey(r.id))); const f = Object.fromEntries(new FormData(el.closest('form'))); const s = d.step || 0; d.issues ??= {}; d.notesQ ??= {};
+      if ('issue' in f) d.issues[s] = { text: f.issue, due: f.due }; if ('note' in f) d.notesQ[s] = f.note; c.saveDraft(dkey(r.id), d); },
+    fini: (c, el, r, e) => { if (e.target.type === 'date') return; const d = structuredClone(c.draft(dkey(r.id))); d.fields = { ...(d.fields || {}), ...Object.fromEntries(new FormData(el.closest('form'))) }; c.saveDraft(dkey(r.id), d); },
   },
   changes: {
     q: (c, el, r) => { const d = structuredClone(c.draft(dkey(r.id))); const f = Object.fromEntries(new FormData(el.closest('form'))); const s = d.step || 0; const before = d.answers[s];
@@ -111,7 +118,7 @@ function finishReview(c, a, d, qs, prog) {
   const ex = (EXTRA[a.id] || []).filter(([k]) => !(inc && (k === 'stockDate' || k === 'stockBy'))), needs = ex.filter(([k, , , req]) => req && !String(fields[k] || '').trim());
   return screen({ title: a.name, back: true, site: c.ph.name, saved: 'Saved', body: h`${prog}<h2 class="big-title">Finish the review</h2>
     ${missing.length ? h`<div class="list">${missing.map(i => row({ title: qs[i].text, sub: d.answers[i] ? 'Say what needs fixing' : 'Not answered yet', act: 'step', data: { s: i } }))}</div>` : note(issues ? issues + (issues === 1 ? ' issue becomes an action.' : ' issues become actions.') : 'Every question answered.', issues ? 'warn' : 'ok')}
-    <form class="form" data-form="fin" data-change="fin">
+    <form class="form" data-form="fin" data-change="fin" data-input="fini">
       ${field('Review date', textInput('date', fields.date || d.date, { type: 'date', max: today() }))}
       ${ex.map(([k, l, t, req]) => field(l + (req ? '' : ''), Array.isArray(t) ? select(k, t.map(o => [o, o || 'Choose…']), fields[k] || '') : textInput(k, fields[k] || '', { type: t, max: t === 'date' ? today() : '' })))}
       ${field('Note (optional)', textArea('notes', fields.notes || '', { rows: 2 }))}

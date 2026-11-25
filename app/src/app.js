@@ -8,9 +8,11 @@ export const register = (name, v) => { views[name] = v; };
 const S = { ph: null, drafts: {}, stack: [], tab: 'today', toast: '', ui: {} };
 export const ctx = {
   get ph() { return S.ph; }, get drafts() { return S.drafts; }, get route() { return S.stack.at(-1) || { name: S.tab }; }, ui: S.ui,
-  go(name, params = {}) { S.toast = ''; S.stack.push({ name, ...params }); render(true); },
+  // R09: remember which row opened a screen (its data-* attributes), focus the new screen's heading, and on Back
+  // put focus back on that row, so keyboard and screen-reader users keep their place.
+  go(name, params = {}) { S.toast = ''; const cur = S.stack.at(-1) || { name: S.tab, tabRoot: true }; cur.from = trigger(); if (cur.tabRoot) S.tabFrom = cur.from; S.stack.push({ name, ...params }); render(true); focusTitle(); },
   replace(name, params = {}) { S.stack.pop(); S.stack.push({ name, ...params }); render(true); },
-  back() { S.toast = ''; S.stack.pop(); render(true); },
+  back() { S.toast = ''; S.stack.pop(); render(true); const from = (S.stack.at(-1) || {}).from ?? (S.stack.length ? '' : S.tabFrom); if (!refocus(from)) focusTitle(); },
   tab(name) { S.toast = ''; S.tab = name; S.stack = []; render(true); },
   change(fn, message) {
     const next = clone(S.ph); const r = fn(next); if (r === false) return false;
@@ -31,6 +33,10 @@ let root;
 // R06: the header's saved indicator says what storage really did: Saving…, Saved, or Save failed (retrying).
 const SAVE = { saving: 'Saving…', saved: 'Saved', failed: 'Save failed · retrying' };
 function showSave(s) { for (const el of document.querySelectorAll('.saved')) { el.textContent = SAVE[s]; el.classList.toggle('bad', s === 'failed'); } }
+let lastTap = null;
+function trigger() { const el = (lastTap && lastTap.isConnected ? lastTap : null) || document.activeElement?.closest?.('[data-act]'); if (!el) return ''; return [...el.attributes].filter(a => a.name.startsWith('data-')).map(a => `[${a.name}="${CSS.escape(a.value)}"]`).join(''); }
+function refocus(sel) { if (!sel) return false; const el = root.querySelector(sel); if (!el) return false; el.focus({ preventScroll: false }); return true; }
+function focusTitle() { const t = root.querySelector('.bar-title'); if (t) { t.setAttribute('tabindex', '-1'); t.focus({ preventScroll: true }); } }
 export function render(scrollTop = false) {
   env.sites = store.dir().ids.length;
   const r = S.ph ? ctx.route : { name: 'welcome' };
@@ -64,7 +70,7 @@ export async function start(el) {
   store.watchStatus(s => { showSave(s); if (s === 'failed') ctx.toast('Couldn’t save just now. Trying again; keep this page open.'); });
   startPWA();
   load();
-  document.addEventListener('click', e => handle(e, 'click'));
+  document.addEventListener('click', e => { lastTap = e.target.closest?.('[data-act]') || null; handle(e, 'click'); });
   document.addEventListener('submit', e => handle(e, 'submit'));
   document.addEventListener('input', e => { const el = e.target.closest('[data-input]'); if (!el) return; const r = S.ph ? ctx.route : { name: 'welcome' }; const v = views[r.name] || {}; v.inputs?.[el.dataset.input]?.(ctx, el, r, e); });
   document.addEventListener('change', e => { const el = e.target.closest('[data-change]'); if (!el) return; const r = S.ph ? ctx.route : { name: 'welcome' }; const v = views[r.name] || {}; v.changes?.[el.dataset.change]?.(ctx, el, r, e); });

@@ -147,8 +147,6 @@ table.cal{width:100%;border-collapse:collapse;font-size:14px} table.cal td,table
 .card.hero.warm{background:var(--warnbg);border-color:transparent}
 .filters b,.row-right,.status,.pill,.meta{font-variant-numeric:tabular-nums}
 .nav{backdrop-filter:saturate(1.4) blur(8px)}
-body:has(#uat-btn) .toast{bottom:calc(132px + env(safe-area-inset-bottom,0px))}
-body:has(#uat-btn) #app.has-nav{padding-bottom:calc(132px + env(safe-area-inset-bottom,0px))}
 .empty-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:18px;background:var(--surface);border:1px dashed var(--line);border-radius:12px}
 .checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.checklist li{display:flex;gap:10px;align-items:baseline}.checklist li .muted{margin-left:auto;font-size:14px}.checklist li.done{color:var(--muted)}
 .facts{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}.facts dt{color:var(--muted);font-size:14px}.facts dd{margin:0}
@@ -239,3 +237,6 @@ a.linkbtn{text-decoration:none}
  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}#app.has-nav{padding:0!important}}
 .siteline{display:block;width:100%;min-height:44px;padding:10px 12px;border:0;border-radius:12px;background:var(--track);color:var(--fg);font:inherit;font-weight:600;text-align:left;cursor:pointer;font-variant-numeric:tabular-nums}
 .installline{display:flex;align-items:center;gap:4px}.installline .quietline{flex:1}
+/* R12: UAT notes button lives in the header bar (UAT builds only) */
+#uat-btn{top:calc(10px + env(safe-area-inset-top,0px));bottom:auto;right:max(12px,env(safe-area-inset-right,0px));min-width:44px;min-height:44px;padding:0 10px;font-size:13px}
+#uat-btn.inbar{position:static;flex:none;z-index:auto}
