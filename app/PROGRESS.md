@@ -314,3 +314,5 @@ Brief: "PropApp — Audit Fixes (Wave 1 & Wave 2) + V3-05 Clinical Brief" (owner
 **A bug the new test found:** the S8 finish screen never redrew when the stock-check date changed, because the handler checked the form's name instead of the field's. So the "latest date" line and the "still needed" note went stale. Fixed.
 
 **Remaining:** Wave 2 (R07, R09–R12, F-V3-01 to F-V3-06) and Wave 3 (marking the TGA and eNRMC links checked, and the V3-05 clinical content) are not started.
+
+**Full run on build c5cf5012fe:** 15 suites (adding wave1), 250 checks, all pass with no console errors. check-procgen-all: all 17 services identical. Wave 1 code is in commit 43e824c on Mohaco1/PropApp main. **Next session:** start at Wave 2 (R07 first) from that commit.
