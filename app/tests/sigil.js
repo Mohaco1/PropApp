@@ -43,5 +43,17 @@ const TMP = path.join(require('os').tmpdir(), 'sigil-test'); fs.mkdirSync(TMP, {
   const drag = p.locator('.qcol[data-q="5"] .qpill').first(), dn = await drag.innerText();
   await drag.dragTo(p.locator('.qcol[data-q="8"]')); await p.waitForTimeout(250);
   ok(await p.locator('.qcol[data-q="8"] .qpill', { hasText: dn }).count() === 1, 'Balancer: drag-and-drop moves “' + dn + '” to Aug');
+  // 3. Copy setup from another pharmacy (Wattle Grove → a new store)
+  const wg = Object.values(await saved(p)).find(x => x?.name === 'Wattle Grove Pharmacy');
+  await tap(p, 'Today'); await p.locator('.ph-switch').click(); await tap(p, 'Set up another pharmacy'); await p.fill('input[name=name]', 'Second Store Pharmacy (fictional)'); await tap(p, 'Continue'); await p.fill('input[name=owner0]', 'Sam Owner'); await tap(p, 'Continue');
+  ok(/Copy setup from another pharmacy\?/.test(await text(p)), 'Clone: setup offers “Copy setup from another pharmacy?”');
+  await p.locator('.chip', { hasText: 'Wattle Grove Pharmacy' }).click(); await p.waitForTimeout(150);
+  const wgSvc = Object.entries(wg.services).filter(([, v]) => v.active).map(([k]) => k).sort();
+  ok(JSON.stringify((await p.locator('input[name=svc]:checked').evaluateAll(xs => xs.map(x => x.value))).sort()) === JSON.stringify(wgSvc), 'Clone: choosing Wattle Grove ticks its services (' + wgSvc.join(', ') + ')');
+  await tap(p, 'Finish setup'); await p.waitForTimeout(500);
+  ph = await activePh(p);
+  ok(ph.name === 'Second Store Pharmacy (fictional)' && wgSvc.every(k => ph.services[k]?.active && JSON.stringify(ph.services[k].answers) === JSON.stringify(wg.services[k].answers)), 'Clone: services and their setup answers are copied');
+  ok(ph.procedures.length === wg.procedures.filter(x => wg.services[x.service]?.active).length && ph.procedures.every(x => x.status === 'draft' && x.versions.length === 1 && !/Wattle Grove/.test(x.versions[0].body)), 'Clone: procedures arrive as drafts to adopt here (never adopted for you), with this pharmacy’s name');
+  ok(!ph.records.length && !ph.staff.length && !Object.keys(ph.actions).length && !Object.keys(ph.schedule || {}).length, 'Clone: records, staff, actions and S8 dates start empty');
   await done(b, errors);
 })();

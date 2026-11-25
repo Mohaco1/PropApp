@@ -31,10 +31,14 @@ register('welcome', {
       ${btn('+ Add another owner', 'add-owner', { kind: 'link' })}<div class="dock-inline">${btn('Continue', null, { kind: 'primary', type: 'submit' })}</div></form>` });
     return screen({ title: 'Services', back: true, body: h`${head}
       <p class="lead">Tick what this pharmacy offers. Each one gets a few setup questions later, from Today.</p>
+      ${copyFrom(c, d)}
       <form data-form="s3" class="form"><div class="ticks">${C.services.services.map(s => h`<label class="tick"><input type="checkbox" name="svc" value="${s.id}" ${d.services.includes(s.id) ? h`checked` : ''}><span>${s.name}</span></label>`)}</div>
       <div class="dock-inline">${btn('Finish setup', null, { kind: 'primary', type: 'submit' })}</div></form>` });
   },
   acts: {
+    // Sigil brief: copy setup from another pharmacy (services, their setup answers, procedures as drafts, quarter rhythm).
+    copyfrom: (c, d) => { const s = c.ui.setup, src = d.id ? c.store.pharmacy(d.id) : null; s.copyFrom = src ? src.id : '';
+      if (src) s.services = Object.entries(src.services).filter(([, v]) => v.active).map(([k]) => k); c.rerender(); },
     'start-setup': c => { c.ui.setupStep = 1; c.rerender(); },
     back: c => { c.ui.setupStep = Math.max(0, (c.ui.setupStep || 1) - 1); c.rerender(); },
     'add-owner': c => { const d = c.ui.setup; collect(d); d.owners.push(''); c.rerender(); },
@@ -49,10 +53,29 @@ register('welcome', {
       const ph = emptyPharmacy(d.name); ph.address = d.address;
       ph.proprietors = d.owners.map((n, i) => ({ id: uid(), name: n, primary: i === 0 })); ph.recordingAs = ph.proprietors[0].id;
       for (const s of d.services) ph.services[s] = { active: true, setup: 'todo', answers: {} };
-      ph.settings.setupDone = true; log(ph, 'Pharmacy set up · ' + ph.name);
+      const src = d.copyFrom ? c.store.pharmacy(d.copyFrom) : null;
+      if (src) copySetup(src, ph);
+      ph.settings.setupDone = true; log(ph, 'Pharmacy set up · ' + ph.name + (src ? ' · setup copied from ' + src.name : ''));
       c.store.savePharmacy(ph); c.ui.setupStep = 0; c.ui.setup = null; c.store.setPref('setup-draft', undefined); await c.open(ph.id); c.toast('Set up. Next: your services, from Today.');
     },
   },
 });
+function copyFrom(c, d) {
+  const others = c.store.activeIds().map(id => c.store.pharmacy(id)).filter(Boolean); if (!others.length) return '';
+  return h`<div class="card"><p class="field-label">Copy setup from another pharmacy?</p><p class="muted">Copies its services, their setup answers, its procedures (as drafts for you to adopt here) and its quarter rhythm. Records, S8 dates, actions and staff start empty.</p>
+    <div class="chips">${others.map(o => h`<button type="button" class="chip ${d.copyFrom === o.id ? 'on' : ''}" data-act="copyfrom" data-id="${o.id}">${o.name}</button>`)}${d.copyFrom ? h`<button type="button" class="chip" data-act="copyfrom" data-id="">Start fresh</button>` : ''}</div></div>`;
+}
+// Only setup carries over. Procedures arrive as drafts (adopting is always the owner's tap, per pharmacy); the other
+// pharmacy's name in their text becomes this one's.
+function copySetup(src, ph) {
+  for (const [id, v] of Object.entries(src.services)) if (v.active && ph.services[id]) ph.services[id] = { ...ph.services[id], setup: v.setup, answers: structuredClone(v.answers || {}) };
+  if (src.intervals) ph.intervals = structuredClone(src.intervals);
+  if (src.quarters) ph.quarters = structuredClone(src.quarters);
+  if (src.lead) ph.lead = src.lead;
+  const at = new Date().toISOString();
+  ph.procedures = (src.procedures || []).filter(p => ph.services[p.service]).map(p => { const v = p.versions.filter(x => x.status === 'Adopted').at(-1) || p.versions.at(-1);
+    const body = String(v.body).split(src.name).join(ph.name);
+    return { id: uid(), service: p.service, title: p.title, status: 'draft', versions: [{ v: '0.1', body, generated: body, at, status: 'Draft', note: 'Copied from ' + src.name }] }; });
+}
 function keep(c) { c.store.setPref('setup-draft', { step: c.ui.setupStep, setup: c.ui.setup }); c.store.flush(); }
 function collect(d) { document.querySelectorAll('[name^=owner]').forEach((i, n) => { d.owners[n] = i.value; }); }
