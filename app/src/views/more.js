@@ -2,7 +2,7 @@
 import { register } from '../app.js';
 import { h, html } from '../util.js';
 import { screen, row, icon, section, btn, empty, field, textInput, note, choice } from '../ui.js';
-import { fmt, today, dueText, weekStart, addDays, addMonths, monthName, isDate } from '../dates.js';
+import { fmt, today, dueText, weekStart, addDays, addMonths, monthName, isDate, day } from '../dates.js';
 import { items, ranked, bucket, reviewDue } from '../summary.js';
 import { plan, monthsFor, reviewById } from '../rules.js';
 import { note as log } from '../model.js';
@@ -16,7 +16,7 @@ register('more', {
       ${section('Plan', h`<div class="list">${R('Calendar', 'This week, next week and the year', 'calendar', 'cal')}${R('Meetings', 'Staff safety, check-ins, governance', 'meetings', 'staff')}</div>`)}
       ${section('Rules', h`<div class="list">${R('S8 at a glance', 'Inventory, storage, register, keys and codes', 's8', 'lock')}${R('Legal obligations', 'Each Regulation section that applies here', 'obligations', 'shield')}${R('NSW Health dates and contacts', 'Who to call and when', 'contacts', 'bell')}${R('Procedures', 'Drafts from your setup answers, and adopted versions', 'procedures', 'doc')}${R('If something goes wrong', 'Lost or stolen S8, lost register, S8 destruction, data breach', 'incidents', 'bell')}${R('Evidence locations', 'Where every record is kept', 'locations', 'box')}${R('Law and practice updates', 'What changed, and what’s no longer required', 'updates', 'bell')}${R('Sources', 'Where each rule comes from, with links', 'sources', 'doc')}</div>`)}
       ${section('Proof', h`<div class="list">${R('History', 'Everything recorded, with a readable export', 'history', 'history')}${R('Evidence pack', 'A printable summary of the last 12 months', 'pack', 'doc')}${R('My log', 'What you reported or sent, and to whom', 'mylog', 'log')}</div>`)}
-      ${section('Your pharmacy', h`<div class="list">${R('Pharmacy details', c.ph.address || 'Name, address, owners', 'details', 'home')}${R('Services', Object.values(c.ph.services).filter(s => s.active).length + ' offered', 'services', 'box')}${R('Bought, selling or closing', 'What NSW Health requires', 'changes', 'gear')}${R('Backup and devices', c.ph.settings.lastBackup ? 'Last requested ' + fmt(c.ph.settings.lastBackup.slice(0, 10)) : 'No backup yet', 'backup', 'backup')}${c.store.dir().ids.length > 1 || true ? R('Pharmacies on this device', c.store.dir().ids.length + ' here', 'pharmacies', 'home') : ''}</div>`)}
+      ${section('Your pharmacy', h`<div class="list">${R('Pharmacy details', c.ph.address || 'Name, address, owners', 'details', 'home')}${R('Services', Object.values(c.ph.services).filter(s => s.active).length + ' offered', 'services', 'box')}${R('Bought, selling or closing', 'What NSW Health requires', 'changes', 'gear')}${R('Backup and devices', c.ph.settings.lastBackup ? 'Last requested ' + fmt(day(c.ph.settings.lastBackup)) : 'No backup yet', 'backup', 'backup')}${R('Pharmacies on this device', c.store.activeIds().length + ' here' + ((c.store.dir().archived || []).length ? ' · ' + c.store.dir().archived.length + ' archived' : ''), 'pharmacies', 'home')}</div>`)}
       <p class="hint">Build ${window.PROPAPP_BUILD || 'dev'}</p>` });
   },
 });

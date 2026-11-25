@@ -245,3 +245,4 @@ a.linkbtn{text-decoration:none}
 .filters button.on b{color:var(--fg)}.filters button.on[data-f=overdue] b{color:var(--bad)}.filters button.on[data-f=week] b{color:var(--warn)}
 #sr .row-title,.list .row .row-title{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .yp-legend .due{color:var(--accent)}.yearplan th:last-child,.yearplan td:last-child{padding-right:14px}
+.btn.danger{border-color:var(--bad);color:var(--bad)}

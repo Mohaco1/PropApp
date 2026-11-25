@@ -4,7 +4,7 @@ import { isPWA, standalone, keptStatus } from '../pwa.js';
 import { register } from '../app.js';
 import { h, uid } from '../util.js';
 import { screen, btn, row, field, textInput, choice, note, why, empty, section, pill } from '../ui.js';
-import { fmt, today, addDays } from '../dates.js';
+import { fmt, today, addDays, day } from '../dates.js';
 import { note as log, me, newAction } from '../model.js';
 import { pharmacyBackup, importBackup, openExample } from './backup.js';
 import { saveFile } from '../ics.js';
@@ -26,7 +26,7 @@ register('backup', {
   tab: 'more',
   render(c) { const last = c.ph.settings.lastBackup, n = c.ph.history.filter(x => !last || x.at > last).length;
     return screen({ title: 'Backup and devices', back: true, body: h`
-      <div class="card"><h2>${last ? 'Last requested ' + fmt(last.slice(0, 10)) : 'No backup yet'}</h2><p class="muted">${last ? (n === 1 ? '1 change' : n + ' changes') + ' since last request.' : ''} A browser can’t tell the app whether the file was saved, so check it’s in your files. Your records are kept only in this browser on this device, so keep a backup somewhere safe (for example your email or cloud drive).</p>
+      <div class="card"><h2>${last ? 'Last requested ' + fmt(day(last)) : 'No backup yet'}</h2><p class="muted">${last ? (n === 1 ? '1 change' : n + ' changes') + ' since last request.' : ''} A browser can’t tell the app whether the file was saved, so check it’s in your files. Your records are kept only in this browser on this device, so keep a backup somewhere safe (for example your email or cloud drive).</p>
         ${btn('Download a backup', 'dl', { kind: 'primary', cls: 'block' })}</div>
       ${isPWA() ? h`<div class="card" id="device"><h2>This device</h2><p class="muted">${standalone() ? 'Opened from your Home Screen.' : 'Opened in the browser. Add it to your Home Screen so your phone keeps your records: on iPhone, tap Share, then Add to Home Screen; on Android, tap ⋮, then Install app.'}</p>
         ${standalone() ? '' : h`<p class="note warn">On iPhone, the Home Screen app keeps its own records, separate from Safari. If you’ve already entered records here, download a backup first, then restore it in the Home Screen app.</p>`}
@@ -34,7 +34,7 @@ register('backup', {
       <div class="card"><h2>Restore</h2><p class="muted">Open an R.Pharmacy backup (from this app or the earlier version). If the pharmacy is already here you’re asked before anything is replaced.</p>
         <label class="btn secondary block" style="display:grid;place-items:center">Choose a backup file<input type="file" accept="application/json,.json" data-change="restore" hidden></label></div>
       ${(() => { const cf = Object.entries(c.drafts).filter(([k]) => k.includes('/conflict-')); return h`<section class="sec"><h2 class="sec-title">Conflict copies · ${cf.length}</h2><p class="muted">If the same draft was changed in two places (for example two tabs), the newer one is kept and the other is saved here instead of being lost.</p>
-        ${cf.length ? h`<div class="list">${cf.map(([k, v]) => { const n = Object.values(v.items || v.answers || {}).filter(x => x && (x.status || typeof x === 'string')).length; return h`<div class="row static"><span class="row-main"><span class="row-title">${k.startsWith('visit/') ? (k.startsWith('visit/extra') ? 'Extra visit' : 'Quarterly visit') : 'Review ' + k.split('/')[1]} · copy from ${fmt(new Date(+k.split('conflict-')[1]).toISOString().slice(0, 10))}</span><span class="row-sub">${n} answer${n === 1 ? '' : 's'}${v.notes ? ' · note: ' + v.notes : ''}${v.date ? ' · visit date ' + fmt(v.date) : ''}</span><span class="btnrow">${btn('Copy its answers', 'cfcopy', { data: { k } })}${btn('Dismiss', 'cfdel', { kind: 'link', data: { k } })}</span></span></div>`; })}</div>` : h`<p class="muted">None.</p>`}</section>`; })()}
+        ${cf.length ? h`<div class="list">${cf.map(([k, v]) => { const n = Object.values(v.items || v.answers || {}).filter(x => x && (x.status || typeof x === 'string')).length; return h`<div class="row static"><span class="row-main"><span class="row-title">${k.startsWith('visit/') ? (k.startsWith('visit/extra') ? 'Extra visit' : 'Quarterly visit') : 'Review ' + k.split('/')[1]} · copy from ${fmt(day(new Date(+k.split('conflict-')[1]).toISOString()))}</span><span class="row-sub">${n} answer${n === 1 ? '' : 's'}${v.notes ? ' · note: ' + v.notes : ''}${v.date ? ' · visit date ' + fmt(v.date) : ''}</span><span class="btnrow">${btn('Copy its answers', 'cfcopy', { data: { k } })}${btn('Dismiss', 'cfdel', { kind: 'link', data: { k } })}</span></span></div>`; })}</div>` : h`<p class="muted">None.</p>`}</section>`; })()}
       <section class="sec"><h2 class="sec-title">Storage on this device</h2><div class="card" id="storage"><p class="muted">Checking…</p></div></section>
       <p class="hint">If nothing downloads (some previews block files), open the app file in your phone’s browser.</p>` }); },
   after: async c => { if (isPWA() && c.ui.kept === undefined) { c.ui.kept = null; keptStatus().then(k => { c.ui.kept = k; c.rerender(); }); }
@@ -48,10 +48,30 @@ register('backup', {
 });
 register('pharmacies', {
   tab: 'more',
-  render(c) { const d = c.store.dir();
-    return screen({ title: 'Pharmacies', back: true, body: h`${d.ids.length > 1 ? h`<div class="list">${row({ title: 'All pharmacies', sub: 'Overdue and this week, side by side', act: 'go', data: { to: 'allsites' } })}</div>` : ''}<div class="list">${d.ids.map(id => { const p = c.store.pharmacy(id); if (!p) return ''; const n = counts(items(p, c.store.drafts(id))).overdue; return row({ title: p.name, sub: (n ? n + ' overdue' : 'Nothing overdue') + (p.address ? ' · ' + p.address : ''), right: id === c.ph.id ? 'Open now' : 'Switch', tone: id === c.ph.id ? 'ok' : '', act: 'sw', data: { id } }); })}</div>
-      ${btn('Set up another pharmacy', 'add')}${window.PROPAPP_EXAMPLE ? btn('Open the example pharmacy (fictional)', 'ex', { kind: 'link' }) : ''}` }); },
-  acts: { sw: (c, d) => c.open(d.id), ex: c => openExample(c), add: async c => { const dd = c.store.dir(); dd.active = ''; c.store.setDir(dd); await c.store.flush(); c.ui.setupStep = 1; c.ui.setup = null; c.load(); c.rerender(); } },
+  render(c) { const d = c.store.dir(), act = c.store.activeIds(), arch = d.ids.filter(id => !act.includes(id));
+    const line = id => { const p = c.store.pharmacy(id); if (!p) return ''; const n = counts(items(p, c.store.drafts(id))).overdue; return row({ title: p.name, sub: (n ? n + ' overdue' : 'Nothing overdue') + (p.address ? ' · ' + p.address : ''), right: id === c.ph.id ? 'Open now' : 'Switch', tone: id === c.ph.id ? 'ok' : '', act: 'sw', data: { id } }); };
+    return screen({ title: 'Pharmacies', back: true, body: h`${act.length > 1 ? h`<div class="list">${row({ title: 'All pharmacies', sub: 'Overdue and this week, side by side', act: 'go', data: { to: 'allsites' } })}</div>` : ''}<div class="list">${act.map(line)}</div>
+      ${btn('Set up another pharmacy', 'add')}${window.PROPAPP_EXAMPLE ? btn('Open the example pharmacy (fictional)', 'ex', { kind: 'link' }) : ''}
+      ${d.ids.length > 1 ? btn('Archive or delete a pharmacy', 'go', { kind: 'link', data: { to: 'phmanage' } }) : ''}
+      ${arch.length ? section('Archived · ' + arch.length, h`<div class="list">${arch.map(id => { const p = c.store.pharmacy(id); return p ? row({ title: p.name, sub: 'Records kept · hidden from switching and counts', right: 'Unarchive', act: 'unarch', data: { id } }) : ''; })}</div>`) : ''}` }); },
+  acts: { sw: (c, d) => c.open(d.id), ex: c => openExample(c), add: async c => { const dd = c.store.dir(); dd.active = ''; c.store.setDir(dd); await c.store.flush(); c.ui.setupStep = 1; c.ui.setup = null; c.load(); c.rerender(); },
+    unarch: (c, d) => { c.store.setArchived(d.id, false); c.rerender(); c.toast('Unarchived'); } },
+});
+// F-LIVE-07 (owner approved): archive a real pharmacy (records kept, can be undone); delete only a test or fictional
+// pharmacy, or one with nothing recorded, after a backup prompt and a second tap. The open pharmacy is never offered.
+const deletable = p => /\(fictional\)|\btest\b|UAT/i.test(p.name) || (!p.records.length && !Object.keys(p.actions).length && !p.staff.length);
+register('phmanage', {
+  tab: 'more',
+  render(c) { const d = c.store.dir(), others = d.ids.filter(id => id !== c.ph.id && !(d.archived || []).includes(id)).map(id => c.store.pharmacy(id)).filter(Boolean);
+    return screen({ title: 'Archive or delete', back: true, body: h`<p class="muted">Archive keeps every record and hides the pharmacy from switching and counts; you can unarchive it from Pharmacies. Delete removes it from this device for good, so it’s offered only for test or fictional pharmacies, or ones with nothing recorded. To change the pharmacy that’s open now, switch to another first.</p>
+      ${others.length ? h`<div class="list">${others.map(p => h`<div class="row static"><span class="row-main"><span class="row-title">${p.name}</span><span class="row-sub">${p.records.length} records · ${Object.keys(p.actions).length} actions</span>
+        <span class="btnrow">${btn('Archive', 'arch', { data: { id: p.id } })}${deletable(p) ? btn(c.ui.delArmed === p.id ? 'Tap again to delete for good' : 'Delete', 'del', { data: { id: p.id }, cls: c.ui.delArmed === p.id ? 'danger' : '' }) : ''}</span>
+        ${c.ui.delArmed === p.id ? h`<span class="note warn">This can’t be undone. Download a backup of it first if you might want it back.${btn('Download its backup', 'delbk', { kind: 'link', data: { id: p.id } })}</span>` : ''}</span></div>`)}</div>` : empty('No other pharmacies to archive or delete.')}` }); },
+  acts: {
+    arch: (c, d) => { c.store.setArchived(d.id, true); c.rerender(); c.toast('Archived. Records kept; unarchive it from Pharmacies.'); },
+    del: async (c, d) => { if (c.ui.delArmed !== d.id) { c.ui.delArmed = d.id; c.rerender(); return; } c.ui.delArmed = ''; const name = c.store.pharmacy(d.id)?.name; c.store.removePharmacy(d.id); await c.store.flush(); c.rerender(); c.toast('Deleted ' + name + ' from this device'); },
+    delbk: (c, d) => { const p = c.store.pharmacy(d.id); saveFile(p.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify({ app: 'PropApp', format: 1, exportedAt: new Date().toISOString(), pharmacy: p, drafts: c.store.drafts(d.id) }), 'application/json'); c.toast('Backup download requested'); },
+  },
 });
 // Tell me once: change to how DAAs are packed. Items and sources from the current app (uat/layers/change.js).
 const ROUTES = [['house', 'We pack on site', 'We dispense and pack in this pharmacy'], ['routeA', 'We dispense, an outside packer packs', 'The packer works from our instructions; we stay the supplying pharmacy'], ['routeB', 'Another pharmacy dispenses and packs', 'That pharmacy becomes the supplying pharmacy']];

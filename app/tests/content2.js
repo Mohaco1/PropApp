@@ -52,11 +52,20 @@ const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive
   await tap(p, 'Set up services'); await p.getByRole('button', { name: /^Answer/ }).click(); await p.locator('label.choice').nth(2).click(); await tap(p, 'Save');
   await p.getByRole('button', { name: /^Pharmacist prescribing/ }).click(); let seenQ = false, seenC = false;
   for (let i = 0; i < 20; i++) { t = await text(p); if (/What happens next/.test(t)) break;
-    if (/Queensland-trained pharmacists only/.test(t)) { seenQ = /Mild acute musculoskeletal pain/.test(t) && /Acute nausea and vomiting/.test(t) && /Initiation of the oral contraceptive pill \(JCU-trained pharmacists only\)/.test(t); await p.locator('label.tick', { hasText: 'Uncomplicated urinary tract infection' }).click(); }
+    if (/Queensland-trained pharmacists only/.test(t)) { seenQ = /Mild acute musculoskeletal pain/.test(t) && /Acute nausea and vomiting/.test(t) && /Initiation of the oral contraceptive pill \(JCU-trained pharmacists only\)/.test(t); for (const x of ['Uncomplicated urinary tract infection', 'Continuation of hormonal contraception', 'Mild acute musculoskeletal pain', 'Initiation of the oral contraceptive pill']) await p.locator('label.tick', { hasText: x }).click(); }
     else if (/Working with Children Check/.test(t)) { seenC = /DMPA injections/.test(t) && /4 November 2027/.test(t) && /James Cook University Graduate Certificate/.test(t) && /Intention to provide expanded community pharmacy services/.test(t); if (seenC) { await p.locator('label.tick', { hasText: 'Contraception: vaginal rings' }).scrollIntoViewIfNeeded(); await p.evaluate(() => scrollBy(0, 120)); await p.screenshot({ path: path.join(OUT, '08_prescribing_checklist_390px.png') }); } const tk = p.locator('form label.tick').first(); await tk.click(); }
     else if (await p.getByRole('button', { name: 'Skip for now', exact: true }).count()) { await tap(p, 'Skip for now'); continue; }
     else { const ch = p.locator('form label.choice, form label.tick').first(); if (await ch.count()) await ch.click(); else { const inp = p.locator('form input.input').first(); if (await inp.count()) { await inp.fill('Fictional'); await inp.blur(); } } }
     await p.waitForTimeout(60); await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(60); }
+  // Codex #06: with UTI alone, the contraception item is hidden (edit the answer and look again)
+  ph = await activePh(p); const ans = ph.services.prescribing.answers;
+  ok(ans.pathway === 'UTI,Contraception,Musculoskeletal pain,OCP initiation', 'C2-05 the chosen pathways are saved');
+  if (await p.getByRole('button', { name: /^(Save dates and finish|Finish setup)$/ }).count()) { await p.getByRole('button', { name: /^(Save dates and finish|Finish setup)$/ }).first().click(); await p.waitForTimeout(300); }
+  await tap(p, 'More'); await p.getByRole('button', { name: /^Services/ }).click(); await p.getByRole('button', { name: /^Pharmacist prescribing/ }).click(); await tap(p, 'Edit answers'); await p.waitForTimeout(200);
+  for (let i = 0; i < 6 && !(await p.locator('label.tick', { hasText: 'Continuation of hormonal contraception' }).count()); i++) await p.getByRole('button', { name: /^(Next|Finish)$/ }).click();
+  for (const x of ['Continuation of hormonal contraception', 'Mild acute musculoskeletal pain', 'Initiation of the oral contraceptive pill']) await p.locator('label.tick', { hasText: x }).click();
+  await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(200); t = await text(p);
+  ok(/Working with Children Check/.test(t) && !/vaginal rings/.test(t) && !/James Cook University/.test(t) && !/Queensland-trained pharmacists providing/.test(t), 'Codex #06 UTI only: the contraception, OCP and Queensland items are hidden; shared items stay');
   ok(seenQ, 'C2-05 the 5 extra conditions are offered, marked “Queensland-trained pharmacists only”');
   ok(seenC, 'C2-05 the readiness checklist adds contraception limits, Working with Children Check, the Intention form and the 4 Nov 2027 expiry');
   ph = await activePh(p); ok(Object.values(ph.actions).some(a => /approved pharmacy/i.test(a.title)) || /What happens next/.test(await text(p)), 'C2-05 unticked items stay open for the owner (nothing ticked for them)');

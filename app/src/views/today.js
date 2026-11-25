@@ -3,7 +3,7 @@ import { register } from '../app.js';
 import { h } from '../util.js';
 import { screen, row, btn, empty, icon } from '../ui.js';
 import { items, ranked, counts, sentence, inWeek } from '../summary.js';
-import { fmt, dueText, today, daysBetween, isDate } from '../dates.js';
+import { fmt, dueText, today, daysBetween, isDate, day } from '../dates.js';
 import { C } from '../content.js';
 import { undated } from './services.js';
 import { serviceName } from '../rules.js';
@@ -32,7 +32,7 @@ function topCard(c, list) {
   const nd = undated(ph).length;
   if (nd) return h`<div class="card hero"><p class="eyebrow">Almost there</p><h2>${nd === 1 ? '1 review needs' : nd + ' reviews need'} a first date</h2><p class="muted">The app suggests dates. You check them and save.</p>${btn('Plan the dates', 'go', { kind: 'primary', data: { to: 'first-dates' } })}</div>`;
   const last = ph.settings.lastBackup, changes = ph.history.filter(x => !last || x.at > last).length;
-  if (changes > 25 && (!last || daysBetween(last.slice(0, 10), today()) > 30)) return h`<div class="card"><h2>Save a backup</h2><p class="muted">${last ? 'Last requested ' + fmt(last.slice(0, 10)) : 'No backup yet'} · ${changes} changes since${last ? ' last request' : ''}. Your records live only on this device.</p>${btn('Back up now', 'go', { data: { to: 'backup' } })}</div>`;
+  if (changes > 25 && (!last || daysBetween(day(last), today()) > 30)) return h`<div class="card"><h2>Save a backup</h2><p class="muted">${last ? 'Last requested ' + fmt(day(last)) : 'No backup yet'} · ${changes} changes since${last ? ' last request' : ''}. Your records live only on this device.</p>${btn('Back up now', 'go', { data: { to: 'backup' } })}</div>`;
   const q1 = list.find(i => i.ref === 'Q1');
   if (q1 && (!isDate(q1.date) || daysBetween(today(), q1.date) <= 14)) return h`<div class="card hero"><p class="eyebrow">Site visit</p><h2>${q1.bucket === 'overdue' ? 'Your quarterly visit is overdue' : q1.date ? 'Quarterly visit due ' + fmt(q1.date) : 'Plan your first site visit'}</h2>${btn('Start a visit', 'go', { kind: 'primary', data: { to: 'visit-start' } })}</div>`;
   return '';
@@ -51,7 +51,7 @@ register('today', {
     const list = ranked(pick);
     return screen({ title: 'Today', sub: c.ph.name, right: switcher(c), body: h`
       <p class="status"><span class="date">${fmt(today(), { weekday: true })}</span><span class="${s.tone}">${s.text}</span>${s.start && s.tone !== 'ok' ? h` Start with ${s.start.title}.` : ''}</p>
-      ${(() => { const ids = c.store.dir().ids; if (ids.length < 2) return ''; const tot = ids.reduce((t, id) => { const p = c.store.pharmacy(id); return t + (p ? counts(items(p, c.store.drafts(id))).overdue : 0); }, 0);
+      ${(() => { const ids = c.store.activeIds(); if (ids.length < 2) return ''; const tot = ids.reduce((t, id) => { const p = c.store.pharmacy(id); return t + (p ? counts(items(p, c.store.drafts(id))).overdue : 0); }, 0);
         return h`<button class="siteline" data-act="go" data-to="allsites">${tot === 1 ? '1 overdue' : tot + ' overdue'} across your ${ids.length} pharmacies · see all</button>`; })()}
       ${isPWA() && !standalone() && !c.ph.flags?.installHintDone ? h`<div class="installline"><button class="quietline" data-act="go" data-to="backup">Add R.Pharmacy to your Home Screen before you enter records · how</button><button class="iconbtn" data-act="hideinstall" aria-label="Hide this">✕</button></div>` : ''}
       ${topCard(c, all)}

@@ -5,7 +5,7 @@ const APP='file:///home/user/rpharmacy/uat/app/rpharmacy-uat-testing.html';
 const DAY=864e5;const T0=new Date(process.env.DEMO_TODAY||new Date().toISOString().slice(0,10));T0.setUTCHours(0,0,0,0);
 const at=(d,h=10)=>new Date(T0.getTime()+d*DAY+h*36e5-10*36e5);           // day offset from "today" (Sydney ~10am → UTC 0)
 const iso=d=>new Date(T0.getTime()+d*DAY).toISOString().slice(0,10);
-const TEXT=[[/pharmacy name/i,'Wattle Grove Pharmacy'],[/address/i,'48 Wattle Grove Road, Fictional Heights NSW 2999'],[/proprietor name/i,'Jordan Avery'],
+const TEXT=[[/pharmacist who|stock.?check pharmacist|completed the stock check/i,'Priya Sharma (fictional)'],[/scenario/i,'Power outage during trading hours (fictional drill)'],[/outcome/i,'Vaccine fridge on backup power within 10 minutes; contact list updated (fictional)'],[/pharmacy name/i,'Wattle Grove Pharmacy'],[/address/i,'48 Wattle Grove Road, Fictional Heights NSW 2999'],[/proprietor name/i,'Jordan Avery'],
  [/consent/i,'DAA consent folder, dispensary shelf 2 (paper) and scanned to the PharmaDesk patient file'],[/collection or delivery records|delivery records|delivery evidence|handover/i,'Delivery and collection log book, front counter drawer'],
  [/packing record|signoff|sign-off/i,'Packing sign-off sheets, DAA bench binder'],[/provider|packer|agreement/i,'Northside Packing Co (fictional) · service agreement in the office filing cabinet'],
  [/software|system/i,'PharmaDesk (fictional dispensing system)'],[/fridge|temperature|logger/i,'Vaccine fridge log, clipboard on the fridge; logger downloads in the shared drive “Vaccines/Logger”'],

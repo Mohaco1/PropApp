@@ -6,7 +6,7 @@ import { h, uid } from '../util.js';
 import { screen, btn, row, field, textArea, textInput, note, empty, pill, why } from '../ui.js';
 import { draftText, blockers, procWording, visibleFields } from '../procgen.js';
 import { serviceName } from '../rules.js';
-import { fmt, today } from '../dates.js';
+import { fmt, today, day } from '../dates.js';
 import { note as log, newAction } from '../model.js';
 import { addDays, addMonths } from '../dates.js';
 import { questionIndex } from './services.js';
@@ -14,8 +14,8 @@ const current = p => p?.versions?.at(-1);
 // Annual procedure review: 12 months after the last review, or after adoption.
 // F-LIVE-08: an adopted version never calls itself a draft. Only how it's shown changes; the stored text is untouched.
 export const adoptedWording = (v, t) => v.status !== 'Adopted' ? t : String(t).replace(/Draft generated from (.+?)’s setup answers and the sources listed at the end\. Review it, adjust it to how you work, and (?:adopt it in Procedures|approve it in Policies)\./,
-  (m, who) => 'Adopted procedure (version ' + v.v + ', adopted ' + fmt(String(v.adoptedAt || v.at).slice(0, 10)) + '), prepared from ' + who + '’s setup answers and the sources listed at the end.');
-export const procReviewDue = p => addMonths(String((p.reviews || []).at(-1)?.date || p.versions.filter(v => v.status === 'Adopted').at(-1)?.adoptedAt || p.versions.at(-1).at).slice(0, 10), 12);
+  (m, who) => 'Adopted procedure (version ' + v.v + ', adopted ' + fmt(day(v.adoptedAt || v.at)) + '), prepared from ' + who + '’s setup answers and the sources listed at the end.');
+export const procReviewDue = p => addMonths(day((p.reviews || []).at(-1)?.date || p.versions.filter(v => v.status === 'Adopted').at(-1)?.adoptedAt || p.versions.at(-1).at), 12);
 // Which setup question fills a "[Confirm: …]" gap: the unanswered or "Check later" question sharing the most words.
 const words = t => new Set(String(t).toLowerCase().match(/[a-z0-9]{4,}/g) || []);
 function bestQuestion(ph, id, gap) { const fs = visibleFields(ph, id, ph.services[id]?.answers || {}), a = ph.services[id]?.answers || {}, g = words(gap);
@@ -41,21 +41,21 @@ register('procedure', {
     const b = blockers(v.body), changed = fresh && fresh !== v.generated && p.status !== 'adopted';
     if (mode === 'edit') return screen({ title: 'Edit wording', back: true, body: h`<form class="form" data-form="edit">${field('Procedure text', textArea('body', v.body, { rows: 18, noPatient: true }))}<div class="dock-inline">${btn('Save as new version', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'mode', { data: { m: '' } })}</div></form>` });
     return screen({ title: serviceName(id) + ' procedure', back: true, body: h`
-      <p>${pill(p.status === 'adopted' ? 'Adopted · version ' + v.v : 'Draft ' + v.v, p.status === 'adopted' ? 'ok' : 'warn')} <span class="muted">${fmt(String(v.at).slice(0, 10))}</span></p>
+      <p>${pill(p.status === 'adopted' ? 'Adopted · version ' + v.v : 'Draft ' + v.v, p.status === 'adopted' ? 'ok' : 'warn')} <span class="muted">${fmt(day(v.at))}</span></p>
       ${changed ? note(h`Your setup answers changed since this draft. ${btn('Update the draft', 'regen', { kind: 'link' })}`, 'warn') : ''}
       ${b.length && p.status !== 'adopted' ? h`<section class="sec"><h2 class="sec-title">To confirm before adopting · ${b.length}</h2><div class="list">${b.map(x => row({ title: x.charAt(0).toUpperCase() + x.slice(1), sub: 'Tap to answer it now', act: 'fix', data: { q: x } }))}</div></section>` : ''}
       ${c.ui['ad:' + id] ? h`<div class="card hero"><h2>Adopt version ${adoptVersion(p)} for use here?</h2><p class="muted">This records that you, ${c.ph.proprietors.find(x => x.id === c.ph.recordingAs)?.name || 'the proprietor'}, have read it and it matches how your pharmacy works. You can change it later; earlier versions are kept.</p><div class="btnrow">${btn('Yes, adopt it', 'adoptyes', { kind: 'primary' })}${btn('Cancel', 'adoptno')}</div></div>`
         : h`<div class="btnrow">${btn('Edit', 'mode', { data: { m: 'edit' } })}${p.status !== 'adopted' ? btn('Adopt for use here', 'adopt', { kind: 'primary', disabled: b.length > 0 }) : ''}</div>`}
       ${b.length && p.status !== 'adopted' ? h`<p class="hint">Adopt unlocks when nothing is left to confirm.</p>` : ''}
       ${p.status === 'adopted' ? h`<section class="sec"><h2 class="sec-title">Using it</h2><div class="card">
-        <p class="meta">${(p.reviews || []).length ? 'Last reviewed ' + fmt(p.reviews.at(-1).date) + ' by ' + p.reviews.at(-1).by : 'Adopted ' + fmt(String(v.adoptedAt || v.at).slice(0, 10))} · next review ${fmt(procReviewDue(p))}</p>
+        <p class="meta">${(p.reviews || []).length ? 'Last reviewed ' + fmt(p.reviews.at(-1).date) + ' by ' + p.reviews.at(-1).by : 'Adopted ' + fmt(day(v.adoptedAt || v.at))} · next review ${fmt(procReviewDue(p))}</p>
         ${c.ui['rv:' + id] ? h`<form class="form" data-form="reviewed">${field('Anything you noticed (optional)', textArea('note', '', { rows: 2 }))}<div class="btnrow">${btn('Record review', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'rvno')}</div></form>` : btn('Record that I reviewed it', 'rv')}
         ${p.amendment ? h`<p class="eyebrow">Local amendment</p><p>${p.amendment}</p>` : ''}
         ${c.ui['am:' + id] ? h`<form class="form" data-form="amend">${field('Local amendment (how your pharmacy does this differently)', textArea('amendment', p.amendment || '', { rows: 3 }))}<div class="btnrow">${btn('Save amendment', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'amno')}</div></form>` : btn(p.amendment ? 'Change the local amendment' : 'Add a local amendment', 'am', { kind: 'link' })}
         </div></section>` : ''}
       ${(() => { const acts = Object.values(c.ph.actions).filter(a => a.source?.type === 'procedure' && a.source.service === id); return h`<section class="sec"><h2 class="sec-title">Actions for this procedure · ${acts.length}</h2>${acts.length ? h`<div class="list">${acts.map(a => row({ title: a.title, right: a.status === 'closed' ? 'Closed' : 'Open', act: 'go', data: { to: 'action', id: a.id } }))}</div>` : ''}${btn('+ Add an action for this procedure', 'linkact', { kind: 'link' })}</section>`; })()}
       <div class="doc">${adoptedWording(v, v.edited ? v.body : procWording(v.body))}</div>
-      ${p.versions.length > 1 ? why('Version history · ' + p.versions.length, h`<div class="list">${p.versions.slice().reverse().map((x, i) => row({ title: 'Version ' + x.v + (i === 0 ? ' (current)' : ''), sub: [x.status, fmt(String(x.at).slice(0, 10)), x.adoptedBy && 'adopted by ' + x.adoptedBy, x.edited && 'wording edited'].filter(Boolean).join(' · '), chev: false }))}</div>`) : ''}` });
+      ${p.versions.length > 1 ? why('Version history · ' + p.versions.length, h`<div class="list">${p.versions.slice().reverse().map((x, i) => row({ title: 'Version ' + x.v + (i === 0 ? ' (current)' : ''), sub: [x.status, fmt(day(x.at)), x.adoptedBy && 'adopted by ' + x.adoptedBy, x.edited && 'wording edited'].filter(Boolean).join(' · '), chev: false }))}</div>`) : ''}` });
   },
   acts: {
     mode: (c, d, el, r) => { c.ui['pm:' + r.id] = d.m; c.rerender(); },

@@ -334,3 +334,32 @@ Brief: "PropApp — Audit Fixes (Wave 1 & Wave 2) + V3-05 Clinical Brief" (owner
 **Remaining:** Wave 3, which marks the TGA and eNRMC links as checked from Gemini's quotes, and builds the V3-05 clinical content (each line read against its page first).
 
 **Full run on build a687563fdd:** 16 suites (adding wave2), 265 checks, all pass with no console errors. check-procgen-all: all 17 services identical. **Next session:** Wave 3, from the latest commit on main.
+
+## Consolidated brief, Sections 1–3 · 25 Nov 2026 · build a6c2a18fad
+Brief: "PropApp — Consolidated 1:51 PM Resume Brief" (owner's Drive, read only). It combines Codex's and Gemini's live walkthroughs with the owner's Section 2 decisions. Section 1 is commit b38327c; Section 2 and the gates are the next commit.
+
+| Item | Status | What was done | Test (gates.js unless noted) |
+|---|---|---|---|
+| Bug 1 (Codex #01, F-W1-01, F-W1-02) | Fixed | Each save now reads, merges and writes inside **one** IndexedDB read-write transaction. Browsers run those one at a time across tabs, so two tabs can't both read the old copy. A confirmed restore uses a new replace path (`savePharmacy(ph, { replace: true })`, and the same for drafts), so nothing from another tab is blended in. Storage-full stops retrying after 5 attempts and shows "Storage full · back up now" with a toast. Saves within one window are queued in order. | two tabs save at the same moment → both actions in both tabs; a restore after another tab's edit replaces cleanly |
+| Bug 2 (Codex #03) | Fixed | The toast reads "Backup download requested"; the screens read "Last requested 25 Nov" and "N changes since last request". A note says the browser can't confirm the file was saved, and the preview notice is reconciled. **Found by the gate:** the date showed the UTC day (24 Nov) in Sydney's morning. See the date fix below. | toast and wording |
+| Bug 3 (Codex #02, #04, #05) | Fixed | The pack's S8 section shows every entry with an Outcome column (Completed stocktake / Incomplete review), headed e.g. "S8 stock checks · 4 completed stocktakes · 1 incomplete review". The S8 detail shows "Last proprietor review" (marking an incomplete stock check) and "Last completed stocktake" separately. The pack reads next-due dates from the record itself as well as its fields, so a site visit's date appears. | pack split and labels; detail lines; visit next due matches; also in the A4 PDF |
+| Bug 4 (F-LIVE-01) | Fixed | An active tile with no tint of its own (Waiting, All) no longer picks up the old solid ocean fill under dark text. It uses the soft tint with ocean text. | 0-overdue pharmacy, active All tile: light 14.9:1 / 6.6:1, dark 12.1:1 / 6.3:1 |
+| Bug 5 (F-LIVE-06) | Fixed | "Filled in from your last meeting" shows only when an attendee still on staff or some discussion text really carried over. | no banner when nothing carried over; banner when notes carried over |
+| F-LIVE-05 | Fixed | "This source changed" raises "Re-check after a change to …" with a short title. The places to re-check are listed on the action ("What to look at again"). Titles in lists and search are clamped to 3 lines. | |
+| F-LIVE-08 | Fixed | An adopted version shows "Adopted procedure (version 1.0, adopted 25 Nov), prepared from …" instead of "Draft generated from …". This changes the display only; the stored text is untouched. | |
+| Codex #07 | Fixed | "No patient names or identifiers." sits beside the incidents and patient-safety box of every meeting (once, per "say it once"). | |
+| Codex #08 | Fixed | A started review with no due date shows "In progress", not "Started · No date". | |
+| F-LIVE-09 | Fixed | The year plan legend shows a red dot for overdue and a blue one for due, and the last month column has right padding. | |
+| F-LIVE-10 | Fixed | (a) "R.Pharmacy backup" everywhere; (b) an empty "What the section says about who" is hidden; (c) "Got it · close it"; (d) arriving at "Who runs your services" from a service shows "Asked once for all your services. Then you'll carry on with …". | |
+| F-LIVE-07 (owner approved) | Built | Pharmacies → "Archive or delete a pharmacy". **Archive:** any pharmacy except the open one; it leaves switching, All pharmacies and counts, keeps every record, and can be unarchived from Pharmacies. **Delete:** only test or fictional pharmacies (name has "(fictional)", "test" or "UAT"), or ones with no records, actions or staff. It asks for a second tap and offers "Download its backup" first, then `store.removePharmacy`. | archive, unarchive, delete |
+| Demo seed (owner approved) | Fixed | Wattle Grove's three S8 pharmacist entries read "Priya Sharma (fictional)". The generator's fallback text also filled the A3 continuity exercise scenario and outcome with a cupboard, so those now hold fictional drill text. `uat/demo/make-demo.js` gains label rules so a regenerated example matches. The other 9 "Office filing cabinet" entries are genuine "where it's kept" answers. | pack shows Priya Sharma |
+| Codex #06 | Fixed | The contraception item (vaginal ring and DMPA), the OCP initiation item and the Queensland Intention-form item show only for their pathway. The remaining items are conditions common to every Class Authority, per our 20 Nov notes ("Owner-level conditions common to all authorities"; WWCC from the p108 "ALL services" list). | content2: UTI only → those 3 hidden, shared items stay |
+| PWA | Undeployed | `dist/pwa` stays local only. | pwa |
+
+**Date bug class (found by the Bug 2 gate):** timestamps are saved in UTC. Slicing the first 10 characters shows yesterday in Sydney until 10 or 11 am. A new `day()` helper in `src/dates.js` gives the local day and replaces every such slice: backup dates, adopted procedure dates, history timeline, CSV print date, conflict-copy dates, and procedure review due dates.
+
+**Section 3 gates (gates.js):**
+1. A damaged backup is refused and everything is intact after reload; an export → restore round trip gives the same records, actions and staff.
+2. Fridge records: "Yes" = 0 issues and "No" = 1, in the pack and the CSV (wave1).
+3. `evidence-pack-example.pdf` is regenerated and checked as text: the S8 split header and labels, the visit next due, "Staff checks closed", "made 25 Nov 2026".
+4. Dark sweep: Today (0 overdue), Reviews and More have no text below AA, and the 0-overdue All tile passes in both modes. Screenshots: `05_today_dark_390px.png`, `13_today_zero_overdue_390px.png`.

@@ -5,7 +5,7 @@ import { register } from '../app.js';
 import { h } from '../util.js';
 import { screen, btn } from '../ui.js';
 import { C } from '../content.js';
-import { fmt, today, addMonths, isDate, daysBetween } from '../dates.js';
+import { fmt, today, addMonths, isDate, daysBetween, day } from '../dates.js';
 import { reviewById, activeServices, serviceName, stockIncomplete } from '../rules.js';
 import { UPDATES } from '../content/updates.js';
 import { items, counts } from '../summary.js';
@@ -42,7 +42,7 @@ export function packData(ph, drafts, from = addMonths(today(), -12)) {
       return [p.name, p.role || '', isDate(p.annualDue) ? fmt(p.annualDue) : '', exp ? exp.q.label + ' · ' + fmt(exp.s.expiry) : '', attention ? attention + ' to look at' : 'Current']; }),
     obligations: L.OBL.filter(o => !o[5].length || o[5].some(s => activeServices(ph).includes(s))).map(o => [o[1] + ' · ' + o[2], ph.obligations?.[o[0]]?.where || 'Not recorded', isDate(ph.obligations?.[o[0]]?.date) ? fmt(ph.obligations[o[0]].date) : '']),
     procedures: activeServices(ph).map(id => { const p = ph.procedures.find(x => x.service === id), v = p?.versions?.at(-1), adopted = p?.versions?.filter(x => x.status === 'Adopted').at(-1);
-      return [serviceName(id), v ? v.v : 'Not drafted', adopted ? 'Adopted ' + fmt(String(adopted.adoptedAt || adopted.at).slice(0, 10)) : (v ? 'Draft' : ''), p?.reviews?.length ? fmt(String(p.reviews.at(-1).date).slice(0, 10)) : '']; }),
+      return [serviceName(id), v ? v.v : 'Not drafted', adopted ? 'Adopted ' + fmt(day(adopted.adoptedAt || adopted.at)) : (v ? 'Draft' : ''), p?.reviews?.length ? fmt(String(p.reviews.at(-1).date).slice(0, 10)) : '']; }),
   };
 }
 register('pack', {

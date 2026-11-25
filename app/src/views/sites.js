@@ -8,7 +8,7 @@ import { items, ranked, counts, inWeek } from '../summary.js';
 import { dueText } from '../dates.js';
 import { openItem } from './today.js';
 export function siteSummaries(c) {
-  return c.store.dir().ids.map(id => { const p = c.store.pharmacy(id); if (!p) return null; const all = items(p, c.store.drafts(id)), n = counts(all);
+  return c.store.activeIds().map(id => { const p = c.store.pharmacy(id); if (!p) return null; const all = items(p, c.store.drafts(id)), n = counts(all);
     return { id, name: p.name, overdue: n.overdue, week: all.filter(i => i.bucket !== 'overdue' && inWeek(i)).length, list: ranked(all.filter(i => i.bucket === 'overdue' || inWeek(i))) }; }).filter(Boolean);
 }
 register('allsites', {

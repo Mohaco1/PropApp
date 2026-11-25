@@ -1,6 +1,10 @@
 // One date style for the whole app (design rule 9): "21 Aug" this year, "21 Aug 2025" otherwise.
 let fixedToday = null; // tests and the example can pin "today"
 export const setToday = d => { fixedToday = d; };
+// A stored timestamp (ISO, UTC) as the local calendar day: Sydney is ahead of UTC, so slicing the ISO string would
+// show yesterday before 10 or 11 am. Plain dates pass through unchanged.
+export function day(s) { if (!s) return ''; const t = String(s); if (/^\d{4}-\d{2}-\d{2}$/.test(t)) return t; const d = new Date(t); if (isNaN(d)) return t.slice(0, 10);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 export function today() {
   if (fixedToday) return fixedToday;
   const d = new Date();

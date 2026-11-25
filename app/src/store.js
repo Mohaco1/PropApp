@@ -105,6 +105,9 @@ export async function init(onExternalChange) {
   addEventListener('pagehide', () => { flush(); });
 }
 export const dir = () => mem.get('propapp:dir') || { active: '', ids: [] };
+// F-LIVE-07: archived pharmacies keep every record but leave switching, All pharmacies and the counts.
+export const activeIds = () => { const d = dir(); return d.ids.filter(id => !(d.archived || []).includes(id)); };
+export function setArchived(id, on) { const d = { ...dir() }; const a = new Set(d.archived || []); on ? a.add(id) : a.delete(id); d.archived = [...a]; setDir(d); }
 export function setDir(d) { put('propapp:dir', d); }
 export const pharmacy = id => mem.get('propapp:ph:' + id) || null;
 export function savePharmacy(ph, { replace = false } = {}) { if (replace) replacing.add('propapp:ph:' + ph.id); put('propapp:ph:' + ph.id, ph); const d = dir(); if (!d.ids.includes(ph.id)) { d.ids.push(ph.id); setDir(d); } }
@@ -117,6 +120,6 @@ export function saveDraft(phId, key, value, readRev) {
   all[key] = { ...value, rev: Date.now() }; put('propapp:drafts:' + phId, all); return true;
 }
 export function setDrafts(phId, all, { replace = false } = {}) { if (replace) bases.delete('propapp:drafts:' + phId); put('propapp:drafts:' + phId, all); }
-export function removePharmacy(id) { put('propapp:ph:' + id, undefined); put('propapp:drafts:' + id, undefined); const d = dir(); d.ids = d.ids.filter(x => x !== id); if (d.active === id) d.active = d.ids[0] || ''; setDir(d); }
+export function removePharmacy(id) { put('propapp:ph:' + id, undefined); put('propapp:drafts:' + id, undefined); const d = dir(); d.ids = d.ids.filter(x => x !== id); d.archived = (d.archived || []).filter(x => x !== id); if (d.active === id) d.active = d.ids[0] || ''; setDir(d); }
 export const getPref = k => mem.get('propapp:pref:' + k);
 export const setPref = (k, v) => put('propapp:pref:' + k, v);
