@@ -93,7 +93,7 @@ register('incidents', {
   tab: 'more',
   render(c) { const cs = L.CONTACTS.filter(x => /Pharmaceutical Services|Lost or stolen|Public health unit|indemnity|e-prescription fraud|Privacy|OAIC|Digital Health/i.test(x[0]));
     return screen({ title: 'If something goes wrong', back: true, body: h`<p class="muted">Steps from NSW Health and the law itself, each with its source. Read the source if you're unsure.</p>
-      ${INCIDENTS.map(([t, steps, src, url]) => h`<details class="why"><summary>${t}</summary><div class="why-body"><ol class="plain">${steps.map(x => h`<li>${x}</li>`)}</ol><p class="hint">Source: <a href="${url}" target="_blank" rel="noopener">${src}</a></p></div></details>`)}
+      ${INCIDENTS.map(([t, steps, src, url]) => h`<details class="why"><summary>${t}</summary><div class="why-body"><ol class="plain">${steps.map(x => h`<li>${x}</li>`)}</ol><p class="hint">Source: <a href="${url}" target="_blank" rel="noopener noreferrer">${src}</a></p></div></details>`)}
       ${section('Who to contact', h`<div class="list">${cs.map(x => h`<div class="row static"><span class="row-main"><span class="row-title">${x[0]}</span><span class="row-sub sel">${x[1]}</span><span class="btnrow">${links(x[1])}</span></span></div>`)}</div>`)}
       ${btn('Log what you reported', 'go', { kind: 'link', data: { to: 'mylog' } })}` }); },
 });

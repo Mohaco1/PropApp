@@ -27,7 +27,7 @@ register('actions', {
 });
 register('action-new', {
   tab: 'actions',
-  render: () => screen({ title: 'New action', back: true, body: h`<form data-form="new" class="form">
+  render: c => screen({ title: 'New action', back: true, site: c.ph.name, body: h`<form data-form="new" class="form">
     ${field('What needs fixing', textInput('title', '', { required: true }), 'No patient names. For example: “Check fridge log” or “Service fire extinguisher”.')}${field('Due', textInput('due', addDays(today(), 14), { type: 'date' }))}
     <div class="dock-inline">${btn('Save action', null, { kind: 'primary', type: 'submit' })}</div></form>` }),
   forms: { new: (c, f) => { let id; c.change(ph => { id = newAction(ph, { title: f.title.trim(), due: f.due }).id; }, 'Action saved'); c.replace('action', { id }); } },
@@ -58,7 +58,7 @@ register('action', {
 `;
     if (open && !mode && /Finish your OTP procedure|documented OTP procedures/.test(a.title) && c.ph.services.otp) { const o = otpPartsLeft(c.ph); body = h`${body}<div class="card"><p>${o.left} of ${o.total} OTP Standards parts to write.</p>${btn('Mark the parts', 'go', { data: { to: 'otp-parts' } })}</div>`; }
     const hist = [...(a.log || [])].reverse();
-    return screen({ title: 'Action', back: true, right: open && !mode ? h`<button class="btn link" data-act="mode" data-m="edit">Edit</button>` : '', body: h`${body}
+    return screen({ title: 'Action', back: true, site: c.ph.name, right: open && !mode ? h`<button class="btn link" data-act="mode" data-m="edit">Edit</button>` : '', body: h`${body}
       <details class="why"><summary>Full history · ${hist.length}</summary><ol class="timeline">${hist.map(e => h`<li><span class="muted">${fmt(String(e.at).slice(0, 10))}${e.by ? ' · ' + e.by : ''}</span><span>${e.text}</span></li>`)}</ol><div class="btnrow pad">${btn('Copy full history', 'cphist')}${btn('Download', 'dlhist')}</div></details>` });
   },
   acts: {

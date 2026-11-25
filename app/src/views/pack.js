@@ -7,10 +7,14 @@ import { screen, btn } from '../ui.js';
 import { C } from '../content.js';
 import { fmt, today, addMonths, isDate, daysBetween } from '../dates.js';
 import { reviewById, activeServices, serviceName } from '../rules.js';
+import { UPDATES } from '../content/updates.js';
 import { items, counts } from '../summary.js';
 import { requirements, credentialState } from '../model.js';
 import { issueCount } from '../issues.js';
 const L = C.law;
+const closedBy = a => a.closed?.by || [...(a.log || [])].reverse().find(e => e.kind === 'closed' && e.by)?.by || '';
+// F-V3-04: the pack's own dates always carry the year.
+const full = s => { const f = fmt(s); return /\d{4}$/.test(f) ? f : f + ' ' + String(s).slice(0, 4); };
 const table = (head, rows, empty) => rows.length ? h`<table class="ptable"><thead><tr>${head.map(x => h`<th>${x}</th>`)}</tr></thead><tbody>${rows.map(r => h`<tr>${r.map(x => h`<td>${x}</td>`)}</tr>`)}</tbody></table>` : h`<p class="meta">${empty}</p>`;
 export function packData(ph, drafts, from = addMonths(today(), -12)) {
   const recs = ph.records.filter(r => r.date >= from).sort((a, b) => b.date.localeCompare(a.date));
@@ -21,7 +25,12 @@ export function packData(ph, drafts, from = addMonths(today(), -12)) {
     reviews: recs.filter(r => r.kind !== 'staff' && r.kind !== 'departure').map(r => [fmt(r.date), r.extra ? 'Extra site visit' : r.title || reviewById(r.type)?.name || r.type, r.by || '', String(issueCount(r)), isDate(r.fields?.next) ? fmt(r.fields.next) : '']),
     s8: ph.records.filter(r => r.type === 'B1' && r.date >= from).sort((a, b) => b.date.localeCompare(a.date)).map(r => [fmt(r.date), isDate(r.fields?.stockDate) ? fmt(r.fields.stockDate) : '', r.fields?.stockBy || r.fields?.stockPharmacist || '', isDate(r.fields?.next) ? fmt(r.fields.next) : '']),
     open: acts.filter(a => a.status !== 'closed').sort((a, b) => (a.due || '9').localeCompare(b.due || '9')).map(a => [a.title, fmt(a.created), a.due ? fmt(a.due) : '', a.waiting ? 'Waiting · ' + a.waiting.asked : (a.due && a.due < today() ? 'Overdue' : 'Open')]),
-    closed: acts.filter(a => a.status === 'closed' && (a.closed?.date || '') >= from).sort((a, b) => b.closed.date.localeCompare(a.closed.date)).map(a => [a.title, fmt(a.closed.date), a.closed.what || '', a.closed.by || '']),
+    // F-V3-02: who closed it (from the close itself, or the log of an older record). F-V3-03: routine staff-check
+    // actions are one line per person, so the real fixes stand out.
+    closed: acts.filter(a => a.status === 'closed' && (a.closed?.date || '') >= from && a.source?.type !== 'staff').sort((a, b) => b.closed.date.localeCompare(a.closed.date)).map(a => [a.title, fmt(a.closed.date), a.closed.what || '', closedBy(a)]),
+    staffClosed: Object.values(acts.filter(a => a.status === 'closed' && (a.closed?.date || '') >= from && a.source?.type === 'staff').reduce((g, a) => { const who = a.person || ph.staff.find(p => p.id === a.source.staffId)?.name || 'Staff'; (g[who] ??= { who, n: 0, last: '' }); g[who].n++; if (a.closed.date > g[who].last) g[who].last = a.closed.date; return g; }, {}))
+      .sort((x, y) => x.who.localeCompare(y.who)).map(x => [x.who, 'Staff checks: ' + x.n + (x.n === 1 ? ' item' : ' items') + ' verified and closed', fmt(x.last)]),
+    updatesRead: Object.keys(ph.flags?.updatesRead || {}).length,
     staff: ph.staff.filter(p => p.active !== false).map(p => { const st = requirements(p).map(q => ({ q, s: credentialState(p, q.id) }));
       const exp = st.filter(x => x.s.expiry).sort((a, b) => a.s.expiry.localeCompare(b.s.expiry))[0];
       const attention = st.filter(x => x.s.state === 'expired' || x.s.state === 'issue' || x.s.state === 'none' || (x.s.expiry && daysBetween(today(), x.s.expiry) <= 30)).length;
@@ -43,13 +52,15 @@ register('pack', {
         <header class="phead"><h1>${ph.name} · evidence pack</h1>
           <p>${[ph.address, ph.identifier && 'Pharmacy ' + ph.identifier].filter(Boolean).join(' · ')}</p>
           <p>Proprietor${ph.proprietors.length === 1 ? '' : 's'}: ${ph.proprietors.map(p => p.name).join(', ') || '—'}</p>
-          <p>From ${fmt(d.from)} to ${fmt(today())} · made ${fmt(today())}</p>
+          <p>From ${full(d.from)} to ${full(today())} · made ${full(today())}</p>
+          <p>Proprietor oversight record only: statutory S8 registers, dispensing records and cold-chain logs stay in their primary pharmacy systems.</p>
           <p>Designed for de-identified proprietor records: check your notes before sharing.</p>
-          <p>Today: ${d.n.overdue === 1 ? '1 item overdue' : d.n.overdue + ' items overdue'} · ${d.n.all - d.n.tocheck === 1 ? '1 item' : (d.n.all - d.n.tocheck) + ' items'} in the plan</p></header>
+          <p>Today: ${d.n.overdue === 1 ? '1 item overdue' : d.n.overdue + ' items overdue'} · ${d.n.all - d.n.tocheck === 1 ? '1 item' : (d.n.all - d.n.tocheck) + ' items'} in the plan · law and practice updates read: ${d.updatesRead} of ${UPDATES.length}</p></header>
         ${sec('Reviews, visits and meetings · ' + d.reviews.length, table(['Date', 'What', 'Recorded by', 'Issues', 'Next due'], d.reviews, 'None recorded in this period.'))}
         ${sec('S8 stock checks · ' + d.s8.length, table(['Reviewed', 'Stock check', 'Pharmacist', 'Next due'], d.s8, 'None recorded in this period.'))}
         ${sec('Open actions · ' + d.open.length, table(['Action', 'Raised', 'Due', 'Status'], d.open, 'No open actions.'))}
-        ${sec('Actions closed · ' + d.closed.length, table(['Action', 'Closed', 'What was seen', 'By'], d.closed, 'None closed in this period.'))}
+        ${sec('Actions closed · ' + d.closed.length, d.closed.some(r => r[3]) ? table(['Action', 'Closed', 'What was seen', 'By'], d.closed, 'None closed in this period.') : table(['Action', 'Closed', 'What was seen'], d.closed.map(r => r.slice(0, 3)), 'None closed in this period.'))}
+        ${d.staffClosed.length ? sec('Staff checks closed', table(['Person', 'What', 'Latest'], d.staffClosed, '')) : ''}
         ${sec('Staff · ' + d.staff.length, table(['Name', 'Role', 'Annual check due', 'Next expiry', 'Checks'], d.staff, 'No staff recorded.'))}
         ${sec('Legal obligations: where the evidence is', table(['Section', 'Where it’s kept', 'Last seen'], d.obligations, ''))}
         ${sec('Procedures', table(['Service', 'Version', 'Status', 'Last reviewed'], d.procedures, 'No services set up.'))}

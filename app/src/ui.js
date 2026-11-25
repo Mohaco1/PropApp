@@ -18,10 +18,11 @@ const I = {
   bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>', check: '<path d="M5 12l4 4L19 6"/>',
 };
 export const icon = (n, cls = '') => raw(`<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${I[n] || ''}</svg>`);
-export function screen({ title, sub = '', back = null, saved = '', body, primary = null, wide = false, right = '' }) {
+// R07: \`site\` names the pharmacy on edit screens, only when there are 2 or more on the device (plain text, not a switch).
+export function screen({ title, sub = '', back = null, saved = '', body, primary = null, wide = false, right = '', site = '' }) {
   return h`<div class="screen${wide ? ' wide' : ''}">
     <header class="bar">${back ? h`<button class="iconbtn" data-act="back" aria-label="Back">${icon('back')}</button>` : h`<span class="mark" aria-hidden="true">R.</span>`}
-      <h1 class="bar-title">${title}${sub ? (env.sites > 1 ? h`<button class="ph-sub ph-switch multi" data-act="go" data-to="pharmacies" aria-label="Pharmacy: ${sub}. Switch pharmacy"><span class="sw-pill">${sub} ▾</span></button>` : h`<button class="ph-sub ph-switch single" data-act="go" data-to="pharmacies" aria-label="Pharmacy: ${sub}. Add or switch pharmacy">${sub}</button>`) : ''}</h1>${saved ? h`<span class="saved" aria-live="polite">${saved}</span>` : ''}${right}</header>
+      <h1 class="bar-title">${title}${site && !sub && env.sites > 1 ? h`<span class="ph-sub">${site}</span>` : ''}${sub ? (env.sites > 1 ? h`<button class="ph-sub ph-switch multi" data-act="go" data-to="pharmacies" aria-label="Pharmacy: ${sub}. Switch pharmacy"><span class="sw-pill">${sub} ▾</span></button>` : h`<button class="ph-sub ph-switch single" data-act="go" data-to="pharmacies" aria-label="Pharmacy: ${sub}. Add or switch pharmacy">${sub}</button>`) : ''}</h1>${saved ? h`<span class="saved" aria-live="polite">${saved}</span>` : ''}${right}</header>
     <main class="body">${body}</main>
     ${primary ? h`<div class="dock">${primary}</div>` : ''}
   </div>`;

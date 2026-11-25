@@ -2,7 +2,12 @@
 // Inside a pharmacy only: no patient data. Each event says what's due; nothing is marked done.
 import { items } from './summary.js';
 import { isDate, addDays } from './dates.js';
-const esc = s => String(s).replace(/([,;\\])/g, '\\$1').replace(/\n/g, '\\n');
+const esc = s => String(s).replace(/\r\n?/g, '\n').replace(/([,;\\])/g, '\\$1').replace(/\n/g, '\\n');
+// R10: RFC 5545 lines are folded at 75 octets (UTF-8 bytes, never splitting a character), continuing with CRLF + space.
+function fold(line) { const enc = new TextEncoder(); if (enc.encode(line).length <= 75) return line;
+  const out = []; let cur = '', n = 0, max = 75;
+  for (const ch of line) { const b = enc.encode(ch).length; if (n + b > max) { out.push(cur); cur = ''; n = 0; max = 74; } cur += ch; n += b; }
+  out.push(cur); return out.join('\r\n '); }
 export function ics(ph, drafts) {
   const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//PropApp//Due dates//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:' + esc(ph.name + ' · due dates')];
   for (const it of items(ph, drafts)) {
@@ -12,12 +17,13 @@ export function ics(ph, drafts) {
       // R04: an action's own words can contain anything, so the calendar only says an action is due.
       const title = it.kind === 'action' ? 'PropApp action due · ' + ph.name : rawTitle;
       const day = d.replace(/-/g, ''), next = addDays(d, 1).replace(/-/g, '');
-      L.push('BEGIN:VEVENT', 'UID:' + esc(ph.id + '-' + it.key + part + '-' + d) + '@propapp', 'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
+      L.push('BEGIN:VEVENT', 'UID:' + esc(ph.id + '-' + it.key + part + (it.kind === 'action' ? '' : '-' + d)) + '@propapp', 'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
         'DTSTART;VALUE=DATE:' + day, 'DTEND;VALUE=DATE:' + next, 'SUMMARY:' + esc((it.legal ? '[Required by law] ' : '') + title), 'DESCRIPTION:' + esc('Due at ' + ph.name + '. Open PropApp to record it.'),
         'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(title), 'TRIGGER:-P7D', 'END:VALARM', 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(title), 'TRIGGER:-P1D', 'END:VALARM', 'END:VEVENT');
     }
   }
-  L.push('END:VCALENDAR'); return L.join('\r\n');
+  // R10: an action keeps one UID (its id), so a new due date moves the existing event; the file ends with CRLF.
+  L.push('END:VCALENDAR'); return L.map(fold).join('\r\n') + '\r\n';
 }
 // Save a file. In the claude.ai viewer downloads are blocked, so the text is also offered to copy.
 let dl;
