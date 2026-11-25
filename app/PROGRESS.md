@@ -363,3 +363,5 @@ Brief: "PropApp — Consolidated 1:51 PM Resume Brief" (owner's Drive, read only
 2. Fridge records: "Yes" = 0 issues and "No" = 1, in the pack and the CSV (wave1).
 3. `evidence-pack-example.pdf` is regenerated and checked as text: the S8 split header and labels, the visit next due, "Staff checks closed", "made 25 Nov 2026".
 4. Dark sweep: Today (0 overdue), Reviews and More have no text below AA, and the 0-overdue All tile passes in both modes. Screenshots: `05_today_dark_390px.png`, `13_today_zero_overdue_390px.png`.
+
+**Full run on build a6c2a18fad (commit 9159fcf):** 17 suites (adding gates), 301 checks, all pass with no console errors. check-procgen-all: all 17 services identical. Sections 1–3 were committed and pushed before Section 4 started, as the brief asks.
