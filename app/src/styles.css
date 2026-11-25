@@ -250,3 +250,13 @@ a.linkbtn{text-decoration:none}
 .btn.danger{border-color:var(--bad);color:var(--bad)}
 .badge{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--tint);color:var(--primary);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
 .toast{left:16px;right:16px;transform:none;max-width:none;text-align:center;font-size:15px}@media (prefers-reduced-motion:no-preference){.toast{animation:up2 .18s ease-out}@keyframes up2{from{transform:translateY(8px);opacity:0}}}
+
+/* Sigil: Quarter Balancer */
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.qcol{border:1px solid var(--line);border-radius:12px;padding:8px;background:var(--surface);display:flex;flex-direction:column;gap:6px;min-width:0}
+.qcol.over{outline:2px solid var(--primary)}
+.qhead{margin:0 0 2px;font-size:14px;color:var(--muted)}
+.qpill{min-height:44px;text-align:left;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);font:inherit;font-size:14px;padding:6px 10px;cursor:grab;overflow-wrap:anywhere}
+.qpill.on{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary) inset}
+.qbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.qbar span{flex-basis:100%;font-size:14px;color:var(--muted)}

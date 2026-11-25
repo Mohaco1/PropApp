@@ -9,7 +9,7 @@ import { note as log } from '../model.js';
 import { ics, saveFile } from '../ics.js';
 import { historyRows, csv, printable } from '../export.js';
 import { unreadUpdates } from './updates.js';
-import { alignPlan, applyAlign, undoAlign } from '../align.js';
+import { alignPlan, applyAlign, undoAlign, quarterMap, serviceAnnuals, QUARTER_MONTHS } from '../align.js';
 register('more', {
   tab: 'more',
   render(c) {
@@ -35,6 +35,21 @@ export function parsePlain(txt, t = today()) {
     let d = yr + '-' + String(mon + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0'); if (!m[5] && d < t) d = (yr + 1) + d.slice(4); return d; }
   return '';
 }
+// Sigil brief: the Quarter Balancer. Service annual reviews shown in their quarter with a count; tap one to move it
+// with a 1-tap bar, or drag it to another quarter on a desktop. Moving only changes the quarter (stored in
+// ph.quarters); dates change when the owner taps Align.
+const QN = { 2: 'Feb', 5: 'May', 8: 'Aug', 11: 'Nov' };
+function balancer(c) {
+  const list = serviceAnnuals(c.ph); if (list.length < 2) return '';
+  const map = quarterMap(c.ph), pick = c.ui.qpick;
+  return h`<section class="sec qbal"><h2 class="sec-title">Service reviews by quarter</h2><p class="muted">Spread evenly so no quarter piles up. Tap one to move it.</p>
+    <div class="qgrid">${QUARTER_MONTHS.map(q => { const xs = list.filter(a => map[a.id] === q);
+      return h`<div class="qcol" data-q="${q}"><p class="qhead"><b>${QN[q]}</b> · ${xs.length === 1 ? '1 service' : xs.length + ' services'}</p>
+        ${xs.map(a => h`<button class="qpill${pick === a.id ? ' on' : ''}" data-act="qpick" data-id="${a.id}" draggable="true" data-drag="${a.id}">${a.name}</button>`)}</div>`; })}</div>
+    ${pick && map[pick] ? h`<div class="qbar" role="group" aria-label="Move to"><span>Move ${list.find(a => a.id === pick)?.name} to</span>${QUARTER_MONTHS.map(q => h`<button class="chip ${map[pick] === q ? 'on' : ''}" data-act="qmove" data-q="${q}">${QN[q]}</button>`)}</div>` : ''}</section>`;
+}
+const moveQuarter = (c, id, q) => { const name = serviceAnnuals(c.ph).find(a => a.id === id)?.name || id; c.ui.qpick = '';
+  c.change(ph => { (ph.quarters ??= {})[id] = +q; log(ph, 'Quarter Balancer · ' + name + ' → ' + QN[q]); }, name + ' moved to ' + QN[q]); };
 register('calendar', {
   tab: 'more',
   render(c) {
@@ -60,8 +75,9 @@ register('calendar', {
         const mo = monthsFor(c.ph, a); if (due && mo && m > due.slice(0, 7)) { const diff = (+m.slice(0, 4) - +due.slice(0, 4)) * 12 + (+m.slice(5) - +due.slice(5, 7)); if (diff % mo === 0) return ['○', 'rep']; } return ['', '']; };
       body = h`<p class="muted yp-legend"><span class="bad">●</span> overdue · <span class="due">●</span> due · ○ expected repeat · <span class="ok">✓</span> done · from ${monthName(months[0] + '-01')} to ${monthName(months[11] + '-01')}</p><div class="scrollx"><table class="yearplan"><thead><tr><th>Review</th>${months.map(m => h`<th>${['J','F','M','A','M','J','J','A','S','O','N','D'][+m.slice(5) - 1]}</th>`)}</tr></thead>
         <tbody>${revs.map(a => h`<tr><th scope="row">${a.name}</th>${months.map(m => { const [s, k] = mark(a, m); return h`<td class="${k}">${s}</td>`; })}</tr>`)}</tbody></table></div>
+        ${balancer(c)}
         ${(() => { const n = alignPlan(c.ph).length, u = c.ph.flags?.alignUndo;
-          return h`<div class="card align"><h2>Align to 4 quarters (Feb · May · Aug · Nov)</h2><p class="muted">Moves upcoming dates to the first Monday of Feb, May, Aug or Nov: S8, site visit and governance meeting every quarter; staff checks in Feb, the governance review in May, service reviews in Aug. The S8 check never goes past its 3-month limit (s 111). Overdue items stay as they are, and you can change any date afterwards.</p>
+          return h`<div class="card align"><h2>Align to 4 quarters (Feb · May · Aug · Nov)</h2><p class="muted">Moves upcoming dates to the first Monday of Feb, May, Aug or Nov: S8, site visit and governance meeting every quarter; staff checks in Feb, the governance review in May, service reviews in the quarter shown above. The S8 check never goes past its 3-month limit (s 111). Overdue items stay as they are, and you can change any date afterwards.</p>
             ${n ? btn(n === 1 ? 'Align 1 date' : 'Align ' + n + ' dates', 'align') : h`<p class="meta">Your upcoming dates are already on the quarters.</p>`}
             ${u ? btn('Undo the alignment of ' + fmt(u.at) + ' (' + (u.changes.length === 1 ? '1 date' : u.changes.length + ' dates') + ')', 'unalign', { kind: 'link' }) : ''}</div>`; })()}`;
     }
@@ -75,7 +91,12 @@ register('calendar', {
       <div class="card"><h2>Put these dates in your phone calendar</h2><p class="muted">Download a calendar file and open it on your phone. Your due dates appear in your own calendar with a reminder the day before. Download it again when dates change.</p>${btn('Download calendar file', 'ics')}</div>` });
   },
   forms: { find: (c, f) => { c.ui.calFind = f.find.trim(); c.rerender(); } },
+  after: c => { for (const el of document.querySelectorAll('.qpill[data-drag]')) el.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', el.dataset.drag); });
+    for (const col of document.querySelectorAll('.qcol')) { col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('over'); }); col.addEventListener('dragleave', () => col.classList.remove('over'));
+      col.addEventListener('drop', e => { e.preventDefault(); const id = e.dataTransfer.getData('text/plain'); if (id) moveQuarter(c, id, col.dataset.q); }); } },
   acts: { v: (c, d) => { c.ui.calV = d.v; c.rerender(); },
+    qpick: (c, d) => { c.ui.qpick = c.ui.qpick === d.id ? '' : d.id; c.rerender(); },
+    qmove: (c, d) => moveQuarter(c, c.ui.qpick, d.q),
     align: c => { const ch = alignPlan(c.ph); if (!ch.length) return; c.change(ph => { applyAlign(ph, ch); log(ph, 'Due dates aligned to 4 quarters · ' + ch.length + (ch.length === 1 ? ' date' : ' dates')); }, ch.length === 1 ? '1 date aligned' : ch.length + ' dates aligned'); },
     unalign: c => c.change(ph => { const n = undoAlign(ph); log(ph, 'Quarter alignment undone · ' + n + (n === 1 ? ' date' : ' dates')); }, 'Alignment undone'), open: async (c, d) => { const { openItem } = await import('./today.js'); const it = items(c.ph, c.drafts).find(i => i.key === d.key); if (it) openItem(c, it); },
     mon: (c, d) => { c.ui.calM = addMonths((c.ui.calM || today().slice(0, 7)) + '-01', +d.d).slice(0, 7); c.ui.calDay = ''; c.rerender(); }, day: (c, d) => { c.ui.calDay = c.ui.calDay === d.d ? '' : d.d; c.rerender(); },
