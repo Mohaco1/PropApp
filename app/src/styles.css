@@ -243,6 +243,8 @@ a.linkbtn{text-decoration:none}
 /* Bug 4 (F-LIVE-01): an active tile without its own tint (Waiting, All) uses the soft ocean tint, never the solid fill */
 .filters button.on:not([data-f=overdue]):not([data-f=week]){background:var(--tint)}
 .filters button.on b{color:var(--fg)}.filters button.on[data-f=overdue] b{color:var(--bad)}.filters button.on[data-f=week] b{color:var(--warn)}
-#sr .row-title,.list .row .row-title{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#sr .row-title{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .yp-legend .due{color:var(--accent)}.yearplan th:last-child,.yearplan td:last-child{padding-right:14px}
 .btn.danger{border-color:var(--bad);color:var(--bad)}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--tint);color:var(--primary);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.toast{left:16px;right:16px;transform:none;max-width:none;text-align:center;font-size:15px}@media (prefers-reduced-motion:no-preference){.toast{animation:up2 .18s ease-out}@keyframes up2{from{transform:translateY(8px);opacity:0}}}

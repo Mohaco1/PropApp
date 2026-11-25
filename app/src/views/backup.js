@@ -1,6 +1,7 @@
 // Backups: download (where the browser allows it), restore (new-format or old R.Pharmacy backups), and the example.
 import { isLegacyBackup, importLegacy } from '../legacy.js';
 import { addDays, daysBetween, today } from '../dates.js';
+import { saveFile } from '../ics.js';
 export function pharmacyBackup(c) { return { app: 'PropApp', format: 1, exportedAt: new Date().toISOString(), pharmacy: c.ph, drafts: c.drafts }; }
 // R01: a restore is checked in full before anything is written, so a damaged file can never overwrite a pharmacy.
 const obj = x => !!x && typeof x === 'object' && !Array.isArray(x);
@@ -27,6 +28,15 @@ export function validate(b) {
   checkPharmacy(got.pharmacy, got.drafts);
   return got;
 }
+// A1: one backup action (Backup screen and the Today nudge). On phones that can, it opens the share sheet so the file
+// goes straight to iCloud Drive, Google Drive or email; otherwise it downloads.
+export function backupNow(c) {
+  const ok = saveFile(c.ph.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify(pharmacyBackup(c)), 'application/json');
+  if (ok) c.change(ph => { ph.settings.lastBackup = new Date().toISOString(); if (ph.flags) delete ph.flags.backupSnooze; }, 'Backup download requested');
+  return ok;
+}
+// Counts used to check a restore against its own file (A1: drafts and staff checks included).
+export const tally = (ph, drafts) => ({ records: ph.records.length, actions: Object.keys(ph.actions).length, staff: ph.staff.length, checks: ph.staff.reduce((t, p) => t + Object.keys(p.checks || {}).length, 0), procedures: ph.procedures.length, drafts: Object.keys(drafts || {}).filter(k => !k.includes('/conflict-')).length });
 const b2from = got => got.pharmacy.legacy ? 'a backup from the earlier R.Pharmacy app' : 'an R.Pharmacy backup';
 export async function importBackup(c, file) {
   if (!file) return;
@@ -36,9 +46,9 @@ export async function importBackup(c, file) {
     if (exists && !confirmReplace(exists.name)) return;
     // The receipt is built from the checked backup first; the pharmacy, its drafts and the directory are then queued
     // together and written in one storage transaction (store.flush), so nothing is half-restored.
-    const receipt = { name: got.pharmacy.name, records: got.pharmacy.records.length, actions: Object.keys(got.pharmacy.actions).length, staff: got.pharmacy.staff.length, procedures: got.pharmacy.procedures.length, drafts: Object.keys(got.drafts || {}).length, from: b2from(got) };
+    const receipt = { name: got.pharmacy.name, from: b2from(got), want: tally(got.pharmacy, got.drafts) };
     c.store.savePharmacy(got.pharmacy, { replace: true }); c.store.setDrafts(got.pharmacy.id, got.drafts, { replace: true });
-    await c.open(got.pharmacy.id); c.ui.receipt = receipt; c.go('receipt');
+    await c.open(got.pharmacy.id); receipt.got = tally(c.ph, c.drafts); c.ui.receipt = receipt; c.go('receipt');
   } catch (e) { c.toast(e.message); c.rerender(); }
 }
 // Replacing a pharmacy that is already here is the one destructive restore; it needs a second tap (no browser dialogs).

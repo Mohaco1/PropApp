@@ -28,3 +28,12 @@ register('updates', {
     read: (c, d) => c.change(ph => { ((ph.flags ??= {}).updatesRead ??= {})[d.id] = today(); log(ph, 'Law update read · ' + UPDATES.find(u => u[0] === d.id)[2]); }, 'Marked as read'),
   },
 });
+
+// A2: one "Law and sources" entry on More, holding the updates (with their unread count) and the sources list.
+register('lawsources', {
+  tab: 'more',
+  render(c) { const u = unreadUpdates(c.ph).length;
+    return screen({ title: 'Law and sources', back: true, body: h`<div class="list">
+      <button class="row" data-act="go" data-to="updates"><span class="row-main"><span class="row-title">Law and practice updates</span><span class="row-sub">${u ? (u === 1 ? '1 to read' : u + ' to read') : 'All read'}</span></span>${u ? h`<span class="badge">${u} new</span>` : ''}</button>
+      <button class="row" data-act="go" data-to="sources"><span class="row-main"><span class="row-title">Sources</span><span class="row-sub">Where each rule comes from, with links</span></span></button></div>` }); },
+});

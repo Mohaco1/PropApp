@@ -31,6 +31,6 @@ try { window.claude?.use?.('downloads').then(x => { dl = x; }).catch(() => {}); 
 export function saveFile(name, text, type = 'text/plain') {
   if (dl) { dl.save({ filename: name, data: new Blob([text], { type }) }).catch(() => {}); return true; }
   // V3-02: a calendar file goes to the phone's share sheet where it can (iPhone: tap Calendar to add the events).
-  if (/calendar/.test(type) && navigator.canShare) { try { const f = new File([text], name, { type: 'text/calendar;charset=utf-8' }); if (navigator.canShare({ files: [f] })) { navigator.share({ files: [f], title: name }).catch(() => {}); return true; } } catch {} }
+  if (/calendar|json/.test(type) && navigator.canShare) { try { const f = new File([text], name, { type: /json/.test(type) ? 'application/json' : 'text/calendar;charset=utf-8' }); if (navigator.canShare({ files: [f] })) { navigator.share({ files: [f], title: name }).catch(() => {}); return true; } } catch {} }
   try { const u = URL.createObjectURL(new Blob([text], { type })); const a = document.createElement('a'); a.href = u; a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); return true; } catch { return false; }
 }

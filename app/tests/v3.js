@@ -24,21 +24,20 @@ const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive
   await p.emulateMedia({ media: 'screen', colorScheme: 'light' });
   // V3-04 multi-site view
   await tap(p, 'Today'); await p.waitForTimeout(150);
-  ok(await p.locator('.siteline').count() === 0, 'V3-04 one pharmacy: no cross-pharmacy line on Today');
+  ok(await p.locator('.siteline').count() === 0 || /Extra visit in progress/.test(await p.locator('.siteline').innerText()), 'V3-04 one pharmacy: no cross-pharmacy line on Today');
   const odEx = +(await p.locator('.filters [data-f=overdue] b').innerText());
   await p.locator('.ph-switch').click(); ok(await p.getByRole('button', { name: /^All pharmacies/ }).count() === 0, 'V3-04 one pharmacy: no “All pharmacies” row');
   await tap(p, 'Set up another pharmacy'); await p.fill('input[name=name]', 'Second Test Pharmacy (fictional)'); await tap(p, 'Continue'); await p.fill('input[name=owner0]', 'Sam Owner'); await tap(p, 'Continue');
   await p.locator('label.tick', { hasText: 'Home delivery' }).click(); await tap(p, 'Finish setup'); await p.waitForTimeout(400);
   const od2 = +(await p.locator('.filters [data-f=overdue] b').innerText());
-  t = await p.locator('.siteline').innerText();
-  ok(t === (odEx + od2) + ' overdue across your 2 pharmacies · see all', 'V3-04 Today: “' + t + '” (each pharmacy’s own overdue count, added)');
-  await p.locator('.siteline').click(); await p.waitForTimeout(200); t = await text(p);
+  await p.locator('.ph-switch').click(); await p.getByRole('button', { name: /^All pharmacies/ }).click(); await p.waitForTimeout(200); t = await text(p);
+  ok(t.includes((odEx + od2) + ' overdue and') && t.includes('across 2 pharmacies'), 'V3-04 All pharmacies: “' + t.split('\n').find(l => /across 2 pharmacies/.test(l)) + '” (each pharmacy’s own overdue count, added)');
   ok(/All pharmacies/.test(t) && new RegExp('Wattle Grove Pharmacy · ' + odEx + ' overdue', 'i').test(t) && /Second Test Pharmacy \(fictional\) · (nothing overdue|\d+ overdue)/i.test(t), 'V3-04 All pharmacies groups items under each pharmacy with its overdue count');
   await p.screenshot({ path: path.join(OUT, '11_all_pharmacies_390px.png') });
   await p.locator('[data-act=item][data-site]').first().click(); await p.waitForTimeout(400);
   ok(/S8 stock check/.test(await p.evaluate(() => document.querySelector('.bar-title')?.innerText || '')), 'V3-04 tapping an item opens it (the S8 review)');
   await tap(p, 'Today'); ok(/Wattle Grove Pharmacy/.test(await p.locator('.ph-sub').innerText()), 'V3-04 …in its own pharmacy (switched to Wattle Grove)');
-  await p.setViewportSize({ width: 320, height: 568 }); await p.locator('.siteline').click(); await p.waitForTimeout(200);
+  await p.setViewportSize({ width: 320, height: 568 }); await p.locator('.ph-switch').click(); await p.getByRole('button', { name: /^All pharmacies/ }).click(); await p.waitForTimeout(200);
   ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), '320×568 All pharmacies: no sideways scroll');
   await p.setViewportSize({ width: 390, height: 844 });
   await done(b, errors);

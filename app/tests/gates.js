@@ -70,7 +70,7 @@ const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
   ok(/completed stocktakes? · 1 incomplete review/.test(pdfText) && /Incomplete review/.test(pdfText) && /Staff checks closed/.test(pdfText) && /made 25 Nov 2026/.test(pdfText) && pdfText.includes(dm.fmt(visitNext).split(' ').slice(0, 2).join(' ')), 'Gate 3 A4 PDF: S8 split header and labels, visit next due, staff summary, 4-digit years');
 
   // ---- Bug 6 / F-LIVE-05: a source-change action has a short title and lists the places on the action
-  await more(/^Sources/); await p.getByRole('button', { name: 'This source changed' }).first().click(); await p.waitForTimeout(300);
+  await more(/^Law and sources/); await tap(p, 'Sources'); await p.getByRole('button', { name: 'This source changed' }).first().click(); await p.waitForTimeout(300);
   const src = Object.values((await activePh(p)).actions).find(a => /^Re-check after a change to/.test(a.title));
   ok(src && src.title.length < 90 && src.recheck?.length > 3, 'F-LIVE-05 “' + src?.title + '” (' + src?.recheck?.length + ' places listed on the action)');
   await tap(p, 'Today'); await p.locator('[aria-label=Search]').click(); await p.fill('input[name=q]', 'Re-check'); await p.waitForTimeout(300);

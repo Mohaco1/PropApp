@@ -9,5 +9,5 @@ export function startPWA() {
 }
 let asked = false;
 // Called after the first saved change: browsers that allow it keep this site's records even when space is short.
-export function askToKeep() { if (asked || !isPWA() || !navigator.storage?.persist) return; asked = true; navigator.storage.persist().catch(() => {}); }
+export function askToKeep() { if (asked || !navigator.storage?.persist) return; asked = true; navigator.storage.persist().catch(() => {}); }
 export async function keptStatus() { try { return navigator.storage?.persisted ? await navigator.storage.persisted() : null; } catch { return null; } }

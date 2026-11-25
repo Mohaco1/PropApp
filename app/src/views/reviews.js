@@ -79,7 +79,7 @@ register('review', {
           return h`<dt>Last proprietor review</dt><dd>${last ? fmt(last.date) + ' by ' + last.by + (stockIncomplete(last) ? ' · stock check incomplete' : '') : 'Not yet'}</dd><dt>Last completed stocktake</dt><dd>${stock ? fmt(stock) + (done?.fields?.stockBy ? ' · ' + done.fields.stockBy : '') : 'None on record'}</dd>`; })() : h`<dt>Last done</dt><dd>${last ? fmt(last.date) + ' by ' + last.by : 'Not yet'}</dd>`}
         <dt>Set by</dt><dd>${a.legal ? 'The law (' + a.legal.line.replace(/^.*\((.*)\)$/, '$1') + ')' : c.ph.intervals?.[a.id] ? 'You' : a.service ? 'Your ' + serviceName(a.service) + ' service' : 'Good practice for proprietors'}</dd>
         <dt>Why it's here</dt><dd>${ap.applies ? (a.service ? 'You offer ' + serviceName(a.service) + '.' : 'Every pharmacy.') : ap.why + '.'}</dd></dl>
-      <div class="card"><p class="meta">${a.event ? 'Done when you start or change the service.' : due ? dueText(due) + ' · ' + fmt(due) : 'No date yet'}</p>
+      <div class="card"><p class="meta">${a.event ? 'Done when you start or change the service.' : due ? dueText(due) + (dueText(due).includes(fmt(due)) ? '' : ' · ' + fmt(due)) : 'No date yet'}</p>
         ${ap.applies ? btn('Start review', 'start', { kind: 'primary', cls: 'block' }) : ''}${!a.event ? btn('Change due date', 'go', { kind: 'link', data: { to: 'due-date', id: a.id } }) : ''}${!a.event && !a.legal ? btn('How often: ' + (c.ph.intervals?.[a.id] || a.frequency), 'go', { kind: 'link', data: { to: 'interval', id: a.id } }) : ''}</div>
       ${last ? btn('See the last one', 'go', { kind: 'link', data: { to: 'record', id: last.id } }) : ''}
       <section class="sec"><h2 class="sec-title">What it asks · ${qs.length}</h2><ol class="qlist">${qs.map(q => h`<li>${q.text}</li>`)}</ol></section>` });
@@ -104,7 +104,12 @@ register('review', {
   changes: {
     q: (c, el, r) => { const d = structuredClone(c.draft(dkey(r.id))); const f = Object.fromEntries(new FormData(el.closest('form'))); const s = d.step || 0; const before = d.answers[s];
       d.answers[s] = f.ans || ''; d.issues ??= {}; d.notesQ ??= {}; if ('issue' in f) d.issues[s] = { text: f.issue, due: f.due }; if ('note' in f) d.notesQ[s] = f.note;
-      c.saveDraft(dkey(r.id), d); if (before !== d.answers[s]) c.rerender(); },
+      c.saveDraft(dkey(r.id), d); if (before !== d.answers[s]) c.rerender();
+      // B5: a clean answer moves on by itself after a moment; Issue or Incomplete waits for a note. Only if you're still
+      // on this question with this answer (a quick tap on Next never skips one).
+      const ans = d.answers[s], o = questionsFor(r.id)[s]?.options.find(x => x.value === ans);
+      if (before !== ans && o && !o.issue && !/^Incomplete$/.test(ans)) setTimeout(() => { const cur = c.draft(dkey(r.id)), rt = c.route;
+        if (rt?.name === 'review' && rt.id === r.id && cur && (cur.step || 0) === s && cur.answers?.[s] === ans) { const n = structuredClone(cur); n.step = s + 1; c.saveDraft(dkey(r.id), n); c.rerender(); window.scrollTo(0, 0); } }, 600); },
     fin: (c, el, r, e) => { const d = structuredClone(c.draft(dkey(r.id))); d.fields = { ...(d.fields || {}), ...Object.fromEntries(new FormData(el.closest('form'))) }; c.saveDraft(dkey(r.id), d); if (r.id === 'B1' && e?.target?.name === 'stockDate') c.rerender(); }, // el is the form; the changed field is e.target
   },
   acts: {

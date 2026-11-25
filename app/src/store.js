@@ -14,11 +14,11 @@ function open() {
   });
 }
 async function getAll() {
-  if (useLS || !db) { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith('propapp:') && !pending.has(k)) try { mem.set(k, JSON.parse(localStorage.getItem(k))); if (k.startsWith('propapp:ph:')) seen.set(k, JSON.parse(localStorage.getItem(k))); } catch {} } return; }
+  if (useLS || !db) { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith('propapp:') && !pending.has(k)) try { mem.set(k, JSON.parse(localStorage.getItem(k))); if (k.startsWith('propapp:ph:') || k === 'propapp:dir') seen.set(k, JSON.parse(localStorage.getItem(k))); } catch {} } return; }
   await new Promise(res => {
     const tx = db.transaction(ST), s = tx.objectStore(ST), r = s.openCursor();
     // A value this window hasn't saved yet stays as it is (and keeps its merge base), so the save can merge both sides.
-    r.onsuccess = () => { const c = r.result; if (c) { if (!pending.has(c.key)) { mem.set(c.key, c.value); if (String(c.key).startsWith('propapp:ph:')) seen.set(c.key, clone(c.value)); } c.continue(); } else res(); };
+    r.onsuccess = () => { const c = r.result; if (c) { if (!pending.has(c.key)) { mem.set(c.key, c.value); if (String(c.key).startsWith('propapp:ph:') || c.key === 'propapp:dir') seen.set(c.key, clone(c.value)); } c.continue(); } else res(); };
     r.onerror = () => res();
   });
 }
@@ -66,11 +66,11 @@ function mergeDrafts(k, v, stored) {
 }
 function mergeOne(k, v, stored) {
   if (!v) return v;
-  if (k.startsWith('propapp:ph:')) { if (replacing.has(k) || !seen.has(k) || !stored || same(stored, seen.get(k))) return v; merged3 = true; return merge3(seen.get(k), v, stored); }
+  if (k.startsWith('propapp:ph:') || k === 'propapp:dir') { if (replacing.has(k) || !seen.has(k) || !stored || same(stored, seen.get(k))) return v; merged3 = true; return merge3(seen.get(k), v, stored); } // C-01: the directory (ids, archived) merges the same way
   if (k.startsWith('propapp:drafts:') && bases.has(k)) return mergeDrafts(k, v, stored);
   return v;
 }
-const needsRead = (k, v) => !!v && ((k.startsWith('propapp:ph:') && seen.has(k) && !replacing.has(k)) || (k.startsWith('propapp:drafts:') && bases.has(k)));
+const needsRead = (k, v) => !!v && (((k.startsWith('propapp:ph:') || k === 'propapp:dir') && seen.has(k) && !replacing.has(k)) || (k.startsWith('propapp:drafts:') && bases.has(k)));
 // A restore the owner confirmed replaces the pharmacy outright: nothing from another tab is blended into it.
 const replacing = new Set();
 let running = null, quota = 0;
@@ -85,7 +85,7 @@ async function flushNow() {
       for (const item of batch) { const [k, v] = item; if (!needsRead(k, v)) { write(item); continue; }
         const g = s.get(k); g.onsuccess = () => { item[1] = mergeOne(k, v, g.result); write(item); }; }
       tx.oncomplete = res; tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); });
-    for (const [k, v, orig] of batch) { if (k.startsWith('propapp:ph:')) v === undefined ? seen.delete(k) : seen.set(k, clone(v)); replacing.delete(k); bases.delete(k);
+    for (const [k, v, orig] of batch) { if (k.startsWith('propapp:ph:') || k === 'propapp:dir') v === undefined ? seen.delete(k) : seen.set(k, clone(v)); replacing.delete(k); bases.delete(k);
       if (v !== orig) { if (mem.get(k) === orig) mem.set(k, v); else if (pending.has(k) && k.startsWith('propapp:drafts:')) { const later = pending.get(k); for (const [dk, x] of Object.entries(v)) if (dk.includes('/conflict-') && !later[dk]) later[dk] = x; } } }
     chan?.postMessage({ keys: batch.map(b => b[0]) });
     tries = 0; quota = 0; if (!pending.size) setStatus('saved');
@@ -110,7 +110,7 @@ export const activeIds = () => { const d = dir(); return d.ids.filter(id => !(d.
 export function setArchived(id, on) { const d = { ...dir() }; const a = new Set(d.archived || []); on ? a.add(id) : a.delete(id); d.archived = [...a]; setDir(d); }
 export function setDir(d) { put('propapp:dir', d); }
 export const pharmacy = id => mem.get('propapp:ph:' + id) || null;
-export function savePharmacy(ph, { replace = false } = {}) { if (replace) replacing.add('propapp:ph:' + ph.id); put('propapp:ph:' + ph.id, ph); const d = dir(); if (!d.ids.includes(ph.id)) { d.ids.push(ph.id); setDir(d); } }
+export function savePharmacy(ph, { replace = false } = {}) { if (replace) replacing.add('propapp:ph:' + ph.id); put('propapp:ph:' + ph.id, ph); const d = clone(dir()); if (!d.ids.includes(ph.id)) { d.ids.push(ph.id); setDir(d); } }
 export const drafts = id => mem.get('propapp:drafts:' + id) || {};
 export function saveDraft(phId, key, value, readRev) {
   const all = { ...drafts(phId) }, cur = all[key], K = 'propapp:drafts:' + phId;
@@ -120,6 +120,6 @@ export function saveDraft(phId, key, value, readRev) {
   all[key] = { ...value, rev: Date.now() }; put('propapp:drafts:' + phId, all); return true;
 }
 export function setDrafts(phId, all, { replace = false } = {}) { if (replace) bases.delete('propapp:drafts:' + phId); put('propapp:drafts:' + phId, all); }
-export function removePharmacy(id) { put('propapp:ph:' + id, undefined); put('propapp:drafts:' + id, undefined); const d = dir(); d.ids = d.ids.filter(x => x !== id); d.archived = (d.archived || []).filter(x => x !== id); if (d.active === id) d.active = d.ids[0] || ''; setDir(d); }
+export function removePharmacy(id) { put('propapp:ph:' + id, undefined); put('propapp:drafts:' + id, undefined); const d = clone(dir()); d.ids = d.ids.filter(x => x !== id); d.archived = (d.archived || []).filter(x => x !== id); if (d.active === id) d.active = d.ids[0] || ''; setDir(d); }
 export const getPref = k => mem.get('propapp:pref:' + k);
 export const setPref = (k, v) => put('propapp:pref:' + k, v);

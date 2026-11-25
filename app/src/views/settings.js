@@ -6,7 +6,7 @@ import { h, uid } from '../util.js';
 import { screen, btn, row, field, textInput, choice, note, why, empty, section, pill } from '../ui.js';
 import { fmt, today, addDays, day } from '../dates.js';
 import { note as log, me, newAction } from '../model.js';
-import { pharmacyBackup, importBackup, openExample } from './backup.js';
+import { pharmacyBackup, importBackup, openExample, backupNow } from './backup.js';
 import { saveFile } from '../ics.js';
 import { items, counts } from '../summary.js';
 import { copyText } from '../clip.js';
@@ -30,20 +30,21 @@ register('backup', {
         ${btn('Download a backup', 'dl', { kind: 'primary', cls: 'block' })}</div>
       ${isPWA() ? h`<div class="card" id="device"><h2>This device</h2><p class="muted">${standalone() ? 'Opened from your Home Screen.' : 'Opened in the browser. Add it to your Home Screen so your phone keeps your records: on iPhone, tap Share, then Add to Home Screen; on Android, tap ⋮, then Install app.'}</p>
         ${standalone() ? '' : h`<p class="note warn">On iPhone, the Home Screen app keeps its own records, separate from Safari. If you’ve already entered records here, download a backup first, then restore it in the Home Screen app.</p>`}
-        <p class="meta">${c.ui.kept === true ? 'This browser has agreed to keep this app’s records.' : c.ui.kept === false ? 'This browser may clear the records if the phone runs short of space: keep backups.' : ''}</p></div>` : ''}
+</div>` : ''}
       <div class="card"><h2>Restore</h2><p class="muted">Open an R.Pharmacy backup (from this app or the earlier version). If the pharmacy is already here you’re asked before anything is replaced.</p>
         <label class="btn secondary block" style="display:grid;place-items:center">Choose a backup file<input type="file" accept="application/json,.json" data-change="restore" hidden></label></div>
       ${(() => { const cf = Object.entries(c.drafts).filter(([k]) => k.includes('/conflict-')); return h`<section class="sec"><h2 class="sec-title">Conflict copies · ${cf.length}</h2><p class="muted">If the same draft was changed in two places (for example two tabs), the newer one is kept and the other is saved here instead of being lost.</p>
         ${cf.length ? h`<div class="list">${cf.map(([k, v]) => { const n = Object.values(v.items || v.answers || {}).filter(x => x && (x.status || typeof x === 'string')).length; return h`<div class="row static"><span class="row-main"><span class="row-title">${k.startsWith('visit/') ? (k.startsWith('visit/extra') ? 'Extra visit' : 'Quarterly visit') : 'Review ' + k.split('/')[1]} · copy from ${fmt(day(new Date(+k.split('conflict-')[1]).toISOString()))}</span><span class="row-sub">${n} answer${n === 1 ? '' : 's'}${v.notes ? ' · note: ' + v.notes : ''}${v.date ? ' · visit date ' + fmt(v.date) : ''}</span><span class="btnrow">${btn('Copy its answers', 'cfcopy', { data: { k } })}${btn('Dismiss', 'cfdel', { kind: 'link', data: { k } })}</span></span></div>`; })}</div>` : h`<p class="muted">None.</p>`}</section>`; })()}
-      <section class="sec"><h2 class="sec-title">Storage on this device</h2><div class="card" id="storage"><p class="muted">Checking…</p></div></section>
+      <section class="sec"><h2 class="sec-title">Storage on this device</h2><div class="card" id="storage"><p class="muted">Checking…</p></div><p class="meta" id="kept">${c.ui.kept === true ? 'This browser has agreed to keep this app’s records.' : c.ui.kept === false ? 'This browser hasn’t agreed to keep the records for good: keep backups.' : ''}</p></section>
       <p class="hint">If nothing downloads (some previews block files), open the app file in your phone’s browser.</p>` }); },
-  after: async c => { if (isPWA() && c.ui.kept === undefined) { c.ui.kept = null; keptStatus().then(k => { c.ui.kept = k; c.rerender(); }); }
+  // The storage line is filled in place (no redraw), so a file being chosen for restore is never swapped out.
+  after: async c => { if (c.ui.kept === undefined) { c.ui.kept = null; keptStatus().then(k => { c.ui.kept = k; const el = document.getElementById('kept'); if (el) el.textContent = k === true ? 'This browser has agreed to keep this app’s records.' : k === false ? 'This browser hasn’t agreed to keep the records for good: keep backups.' : ''; }); }
     const el = document.getElementById('storage'); if (!el) return; let txt = 'This browser doesn’t report storage details.';
     try { const e = await navigator.storage?.estimate?.(), pers = await navigator.storage?.persisted?.(); if (e) txt = 'Using ' + (e.usage / 1048576).toFixed(1) + ' MB of about ' + Math.round(e.quota / 1048576) + ' MB available. ' + (pers ? 'The browser has agreed to keep this data.' : 'The browser may clear it if the device runs short of space: keep backups.'); } catch {}
     el.innerHTML = ''; const p = document.createElement('p'); p.textContent = txt; el.append(p); },
   acts: { cfdel: (c, d) => { c.saveDraft(d.k, null); c.rerender(); c.toast('Conflict copy dismissed'); },
     cfcopy: async (c, d) => { if (await copyText(JSON.stringify(c.drafts[d.k], null, 1))) { c.toast('Copied'); } else { c.toast('Copy didn’t work here.'); } },
-    dl: c => { const ok = saveFile(c.ph.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify(pharmacyBackup(c)), 'application/json'); if (ok) c.change(ph => { ph.settings.lastBackup = new Date().toISOString(); }, 'Backup download requested'); } },
+    dl: c => backupNow(c) },
   changes: { restore: (c, el) => importBackup(c, el.files[0]) },
 });
 register('pharmacies', {
@@ -64,7 +65,7 @@ register('phmanage', {
   tab: 'more',
   render(c) { const d = c.store.dir(), others = d.ids.filter(id => id !== c.ph.id && !(d.archived || []).includes(id)).map(id => c.store.pharmacy(id)).filter(Boolean);
     return screen({ title: 'Archive or delete', back: true, body: h`<p class="muted">Archive keeps every record and hides the pharmacy from switching and counts; you can unarchive it from Pharmacies. Delete removes it from this device for good, so it’s offered only for test or fictional pharmacies, or ones with nothing recorded. To change the pharmacy that’s open now, switch to another first.</p>
-      ${others.length ? h`<div class="list">${others.map(p => h`<div class="row static"><span class="row-main"><span class="row-title">${p.name}</span><span class="row-sub">${p.records.length} records · ${Object.keys(p.actions).length} actions</span>
+      ${others.length ? h`<div class="list">${others.map(p => h`<div class="row static"><span class="row-main"><span class="row-title">${p.name}</span><span class="row-sub">${p.records.length === 1 ? '1 record' : p.records.length + ' records'} · ${Object.keys(p.actions).length === 1 ? '1 action' : Object.keys(p.actions).length + ' actions'}</span>
         <span class="btnrow">${btn('Archive', 'arch', { data: { id: p.id } })}${deletable(p) ? btn(c.ui.delArmed === p.id ? 'Tap again to delete for good' : 'Delete', 'del', { data: { id: p.id }, cls: c.ui.delArmed === p.id ? 'danger' : '' }) : ''}</span>
         ${c.ui.delArmed === p.id ? h`<span class="note warn">This can’t be undone. Download a backup of it first if you might want it back.${btn('Download its backup', 'delbk', { kind: 'link', data: { id: p.id } })}</span>` : ''}</span></div>`)}</div>` : empty('No other pharmacies to archive or delete.')}` }); },
   acts: {
@@ -119,6 +120,7 @@ register('receipt', {
   tab: 'today',
   render(c) { const r = c.ui.receipt || {};
     return screen({ title: 'Restored', back: true, body: h`<div class="card"><h2>${r.name}</h2><p class="muted">Restored from ${r.from}.</p>
-      <ul class="plain"><li>${r.records} recorded reviews, visits and meetings</li><li>${r.actions} actions</li><li>${r.staff} staff</li><li>${r.procedures} procedures</li><li>${r.drafts} drafts in progress</li></ul></div>
+      ${(() => { const W = r.want || {}, G = r.got || {}, L = [['records', 'reviews, visits and meetings'], ['actions', 'actions'], ['staff', 'staff'], ['checks', 'staff checks'], ['procedures', 'procedures'], ['drafts', 'drafts in progress']], bad = L.filter(([k]) => W[k] !== G[k]);
+        return h`<ul class="plain">${L.map(([k, l]) => h`<li>${G[k]} ${l}${W[k] !== G[k] ? h` <b class="bad">(the file has ${W[k]})</b>` : ''}</li>`)}</ul>${bad.length ? note('Some counts don’t match the backup file. Keep the file and tell us before changing anything.', 'warn') : note('Checked: every count matches the backup file.', 'ok')}`; })()}</div>
       ${btn('Go to Today', 'tab', { kind: 'primary', cls: 'block', data: { tab: 'today' } })}` }); },
 });
