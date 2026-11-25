@@ -29,6 +29,7 @@ Read this before any work. These are the owner's instructions and decisions. Don
   - Monday plan.
 - **Un-deferred (25 Nov, owner):** build the inspector evidence pack (printable, no patient data) and the multi-pharmacy view (only shown with 2+ pharmacies).
 - **Hosting (25 Nov, owner):** prepare the installable-app files (manifest, offline worker, icons) and test them locally, but don't deploy. D3 stays the hosting plan.
+- **GitHub Pages (25 Nov, owner via the Sigil brief):** the installable app is published from `docs/` on main for https://mohaco1.github.io/PropApp/ (it goes live once the owner switches Pages on). Data stays on each phone; nothing is sent anywhere. Refresh `docs/` from `app/dist/pwa/` with each build that should reach the phone.
   Buyer features stay as they are.
 - **Leave as it is:** the vaccination "record the GP" wording.
 - **Sign-in and hosting (D3):** a managed back end in Sydney, emailed-link sign-in. Not yet built.

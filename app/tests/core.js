@@ -19,7 +19,7 @@ const { phone, ok, done, tap, text, saved } = require('./helpers.js');
     await p.locator('label.choice', { hasText: new RegExp('^' + label + '$') }).click(); await p.waitForTimeout(80);
     if (i === 1) { await p.fill('textarea[name=text]', 'Fridge log missing Sunday readings'); await p.locator('textarea[name=text]').blur(); }
     if (await p.locator('input[name=vaccEvent]').count()) { await p.locator('label.choice', { hasText: /^No$/ }).click(); await p.locator('label.choice', { hasText: /^Yes$/ }).last().click(); await p.waitForTimeout(80); await p.fill('input[name=vaccDate]', '2026-10-01'); await p.locator('input[name=vaccDate]').blur(); }
-    await p.getByRole('button', { name: i === 13 ? 'Finish' : 'Next' }).click(); if (i < 13) await p.waitForFunction(n => document.body.innerText.includes('Check ' + n + ' of 14'), i + 2); await p.waitForTimeout(80);
+    await p.getByRole('button', { name: i === 13 ? 'Finish' : 'Next' }).click(); if (i < 13) await p.waitForFunction(n => document.body.innerText.includes("Check " + n + " of 14"), i + 2).catch(async () => { console.log("STUCK at", i, (await p.evaluate(() => document.body.innerText)).slice(0, 500)); throw Error("stuck"); }); await p.waitForTimeout(80);
   }
   t = await text(p); ok(/1 issue becomes an action/.test(t), 'finish screen: 1 issue becomes an action');
   await p.waitForTimeout(300); ok(Object.entries(await saved(p)).every(([k, v]) => !k.startsWith('propapp:drafts:') || !Object.keys(v || {}).some(x => x.includes('/conflict-'))), 'quick saves on one phone never make a conflict copy');
