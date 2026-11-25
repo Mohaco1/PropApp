@@ -12,8 +12,9 @@ register('welcome', {
     if (c.ui.setupStep === undefined) { const saved = c.store.getPref('setup-draft'); if (saved) { c.ui.setup = saved.setup; c.ui.setupStep = saved.step; } }
     const step = c.ui.setupStep || 0;
     if (step === 0) return h`<div class="welcome">
-      <div class="wm" aria-label="R.Pharmacy"><span class="wm-r">R.</span>Pharmacy</div>
-      <p class="wm-line">Your legal and best-practice duties as a pharmacy owner, in one calm place.</p>
+      <div class="wm" aria-label="Sigil"><span class="wm-mark" aria-hidden="true">S.</span>Sigil</div>
+      <p class="wm-line">Built for the owner’s side of the counter.</p>
+      <p class="muted wm-sub">Your legal and best-practice duties as a pharmacy owner, in one calm place.</p>
       ${btn('Set up your pharmacy', 'start-setup', { kind: 'primary', cls: 'big' })}
       <div class="welcome-more">
         <label class="linkbtn">Restore a backup<input type="file" accept="application/json,.json" data-change="restore" hidden></label>

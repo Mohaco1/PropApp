@@ -17,7 +17,7 @@ const rgb = hex => 'rgb(' + hex.match(/\w\w/g).map(x => parseInt(x, 16)).join(',
     return { bg: cs(document.body).backgroundColor, bar: cs(bar).backgroundColor, strip: strip.height, grad: strip.backgroundImage, mark: [Math.round(mark.width), Math.round(mark.height)], markText: document.querySelector('.mark').innerText, font: cs(document.body).fontFamily }; });
   ok(look.bg === rgb('F2F6F8') && look.bar === rgb('FFFFFF'), 'P-06 canvas #F2F6F8 and white header');
   ok(look.strip === '3.5px' && /^linear-gradient\(90deg, rgb\(0, 139, 130\) 0%, rgb\(0, 87, 146\) 100%\)$/.test(look.grad), 'P-06 3.5px teal-to-ocean strip on the header');
-  ok(look.mark[0] === 22 && look.mark[1] === 22 && look.markText === 'R.', 'P-06 22×22 “R.” monogram badge');
+  ok(look.mark[0] === 22 && look.mark[1] === 22 && look.markText === 'S.', 'P-06 + Sigil 22×22 “S.” monogram badge');
   ok(/^"?Public Sans"?, "?Inter"?/.test(look.font), 'P-06 font stack starts Public Sans, Inter');
   // 2. one pharmacy: no pill switch
   ok(await p.locator('.sw-pill').count() === 0, 'P-06 one pharmacy: the site switch pill is hidden');

@@ -74,7 +74,7 @@ register('pack', {
           <p>Proprietor${ph.proprietors.length === 1 ? '' : 's'}: ${ph.proprietors.map(p => p.name).join(', ') || '—'}</p>
           <p>${first ? 'From ' + full(first) + ' to ' + full(today()) : 'No records yet'} (${period}) · made ${full(today())}</p>
           <p>Proprietor oversight record only: statutory S8 registers, dispensing records and cold-chain logs stay in their primary pharmacy systems.</p>
-          <p>Designed for de-identified proprietor records: check your notes before sharing.</p>
+          <p>Made with Sigil · built for the owner’s side of the counter. Designed for de-identified proprietor records: check your notes before sharing.</p>
           <p>Today: ${d.n.overdue === 1 ? '1 item overdue' : d.n.overdue + ' items overdue'} · ${d.n.all - d.n.tocheck === 1 ? '1 item' : (d.n.all - d.n.tocheck) + ' items'} in the plan · law and practice updates read: ${d.updatesRead} of ${UPDATES.length}</p></header>
         ${sec('rev', 'Reviews, visits and meetings · ' + d.reviews.length, table(['Date', 'What', 'Recorded by', 'Issues', 'Next due'], d.reviews, 'None recorded in this period.'))}
         ${sec('s8', 'S8 stock checks · ' + s8Count(d.s8), table(['Reviewed', 'Outcome', 'Stock check', 'Pharmacist', 'Next due'], d.s8, 'None recorded in this period.'))}
