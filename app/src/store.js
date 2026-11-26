@@ -46,8 +46,22 @@ export const saveStatus = () => status;
 export function watchStatus(fn) { onStatus = fn; }
 // Chaos test fix 1: a change to a pharmacy or its drafts is also copied synchronously to localStorage (the journal) until
 // the IndexedDB save completes, so reloading within milliseconds of a tap can't lose it; init replays any leftover.
-const JOURNAL = 'propapp-journal:', journaled = k => !useLS && (k.startsWith('propapp:ph:') || k.startsWith('propapp:drafts:'));
-function journal(k, v) { if (!journaled(k)) return; try { v === undefined ? localStorage.removeItem(JOURNAL + k) : localStorage.setItem(JOURNAL + k, JSON.stringify(v)); } catch {} }
+// Hardening brief: one journal entry per tab (so one tab's finished save never clears another tab's), carrying the
+// copy it started from (so two tabs' leftovers merge instead of overwriting), and a restore stamps the key so any
+// older leftover is discarded rather than bringing back records the restore replaced.
+const JOURNAL = 'propapp-journal:', RESTORED = 'propapp-restored:', TAB = Math.random().toString(36).slice(2, 10);
+const journaled = k => !useLS && (k.startsWith('propapp:ph:') || k.startsWith('propapp:drafts:'));
+function journal(k, v) { if (!journaled(k)) return; const jk = JOURNAL + TAB + ':' + k;
+  try { if (v === undefined) { localStorage.removeItem(jk); return; } const at = Date.now(), replace = replacing.has(k);
+    localStorage.setItem(jk, JSON.stringify({ v, base: seen.get(k) ?? null, at, replace })); if (replace) localStorage.setItem(RESTORED + k, String(at)); } catch {} }
+async function replayJournal() { const keys = []; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k?.startsWith(JOURNAL)) keys.push(k); } } catch {}
+  const entries = keys.map(jk => { try { const rest = jk.slice(JOURNAL.length), k = rest.slice(rest.indexOf(':') + 1); return { jk, k, ...JSON.parse(localStorage.getItem(jk)) }; } catch { return null; } }).filter(Boolean).sort((a, b) => a.at - b.at);
+  for (const e of entries) { try { localStorage.removeItem(e.jk); } catch {}
+    if (e.at < Number(localStorage.getItem(RESTORED + e.k) || 0)) continue;
+    const cur = mem.get(e.k); let v = e.v;
+    if (e.replace) replacing.add(e.k); else if (e.base && cur && e.k.startsWith('propapp:ph:')) v = merge3(e.base, e.v, cur);
+    mem.set(e.k, v); put(e.k, v); }
+  if (entries.length) await flush(); }
 function put(k, v) {
   journal(k, v);
   mem.set(k, v); pending.set(k, v); setStatus('saving');
@@ -92,7 +106,7 @@ async function flushNow() {
       tx.oncomplete = res; tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); });
     for (const [k, v, orig] of batch) { if (k.startsWith('propapp:ph:') || k === 'propapp:dir') v === undefined ? seen.delete(k) : seen.set(k, clone(v)); replacing.delete(k); bases.delete(k);
       if (v !== orig) { if (mem.get(k) === orig) mem.set(k, v); else if (pending.has(k) && k.startsWith('propapp:drafts:')) { const later = pending.get(k); for (const [dk, x] of Object.entries(v)) if (dk.includes('/conflict-') && !later[dk]) later[dk] = x; } } }
-    for (const [k] of batch) if (!pending.has(k)) try { localStorage.removeItem(JOURNAL + k); } catch {}
+    for (const [k] of batch) if (!pending.has(k)) try { localStorage.removeItem(JOURNAL + TAB + ':' + k); } catch {}
     chan?.postMessage({ keys: batch.map(b => b[0]) });
     tries = 0; quota = 0; if (!pending.size) setStatus('saved');
     // A conflict copy was kept, or another tab's changes were merged in: show the result without a reload.
@@ -107,9 +121,7 @@ let chan = null, onChange = null;
 export async function init(onExternalChange) {
   onChange = onExternalChange;
   await open(); await getAll();
-  if (!useLS) { const left = []; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k?.startsWith(JOURNAL)) left.push(k); } } catch {}
-    for (const jk of left) { try { const k = jk.slice(JOURNAL.length), v = JSON.parse(localStorage.getItem(jk)); mem.set(k, v); pending.set(k, v); } catch {} }
-    if (left.length) await flush(); }
+  if (!useLS) await replayJournal();
   try { chan = new BroadcastChannel('propapp'); chan.onmessage = async () => { for (const k of [...mem.keys()]) if (!pending.has(k)) mem.delete(k); await getAll(); onExternalChange?.(); }; } catch {}
   addEventListener('pagehide', () => { flush(); });
 }

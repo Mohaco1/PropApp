@@ -89,7 +89,9 @@ export function sentence(list) {
   const r = ranked(list), over = r.filter(i => i.bucket === 'overdue'), due = r.filter(i => i.bucket === 'today');
   if (over.length) return { tone: 'bad', text: (over.length === 1 ? '1 thing is overdue.' : over.length + ' things are overdue.'), start: over[0] };
   if (due.length) return { tone: 'warn', text: 'Nothing overdue. ' + due.length + ' due today.', start: due[0] };
-  const next = r.find(i => isDate(i.date));
+  const next = r.find(i => isDate(i.date)), s8 = r.find(i => i.key === 'review/B1');
+  // Hardening brief: with no S8 stocktake date yet, "Nothing overdue" overstates it.
+  if (s8 && !isDate(s8.date)) return { tone: 'ok', text: 'No overdue items with known dates.', start: next || null, s8 };
   return { tone: 'ok', text: 'Nothing overdue.', start: next || null };
 }
 export { reviewById };

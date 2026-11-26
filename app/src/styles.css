@@ -299,3 +299,5 @@ a.linkbtn{text-decoration:none}
 .toast{pointer-events:none}
 main p,main h1,main h2,main h3,main li,main dd,main td,main th,.row-title,.row-sub,.big-title,.qtext,.doc,.bar-title,.note{overflow-wrap:anywhere}
 .row-main,.bar-title,.card,.list,.doc{min-width:0}
+
+.s8first{margin:-4px 0 8px}

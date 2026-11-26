@@ -69,6 +69,7 @@ register('today', {
     const list = ranked(pick);
     return screen({ title: 'Today', sub: c.ph.name, right: switcher(c), body: h`
       <p class="status"><span class="date">${fmt(today(), { weekday: true })}</span><span class="${s.tone}">${s.text}</span>${s.start && s.tone !== 'ok' ? h` Start with <button class="inline-link" data-act="open" data-key="${s.start.key}">${s.start.title}</button>.` : ''}</p>
+      ${s.s8 ? h`<p class="s8first"><button class="inline-link" data-act="open" data-key="${s.s8.key}">Add your last S8 stocktake date</button></p>` : ''}
       ${notice(c, all)}
       <div class="filters" role="tablist">${FILTERS.map(([k, l]) => h`<button role="tab" aria-selected="${String(k === f)}" class="${k === f ? 'on' : ''}" data-act="filter" data-f="${k}"><b>${cnt[k]}</b><span>${l}</span></button>`)}</div>
       ${!c.ph.records.length ? h`<p class="hint">Dates set themselves after your first review. Start with your last S8 stock check, or tap any item to set a due date.</p>` : ''}

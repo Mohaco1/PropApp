@@ -54,9 +54,14 @@ export function render(scrollTop = false) {
   showSave(store.saveStatus());
   v.after?.(ctx, r, root);
 }
+let lastFinal = { key: '', at: 0 };
 function handle(e, type) {
   const el = e.target.closest(type === 'submit' ? 'form[data-form]' : '[data-act]'); if (!el) return;
   const r = S.ph ? ctx.route : { name: 'welcome' }; const v = views[r.name] || {};
+  // Hardening brief: a second tap on the same final button (a form submit or a primary button) within 800 ms is ignored,
+  // so Save review, Save visit, Save action and Close action can't record twice.
+  if (type === 'submit' || el.classList?.contains('primary')) { const key = (r.name || '') + '|' + (r.id || '') + '|' + (type === 'submit' ? 'f:' + el.dataset.form : 'a:' + el.dataset.act), now = Date.now();
+    if (lastFinal.key === key && now - lastFinal.at < 800 && el.dataset.act !== 'step') { if (type === 'submit') e.preventDefault(); return; } lastFinal = { key, at: now }; }
   if (type === 'submit') { e.preventDefault(); const fn = v.forms?.[el.dataset.form] || common.forms[el.dataset.form]; fn?.(ctx, Object.fromEntries(new FormData(el)), el, r, e); return; }
   const act = el.dataset.act; const fn = v.acts?.[act] || common.acts[act]; if (!fn) return;
   if (el.tagName === 'A') e.preventDefault();
