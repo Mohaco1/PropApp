@@ -142,7 +142,7 @@ const SETUP = {
       ${idx === 0 && ABOUT[id] ? h`<p class="whyask"><b>What this is:</b> ${ABOUT[id]}</p>` : ''}<form class="form" data-form="next" data-change="ans"><p class="qtext">${procWord(COPY[label]?.[0] || label)}</p>${COPY[label]?.[1] ? h`<p class="whyask"><b>Why we ask:</b> ${COPY[label][1]}</p>` : ''}${m.note && !COPY[label]?.[2] ? h`<p class="muted">${procWord(m.note)}</p>` : ''}${input}</form>
       ${c.ui.returnTo?.id === id ? h`<div class="btnrow">${btn('Save and back to the procedure', 'ret', { kind: 'primary', cls: 'block' })}</div>` : h`<div class="btnrow">${btn('Previous', 'step', { data: { s: idx - 1 }, disabled: idx === 0 })}${btn(idx === fs.length - 1 ? 'Finish' : 'Next', 'step', { kind: 'primary', data: { s: idx + 1 } })}</div>`}` });
   },
-  changes: { ans: (c, el, r, ev, quiet) => { const form = el.closest('form'), id = r.id, fs = fieldsFor(c.ph, id), a = c.ph.services[id].answers || {};
+  changes: { ans: (c, el, r, ev, quiet) => { if (!quiet) c.ui.answerAt = Date.now(); const form = el.closest('form'), id = r.id, fs = fieldsFor(c.ph, id), a = c.ph.services[id].answers || {};
     const idx = Math.min(c.ui['ss:' + id] ?? fs.findIndex(f => !answered(a, f.key)), fs.length); const f = fs[idx < 0 ? 0 : idx]; if (!f) return;
     // A real answer always replaces "Check later"; ticking "Check later" itself sets it.
     const k = kindOf(id, f), fd = new FormData(form), d = (fd.get('d') || '').toString().trim(), nv = ev?.target?.name === 'nv' ? fd.get('nv') : (ev?.target?.name ? null : fd.get('nv'));
@@ -169,9 +169,9 @@ const SETUP = {
     place: (c, d, el) => { const form = el.closest('form'), inp = form?.querySelector('input[name=d]'); if (!inp) return; inp.value = d.v; inp.dispatchEvent(new Event('change', { bubbles: true })); },
     uatq: async (c, d) => { await window.uatMark?.(d.k, d.v); c.rerender(); },
     vall: (c, d, el) => { const fs = el.closest('fieldset'); fs.querySelectorAll('input[type=checkbox]').forEach(i => { i.checked = true; }); fs.closest('form').dispatchEvent(new Event('change', { bubbles: true })); },
-    // Chaos test fixes: a second tap within 400 ms of a step change is ignored (10), and the answer and step are written
+    // Chaos test fixes: a second tap on Next within 400 ms, with no answer given in between, is ignored (10), and the answer and step are written
     // to storage straight away, so reloading right after Next loses nothing (1).
-    step: (c, d, el, r) => { const now = Date.now(); if (now - (c.ui.stepAt || 0) < 400) return; c.ui.stepAt = now;
+    step: (c, d, el, r) => { const now = Date.now(); if (now - (c.ui.stepAt || 0) < 400 && (c.ui.answerAt || 0) < c.ui.stepAt) return; c.ui.stepAt = now;
       const form = document.querySelector('main form[data-form=next]'), inp = form?.querySelector('input[name=d]'); if (inp && inp.value.trim()) SETUP.changes.ans(c, form, r, { target: inp }, true);
       const s = Math.max(0, +d.s); c.ui['ss:' + r.id] = s; c.change(ph => { ph.services[r.id].pos = s; }); c.store.flush(); window.scrollTo(0, 0); },
     recnow: (c, d, el, r) => c.change(ph => { ph.services[r.id].recIntro = 'now'; }),

@@ -530,3 +530,17 @@ From Gemini's "Locked Pre-Trial Brief & Claude Prompts" and the "Final Pre-Beta 
 Several sources were supplied by Gemini and not read by Claude (see `uat/research/pretrial-b7-sources-2026-11-25.md`).
 
 **Logo:** the S-loop (deep teal on off-white) in the header, on Welcome, on the evidence pack and as the phone icons.
+
+## Chaos test fixes (Codex: 108 randomised phone sessions on 07775c5947) · 26 Nov 2026 · build 9344592463
+1. **Instant reload after Next lost the typed answer and step:** every pharmacy and draft change is now also journalled synchronously to localStorage until the IndexedDB save completes, and startup replays any leftover. Next also saves straight away.
+2. **Queensland gate:** switching to No removes any Queensland-only conditions already ticked.
+3. **Spaces-only owner (or pharmacy) name:** refused with a message (it used to crash Finish setup).
+4. **"Other (describe)" text with commas:** read back whole, not cut at the first comma.
+5. **Today across midnight:** redraws on the new day (checked every 30 s and on return to the app; only while Today is showing).
+6. **Toasts:** `pointer-events: none`, so they never swallow a tap.
+7. **Staff form:** a failed Save keeps everything typed.
+8. **Spaces-only staff name:** refused.
+9. **650 unbroken characters:** wrap; the staff and action pages stay 390 px wide.
+10. **Rapid double tap on Next:** moves one question. The second tap within 400 ms is ignored only if nothing was answered in between.
+
+**Tests:** new suite `tests/chaos.js` (one check per fix, touch taps at 390 × 844). All 22 suites pass, and check-procgen-all is identical across 17.
