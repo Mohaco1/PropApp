@@ -80,7 +80,7 @@ const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
   ok(/What to look at again · \d+/i.test(await text(p)), 'F-LIVE-05 the action screen lists what to look at again');
   // ---- F-LIVE-08: adopted procedure body never says "Draft generated"
   await more(/^Procedures/); await p.getByRole('button', { name: /Staged supply/ }).click(); await tap(p, 'Adopt for use here'); await tap(p, 'Yes, adopt it'); await p.waitForTimeout(300);
-  t = await p.locator('.doc').innerText(); ok(!/Draft generated/.test(t) && /Adopted procedure \(version 1\.0, adopted 25 Nov\)/.test(t), 'F-LIVE-08 adopted v1.0 says “Adopted procedure (version 1.0, adopted 25 Nov)”, not “Draft generated”');
+  t = await p.locator('.doc').first().innerText(); ok(!/Draft generated/.test(t) && /Adopted procedure \(version 1\.0, adopted 25 Nov\)/.test(t), 'F-LIVE-08 adopted v1.0 says “Adopted procedure (version 1.0, adopted 25 Nov)”, not “Draft generated”');
   // ---- Bug 5 + Codex #07: meeting banner only when something was filled in; privacy hint beside the patient-safety box
   await more(/^Meetings/); await p.getByRole('button', { name: /Proprietor check-in/ }).first().click(); await p.waitForTimeout(200);
   const m = await p.evaluate(() => ({ banner: /Filled in from your last meeting/.test(document.body.innerText), filled: [...document.querySelectorAll('input[name=who]')].some(x => x.checked) || [...document.querySelectorAll('textarea')].some(x => x.value.trim()), hint: document.querySelector('textarea[name=s0]')?.parentElement.querySelector('.hint')?.innerText }));

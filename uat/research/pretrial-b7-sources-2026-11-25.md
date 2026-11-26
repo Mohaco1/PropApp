@@ -64,3 +64,13 @@ The owner can change or delete these lines. They are not legal requirements.
 - **SafeWork NSW, Packing and transporting clinical waste:** read here. "Bins containing UN3291 clinical waste must be marked, labelled and placarded as required by chapters 5.2 and 5.3 of the ADG Code. Each bin up to and including 500 L capacity must bear the Division 6.2 label … and be marked with the number UN3291, as well as one of the following permitted proper shipping names: CLINICAL WASTE, UNSPECIFIED, N.O.S. …" "Kept closed and collected regularly" is labelled best practice.
 - **Blooms the Chemist Management Services Ltd v Pharmacy Council of NSW [2025] NSWSC 1211:** read through King & Wood Mallesons' summary, which says the Court "found that the arrangements between Tran Pharmacy and Blooms conferred influence over and an interest in the profitability and value of the business, that amounted to an unlawful financial interest". I couldn't open the judgment itself (NSW Caselaw search loads its results by script). The app line cites the case "as summarised by King & Wood Mallesons".
 - **PBS approval on change of ownership; NASH PKI (2 years); PRODA B2B (6 months):** these come from the owner's brief and the sources it gives (health.gov.au, servicesaustralia.gov.au, an in10se article). Those sites dropped every connection from this environment (empty reply / HTTP/2 error), and the browser tool was not permitted, so I didn't read them myself. They were added on the owner's instruction, citing the owner-supplied sources. Worth a quick look on your phone: https://www.health.gov.au/our-work/pbs-approved-suppliers/pharmacists/change-pharmacy-ownership and https://www.servicesaustralia.gov.au/manage-nash-pki
+
+## Trial batch 1 (Gemini brief, 26 Nov 2026): sources supplied, not read by Claude
+These are quoted from Gemini's brief. Claude's environment can't reach servicesaustralia.gov.au, health.gov.au or tga.gov.au, so they're recorded here as supplied.
+- **PRODA B2B** (Services Australia, Managing B2B devices in PRODA): "Once you've activated your device, it's active for 6 months. You'll need to reactivate your B2B Device with PRODA at least every 6 months to continue to use it."
+- **NASH PKI** (Services Australia, Manage NASH PKI): a 2-year renewal cycle.
+- **CBD scheduling** (TGA, Medicinal cannabis product list; Accessing medicinal cannabis; Access pathways and data):
+  - Category 1 (CBD at least 98%, other cannabinoids at most 2%) is Schedule 4.
+  - Categories 2–5 (including CBD-dominant Category 2, 60% to under 98% CBD) are Schedule 8.
+  - A low-dose (up to 150 mg/day) Schedule 3 entry exists, but no ARTG-registered S3 CBD product does.
+- **Blooms [2025] NSWSC 1211:** paragraphs [294] and [347], via King & Wood Mallesons (unchanged).

@@ -501,3 +501,32 @@ From Gemini's "Locked Pre-Trial Brief & Claude Prompts" and the "Final Pre-Beta 
 - **Ticks that wouldn't stay ticked:** setup options whose name contains a comma (e.g. "Creams, ointments and gels", the "stuck" checkboxes in the trial notes) were read back split in two, so their tick vanished. They're now matched against the whole stored answer. Regression test added in `tests/sigil.js` (real touch taps).
 - **Rebrand leftover:** "R.Pharmacy" in setup and procedure text is now "Sigil". The parity checks apply the same change to the old app's text, and all 17 drafts are still identical.
 - The phone app files in `docs/` are refreshed.
+
+## Trial batch 1 (Gemini brief on 8131823503) · 26 Nov 2026 · build 07775c5947
+**Real bug behind the "stuck" questions**
+- "Software" questions (Staged supply Q2, Vaccination Q3, OTP dose and file software) were drawn as a text box but saved as if they had options, so the typed name was lost and Next stayed put.
+- A typed box also redrew the screen as it lost focus, which swallowed the tap on Next.
+- Now typed answers save without a redraw, Next saves what's in the box first, and one tap moves on. Touch-tap regression test in `tests/batch1.js`.
+
+**Ease of use**
+- Places & systems chips under every software or "where exactly" box, from what's already typed for this pharmacy. A tap fills the box and saves it; nothing fills itself.
+- A visible Move button on each Quarter Balancer service.
+- Procedures shown as tappable sections (first open, "Open all sections"), with "to confirm" items at the top. The wording is unchanged.
+- "Answer as a list" for reviews: one tap per question, nothing pre-answered, and an issue goes to that question's step view.
+- "Legal items first · do the rest later" on the setup card.
+- A one-line subtitle on Reviews and Calendar.
+
+**Wording**
+- "Why we ask" lines on OTP special conditions (reworded), dose and file software, the day-to-day lead, and OTP file reviews.
+- "What this is" for medicine adherence support.
+- Governance Q1 and Q4 rewritten as concrete checks.
+
+**Content**
+- Queensland-pathway prescribing conditions are hidden unless a pharmacist holds that training.
+- OTP file reviews list Quarterly first as the suggestion; nothing is pre-selected.
+- CBD scheduling corrected: Category 1 is S4; others are S8; plus the S3 note.
+- PRODA reactivation wording.
+
+Several sources were supplied by Gemini and not read by Claude (see `uat/research/pretrial-b7-sources-2026-11-25.md`).
+
+**Logo:** the S-loop (deep teal on off-white) in the header, on Welcome, on the evidence pack and as the phone icons.
