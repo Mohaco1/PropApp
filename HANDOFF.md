@@ -4,12 +4,17 @@ Read `CLAUDE.md` first. It holds the owner's standing rules. The app is **PharmL
 
 | | |
 |---|---|
-| Code commit | `67502269fdce05418e4c38ab67d2165a1799d9d4` (this file is in the next commit) |
-| App build id | `79324e8d54` (replaces 5359cb8efe) |
+| Code commit | see `git log -1` (foldables code: `ce00534`) |
+| App build id | `d192b6a64a` (replaces 79324e8d54) |
 | Live | https://mohaco1.github.io/PropApp/, served from `docs/` on `main` |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 |
 | Source | `app/src/` (ES modules, bundled by esbuild) |
 | Build log | `app/PROGRESS.md` |
+
+## Foldables (on 79324e8d54): done
+- [x] **Responsive shell** (`app/src/styles.css`, end of file). Below 700 px: untouched. 700 px and up: an 84 px left rail; `.split` with list and record (`minmax(300px,38%) 1fr`); centred 640 px single panes (welcome, onboard and service-setup never split); Quarter Balancer in 4 columns. With `horizontal-viewport-segments: 2`, the panes follow the hinge segments.
+- [x] **List and record side by side** (`app/src/app.js`: `MASTER`, `SOLO`, `splitFor`, `routeFor`, `fromMaster`). The spec's `law` and `sites` are the views `obligations` and `allsites`. A tap in the list pane runs against the list view; opening another record replaces the shown one without resetting the list's scroll; Back closes the record.
+- [x] **`tests/foldable.js`** at 344×882, 768×882 and 882×768. Not testable here: real hinge segments (Playwright can't emulate them).
 
 ## PharmLedger spec (Gemini, on 5359cb8efe): all done
 - [x] **1. Finish deadlock.** A past saved date no longer blocks "Save dates and finish". The date is shown unchanged and `min` allows it. File: `app/src/views/services.js`. Test: `tests/pharmledger.js`.
@@ -18,11 +23,11 @@ Read `CLAUDE.md` first. It holds the owner's standing rules. The app is **PharmL
 - [x] **4. gates two-tab flake fixed.** When a tab heard another tab's save, it reloaded keys it was still writing, which dropped its own change from memory; its next save then merged that change away. `getAll` and the BroadcastChannel handler now skip in-flight keys. File: `app/src/store.js`. gates passed 4 of 4 runs on its own plus the full run (before: about 1 in 3).
 - [x] Fixes 1–7 from the previous handoff were already done in 5359cb8efe.
 
-## Verification (build 79324e8d54, Playwright at 390×844, touch taps, fails on any console error)
+## Verification (build d192b6a64a, Playwright at 390×844 plus the foldable sizes, touch taps, fails on any console error)
 | Check | Result |
 |---|---|
 | Build: `node tools/build.js --uat` | Pass |
-| 27 Playwright suites, `tools/test-all.sh` (incl. gates, onboard, pharmledger) | All pass (sprint2 rerun after its UX5 test was updated) |
+| 28 Playwright suites, `tools/test-all.sh` (incl. gates, pharmledger, foldable) | 26 pass in the full run. core and hardening stopped part-way without a failed check; both pass when run on their own. If this happens again, `test-all.sh` now prints the last lines. |
 | procedures-all, "Check later" variant | Pass |
 | `node tools/check-procgen-all.js` | Pass ("All 17 services identical") |
 | docs/ under /PropApp/ (installable, offline, icons, no errors) | Pass |
@@ -50,7 +55,7 @@ python3 -m http.server -d dist/pwa 8080   # local look (open http://localhost:80
 - **Keep.** Storage keys `propapp:*` and the backup format stay as they are.
 
 ## Next queued
-1. Owner UAT on the phone of build 79324e8d54 (name, icon, finishing setup, procedure confirms).
+1. Owner UAT of build d192b6a64a on the phone and on an unfolded Fold (rail, list + record, hinge).
 2. Post-trial v4 in-app AI architecture: parked for phase D3 (managed back end in Sydney, emailed-link sign-in, not yet built).
 3. Deferred by the owner: push notifications, Monday plan.
 4. Optional: the repo and Pages URL still say "PropApp". Renaming the GitHub repo would change the phone link, so ask the owner first.
