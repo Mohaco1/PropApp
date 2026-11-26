@@ -1,7 +1,7 @@
 // Welcome (owner's note): wordmark, one line, one button. Setup is 3 short steps; services are set up afterwards.
 import { register } from '../app.js';
 import { h } from '../util.js';
-import { screen, btn, field, textInput, note, icon } from '../ui.js';
+import { screen, btn, field, textInput, note, icon, logo } from '../ui.js';
 import { emptyPharmacy, note as log } from '../model.js';
 import { C } from '../content.js';
 import { uid } from '../util.js';
@@ -12,7 +12,7 @@ register('welcome', {
     if (c.ui.setupStep === undefined) { const saved = c.store.getPref('setup-draft'); if (saved) { c.ui.setup = saved.setup; c.ui.setupStep = saved.step; } }
     const step = c.ui.setupStep || 0;
     if (step === 0) return h`<div class="welcome">
-      <div class="wm" aria-label="Sigil"><span class="wm-mark" aria-hidden="true">S.</span>Sigil</div>
+      <div class="wm" aria-label="Sigil"><span class="wm-mark" aria-hidden="true">${logo(48)}</span>Sigil</div>
       <p class="wm-line">Built for the owner’s side of the counter.</p>
       <p class="muted wm-sub">Your legal and best-practice duties as a pharmacy owner, in one calm place.</p>
       ${btn('Set up your pharmacy', 'start-setup', { kind: 'primary', cls: 'big' })}

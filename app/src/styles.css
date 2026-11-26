@@ -276,3 +276,8 @@ a.linkbtn{text-decoration:none}
 .whyask{margin:0;padding:8px 12px;background:var(--surface);border-left:3px solid var(--teal,#0f766e);border-radius:8px;font-size:14px;color:var(--muted)}
 .placechips{margin-top:8px}
 .placechips .chip{min-height:44px}
+
+/* Trial batch 1: Sigil logo (the SVG carries its own tile) */
+.mark{background:none!important;width:22px;height:22px}.mark .logo{display:block}
+.wm-mark{background:none!important;width:48px;height:48px}.wm-mark .logo{display:block}
+.plogo{display:inline-block;vertical-align:-5px}

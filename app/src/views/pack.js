@@ -3,7 +3,7 @@
 // "Save as PDF"). Nothing is marked done or changed; it only reads what the owner recorded. No patient information.
 import { register } from '../app.js';
 import { h } from '../util.js';
-import { screen, btn } from '../ui.js';
+import { screen, btn, logo } from '../ui.js';
 import { C } from '../content.js';
 import { fmt, today, addMonths, isDate, daysBetween, day } from '../dates.js';
 import { reviewById, activeServices, serviceName, stockIncomplete } from '../rules.js';
@@ -78,7 +78,7 @@ function packScreen(c, inspect) {
       <p class="hint no-print">Printing isn’t available inside the claude.ai preview: open the app file in your phone’s browser.</p>`;
     return screen({ title: inspect ? 'Inspector view' : 'Evidence pack', back: true, body: h`${controls}
       <div class="pack print-only${inspect ? ' inspect' : ''}">
-        <header class="phead"><h1>${ph.name} · evidence pack</h1>
+        <header class="phead"><h1><span class="plogo">${logo(28)}</span> ${ph.name} · evidence pack</h1>
           <p>${[ph.address, ph.identifier && 'Pharmacy ' + ph.identifier].filter(Boolean).join(' · ')}</p>
           <p>Proprietor${ph.proprietors.length === 1 ? '' : 's'}: ${ph.proprietors.map(p => p.name).join(', ') || '—'}</p>
           <p>${first ? 'From ' + full(first) + ' to ' + full(today()) : 'No records yet'} (${period}) · made ${full(today())}</p>

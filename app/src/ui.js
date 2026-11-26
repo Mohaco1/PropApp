@@ -1,5 +1,8 @@
 // Shared building blocks. One shell for every screen (design rule 4), thumb-sized controls (rule 11).
 import { h, raw } from './util.js';
+// Trial batch 1: the Sigil mark. One continuous rounded S-loop in deep teal on an off-white tile with a hairline border.
+export const LOGO_PATH = 'M66 30c-3-7-10-10-17-10-10 0-17 6-17 14 0 18 36 12 36 31 0 9-8 15-18 15-8 0-15-4-18-11';
+export const logo = (size = 28) => raw(`<svg class="logo" width="${size}" height="${size}" viewBox="0 0 100 100" role="img" aria-label="Sigil" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="98" height="98" rx="24" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/><path d="${LOGO_PATH}" fill="none" stroke="#0f766e" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
 // How many pharmacies are on this device (set by app.js each render): the site switch is a pill only when there are several.
 export const env = { sites: 1 };
 const I = {
@@ -21,7 +24,7 @@ export const icon = (n, cls = '') => raw(`<svg class="ic ${cls}" viewBox="0 0 24
 // R07: \`site\` names the pharmacy on edit screens, only when there are 2 or more on the device (plain text, not a switch).
 export function screen({ title, sub = '', back = null, saved = '', body, primary = null, wide = false, right = '', site = '' }) {
   return h`<div class="screen${wide ? ' wide' : ''}">
-    <header class="bar">${back ? h`<button class="iconbtn" data-act="back" aria-label="Back">${icon('back')}</button>` : h`<span class="mark" aria-hidden="true">S.</span>`}
+    <header class="bar">${back ? h`<button class="iconbtn" data-act="back" aria-label="Back">${icon('back')}</button>` : h`<span class="mark" aria-hidden="true">${logo(22)}</span>`}
       <h1 class="bar-title">${title}${site && !sub && env.sites > 1 ? h`<span class="ph-sub">${site}</span>` : ''}${sub ? (env.sites > 1 ? h`<button class="ph-sub ph-switch multi" data-act="go" data-to="pharmacies" aria-label="Pharmacy: ${sub}. Switch pharmacy"><span class="sw-pill">${sub} ▾</span></button>` : h`<button class="ph-sub ph-switch single" data-act="go" data-to="pharmacies" aria-label="Pharmacy: ${sub}. Add or switch pharmacy">${sub}</button>`) : ''}</h1>${saved ? h`<span class="saved" aria-live="polite">${saved}</span>` : ''}${right}</header>
     <main class="body">${body}</main>
     ${primary ? h`<div class="dock">${primary}</div>` : ''}
