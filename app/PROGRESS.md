@@ -628,3 +628,9 @@ Checked and already passing:
 - **Logo:** Gemini's exact 32×32 Option C SVG in `LOGO_MARK`; `make-icons.js` renders it with a ~14 % safe margin to 180/192/512 PNGs.
 - **Foldables untouched:** the rail, `.split`, `obligations`/`allsites` and the 4-column balancer are unchanged; `tests/foldable.js` passes.
 - New `tests/visual.js`. Full run: all 29 suites and the Check later variant pass (core and hardening included); procgen identical for all 17 services.
+
+## Final colour, top stripe and welcome (Gemini spec on 0c5f2e1570) · 26 Nov 2026 · build 2dec2b5fd2
+- **Logo:** same Option C geometry in the "Top-right" colours: a Midnight Navy `#0f2942` ledger with a Warm Ivory `#fafaf8` spine cut, a Deep Teal `#0f766e` plus, on a Warm Ivory tile. The icons are redrawn with a ~14 % margin. Manifest `background_color #fafaf8`, `theme_color` and the theme-color meta `#0f2942`.
+- **Colours:** primary buttons and active nav are navy `#0f2942`; the top stripe and nav indicator run navy→teal. Secondary grey stays `#526575` and "Save review" stays one tap, as the spec says.
+- **Welcome, "Centered Calm":** a 340 px stack centred both ways on phones and unfolded screens: logo(56), PharmLedger (26 px, 600, tight tracking), the tagline (15 px, muted), a full-width 48 px "Set up your pharmacy", then "Restore backup · Try example". The longer `.wm-sub` line is gone. Tests now tap "Try example", except upgrade.js, which opens a saved old build that still says "Look around an example pharmacy (fictional)".
+- Full run: 29 of 30 passed first time; upgrade failed only on that label and passes after the fix. procgen is identical for all 17 services.
