@@ -3,7 +3,7 @@
 // any remain (owner decision). Nothing is approved for the owner.
 import { register } from '../app.js';
 import { h, uid, raw } from '../util.js';
-import { screen, btn, row, field, textArea, textInput, note, empty, pill, why } from '../ui.js';
+import { screen, btn, row, field, textArea, textInput, note, empty, pill, why, sheet, svcIcon } from '../ui.js';
 import { draftText, blockers, procWording, visibleFields, RPH } from '../procgen.js';
 import { serviceName } from '../rules.js';
 import { fmt, today, day } from '../dates.js';
@@ -46,7 +46,7 @@ register('procedures', {
     const act = Object.keys(c.ph.services).filter(k => c.ph.services[k].active);
     return screen({ title: 'Procedures', back: true, body: h`<p class="muted">Drafts are written from your setup answers and cite their sources. You adopt each one when it matches how you work.</p>
       <div class="list">${act.map(id => { const p = c.ph.procedures.find(x => x.service === id), v = current(p), b = v ? blockers(v.body) : [];
-        return row({ title: serviceName(id), sub: !p ? (c.ph.services[id].setup === 'done' ? 'Ready to draft' : 'Finish its setup first') : p.status === 'adopted' ? 'Adopted · version ' + v.v : 'Draft ' + v.v + (b.length ? ' · ' + b.length + ' to confirm' : ''), right: p?.status === 'adopted' ? 'Adopted' : p ? 'Draft' : '', tone: p?.status === 'adopted' ? 'ok' : b.length ? 'warn' : '', act: 'go', data: { to: 'procedure', id } }); })}</div>
+        return row({ title: serviceName(id), sub: !p ? (c.ph.services[id].setup === 'done' ? 'Ready to draft' : 'Finish its setup first') : p.status === 'adopted' ? 'Adopted · version ' + v.v : 'Draft ' + v.v + (b.length ? ' · ' + b.length + ' to confirm' : ''), ic: svcIcon(id), right: p?.status === 'adopted' ? 'Adopted' : p ? 'Draft' : '', tone: p?.status === 'adopted' ? 'ok' : b.length ? 'warn' : '', act: 'go', data: { to: 'procedure', id } }); })}</div>
       <section class="sec"><h2 class="sec-title">Other documents · ${c.ph.documents.length}</h2><p class="muted">Where your other policies and templates are kept: a link or a reference, never the document itself.</p>
         ${c.ph.documents.length ? h`<div class="list">${c.ph.documents.map(d => row({ title: d.title, sub: [d.ref, d.version && 'version ' + d.version, d.reviewDate && 'review ' + fmt(d.reviewDate)].filter(Boolean).join(' · '), act: 'go', data: { to: 'docref', id: d.id } }))}</div>` : ''}
         ${btn('+ Add a document reference', 'go', { kind: 'link', data: { to: 'docref', id: '' } })}</section>` });
@@ -69,8 +69,8 @@ const VIEW = {
       ${changed ? note(h`Your setup answers changed since this draft. ${btn('Update the draft', 'regen', { kind: 'link' })}`, 'warn') : ''}
       ${b.length && p.status !== 'adopted' ? h`<section class="sec"><h2 class="sec-title">To confirm before adopting · ${b.length}</h2><div class="list">${b.map(x => /^write the steps/i.test(x) ? row({ title: x.charAt(0).toUpperCase() + x.slice(1), sub: 'Write the steps yourself in Edit (PharmLedger doesn’t write clinical steps), or say you have your own procedure', act: 'fixwrite', data: { q: x } })
           : row({ title: x.charAt(0).toUpperCase() + x.slice(1), sub: 'Check it in the text, then confirm', act: 'fixwrite', data: { q: x } }))}</div></section>` : ''}
-      ${c.ui['ad:' + id] ? h`<div class="card hero"><h2>Adopt version ${adoptVersion(p)} for use here?</h2><p class="muted">This records that you, ${c.ph.proprietors.find(x => x.id === c.ph.recordingAs)?.name || 'the proprietor'}, have read it and it matches how your pharmacy works. You can change it later; earlier versions are kept.</p><div class="btnrow">${btn('Yes, adopt it', 'adoptyes', { kind: 'primary' })}${btn('Cancel', 'adoptno')}</div></div>`
-        : h`<div class="btnrow">${btn('Edit', 'mode', { data: { m: 'edit' } })}${p.status !== 'adopted' ? btn('Adopt for use here', 'adopt', { kind: 'primary', disabled: b.length > 0 }) : ''}</div>`}
+      <div class="btnrow">${btn('Edit', 'mode', { data: { m: 'edit' } })}${p.status !== 'adopted' ? btn('Adopt for use here', 'adopt', { kind: 'primary', disabled: b.length > 0 }) : ''}</div>
+      ${c.ui['ad:' + id] ? sheet({ title: 'Adopt version ' + adoptVersion(p) + ' for use here?', body: h`<p class="muted">This records that you, ${c.ph.proprietors.find(x => x.id === c.ph.recordingAs)?.name || 'the proprietor'}, have read it and it matches how your pharmacy works. You can change it later; earlier versions are kept.</p>`, primary: btn('Yes, adopt it', 'adoptyes', { kind: 'primary' }), cancel: 'adoptno' }) : ''}
       ${b.length && p.status !== 'adopted' ? h`<p class="hint">Adopt unlocks when nothing is left to confirm.</p>` : ''}
       ${p.status === 'adopted' ? h`<section class="sec"><h2 class="sec-title">Using it</h2><div class="card">
         <p class="meta">${(p.reviews || []).length ? 'Last reviewed ' + fmt(p.reviews.at(-1).date) + ' by ' + p.reviews.at(-1).by : 'Adopted ' + fmt(day(v.adoptedAt || v.at))} · next review ${fmt(procReviewDue(p))}</p>

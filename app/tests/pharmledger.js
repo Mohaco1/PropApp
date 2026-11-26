@@ -5,7 +5,7 @@ const { phone, ok, done, tap, text, activePh } = require('./helpers.js');
   const { b, p, errors } = await phone({ time: '2026-11-26T10:00:00+11:00' });
   // brand
   ok(await p.title() === 'PharmLedger' && /PharmLedger/.test(await text(p)) && /For the owner’s side of the counter\./.test(await text(p)) && !/Sigil/.test(await text(p)), 'Brand: PharmLedger with “For the owner’s side of the counter.”');
-  ok(await p.locator('.wm-mark svg.logo rect').count() === 3 && await p.locator('.wm-mark svg.logo path[fill="#005792"]').count() === 1, 'Brand: the Option C mark (teal ledger with spine cut, ocean-blue plus)');
+  ok(await p.locator('.wm-mark svg.logo rect').count() === 2 && await p.locator('.wm-mark svg.logo path[fill="#0f766e"]').count() === 1 && await p.locator('.wm-mark svg.logo path[fill="#005792"]').count() === 1, 'Brand: the Option C mark (teal ledger with spine cut, ocean-blue plus)');
   await tap(p, 'Set up your pharmacy'); await p.fill('input[name=name]', 'Ledger Test Pharmacy (fictional)'); await tap(p, 'Continue'); await p.fill('input[name=owner0]', 'Sam Owner'); await tap(p, 'Continue');
   await p.locator('label.tick', { hasText: 'Home delivery' }).first().tap(); await tap(p, 'Finish setup'); await p.waitForTimeout(400); await tap(p, 'Set up services'); await p.waitForTimeout(200);
   if (await p.getByRole('button', { name: /^Answer$/ }).count()) { await p.getByRole('button', { name: /^Answer$/ }).tap(); await p.locator('label.choice').nth(2).tap(); await tap(p, 'Save'); await p.waitForTimeout(200); }

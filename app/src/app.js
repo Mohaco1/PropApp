@@ -5,6 +5,8 @@ import { nav, env } from './ui.js';
 import { startPWA, askToKeep } from './pwa.js';
 import { today } from './dates.js';
 const views = {};
+// Visual Polish spec: a finished item's toast gets a check that settles in 150 ms.
+const DONE = /\b(closed|saved|adopted|recorded|done|set up|checked|added|updated|confirmed)\b/i;
 // Foldables (unfolded, 700 px or wider): a list screen and the record opened from it show side by side. The list is
 // the route under the top of the stack (or the tab root); the record is the top. Only these list screens pair up, and
 // these screens always stay a single centred pane. Below 700 px nothing changes.
@@ -37,7 +39,7 @@ export const ctx = {
   saveDraft(key, value) { const rev = S.drafts[key]?.rev; store.saveDraft(S.ph.id, key, value, rev); S.drafts = store.drafts(S.ph.id); },
   toast(m) { S.toast = m; clearTimeout(S.tt);
     // Show it now, even when no re-render follows (Copy buttons); a later render re-creates it from S.toast.
-    let el = document.querySelector('.toast'); if (!el) { el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role', 'status'); root.appendChild(el); } el.textContent = m; S.tt = setTimeout(() => { S.toast = ''; const t = document.querySelector('.toast'); if (t) t.remove(); }, 3000); },
+    let el = document.querySelector('.toast'); if (!el) { el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role', 'status'); root.appendChild(el); } el.textContent = m; el.classList.toggle('done', DONE.test(m)); S.tt = setTimeout(() => { S.toast = ''; const t = document.querySelector('.toast'); if (t) t.remove(); }, 3000); },
   async open(id) { const d = store.dir(); d.active = id; store.setDir(d); await store.flush(); load(); S.stack = []; S.tab = 'today'; for (const k of Object.keys(S.ui)) delete S.ui[k]; render(true); },
   load, store, rerender: () => render(),
 };
@@ -65,7 +67,7 @@ export function render(scrollTop = false) {
   const mEl = root.querySelector('.pane-master'), keep = mEl && pane && sp && pane.r.name === sp.r.name && pane.depth === sp.depth ? mEl.scrollTop : 0;
   pane = sp && master ? sp : null;
   if (pane) out = `<div class="split"><section class="pane-master" aria-label="List">${master}</section><section class="pane-detail" aria-label="Details">${out}</section></div>`;
-  root.innerHTML = out + (showNav ? html(nav(S.stack.length ? (v.tab || S.tab) : S.tab)) : '') + (S.toast ? `<div class="toast" role="status">${S.toast.replace(/[<>&]/g, '')}</div>` : '');
+  root.innerHTML = out + (showNav ? html(nav(S.stack.length ? (v.tab || S.tab) : S.tab)) : '') + (S.toast ? `<div class="toast${DONE.test(S.toast) ? ' done' : ''}" role="status">${S.toast.replace(/[<>&]/g, '')}</div>` : '');
   root.classList.toggle('has-nav', !!showNav);
   if (scrollTop) window.scrollTo(0, 0);
   if (pane) { const m = root.querySelector('.pane-master'), d = root.querySelector('.pane-detail'); m.scrollTop = keep; if (scrollTop) d.scrollTop = 0;

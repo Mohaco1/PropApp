@@ -47,7 +47,7 @@ register('action', {
     const src = a.source?.type === 'visit' ? h`<p class="muted">Found at the ${a.source.label.toLowerCase().replace(/ · (\d{4}-\d{2}-\d{2})$/, (m, d) => ' on ' + fmt(d))}${a.source.item ? ' · ' + a.source.item : ''}</p>` : a.source?.label ? h`<p class="muted">From ${a.source.label}${a.person ? ' · ' + a.person : ''}</p>` : '';
     const open = a.status === 'open';
     let body = h`<h2 class="big-title">${a.title}</h2>${src}
-      <p class="meta">${open ? (a.waiting ? 'Waiting · ' : '') + dueText(a.due) + (a.due && /Overdue/.test(dueText(a.due)) ? ' · ' + fmt(a.due) : '') : 'Closed ' + fmt(a.closed?.date)}</p>
+      <p class="meta${!open && c.ui.settle === a.id ? ' settle' : ''}">${open ? '' : h`<span class="settle-ic" aria-hidden="true">✓</span> `}${open ? (a.waiting ? 'Waiting · ' : '') + dueText(a.due) + (a.due && /Overdue/.test(dueText(a.due)) ? ' · ' + fmt(a.due) : '') : 'Closed ' + fmt(a.closed?.date)}</p>
       ${a.recheck?.length ? h`<div class="card"><p class="eyebrow">What to look at again · ${a.recheck.length}</p><ul class="plain">${a.recheck.map(x => h`<li>${x}</li>`)}</ul></div>` : ''}`;
     if (!open) body = h`${body}<div class="card"><p class="eyebrow">What you saw</p><p>${a.closed?.what || '—'}</p></div>${btn('Reopen', 'reopen')}`;
     else if (mode === 'close') body = h`${body}<form data-form="close" class="form">${field('What did you see?', textArea('what', '', { rows: 3, placeholder: 'For example: door closer adjusted, latches every time' }))}
@@ -75,7 +75,7 @@ register('action', {
     unwait: (c, d, el, r) => c.change(ph => stopWaiting(ph, r.id, 'Not waiting any more'), 'Saved'),
   },
   forms: {
-    close: (c, f, el, r) => { if (!f.what.trim()) { c.toast('Say what you saw, so the record shows it.'); return; } c.ui.actMode[r.id] = ''; c.change(ph => closeAction(ph, r.id, f.what.trim(), f.date), 'Action closed'); },
+    close: (c, f, el, r) => { if (!f.what.trim()) { c.toast('Say what you saw, so the record shows it.'); return; } c.ui.actMode[r.id] = ''; c.ui.settle = r.id; c.change(ph => closeAction(ph, r.id, f.what.trim(), f.date), 'Action closed'); setTimeout(() => { c.ui.settle = ''; }, 400); },
     wait: (c, f, el, r) => { if (!f.asked.trim()) return; c.ui.actMode[r.id] = ''; c.change(ph => waitOn(ph, r.id, f.asked.trim(), f.cb), 'Saved · check back ' + fmt(f.cb)); },
     edit: (c, f, el, r) => { c.ui.actMode[r.id] = ''; c.change(ph => { const a = ph.actions[r.id]; const ch = []; if (a.due !== f.due) ch.push('Due date changed to ' + (f.due || 'none')); if (a.title !== f.title.trim()) ch.push('Title changed'); if ((a.progress || '') !== f.progress) ch.push('Progress: ' + f.progress); updateAction(ph, r.id, { title: f.title.trim(), due: f.due, progress: f.progress }, ch.join(' · ') || 'Updated'); }, 'Saved'); },
   },

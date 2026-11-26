@@ -11,7 +11,7 @@ const TMP = path.join(require('os').tmpdir(), 'sigil-test'); fs.mkdirSync(TMP, {
   const man = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../dist/pwa/manifest.webmanifest'), 'utf8'));
   ok(man.name === 'PharmLedger' && man.short_name === 'PharmLedger', 'PharmLedger: installable-app name and short name');
   await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(3300);
-  ok(await p.locator('header .mark svg.logo path').count() === 1 && await p.locator('.wm-mark svg').count() === 0, 'PharmLedger: the S-loop logo in the header');
+  ok(await p.locator('header .mark svg.logo path[fill="#005792"]').count() === 1 && await p.locator('.wm-mark svg').count() === 0, 'PharmLedger: the ledger-and-plus logo in the header');
   await p.screenshot({ path: path.join(OUT, '31_sigil_today_390px.png') });
   ok(Object.keys(await saved(p)).some(k => k === 'propapp:dir'), 'PharmLedger: storage keys unchanged (propapp:dir), so saved data carries over');
   // a backup made now restores, and keeps the PropApp format marker that older versions read

@@ -100,15 +100,15 @@ const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
   // ---- Bug 4 + Gate 4: active All tile readable on a 0-overdue pharmacy, light and dark
   for (const scheme of ['light', 'dark']) { await p.emulateMedia({ colorScheme: scheme }); await p.waitForTimeout(150);
     const c = await p.evaluate(() => { const on = document.querySelector('.filters button.on'), bg = getComputedStyle(on).backgroundColor; return { f: on.dataset.f, bg, b: getComputedStyle(on.querySelector('b')).color, s: getComputedStyle(on.querySelector('span')).color }; });
-    ok(c.f === 'all' && ratio(c.b, c.bg) >= 4.5 && ratio(c.s, c.bg) >= 4.5, 'Bug 4 ' + scheme + ': active All tile count ' + ratio(c.b, c.bg).toFixed(1) + ':1 and label ' + ratio(c.s, c.bg).toFixed(1) + ':1 (≥ 4.5)');
-    await p.screenshot({ path: path.join(OUT, scheme === 'dark' ? '05_today_dark_390px.png' : '13_today_zero_overdue_390px.png') }); }
-  // dark sweep: every visible text on a few screens has ≥ 4.5:1 against its background card or page (Gate 4)
+    ok(c.f === 'all' && ratio(c.b, c.bg) >= 4.5 && ratio(c.s, c.bg) >= 4.5, 'Bug 4 phone in ' + scheme + ' mode (app is light only): active All tile count ' + ratio(c.b, c.bg).toFixed(1) + ':1 and label ' + ratio(c.s, c.bg).toFixed(1) + ':1 (≥ 4.5)');
+    await p.screenshot({ path: path.join(OUT, scheme === 'dark' ? '13b_today_phone_dark_setting_390px.png' : '13_today_zero_overdue_390px.png') }); }
+  // contrast sweep with the phone in dark mode (the app stays light): every visible text on a few screens has ≥ 4.5:1 against its background card or page (Gate 4)
   const sweep = async name => { const bad = await p.evaluate(() => { const L = c => { const [r, g, b] = c.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number).map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
       const bgOf = e => { for (let x = e; x; x = x.parentElement) { const c = getComputedStyle(x).backgroundColor; if (c && !/rgba\(0, 0, 0, 0\)|transparent/.test(c)) return c; } return getComputedStyle(document.body).backgroundColor; };
       const out = []; for (const e of document.querySelectorAll('main *, .bar *, .nav *')) { if (!e.childNodes.length || ![...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()) || !e.getClientRects().length) continue;
         const cs = getComputedStyle(e); if (cs.visibility === 'hidden' || +cs.opacity < 0.5 || e.closest('button:disabled')) continue; const a = L(cs.color), b = L(bgOf(e)); const r = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); const big = parseFloat(cs.fontSize) >= 18.66 || (parseFloat(cs.fontSize) >= 14 && +cs.fontWeight >= 600);
         if (r < (big ? 3 : 4.5)) out.push(e.innerText.trim().slice(0, 30) + ' ' + r.toFixed(1)); } return out.slice(0, 5); });
-    ok(bad.length === 0, 'Gate 4 dark mode ' + name + ': no text below AA contrast' + (bad.length ? ' (' + bad.join(' | ') + ')' : '')); };
+    ok(bad.length === 0, 'Gate 4 (phone in dark mode, app light) ' + name + ': no text below AA contrast' + (bad.length ? ' (' + bad.join(' | ') + ')' : '')); };
   await sweep('Today (0 overdue)'); await tap(p, 'Reviews'); await sweep('Reviews'); await tap(p, 'More'); await sweep('More');
   await p.emulateMedia({ colorScheme: 'light' });
   await more(/^Pharmacies on this device/); await tap(p, 'Archive or delete a pharmacy');

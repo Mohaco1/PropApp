@@ -20,7 +20,7 @@ const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive
   await p.pdf({ path: path.join(OUT, 'evidence-pack-example.pdf'), format: 'A4', printBackground: true });
   ok(fs.statSync(path.join(OUT, 'evidence-pack-example.pdf')).size > 20000, 'V3-03 Chromium makes an A4 PDF of it');
   await p.emulateMedia({ media: 'screen', colorScheme: 'dark' }); await p.emulateMedia({ media: 'print' });
-  ok(await p.evaluate(() => getComputedStyle(document.body).backgroundColor) === 'rgb(255, 255, 255)', 'V3-03 printing from night mode still gives a white page');
+  ok(await p.evaluate(() => getComputedStyle(document.body).backgroundColor) === 'rgb(255, 255, 255)', 'V3-03 printing with the phone in dark mode still gives a white page');
   await p.emulateMedia({ media: 'screen', colorScheme: 'light' });
   // V3-04 multi-site view
   await tap(p, 'Today'); await p.waitForTimeout(150);

@@ -65,7 +65,7 @@ const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive
   ok(/Question 2 of 9/.test(await text(e)) && /What needs fixing\?/.test(await text(e)), 'Quick list: an issue answer goes to that question so the owner can say what needs fixing');
   // Logo on Welcome
   const s3 = await phone({ time: '2026-11-26T10:00:00+11:00', scale: 2 });
-  ok(await s3.p.locator('.wm-mark svg.logo path').count() === 1, 'Logo: the S-loop on Welcome');
+  ok(await s3.p.locator('.wm-mark svg.logo path[fill="#005792"]').count() === 1 && await s3.p.locator('.wm-mark svg.logo path[fill="#0f766e"]').count() === 1, 'Logo: the PharmLedger ledger-and-plus on Welcome');
   await s3.b.close(); await s2.b.close();
   // Owner trial: typing a software name then ONE tap on Next saves it and moves on (it used to be lost and stay put)
   { const s4 = await phone({ time: '2026-11-26T10:00:00+11:00' }); const t4 = s4.p; t4.on('pageerror', x => errors.push(x.message));

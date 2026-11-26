@@ -17,7 +17,7 @@ const rgb = hex => 'rgb(' + hex.match(/\w\w/g).map(x => parseInt(x, 16)).join(',
     return { bg: cs(document.body).backgroundColor, bar: cs(bar).backgroundColor, strip: strip.height, grad: strip.backgroundImage, mark: [Math.round(mark.width), Math.round(mark.height)], markText: !!document.querySelector('.mark svg.logo path'), font: cs(document.body).fontFamily }; });
   ok(look.bg === rgb('F2F6F8') && look.bar === rgb('FFFFFF'), 'P-06 canvas #F2F6F8 and white header');
   ok(look.strip === '3.5px' && /^linear-gradient\(90deg, rgb\(0, 139, 130\) 0%, rgb\(0, 87, 146\) 100%\)$/.test(look.grad), 'P-06 3.5px teal-to-ocean strip on the header');
-  ok(look.mark[0] === 22 && look.mark[1] === 22 && look.markText === true, 'P-06 + PharmLedger 22×22 S-loop logo badge');
+  ok(look.mark[0] === 22 && look.mark[1] === 22 && look.markText === true, 'P-06 + PharmLedger 22×22 logo badge');
   ok(/^"?Public Sans"?, "?Inter"?/.test(look.font), 'P-06 font stack starts Public Sans, Inter');
   // 2. one pharmacy: no pill switch
   ok(await p.locator('.sw-pill').count() === 0, 'P-06 one pharmacy: the site switch pill is hidden');
@@ -37,12 +37,12 @@ const rgb = hex => 'rgb(' + hex.match(/\w\w/g).map(x => parseInt(x, 16)).join(',
   const heavy = await p.evaluate(() => [...document.querySelectorAll('body *')].filter(e => e.offsetParent && +getComputedStyle(e).fontWeight >= 700 && e.childNodes.length && [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())).map(e => e.className || e.tagName).slice(0, 4));
   ok(heavy.length === 0, 'P-06 no text heavier than 600 on Today' + (heavy.length ? ' (' + heavy.join(', ') + ')' : ''));
   await p.waitForFunction(() => !document.querySelector('.toast'), null, { timeout: 5000 }); await p.screenshot({ path: path.join(OUT, '01_today_390px.png') });
-  // F-P06-03: night mode tokens and screenshot
+  // Visual Polish spec: light only. A phone set to dark mode still gets the light Coastal Precision palette.
   await p.emulateMedia({ colorScheme: 'dark' }); await p.waitForTimeout(150);
   const dk = await p.evaluate(() => { const r = getComputedStyle(document.documentElement), v = n => r.getPropertyValue(n).trim().toUpperCase();
-    return { bg: v('--bg'), surface: v('--surface'), primary: v('--primary'), on: v('--on-primary'), body: getComputedStyle(document.body).backgroundColor, over: document.documentElement.scrollWidth > innerWidth + 1 }; });
-  ok(dk.bg === '#0D151C' && dk.surface === '#15202B' && dk.primary === '#62B8F6' && dk.on === '#0D151C' && dk.body === rgb('0D151C') && !dk.over, 'F-P06-03 night mode: --bg #0D151C, --surface #15202B, --primary #62B8F6, --on-primary #0D151C');
-  await p.screenshot({ path: path.join(OUT, '05_today_dark_390px.png') }); await p.emulateMedia({ colorScheme: 'light' }); await p.waitForTimeout(100);
+    return { bg: v('--bg'), surface: v('--surface'), primary: v('--primary'), fg: v('--fg'), body: getComputedStyle(document.body).backgroundColor, rules: [...document.styleSheets].flatMap(s => { try { return [...s.cssRules]; } catch { return []; } }).filter(r => /prefers-color-scheme|data-theme/.test(r.cssText)).length }; });
+  ok(dk.bg === '#F2F6F8' && dk.surface === '#FFFFFF' && dk.primary === '#005792' && dk.fg === '#0F172A' && dk.body === rgb('F2F6F8') && dk.rules === 0, 'Light only: with the phone in dark mode the app keeps --bg #F2F6F8, --surface #FFFFFF, --primary #005792, --fg #0F172A; no dark-mode rules');
+  await p.emulateMedia({ colorScheme: 'light' }); await p.waitForTimeout(100);
   // F-P06-01 on a real Copy button: review "Copy as text"
   await tap(p, 'Reviews'); await p.locator('.chip', { hasText: /^Completed/ }).click(); await p.locator('.row', { hasText: 'Proprietor site visit' }).first().click();
   ok(await p.evaluate(() => navigator.clipboard === undefined), 'F-P06-01 the clipboard API is absent in this test');

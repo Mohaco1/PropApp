@@ -2,7 +2,7 @@
 // screen, using the current app's question rules (procgen.js: options, wording, which questions show, how answers save).
 import { register } from '../app.js';
 import { h } from '../util.js';
-import { screen, btn, row, field, textInput, textArea, choice, note, why, empty, pill } from '../ui.js';
+import { screen, btn, row, field, textInput, textArea, choice, note, why, empty, pill, svcIcon, icon } from '../ui.js';
 import { C } from '../content.js';
 import { hasGuide, serviceNotices } from './onboard.js';
 import { QLD_OPTS, RPH, visibleFields, tidyAnswers, draftText } from '../procgen.js';
@@ -81,11 +81,15 @@ register('services', {
     const lead = needsLead(c.ph);
     return screen({ title: 'Services', back: true, body: h`
       <p class="muted">Each service asks a few questions about how your pharmacy does it. Your answers write its draft procedure and set its reviews.</p>
-      ${c.ui.justDone && act.some(k => S[k].setup !== 'done') ? (() => { const nx = act.find(k => S[k].setup !== 'done'); return h`<div class="card hero"><p class="eyebrow">${serviceName(c.ui.justDone)} is set up</p><h2>Next: ${serviceName(nx)}</h2><div class="btnrow">${btn('Set up ' + serviceName(nx), 'open', { kind: 'primary', data: { id: nx } })}${btn('Back to Today', 'tab', { data: { tab: 'today' } })}</div></div>`; })() : c.ui.justDone ? note('All your services are set up.', 'ok') : ''}
+      ${c.ui.justDone ? (() => { const nx = act.find(k => S[k].setup !== 'done'), done = act.filter(k => S[k].setup === 'done').length;
+        // Visual Polish spec: one calm summary when a service's setup finishes.
+        return h`<div class="card allset"><p class="allset-head"><span class="allset-ic" aria-hidden="true">${icon('check')}</span><span><b>${nx ? serviceName(c.ui.justDone) + ' is set up' : 'You’re all set'}</b><span class="muted">${done} of ${act.length} ${act.length === 1 ? 'service' : 'services'} set up</span></span></p>
+          <ul class="plain allset-list"><li>Its reviews are on your Calendar and Today.</li><li>Its draft procedure is in Procedures, ready for you to check.</li></ul>
+          ${nx ? h`<p class="muted">Next: ${serviceName(nx)}</p><div class="btnrow">${btn('Set up ' + serviceName(nx), 'open', { kind: 'primary', data: { id: nx } })}${btn('Back to Today', 'tab', { data: { tab: 'today' } })}</div>` : h`<p class="muted">All your services are set up.</p>${btn('Back to Today', 'tab', { data: { tab: 'today' } })}`}</div>`; })() : ''}
       ${lead ? h`<div class="card hero"><h2>Who runs your services day to day?</h2><p class="muted">Asked once and used for every service.</p>${btn('Answer', 'go', { kind: 'primary', data: { to: 'lead' } })}</div>` : ''}
       <div class="list">${act.length ? act.map(id => { const s = S[id], p = serviceProgress(c.ph, id); const st = s.setup === 'done' ? ['Done', 'ok'] : p.n && p.n >= p.total ? ['Answered · tap to finish', 'warn'] : p.n ? ['In progress', 'warn'] : ['To do', ''];
-        return row({ title: serviceName(id), sub: p.later ? p.later + ' to check later' : '', right: st[0], tone: st[1], act: 'open', data: { id } }); }) : empty('No services yet.')}</div>
-      ${why('Add a service · ' + off.length, h`<div class="list">${off.map(s => row({ title: s.name, sub: s.frequency, right: 'Add', act: 'add', data: { id: s.id } }))}</div>`)}` });
+        return row({ title: serviceName(id), sub: p.later ? p.later + ' to check later' : '', right: st[0], tone: st[1], act: 'open', data: { id }, ic: svcIcon(id) }); }) : empty('No services yet.')}</div>
+      ${why('Add a service · ' + off.length, h`<div class="list">${off.map(s => row({ title: s.name, sub: s.frequency, right: 'Add', act: 'add', data: { id: s.id }, ic: svcIcon(s.id) }))}</div>`)}` });
   },
   acts: {
     open: (c, d) => { c.ui.justDone = null; c.go(c.ph.services[d.id].setup === 'done' ? 'service' : 'service-setup', { id: d.id }); },
