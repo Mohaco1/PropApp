@@ -12,7 +12,7 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
 | App build id | **`2dec2b5fd2`** |
-| Code commit | see `git log -1` (final colour code: `d43b2a1`) |
+| Code commit | `7a52a18` (code and docs/ for build 2dec2b5fd2); this file is in the commit after it |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -85,6 +85,7 @@ After deploying, an installed phone app picks up the new version when it's reope
   - Original and wave suites: core, sprint1–5, screens, setup-questions, extras, polish, theme, content2, v3, pwa, wave1, wave2, gates, wave3.
   - Briefs from this week: pretrial, sigil, batch1, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual.
 - **Latest full run on build `2dec2b5fd2`:** see section 9.
+- Note: `tests/upgrade.js` opens a saved old build (07775c5947) from a fixture, so it still taps the old "Look around an example pharmacy (fictional)" label. Leave that label as it is.
 
 ## 7. What was done this week (newest first)
 1. **Final colour spec:**
@@ -114,4 +115,14 @@ After deploying, an installed phone app picks up the new version when it's reope
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
-(filled in below after the last full run)
+| Check (build `2dec2b5fd2`) | Result |
+|---|---|
+| `node tools/make-icons.js` | Pass (180/192/512 PNGs, navy/teal on ivory) |
+| `node tools/build.js --uat` | Pass, build `2dec2b5fd2` |
+| `tools/test-all.sh`: 30 suites + "Check later" variant | 29 passed in the full run; **upgrade** failed only because a bulk label rename touched its old-build fixture. Fixed, and it passes on its own. |
+| `node tools/check-procgen-all.js` | Pass, "All 17 services identical" |
+| `docs/` under /PropApp/ (installable, offline, icons, manifest `theme_color #0f2942`, `background_color #fafaf8`) | Pass |
+| Live at https://mohaco1.github.io/PropApp/ | Yes |
+| Working tree | Clean after the push |
+
+Screenshots checked for this build (in `app/handoff/`, git-ignored): `90_welcome_calm_390px.png`, `91_welcome_calm_unfolded.png`, `92_today_navy_390px.png`, plus the earlier `80`–`82` (setup summary, service icons, Adopt sheet) and `70`–`71` (foldable).
