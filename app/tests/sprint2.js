@@ -11,7 +11,10 @@ const { phone, ok, done, tap, text, activePh, download } = require('./helpers.js
   // UX 5: a procedure gap opens its exact question and comes back with the draft updated
   await tap(p, 'More'); await p.getByRole('button', { name: /^Procedures/ }).click(); await p.getByRole('button', { name: /^Dose administration aids/ }).click(); await p.waitForTimeout(200);
   await p.locator('.row', { hasText: /Where pack collection or delivery records are kept/i }).click(); await p.waitForTimeout(200);
-  let t = await text(p); ok(/Where are pack collection or delivery records kept/i.test(t), 'UX5 the gap opens its exact question');
+  // PharmLedger spec: the item opens Edit with "I've checked it" on screen; its setup question is one link away
+  ok(/Edit wording/.test(await text(p)) && await p.getByRole('button', { name: 'I’ve checked it — remove this marker' }).count() === 1, 'UX5 the gap opens Edit with “I’ve checked it — remove this marker”');
+  await p.getByRole('button', { name: 'Change my setup answer instead' }).click(); await p.waitForTimeout(200);
+  let t = await text(p); ok(/Where are pack collection or delivery records kept/i.test(t), 'UX5 “Change my setup answer instead” opens its exact question');
   await p.locator('label.tick', { hasText: 'Paper folder in the pharmacy' }).click(); await p.fill('input[name=d]', 'DAA delivery book, dispensary shelf 2 (fictional)'); await p.locator('input[name=d]').blur(); await p.waitForTimeout(150);
   await tap(p, 'Save and back to the procedure'); await p.waitForTimeout(300);
   t = await text(p); ok(/Dose administration aids procedure/.test(t) && !/TO CONFIRM BEFORE ADOPTING/i.test(t), 'UX5 back on the procedure with nothing left to confirm');

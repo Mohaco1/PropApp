@@ -602,3 +602,10 @@ Checked and already passing:
 6. “Why?” boxes (incl. “What the section says about who”) show a chevron that turns when opened.
 7. Governance agenda item 1 is now “Incidents and patient safety”; complaints sit only in the Q4 themes item.
 - Added `tools/test-all.sh`. Results: see HANDOFF.md.
+
+## PharmLedger spec: bugs, rebrand, gates fix (Gemini spec on 5359cb8efe) · 26 Nov 2026 · build 79324e8d54
+- **Finish deadlock:** "What happens next" no longer blocks "Save dates and finish" when a saved date is now in the past. The saved date is shown as it is (not moved), and `min` allows it. File: `src/views/services.js`.
+- **Procedure confirms:** every "[Confirm: …]" item opens Edit with "I've checked it — remove this marker" (or, for "Write the steps", the own-procedure link) at the top. The setup question is one link away ("Change my setup answer instead"). "Update the draft" adds one version and the banner goes. File: `src/views/procedures.js`.
+- **Rebrand:** Sigil → PharmLedger, "For the owner's side of the counter." Option C icon: a teal #0f766e ledger with a spine cut and an ocean #005792 plus on an off-white #f8fafc tile (`src/ui.js` LOGO_MARK, `tools/make-icons.js`, `pwa-assets/icon-*.png`). Storage keys `propapp:*` and the backup format are unchanged; Sigil, PropApp and R.Pharmacy backups still restore. CLAUDE.md name decision updated.
+- **gates two-tab flake fixed:** a tab that heard another tab's save reloaded keys it was still writing (`inflight`), dropping its own change from memory; its next save then merged it away. `getAll` and the BroadcastChannel handler now leave in-flight keys alone (`src/store.js`). gates passes 4 of 4 on its own and in the full run (before: about 1 in 3).
+- New test `tests/pharmledger.js`. sprint2 UX5 now expects the item to open Edit, with the question one link away.

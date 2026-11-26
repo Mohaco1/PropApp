@@ -1,7 +1,7 @@
 {
- "name": "Sigil",
- "short_name": "Sigil",
- "description": "Built for the owner’s side of the counter.",
+ "name": "PharmLedger",
+ "short_name": "PharmLedger",
+ "description": "For the owner’s side of the counter.",
  "id": "./",
  "start_url": "./",
  "scope": "./",
