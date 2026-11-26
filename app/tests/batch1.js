@@ -38,7 +38,7 @@ const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive
   // QLD gate + CBD wording + adherence
   await tap(p, 'More'); await p.getByRole('button', { name: /^Services/ }).tap(); await p.getByRole('button', { name: /^Pharmacist prescribing/ }).first().tap(); await p.waitForTimeout(300);
   let gateOk = false;
-  for (let i = 0; i < 12; i++) { const t = await text(p); if (/Does any pharmacist here hold Queensland-pathway training/.test(t)) { gateOk = !/Queensland-trained pharmacists only/.test(t); await p.getByRole('button', { name: 'Yes, show those conditions' }).tap(); await p.waitForTimeout(300); gateOk = gateOk && /Queensland-trained pharmacists only/.test(await text(p)); break; }
+  for (let i = 0; i < 12; i++) { const t = await text(p); if (/Does any pharmacist here hold the Queensland training/.test(t)) { gateOk = !/Queensland-trained pharmacists only/.test(t); await p.getByRole('button', { name: 'Yes, show those conditions' }).tap(); await p.waitForTimeout(300); gateOk = gateOk && /Queensland-trained pharmacists only/.test(await text(p)); break; }
     const ch = p.locator('main form label.choice'); if (await ch.count()) await ch.first().tap(); else { const tk = p.locator('main form label.tick'); if (await tk.count()) await tk.first().tap(); }
     await p.waitForTimeout(300); await next(); }
   ok(gateOk, 'Queensland gate: the Queensland-only conditions are hidden until the owner says a pharmacist holds that training');

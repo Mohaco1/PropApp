@@ -4,6 +4,7 @@ import { register } from '../app.js';
 import { h } from '../util.js';
 import { screen, btn, row, field, textInput, textArea, choice, note, why, empty, pill } from '../ui.js';
 import { C } from '../content.js';
+import { hasGuide, serviceNotices } from './onboard.js';
 import { QLD_OPTS, RPH, visibleFields, tidyAnswers, draftText } from '../procgen.js';
 import { uid } from '../util.js';
 import { catalog, applies, serviceName, suggestedNext, reviewById } from '../rules.js';
@@ -116,6 +117,7 @@ const SETUP = {
     const f = fs[idx], m = RPH.qm.metaFor(id, f.key), k = kindOf(id, f), v = a[f.key] || '', label = m.label || f.label;
     const locs = fs.filter(x => isLoc(id, x));
     if (k === 'location' && idx === fs.indexOf(locs[0]) && !s.recIntro && c.ui.returnTo?.id !== id) return screen({ title: serviceName(id), back: true, body: h`${prog}
+      ${hasGuide(id) ? h`<p class="onboardlink"><button type="button" class="inline-link" data-act="onboard">New to this service? Onboard me</button></p>` : ''}
       ${ABOUT[id] ? h`<p class="whyask"><b>What this is:</b> ${ABOUT[id]}</p>` : ''}
       <h2 class="big-title">Where you keep records · optional now</h2><p class="muted">${locs.length === 1 ? '1 question' : locs.length + ' questions'} about where records are kept, so a procedure can tell someone where to look. Answer them now, or skip and confirm them later from Today.</p>
       <div class="list">${locs.map(x => row({ title: procWord(RPH.qm.metaFor(id, x.key).label || x.label), sub: a[x.key] ? (a[x.key] === NV ? 'Check later' : a[x.key]) : '', chev: false }))}</div>
@@ -130,7 +132,7 @@ const SETUP = {
       <label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
     else if (k === 'multi') { const qldGate = id === 'prescribing' && f.key === 'pathway', qld = s.qld === 'yes';
       const opts = RPH.qm.optionsFor(id, [f.key, f.label, f.options]).filter(o => !qldGate || qld || !QLD_OPTS.has(o) || has(v, o)); const on = split(v);
-      input = h`${qldGate ? h`<div class="card qldgate"><p class="field-label">Does any pharmacist here hold Queensland-pathway training (the expanded conditions, or JCU training for starting the pill)?</p><div class="chips">${[['yes', 'Yes, show those conditions'], ['no', 'No']].map(([k2, l]) => h`<button type="button" class="chip ${(s.qld || 'no') === k2 ? 'on' : ''}" data-act="qld" data-v="${k2}">${l}</button>`)}</div></div>` : ''}<div class="ticks">${opts.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v, o) ? h`checked` : ''}><span>${show(id, f.key, o)}</span></label>`)}</div>
+      input = h`${qldGate ? h`<div class="card qldgate"><p class="field-label">Does any pharmacist here hold the Queensland training (QUT or James Cook University) for the five additional conditions?</p><div class="chips">${[['yes', 'Yes, show those conditions'], ['no', 'No']].map(([k2, l]) => h`<button type="button" class="chip ${(s.qld || 'no') === k2 ? 'on' : ''}" data-act="qld" data-v="${k2}">${l}</button>`)}</div></div>` : ''}<div class="ticks">${opts.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v, o) ? h`checked` : ''}><span>${show(id, f.key, o)}</span></label>`)}</div>
       ${(m.describe || []).some(o => has(v, o)) ? field('Describe', textInput('d', descOf(v, m.describe || [], opts))) : ''}
       <label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
     else if (k === 'routes') { const on = split(v); input = h`<p class="muted">Tick each that applies.</p><div class="ticks">${ROUTES.map(([o, l]) => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v, o) ? h`checked` : ''}><span>${l}</span></label>`)}</div><label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
@@ -147,7 +149,7 @@ const SETUP = {
     const maxQ = (C.services.setupFields[id] || []).length;
     return screen({ title: serviceName(id), back: true, saved: 'Saved', body: h`${prog}<p class="steps">Question ${idx + 1}${maxQ > fs.length ? ' · more may follow, depending on your answers' : ' of ' + fs.length}</p>
       ${window.PROPAPP_UAT ? h`<div class="uatq"><span>UAT · this question:</span>${['Could be usual', 'Must always ask', 'No opinion'].map(x => h`<button class="chip ${window.uatMarkOf?.(id + '/' + f.key) === x ? 'on' : ''}" data-act="uatq" data-k="${id + '/' + f.key}" data-v="${x}">${x}</button>`)}</div>` : ''}
-      ${idx === 0 && ABOUT[id] ? h`<p class="whyask"><b>What this is:</b> ${ABOUT[id]}</p>` : ''}<form class="form" data-form="next" data-change="ans"><p class="qtext">${procWord(COPY[label]?.[0] || label)}</p>${COPY[label]?.[1] ? h`<p class="whyask"><b>Why we ask:</b> ${COPY[label][1]}</p>` : ''}${m.note && !COPY[label]?.[2] ? h`<p class="muted">${procWord(m.note)}</p>` : ''}${input}</form>
+      ${idx === 0 && hasGuide(id) ? h`<p class="onboardlink"><button type="button" class="inline-link" data-act="onboard">New to this service? Onboard me</button></p>` : ''}${idx === 0 ? serviceNotices(c.ph, id) : ''}${idx === 0 && ABOUT[id] ? h`<p class="whyask"><b>What this is:</b> ${ABOUT[id]}</p>` : ''}<form class="form" data-form="next" data-change="ans"><p class="qtext">${procWord(COPY[label]?.[0] || label)}</p>${COPY[label]?.[1] ? h`<p class="whyask"><b>Why we ask:</b> ${COPY[label][1]}</p>` : ''}${m.note && !COPY[label]?.[2] ? h`<p class="muted">${procWord(m.note)}</p>` : ''}${input}</form>
       ${c.ui.returnTo?.id === id ? h`<div class="btnrow">${btn('Save and back to the procedure', 'ret', { kind: 'primary', cls: 'block' })}</div>` : h`<div class="btnrow">${btn('Previous', 'step', { data: { s: idx - 1 }, disabled: idx === 0 })}${btn(idx === fs.length - 1 ? 'Finish' : 'Next', 'step', { kind: 'primary', data: { s: idx + 1 } })}</div>`}` });
   },
   changes: { ans: (c, el, r, ev, quiet) => { if (!quiet) c.ui.answerAt = Date.now(); const form = el.closest('form'), id = r.id, fs = fieldsFor(c.ph, id), a = c.ph.services[id].answers || {};
@@ -173,7 +175,8 @@ const SETUP = {
   forms: { fin: (c, f, el, r) => finishService(c, r.id, f), leadsave: (c, f) => leadSave(c, f, () => c.rerender()) },
   // Chaos test fix 2: switching the Queensland question to No also removes any Queensland-only conditions already ticked,
   // so "no Queensland training" and a Queensland condition can't both be saved.
-  acts: { qld: (c, d) => c.change(ph => { const sv = ph.services.prescribing; sv.qld = d.v; if (d.v === 'no' && sv.answers?.pathway) sv.answers = { ...sv.answers, pathway: split(sv.answers.pathway).filter(o => !QLD_OPTS.has(o)).join(',') }; }, d.v === 'yes' ? 'Queensland-pathway conditions shown' : 'Queensland-pathway conditions hidden'),
+  acts: { onboard: (c, d, el, r) => { const form = document.querySelector('main form[data-form=next]'), inp = form?.querySelector('input[name=d]'); if (inp && inp.value.trim()) SETUP.changes.ans(c, form, r, { target: inp }, true); c.go('onboard', { id: r.id }); },
+    qld: (c, d) => c.change(ph => { const sv = ph.services.prescribing; sv.qld = d.v; if (d.v === 'no' && sv.answers?.pathway) sv.answers = { ...sv.answers, pathway: split(sv.answers.pathway).filter(o => !QLD_OPTS.has(o)).join(',') }; }, d.v === 'yes' ? 'Queensland-pathway conditions shown' : 'Queensland-pathway conditions hidden'),
     place: (c, d, el) => { const form = el.closest('form'), inp = form?.querySelector('input[name=d]'); if (!inp) return; inp.value = d.v; inp.dispatchEvent(new Event('change', { bubbles: true })); },
     uatq: async (c, d) => { await window.uatMark?.(d.k, d.v); c.rerender(); },
     vall: (c, d, el) => { const fs = el.closest('fieldset'); fs.querySelectorAll('input[type=checkbox]').forEach(i => { i.checked = true; }); fs.closest('form').dispatchEvent(new Event('change', { bubbles: true })); },

@@ -17,14 +17,16 @@ const { RPH, fsFields, normalise } = install(env);
 // (research: "Owner-level conditions common to all authorities", plus p108 "ALL services" for the WWCC line).
 (() => { const M = RPH.qm.meta.prescribing; if (!M?.pathway || !M.prescribing2026) return;
   const QLD = [['Musculoskeletal pain', 'Mild acute musculoskeletal pain (Queensland-trained pharmacists only)'], ['Reflux', 'Reflux (GOR or GORD) (Queensland-trained pharmacists only)'], ['Rhinitis', 'Allergic or non-allergic rhinitis (Queensland-trained pharmacists only)'], ['Acne', 'Mild to moderate acne (Queensland-trained pharmacists only)'], ['Nausea and vomiting', 'Acute nausea and vomiting (Queensland-trained pharmacists only)']];
-  QLD.push(['OCP initiation', 'Initiation of the oral contraceptive pill (JCU-trained pharmacists only)']);
+  // Unified onboarding spec (26 Nov): OCP initiation is for an “approved pharmacist” with a JCU, University of Newcastle or
+  // UTS graduate certificate (NSW OCP initiation protocol, read 26 Nov 2026); it is not part of the Queensland gate.
+  QLD.push(['OCP initiation', 'Initiation of the oral contraceptive pill (approved pharmacists: JCU, University of Newcastle or UTS graduate certificate)']);
   for (const [v, t] of QLD) if (!M.pathway.options.includes(v)) { M.pathway.options.push(v); M.pathway.display[v] = t; }
-  for (const [v] of QLD) QLD_OPTS.add(v);
+  for (const [v] of QLD.slice(0, 5)) QLD_OPTS.add(v);
   M.prescribing2026.items.push(
     { v: 'Contraception limits', showIf: a => RPH.qm.split(a.pathway).includes('Contraception'), t: 'Contraception: vaginal rings are supplied only, and DMPA injections are given only by a pharmacist with the PSA injection course and indemnity cover' },
     { v: 'Working with Children Check', t: 'A Working with Children Check is held where one is needed (for example, pharmacists who treat under-18s)' },
     { v: 'Intention form (Queensland-trained)', showIf: a => RPH.qm.split(a.pathway).some(x => QLD.slice(0, 5).some(q => q[0] === x)), t: 'Queensland-trained pharmacists providing the extra conditions have submitted NSW Health’s “Intention to provide expanded community pharmacy services” form (again if their place of practice changes)' },
-    { v: 'OCP initiation (JCU-trained)', showIf: a => RPH.qm.split(a.pathway).includes('OCP initiation'), t: 'OCP initiation: the pharmacist has the James Cook University Graduate Certificate and has submitted the NSW Health Intention form; patients are told the consultation fee and that the pill is at private (non-PBS) cost' },
+    { v: 'OCP initiation (JCU-trained)', showIf: a => RPH.qm.split(a.pathway).includes('OCP initiation'), t: 'OCP initiation: the pharmacist is an “approved pharmacist” under the NSW protocol (Graduate Certificate of Advanced Practice and Prescribing for Pharmacists, James Cook University; Graduate Certificate in Pharmacist Prescribing and Advanced Practice, University of Newcastle; or Graduate Certificate in Pharmacist Prescribing, UTS); patients are told all costs, including that the pill is at private (non-PBS) cost' },
     { v: 'Authorities expire 4 Nov 2027', t: 'The Class Authorities expire on 4 November 2027: check NSW Health for their replacements before then' });
 })();
 // The only wording change from the current app: drafts are adopted in Procedures (not "approved in Policies").

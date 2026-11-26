@@ -301,3 +301,11 @@ main p,main h1,main h2,main h3,main li,main dd,main td,main th,.row-title,.row-s
 .row-main,.bar-title,.card,.list,.doc{min-width:0}
 
 .s8first{margin:-4px 0 8px}
+
+/* Onboard me */
+.onboardlink{margin:0 0 4px}
+.obsteps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:12px}
+.obsteps p{margin:0 0 4px}
+.obsrc>summary{min-height:44px;display:flex;align-items:center;color:var(--accent,#005792);cursor:pointer}
+.obsrc a{display:inline-block;min-height:44px;line-height:44px;overflow-wrap:anywhere}
+.obacts{margin-top:8px}

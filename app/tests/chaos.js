@@ -33,7 +33,7 @@ const qn = async p => +(((await text(p)).match(/Question (\d+)/) || [])[1] || 0)
   ok(Object.values(ph.services.staged.answers).includes('Fictional system west') && ph.services.staged.pos === qs, 'Fix 1: reloading straight after Next keeps the typed software name and the step');
   // 2. QLD gate: Yes, tick a QLD condition, No → the QLD condition is removed
   await tap(p, 'More'); await p.getByRole('button', { name: /^Services/ }).tap(); await p.getByRole('button', { name: /^Pharmacist prescribing/ }).first().tap(); await p.waitForTimeout(300);
-  for (let i = 0; i < 10 && !/Does any pharmacist here hold Queensland-pathway training/.test(await text(p)); i++) { await p.locator('main form label.choice, main form label.tick').first().tap(); await p.waitForTimeout(450); await p.getByRole('button', { name: /^(Next|Finish)$/ }).first().tap(); await p.waitForTimeout(450); }
+  for (let i = 0; i < 10 && !/Does any pharmacist here hold the Queensland training/.test(await text(p)); i++) { await p.locator('main form label.choice, main form label.tick').first().tap(); await p.waitForTimeout(450); await p.getByRole('button', { name: /^(Next|Finish)$/ }).first().tap(); await p.waitForTimeout(450); }
   await p.getByRole('button', { name: 'Yes, show those conditions' }).tap(); await p.waitForTimeout(300);
   // 6. the toast never blocks a tap
   ok(await p.evaluate(() => { const t = document.querySelector('.toast'); return !t || getComputedStyle(t).pointerEvents === 'none'; }), 'Fix 6: the toast lets taps through (pointer-events: none)');

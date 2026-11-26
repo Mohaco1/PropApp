@@ -579,3 +579,14 @@ Checked and already passing:
 **Store:** the live-save restore filter is removed. It made two tabs saving together lose an action. Restores still discard older leftover recovery copies.
 
 **Open:** `hardening.js` sometimes loses the Finish tap on the S8 review's last question when it follows an answer within a fraction of a second (about 1 in 3 runs before a realistic pause was added). Not yet root-caused.
+
+## "Onboard me" guides for all 17 services (unified Gemini + Codex spec) · 26 Nov 2026
+- **"New to this service? Onboard me"** sits under the heading on the first setup screen; the first question stays visible below it. The guide has:
+  - what this is, and a "Watch for" trap;
+  - 4–5 numbered steps with official sources that open and close;
+  - one optional "Add a follow-up", which shows "Open your follow-up" afterwards, so there are no duplicates;
+  - "Return to setup", back to the same step with anything typed saved.
+- **Dated notices:** eNRMC 31 Mar 2027 on residential aged care. The 1 July 2027 QSPP note shows only for PPA-funded DAA or Staged supply, never HMR/RMMR.
+- **Prescribing gate:** OCP initiation is no longer behind the Queensland gate. It's labelled with its approved awards (JCU, University of Newcastle, UTS), per the NSW protocol. Its checklist line names the three certificates and the private (non-PBS) cost; the unsupported Intention-form claim is removed. The gate now covers only the five Queensland-trained conditions.
+- **Sources:** `uat/research/onboard-sources-2026-11-26.md`.
+- **Tests:** new suite `tests/onboard.js` (108 checks, all 17 services).

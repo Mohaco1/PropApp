@@ -14,6 +14,7 @@ import './views/law.js';
 import './views/sources.js';
 import './views/updates.js';
 import './views/pack.js';
+import './views/onboard.js';
 import './views/sites.js';
 import './views/settings.js';
 const st = document.createElement('style'); st.textContent = css; document.head.append(st);
