@@ -28,7 +28,7 @@ register('backup', {
     return screen({ title: 'Backup and devices', back: true, body: h`
       <div class="card"><h2>${last ? 'Last requested ' + fmt(day(last)) : 'No backup yet'}</h2><p class="muted">${last ? (n === 1 ? '1 change' : n + ' changes') + ' since last request.' : ''} A browser can’t tell the app whether the file was saved, so check it’s in your files. Your records are kept only in this browser on this device, so keep a backup somewhere safe (for example your email or cloud drive).</p>
         ${btn('Download a backup', 'dl', { kind: 'primary', cls: 'block' })}</div>
-      ${isPWA() ? h`<div class="card" id="device"><h2>This device</h2><p class="muted">${standalone() ? 'Opened from your Home Screen.' : 'Opened in the browser. Add it to your Home Screen so your phone keeps your records: on iPhone, tap Share, then Add to Home Screen; on Android, tap ⋮, then Install app.'}</p>
+      ${isPWA() ? h`<div class="card" id="device"><h2>This device</h2><p class="muted">${standalone() ? 'Opened from your Home Screen.' : 'Opened in the browser. Add it to your Home Screen so your phone keeps your records: on iPhone, tap Share, then Add to Home Screen; on Android, tap the three-dot menu (⋮), then Install app.'}</p>
         ${standalone() ? '' : h`<p class="note warn">On iPhone, the Home Screen app keeps its own records, separate from Safari. If you’ve already entered records here, download a backup first, then restore it in the Home Screen app.</p>`}
 </div>` : ''}
       <div class="card"><h2>Restore</h2><p class="muted">Open a Sigil backup (from this app, PropApp or the earlier R.Pharmacy). If the pharmacy is already here you’re asked before anything is replaced.</p>

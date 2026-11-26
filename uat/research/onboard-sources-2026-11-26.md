@@ -7,3 +7,6 @@ Read here (health.nsw.gov.au and ppaonline.com.au are reachable from this enviro
 - **NSW Health, Residential care facilities:** the eNRMC "transition period, which ends on 31 March 2027. After this date, only eNRMC systems that fully meet all technical and legislative requirements…".
 
 All other guide steps are worded from the unified spec with their official source links. They're guidance ("walk through", "check"), not new obligations.
+
+## Correction (26 Nov, later): OCP Intention form restored
+- **NSW Health, Initiation of the oral contraceptive pill (OCP)** (https://www.health.nsw.gov.au/pharmaceutical/pharmacists/Pages/oral-contraceptive-pill-initiation.aspx, fetched 26 Nov 2026): "Pharmacists who plan to offer this service must first complete the Intention to provide expanded community pharmacy services in NSW form." and "The form must be resubmitted if details change (such as place of practice)." The protocol PDF doesn't mention the form, but this page does, so the requirement is back in the OCP guide and checklist line, next to the private (non-PBS) cost note.

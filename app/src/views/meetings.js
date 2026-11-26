@@ -6,7 +6,7 @@ import { reviewById, catalog, suggestedNext } from '../rules.js';
 import { reviewDue } from '../summary.js';
 import { fmt, today, dueText, addDays, isDate } from '../dates.js';
 import { addRecord, newAction } from '../model.js';
-const BASE = ['Incidents, complaints and patient safety', 'Previous actions and whether they worked', 'Staffing, resources and decisions'];
+const BASE = ['Incidents and patient safety', 'Previous actions and whether they worked', 'Staffing, resources and decisions'];
 // Track C: the quarterly governance meeting also looks at complaints and feedback as themes (no names or details).
 const sectionsFor = id => id === 'Q4' ? [...BASE, 'Complaints and feedback themes (no names): what keeps coming up, and what changed'] : BASE;
 register('meetings', {
