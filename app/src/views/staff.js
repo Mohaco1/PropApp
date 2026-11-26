@@ -48,15 +48,18 @@ register('person', {
 register('person-edit', {
   tab: 'staff',
   render(c, r) {
-    const p = c.ph.staff.find(x => x.id === r.id) || { name: '', role: '', engagement: 'Regular', start: '', services: [], annualDue: '' };
+    // Chaos test fixes 7–8: a failed Save keeps everything typed (c.ui.personTry), and a name of only spaces is refused.
+    const p = { ...(c.ph.staff.find(x => x.id === r.id) || { name: '', role: '', engagement: 'Regular', start: '', services: [], annualDue: '' }), ...(c.ui.personTry?.id === (r.id || '') ? c.ui.personTry.v : {}) };
     const act = Object.entries(c.ph.services).filter(([, s]) => s.active).map(([id]) => id);
     return screen({ title: r.id ? 'Edit ' + p.name : 'Add staff member', back: true, body: h`<form class="form" data-form="save">
-      ${field('Name', textInput('name', p.name, { required: true }))}${field('Role', select('role', [['', 'Choose…'], ...C.staff.roles.filter(x => !/in charge/i.test(x)).map(x => [x, x])], c.ui.roleTry ?? p.role), c.ui.roleErr ? h`<span class="err">Choose a role.</span>` : '')}
+      ${field('Name', textInput('name', p.name, { required: true }), c.ui.nameErr ? h`<span class="err">Enter a name.</span>` : '')}${field('Role', select('role', [['', 'Choose…'], ...C.staff.roles.filter(x => !/in charge/i.test(x)).map(x => [x, x])], c.ui.roleTry ?? p.role), c.ui.roleErr ? h`<span class="err">Choose a role.</span>` : '')}
       ${field('Engagement', select('engagement', C.staff.engagements.map(x => [x, x]), p.engagement))}${field('Start date (optional)', textInput('start', p.start, { type: 'date' }))}
       ${act.length ? h`<fieldset class="field"><legend class="field-label">Services they do</legend><div class="ticks">${act.map(s => h`<label class="tick"><input type="checkbox" name="svc" value="${s}" ${p.services.includes(s) ? h`checked` : ''}><span>${serviceName(s)}</span></label>`)}</div></fieldset>` : ''}
       <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` });
   },
-  forms: { save: (c, f, el, r) => { if (!f.role) { c.ui.roleErr = true; c.rerender(); document.querySelector('select[name=role]')?.focus(); return; } c.ui.roleErr = false; const svcs = [...el.querySelectorAll('input[name=svc]:checked')].map(i => i.value); let id = r.id;
+  forms: { save: (c, f, el, r) => { f.name = (f.name || '').trim(); c.ui.nameErr = !f.name; c.ui.roleErr = !f.role;
+      if (c.ui.nameErr || c.ui.roleErr) { c.ui.personTry = { id: r.id || '', v: { name: f.name, engagement: f.engagement, start: f.start, services: [...el.querySelectorAll('input[name=svc]:checked')].map(i => i.value) } }; c.ui.roleTry = f.role || ''; c.rerender(); document.querySelector(c.ui.nameErr ? 'input[name=name]' : 'select[name=role]')?.focus(); return; }
+      c.ui.personTry = null; c.ui.roleTry = undefined; const svcs = [...el.querySelectorAll('input[name=svc]:checked')].map(i => i.value); let id = r.id;
     c.change(ph => { let p = ph.staff.find(x => x.id === r.id);
       if (!p) { p = { id: uid(), name: '', role: '', engagement: 'Regular', start: '', end: '', active: true, services: [], annualDue: '', checks: {} }; ph.staff.push(p); id = p.id; }
       const changed = p.role && (p.role !== f.role || p.engagement !== f.engagement);

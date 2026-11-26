@@ -3,6 +3,7 @@ import * as store from './store.js';
 import { clone, html } from './util.js';
 import { nav, env } from './ui.js';
 import { startPWA, askToKeep } from './pwa.js';
+import { today } from './dates.js';
 const views = {};
 export const register = (name, v) => { views[name] = v; };
 const S = { ph: null, drafts: {}, stack: [], tab: 'today', toast: '', ui: {} };
@@ -71,6 +72,10 @@ export async function start(el) {
   store.watchStatus(s => { showSave(s); if (s === 'failed') ctx.toast('Couldn’t save just now. Trying again; keep this page open.'); if (s === 'full') ctx.toast('Storage full: download a backup now (More → Backup and devices). Keep this page open.'); });
   startPWA();
   load();
+  // Chaos test fix 5: when the date rolls over (Sydney midnight) while Today is showing, Today redraws with the new date.
+  // Checked every 30 s and whenever the app comes back to the front; other screens are never redrawn under the owner.
+  let shownDay = today(); const dayCheck = () => { const t = today(); if (t === shownDay) return; shownDay = t; if (S.ph && !S.stack.length && S.tab === 'today') render(); };
+  setInterval(dayCheck, 30000); document.addEventListener('visibilitychange', () => { if (!document.hidden) dayCheck(); });
   document.addEventListener('click', e => { lastTap = e.target.closest?.('[data-act]') || null; handle(e, 'click'); });
   document.addEventListener('submit', e => handle(e, 'submit'));
   document.addEventListener('input', e => { const el = e.target.closest('[data-input]'); if (!el) return; const r = S.ph ? ctx.route : { name: 'welcome' }; const v = views[r.name] || {}; v.inputs?.[el.dataset.input]?.(ctx, el, r, e); });

@@ -23,11 +23,11 @@ register('welcome', {
     const d = c.ui.setup || (c.ui.setup = { name: '', address: '', owners: [''], services: [] });
     const head = h`<p class="steps">Step ${step} of 3</p>`;
     if (step === 1) return screen({ title: 'Your pharmacy', back: true, body: h`${head}
-      <form data-form="s1" class="form">${field('Pharmacy name', textInput('name', d.name, { required: true }))}${field('Address', textInput('address', d.address))}
+      <form data-form="s1" class="form">${field('Pharmacy name', textInput('name', d.name, { required: true }), c.ui.setupErr === 'name' ? h`<span class="err">Enter the pharmacy’s name.</span>` : '')}${field('Address', textInput('address', d.address))}
       <p class="hint">Fictional details only while testing.</p><div class="dock-inline">${btn('Continue', null, { kind: 'primary', type: 'submit' })}</div></form>` });
     if (step === 2) return screen({ title: 'Owners', back: true, body: h`${head}
       <p class="lead">Everyone with a financial interest in the pharmacy. You can add more later.</p>
-      <form data-form="s2" class="form">${d.owners.map((o, i) => field(i ? 'Another owner' : 'Your name', textInput('owner' + i, o, { required: i === 0 })))}
+      <form data-form="s2" class="form">${d.owners.map((o, i) => field(i ? 'Another owner' : 'Your name', textInput('owner' + i, o, { required: i === 0 }), !i && c.ui.setupErr === 'owner' ? h`<span class="err">Enter your name.</span>` : ''))}
       ${btn('+ Add another owner', 'add-owner', { kind: 'link' })}<div class="dock-inline">${btn('Continue', null, { kind: 'primary', type: 'submit' })}</div></form>` });
     return screen({ title: 'Services', back: true, body: h`${head}
       <p class="lead">Tick what this pharmacy offers. Each one gets a few setup questions later, from Today.</p>
@@ -46,8 +46,9 @@ register('welcome', {
   },
   changes: { restore: (c, el) => importBackup(c, el.files[0]) },
   forms: {
-    s1: (c, f) => { Object.assign(c.ui.setup, { name: f.name.trim(), address: f.address.trim() }); c.ui.setupStep = 2; keep(c); c.rerender(); },
-    s2: (c, f) => { c.ui.setup.owners = Object.keys(f).filter(k => k.startsWith('owner')).map(k => f[k].trim()).filter(Boolean); c.ui.setupStep = 3; keep(c); c.rerender(); },
+    // Chaos test fix 3: a name of only spaces is rejected with a message (it used to crash Finish setup).
+    s1: (c, f) => { if (!f.name.trim()) { c.ui.setupErr = 'name'; c.rerender(); return; } c.ui.setupErr = ''; Object.assign(c.ui.setup, { name: f.name.trim(), address: f.address.trim() }); c.ui.setupStep = 2; keep(c); c.rerender(); },
+    s2: (c, f) => { const owners = Object.keys(f).filter(k => k.startsWith('owner')).map(k => f[k].trim()).filter(Boolean); if (!owners.length) { c.ui.setupErr = 'owner'; c.rerender(); return; } c.ui.setupErr = ''; c.ui.setup.owners = owners; c.ui.setupStep = 3; keep(c); c.rerender(); },
     s3: async (c, f, form) => {
       const d = c.ui.setup; d.services = [...form.querySelectorAll('input[name=svc]:checked')].map(i => i.value);
       const ph = emptyPharmacy(d.name); ph.address = d.address;

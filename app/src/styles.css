@@ -294,3 +294,8 @@ a.linkbtn{text-decoration:none}
 .qlist-item .qtext{margin:0 0 8px}
 .qlist-item .chip{min-height:44px}
 .qlist-item .chip.issue.on{border-color:var(--bad,#b42318)}
+
+/* Chaos test fixes: toasts never block taps underneath (6); long unbroken text wraps instead of widening the page (9) */
+.toast{pointer-events:none}
+main p,main h1,main h2,main h3,main li,main dd,main td,main th,.row-title,.row-sub,.big-title,.qtext,.doc,.bar-title,.note{overflow-wrap:anywhere}
+.row-main,.bar-title,.card,.list,.doc{min-width:0}

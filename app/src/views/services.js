@@ -37,6 +37,12 @@ function places(ph, skip) { const out = new Set();
     if (k === 'proc' && v.startsWith('We have our own:')) { const d = v.split(':').slice(1).join(':').trim(); if (d && d.length <= 60) out.add(d); } } }
   return [...out].slice(0, 8); }
 const placeChips = (ph, skip, cur) => { const xs = places(ph, skip).filter(x => x !== cur); return xs.length ? h`<div class="chips placechips" role="group" aria-label="Used before">${xs.map(x => h`<button type="button" class="chip" data-act="place" data-v="${x}">${x}</button>`)}</div>` : ''; };
+// Chaos test fix 4: the text typed for an "Other (describe)" option can contain commas, so it's read back whole (up to
+// the next real option, if any) instead of being cut at its first comma.
+function descOf(v, describe, opts) { const s = String(v || ''); for (const o of describe) { const i = s.indexOf(o + ':'); if (i < 0) continue;
+  let rest = s.slice(i + o.length + 1), cut = rest.length;
+  for (const x of opts) { if (x === o) continue; const j = rest.indexOf(',' + x); if (j >= 0 && j < cut && (rest[j + 1 + x.length] === undefined || rest[j + 1 + x.length] === ',' || rest[j + 1 + x.length] === ':')) cut = j; }
+  return rest.slice(0, cut).trim(); } return ''; }
 const norm = x => String(x || '').split(',').map(y => y.trim()).join(',');
 const has = (v, o) => { const s = ',' + norm(v) + ',', n = norm(o); return s.includes(',' + n + ',') || s.includes(',' + n + ':'); };
 function fieldsFor(ph, id) { const a = ph.services[id]?.answers || {}; const all = visibleFields(ph, id, a).map(f => ({ key: f[0], label: f[1], options: f[2], section: f[3], extra: f[4] }));
@@ -117,7 +123,7 @@ const SETUP = {
     else if (k === 'multi') { const qldGate = id === 'prescribing' && f.key === 'pathway', qld = s.qld === 'yes';
       const opts = RPH.qm.optionsFor(id, [f.key, f.label, f.options]).filter(o => !qldGate || qld || !QLD_OPTS.has(o) || has(v, o)); const on = split(v);
       input = h`${qldGate ? h`<div class="card qldgate"><p class="field-label">Does any pharmacist here hold Queensland-pathway training (the expanded conditions, or JCU training for starting the pill)?</p><div class="chips">${[['yes', 'Yes, show those conditions'], ['no', 'No']].map(([k2, l]) => h`<button type="button" class="chip ${(s.qld || 'no') === k2 ? 'on' : ''}" data-act="qld" data-v="${k2}">${l}</button>`)}</div></div>` : ''}<div class="ticks">${opts.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v, o) ? h`checked` : ''}><span>${show(id, f.key, o)}</span></label>`)}</div>
-      ${(m.describe || []).some(o => on.some(x => x.startsWith(o))) ? field('Describe', textInput('d', (on.find(x => x.includes(':')) || '').split(':').slice(1).join(':').trim())) : ''}
+      ${(m.describe || []).some(o => has(v, o)) ? field('Describe', textInput('d', descOf(v, m.describe || [], opts))) : ''}
       <label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
     else if (k === 'routes') { const on = split(v); input = h`<p class="muted">Tick each that applies.</p><div class="ticks">${ROUTES.map(([o, l]) => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v, o) ? h`checked` : ''}><span>${l}</span></label>`)}</div><label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
     else if (k === 'checklist') { const items = RPH.qm.checkItems(id, f.key, a); const on = split(v);
@@ -157,12 +163,17 @@ const SETUP = {
   // Owner trial: Next or Previous saves whatever is typed in the box first, so a typed answer is never lost.
 
   forms: { fin: (c, f, el, r) => finishService(c, r.id, f), leadsave: (c, f) => leadSave(c, f, () => c.rerender()) },
-  acts: { qld: (c, d) => c.change(ph => { ph.services.prescribing.qld = d.v; }, d.v === 'yes' ? 'Queensland-pathway conditions shown' : 'Queensland-pathway conditions hidden'),
+  // Chaos test fix 2: switching the Queensland question to No also removes any Queensland-only conditions already ticked,
+  // so "no Queensland training" and a Queensland condition can't both be saved.
+  acts: { qld: (c, d) => c.change(ph => { const sv = ph.services.prescribing; sv.qld = d.v; if (d.v === 'no' && sv.answers?.pathway) sv.answers = { ...sv.answers, pathway: split(sv.answers.pathway).filter(o => !QLD_OPTS.has(o)).join(',') }; }, d.v === 'yes' ? 'Queensland-pathway conditions shown' : 'Queensland-pathway conditions hidden'),
     place: (c, d, el) => { const form = el.closest('form'), inp = form?.querySelector('input[name=d]'); if (!inp) return; inp.value = d.v; inp.dispatchEvent(new Event('change', { bubbles: true })); },
     uatq: async (c, d) => { await window.uatMark?.(d.k, d.v); c.rerender(); },
     vall: (c, d, el) => { const fs = el.closest('fieldset'); fs.querySelectorAll('input[type=checkbox]').forEach(i => { i.checked = true; }); fs.closest('form').dispatchEvent(new Event('change', { bubbles: true })); },
-    step: (c, d, el, r) => { const form = document.querySelector('main form[data-form=next]'), inp = form?.querySelector('input[name=d]'); if (inp && inp.value.trim()) SETUP.changes.ans(c, form, r, { target: inp }, true);
-      const s = Math.max(0, +d.s); c.ui['ss:' + r.id] = s; c.change(ph => { ph.services[r.id].pos = s; }); window.scrollTo(0, 0); },
+    // Chaos test fixes: a second tap within 400 ms of a step change is ignored (10), and the answer and step are written
+    // to storage straight away, so reloading right after Next loses nothing (1).
+    step: (c, d, el, r) => { const now = Date.now(); if (now - (c.ui.stepAt || 0) < 400) return; c.ui.stepAt = now;
+      const form = document.querySelector('main form[data-form=next]'), inp = form?.querySelector('input[name=d]'); if (inp && inp.value.trim()) SETUP.changes.ans(c, form, r, { target: inp }, true);
+      const s = Math.max(0, +d.s); c.ui['ss:' + r.id] = s; c.change(ph => { ph.services[r.id].pos = s; }); c.store.flush(); window.scrollTo(0, 0); },
     recnow: (c, d, el, r) => c.change(ph => { ph.services[r.id].recIntro = 'now'; }),
     recskip: (c, d, el, r) => { const fs = fieldsFor(c.ph, r.id); c.change(ph => { const s = ph.services[r.id]; s.recIntro = 'skipped'; for (const f of fs.filter(x => isLoc(r.id, x))) if (!answered(s.answers, f.key)) s.answers[f.key] = NV; s.pos = fs.length; if (s.setup === 'todo') s.setup = 'doing'; }, 'Skipped. They are on Today under “To confirm”.'); c.ui['ss:' + r.id] = fs.length; c.rerender(); },
     finish: (c, d, el, r) => finishService(c, r.id),

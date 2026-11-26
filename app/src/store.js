@@ -44,7 +44,12 @@ let status = 'saved', onStatus = null, tries = 0;
 const setStatus = s => { if (s !== status) { status = s; onStatus?.(s); } };
 export const saveStatus = () => status;
 export function watchStatus(fn) { onStatus = fn; }
+// Chaos test fix 1: a change to a pharmacy or its drafts is also copied synchronously to localStorage (the journal) until
+// the IndexedDB save completes, so reloading within milliseconds of a tap can't lose it; init replays any leftover.
+const JOURNAL = 'propapp-journal:', journaled = k => !useLS && (k.startsWith('propapp:ph:') || k.startsWith('propapp:drafts:'));
+function journal(k, v) { if (!journaled(k)) return; try { v === undefined ? localStorage.removeItem(JOURNAL + k) : localStorage.setItem(JOURNAL + k, JSON.stringify(v)); } catch {} }
 function put(k, v) {
+  journal(k, v);
   mem.set(k, v); pending.set(k, v); setStatus('saving');
   clearTimeout(timer); timer = setTimeout(flush, 120);
 }
@@ -87,6 +92,7 @@ async function flushNow() {
       tx.oncomplete = res; tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); });
     for (const [k, v, orig] of batch) { if (k.startsWith('propapp:ph:') || k === 'propapp:dir') v === undefined ? seen.delete(k) : seen.set(k, clone(v)); replacing.delete(k); bases.delete(k);
       if (v !== orig) { if (mem.get(k) === orig) mem.set(k, v); else if (pending.has(k) && k.startsWith('propapp:drafts:')) { const later = pending.get(k); for (const [dk, x] of Object.entries(v)) if (dk.includes('/conflict-') && !later[dk]) later[dk] = x; } } }
+    for (const [k] of batch) if (!pending.has(k)) try { localStorage.removeItem(JOURNAL + k); } catch {}
     chan?.postMessage({ keys: batch.map(b => b[0]) });
     tries = 0; quota = 0; if (!pending.size) setStatus('saved');
     // A conflict copy was kept, or another tab's changes were merged in: show the result without a reload.
@@ -101,6 +107,9 @@ let chan = null, onChange = null;
 export async function init(onExternalChange) {
   onChange = onExternalChange;
   await open(); await getAll();
+  if (!useLS) { const left = []; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k?.startsWith(JOURNAL)) left.push(k); } } catch {}
+    for (const jk of left) { try { const k = jk.slice(JOURNAL.length), v = JSON.parse(localStorage.getItem(jk)); mem.set(k, v); pending.set(k, v); } catch {} }
+    if (left.length) await flush(); }
   try { chan = new BroadcastChannel('propapp'); chan.onmessage = async () => { for (const k of [...mem.keys()]) if (!pending.has(k)) mem.delete(k); await getAll(); onExternalChange?.(); }; } catch {}
   addEventListener('pagehide', () => { flush(); });
 }

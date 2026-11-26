@@ -29,7 +29,7 @@ export async function initUat(pageName) {
       if (db) { for (const n of notes) if (n.id) { try { await db.collection('uatnotes').doc(n.id).delete(); } catch {} } } else { localStorage.removeItem(KEY); notes = []; } notes = db ? notes.filter(n => !n.id) : []; draw(); paint(); };
     dlg.querySelector('[data-reset]').onclick = async () => { if (!dlg.dataset.armReset) { dlg.dataset.armReset = '1'; draw(); return; }
       await new Promise(res => { try { const r = indexedDB.deleteDatabase('propapp'); r.onsuccess = r.onerror = r.onblocked = () => res(); } catch { res(); } });
-      for (const k of Object.keys(localStorage)) if (k.startsWith('propapp:')) localStorage.removeItem(k); location.reload(); };
+      for (const k of Object.keys(localStorage)) if (k.startsWith('propapp:') || k.startsWith('propapp-journal:')) localStorage.removeItem(k); location.reload(); };
   };
   btn.onclick = () => { draw(); dlg.showModal(); };
   // Setup-question marks (UAT only): "Could be usual" / "Must always ask" / "No opinion", saved with the notes.
