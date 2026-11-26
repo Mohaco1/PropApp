@@ -4,12 +4,19 @@ Read `CLAUDE.md` first. It holds the owner's standing rules. The app is **PharmL
 
 | | |
 |---|---|
-| Code commit | see `git log -1` (foldables code: `ce00534`) |
-| App build id | `d192b6a64a` (replaces 79324e8d54) |
+| Code commit | see `git log -1` (visual polish code: `82ed7b0`) |
+| App build id | `0c5f2e1570` (replaces d192b6a64a) |
 | Live | https://mohaco1.github.io/PropApp/, served from `docs/` on `main` |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 |
 | Source | `app/src/` (ES modules, bundled by esbuild) |
 | Build log | `app/PROGRESS.md` |
+
+## Visual Polish, light only and exact logo (on d192b6a64a): done
+- [x] **Light only.** No dark-mode CSS (`app/src/styles.css`); tests theme, gates and v3 check it. `--muted` kept at `#526575` for 4.5:1 contrast (the spec's `#64748b` falls short on the page background).
+- [x] **Coastal Precision v2** (end of `app/src/styles.css`): weights 400/600, hairline cards + soft shadow, 20/12/8 spacing, 14 px radius, service icons (`svcIcon`, `app/src/ui.js`) on Service and Procedure rows, the calm setup summary card (`app/src/views/services.js`), the bottom sheet (`sheet`, `app/src/ui.js`) for Adopt (`app/src/views/procedures.js`), pill toasts with a 150 ms settling check (`app/src/app.js`), and the settle on a closed action (`app/src/views/actions.js`).
+- [ ] **Open for the owner:** a confirm sheet before "Save review". Saving is one tap today; a sheet would add a tap to every review.
+- [x] **Exact Option C logo**: `LOGO_MARK` (`app/src/ui.js`), `app/tools/make-icons.js` (~14 % safe margin), `app/pwa-assets/icon-*.png`.
+- [x] Foldable support unchanged; `tests/foldable.js` passes. New `tests/visual.js`.
 
 ## Foldables (on 79324e8d54): done
 - [x] **Responsive shell** (`app/src/styles.css`, end of file). Below 700 px: untouched. 700 px and up: an 84 px left rail; `.split` with list and record (`minmax(300px,38%) 1fr`); centred 640 px single panes (welcome, onboard and service-setup never split); Quarter Balancer in 4 columns. With `horizontal-viewport-segments: 2`, the panes follow the hinge segments.
@@ -23,11 +30,11 @@ Read `CLAUDE.md` first. It holds the owner's standing rules. The app is **PharmL
 - [x] **4. gates two-tab flake fixed.** When a tab heard another tab's save, it reloaded keys it was still writing, which dropped its own change from memory; its next save then merged that change away. `getAll` and the BroadcastChannel handler now skip in-flight keys. File: `app/src/store.js`. gates passed 4 of 4 runs on its own plus the full run (before: about 1 in 3).
 - [x] Fixes 1–7 from the previous handoff were already done in 5359cb8efe.
 
-## Verification (build d192b6a64a, Playwright at 390×844 plus the foldable sizes, touch taps, fails on any console error)
+## Verification (build 0c5f2e1570, Playwright at 390×844 plus the foldable sizes, touch taps, fails on any console error)
 | Check | Result |
 |---|---|
 | Build: `node tools/build.js --uat` | Pass |
-| 28 Playwright suites, `tools/test-all.sh` (incl. gates, pharmledger, foldable) | 26 pass in the full run. core and hardening stopped part-way without a failed check; both pass when run on their own. If this happens again, `test-all.sh` now prints the last lines. |
+| 29 Playwright suites, `tools/test-all.sh` (incl. gates, pharmledger, foldable, visual) | All pass in one full run (core and hardening included) |
 | procedures-all, "Check later" variant | Pass |
 | `node tools/check-procgen-all.js` | Pass ("All 17 services identical") |
 | docs/ under /PropApp/ (installable, offline, icons, no errors) | Pass |
@@ -55,7 +62,8 @@ python3 -m http.server -d dist/pwa 8080   # local look (open http://localhost:80
 - **Keep.** Storage keys `propapp:*` and the backup format stay as they are.
 
 ## Next queued
-1. Owner UAT of build d192b6a64a on the phone and on an unfolded Fold (rail, list + record, hinge).
+1. Owner UAT of build 0c5f2e1570 on the phone and on an unfolded Fold (look, icons, Adopt sheet, rail, list + record, hinge).
+2. Owner decision: should "Save review" ask in a bottom sheet first?
 2. Post-trial v4 in-app AI architecture: parked for phase D3 (managed back end in Sydney, emailed-link sign-in, not yet built).
 3. Deferred by the owner: push notifications, Monday plan.
 4. Optional: the repo and Pages URL still say "PropApp". Renaming the GitHub repo would change the phone link, so ask the owner first.

@@ -617,3 +617,14 @@ Checked and already passing:
 - **Routing** (`src/app.js`): the list pane renders the route under the top of `S.stack` (or the tab root). Taps, forms, inputs and changes in the list pane run against the list's view; a navigation from there first cuts the stack back to the list, so the new record replaces the old one. `after()` hooks get the record pane; focus goes to the record's title.
 - New `tests/foldable.js` at 344×882, 768×882 and 882×768: no sideways scroll, rail or bottom bar, and split, switch and Back for an Action, a Staff record and a Procedure. `tools/test-all.sh` now prints the last lines when a suite stops without a result.
 - Full run: every suite passed except core and hardening, which stopped part-way without a failed check; both pass on their own.
+
+## Visual Polish, light only and exact logo (Gemini spec on d192b6a64a) · 26 Nov 2026 · build 0c5f2e1570
+- **Light only:** every dark-mode block is gone from `styles.css`; a phone in dark mode still gets the light palette (`--bg #F2F6F8`, `--surface #FFF`, `--fg #0F172A`, ocean `#005792`). There was never a theme toggle in the app. theme, gates and v3 now check light-only. `--muted` stays `#526575`: the spec's `#64748b` is about 4.4:1 on the `#F2F6F8` page, under the 4.5:1 that gates checks.
+- **Coastal Precision v2:** weights 400 and 600 only (every 500/700/800 mapped); hairline card borders `rgba(15,23,42,.06)` with the two-layer soft shadow; 14 px radius; 12 px gap between cards; 20 px side padding from 400 px wide (16 px below). Tabular numbers on dates and counts.
+- **Service icons:** one 1.8-stroke icon per service (17) on Service and Procedure list rows (`svcIcon` in `ui.js`).
+- **Setup finish:** one calm summary card ("Home delivery is set up · 1 of 2 services set up", then "You're all set") replaces the hero card and the separate note.
+- **Bottom sheet** (`sheet()` in `ui.js`): slides up in 180 ms over a 36 % backdrop, with a 36×4 handle, one primary button and Cancel; tapping the backdrop dismisses it. It is centred at 440 px on unfolded screens. Used for "Adopt for use here". "Save review" still saves in one tap: a confirm sheet there would add a tap to every review, so I left it for the owner to decide.
+- **Pill toasts:** a finished item ("set up", "closed", "adopted", "saved" …) shows a check that settles in 150 ms. Closing an action settles its "Closed" line. Both are off with reduced motion.
+- **Logo:** Gemini's exact 32×32 Option C SVG in `LOGO_MARK`; `make-icons.js` renders it with a ~14 % safe margin to 180/192/512 PNGs.
+- **Foldables untouched:** the rail, `.split`, `obligations`/`allsites` and the 4-column balancer are unchanged; `tests/foldable.js` passes.
+- New `tests/visual.js`. Full run: all 29 suites and the Check later variant pass (core and hardening included); procgen identical for all 17 services.
