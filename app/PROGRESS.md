@@ -544,3 +544,25 @@ Several sources were supplied by Gemini and not read by Claude (see `uat/researc
 10. **Rapid double tap on Next:** moves one question. The second tap within 400 ms is ignored only if nothing was answered in between.
 
 **Tests:** new suite `tests/chaos.js` (one check per fix, touch taps at 390 × 844). All 22 suites pass, and check-procgen-all is identical across 17.
+
+## Final pre-trial hardening (Gemini/Codex brief on 9344592463) · 26 Nov 2026 · build d226200c70
+Fixed:
+- **Previous straight after Next:** the double-tap guard now applies only to forward moves; Previous always works on the first tap.
+- **No record resurrection after a restore (two tabs):** a restore stamps the pharmacy. Any other tab's save, or leftover recovery copy, that was based on data read before the restore is dropped, so the restore always wins.
+- **Recovery copies redesigned:** they're written only when a page is hidden or closed, per tab, including saves still in progress. They carry their base copy, and two tabs' leftovers merge on the next load.
+  - The first design (a copy on every change) made the two-tab restore check in `gates.js` fail 2 times in 3. That was the flake the brief noticed. With the redesign it passes every time (3 of 3, then the full run).
+- **Final buttons:** a second tap on the same final button (Save review, Save visit, Save action, Close action) within 0.8 s is ignored, unless a validation message is showing so the owner can correct and retry.
+- **Cold start:** Today says "No overdue items with known dates." with "Add your last S8 stocktake date" when there's no S8 date.
+
+Checked and already passing:
+- **Item 4:** switching pharmacy mid-form never carries a note across, and the draft resumes under the right pharmacy.
+- **Item 5:** the S8 deadline, S8 at a glance, the calendar file and the evidence pack all use the completed stocktake. The incomplete review stays visible, a future stocktake date isn't saved, and S8 can't be deferred.
+- **Item 6:** a corrected answer after Previous survives a reload; a cleared software name stays clear.
+- **Item 7:** upgrading from 07775c5947 with an open action and a half-finished visit, then reopening offline: new build, records intact, visit resumes at the same check.
+
+**Earlier flakiness:**
+- The S8 future-date and two-tab restore runs used fixed short waits under load.
+- The S8 loop in `hardening.js` now waits for each question to change.
+- `hardening.js` crashed once in 9 early runs without a log; it then passed 5 of 5 with logs.
+
+**Tests:** new suites `tests/hardening.js` and `tests/upgrade.js`. All 24 suites passed in one run on this build, and check-procgen-all is identical across 17.

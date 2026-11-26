@@ -18,7 +18,7 @@ async function getAll() {
   await new Promise(res => {
     const tx = db.transaction(ST), s = tx.objectStore(ST), r = s.openCursor();
     // A value this window hasn't saved yet stays as it is (and keeps its merge base), so the save can merge both sides.
-    r.onsuccess = () => { const c = r.result; if (c) { if (!pending.has(c.key)) { mem.set(c.key, c.value); if (String(c.key).startsWith('propapp:ph:') || c.key === 'propapp:dir') seen.set(c.key, clone(c.value)); } c.continue(); } else res(); };
+    r.onsuccess = () => { const c = r.result; if (c) { if (!pending.has(c.key)) { mem.set(c.key, c.value); loadedAt.set(c.key, Date.now()); if (String(c.key).startsWith('propapp:ph:') || c.key === 'propapp:dir') seen.set(c.key, clone(c.value)); } c.continue(); } else res(); };
     r.onerror = () => res();
   });
 }
@@ -51,19 +51,26 @@ export function watchStatus(fn) { onStatus = fn; }
 // older leftover is discarded rather than bringing back records the restore replaced.
 const JOURNAL = 'propapp-journal:', RESTORED = 'propapp-restored:', TAB = Math.random().toString(36).slice(2, 10);
 const journaled = k => !useLS && (k.startsWith('propapp:ph:') || k.startsWith('propapp:drafts:'));
+// Written only when the page is being hidden or closed, and only for changes not yet saved, so normal use never leaves
+// journal entries for other tabs to trip over; a restore stamps its key at once.
 function journal(k, v) { if (!journaled(k)) return; const jk = JOURNAL + TAB + ':' + k;
-  try { if (v === undefined) { localStorage.removeItem(jk); return; } const at = Date.now(), replace = replacing.has(k);
-    localStorage.setItem(jk, JSON.stringify({ v, base: seen.get(k) ?? null, at, replace })); if (replace) localStorage.setItem(RESTORED + k, String(at)); } catch {} }
+  try { if (v === undefined) { localStorage.removeItem(jk); return; } localStorage.setItem(jk, JSON.stringify({ v, base: seen.get(k) ?? null, at: Date.now(), baseAt: loadedAt.get(k) || 0, replace: replacing.has(k) })); } catch {} }
+function journalPending() { for (const [k, v] of inflight) if (!pending.has(k)) journal(k, v); for (const [k, v] of pending) journal(k, v); }
+// When this tab last read each pharmacy from storage. A restore stamps the time it replaced a pharmacy; anything this tab
+// wants to save that was based on an older read (or a journal entry from before the restore) is dropped, so a restore
+// always wins over stale copies in other tabs.
+const loadedAt = new Map(), inflight = new Map();
+const restoredAt = k => { try { return Number(localStorage.getItem(RESTORED + k) || 0); } catch { return 0; } };
 async function replayJournal() { const keys = []; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k?.startsWith(JOURNAL)) keys.push(k); } } catch {}
   const entries = keys.map(jk => { try { const rest = jk.slice(JOURNAL.length), k = rest.slice(rest.indexOf(':') + 1); return { jk, k, ...JSON.parse(localStorage.getItem(jk)) }; } catch { return null; } }).filter(Boolean).sort((a, b) => a.at - b.at);
   for (const e of entries) { try { localStorage.removeItem(e.jk); } catch {}
-    if (e.at < Number(localStorage.getItem(RESTORED + e.k) || 0)) continue;
+    if (!e.replace && (e.baseAt || e.at) < restoredAt(e.k)) continue;
     const cur = mem.get(e.k); let v = e.v;
     if (e.replace) replacing.add(e.k); else if (e.base && cur && e.k.startsWith('propapp:ph:')) v = merge3(e.base, e.v, cur);
     mem.set(e.k, v); put(e.k, v); }
   if (entries.length) await flush(); }
 function put(k, v) {
-  journal(k, v);
+  if (replacing.has(k) && journaled(k)) try { localStorage.setItem(RESTORED + k, String(Date.now())); } catch {}
   mem.set(k, v); pending.set(k, v); setStatus('saving');
   clearTimeout(timer); timer = setTimeout(flush, 120);
 }
@@ -96,7 +103,10 @@ let running = null, quota = 0;
 export function flush() { running = (running || Promise.resolve()).then(flushNow, flushNow); return running; }
 async function flushNow() {
   clearTimeout(timer); if (!pending.size) return true;
-  const batch = [...pending].map(([k, v]) => [k, v, v]); pending.clear(); kept = false; merged3 = false;
+  let batch = [...pending].map(([k, v]) => [k, v, v]); pending.clear(); kept = false; merged3 = false;
+  batch = batch.filter(([k]) => !(journaled(k) && !replacing.has(k) && restoredAt(k) > (loadedAt.get(k) || 0)));
+  if (!batch.length) { setStatus('saved'); return true; }
+  for (const [k, v] of batch) inflight.set(k, v);
   try {
     if (useLS || !db) { for (const item of batch) { const [k, v] = item; let stored; try { stored = JSON.parse(localStorage.getItem(k)); } catch {} item[1] = needsRead(k, v) ? mergeOne(k, v, stored) : v; item[1] === undefined ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(item[1])); } }
     else await new Promise((res, rej) => { const tx = db.transaction(ST, 'readwrite'), s = tx.objectStore(ST);
@@ -106,13 +116,13 @@ async function flushNow() {
       tx.oncomplete = res; tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); });
     for (const [k, v, orig] of batch) { if (k.startsWith('propapp:ph:') || k === 'propapp:dir') v === undefined ? seen.delete(k) : seen.set(k, clone(v)); replacing.delete(k); bases.delete(k);
       if (v !== orig) { if (mem.get(k) === orig) mem.set(k, v); else if (pending.has(k) && k.startsWith('propapp:drafts:')) { const later = pending.get(k); for (const [dk, x] of Object.entries(v)) if (dk.includes('/conflict-') && !later[dk]) later[dk] = x; } } }
-    for (const [k] of batch) if (!pending.has(k)) try { localStorage.removeItem(JOURNAL + TAB + ':' + k); } catch {}
+    for (const [k] of batch) { inflight.delete(k); loadedAt.set(k, Date.now()); if (!pending.has(k)) try { localStorage.removeItem(JOURNAL + TAB + ':' + k); } catch {} }
     chan?.postMessage({ keys: batch.map(b => b[0]) });
     tries = 0; quota = 0; if (!pending.size) setStatus('saved');
     // A conflict copy was kept, or another tab's changes were merged in: show the result without a reload.
     if (kept || merged3) onChange?.();
     return true;
-  } catch (e) { console.error(e); for (const [k, , orig] of batch) if (!pending.has(k)) pending.set(k, orig);
+  } catch (e) { console.error(e); for (const [k, , orig] of batch) { inflight.delete(k); if (!pending.has(k)) pending.set(k, orig); }
     // Storage full: stop retrying after 5 attempts and ask for a backup (the records stay in this window meanwhile).
     if (e?.name === 'QuotaExceededError' && ++quota >= 5) { setStatus('full'); return false; }
     setStatus('failed'); tries++; clearTimeout(timer); timer = setTimeout(flush, Math.min(30000, 1000 * 2 ** tries)); return false; }
@@ -123,7 +133,8 @@ export async function init(onExternalChange) {
   await open(); await getAll();
   if (!useLS) await replayJournal();
   try { chan = new BroadcastChannel('propapp'); chan.onmessage = async () => { for (const k of [...mem.keys()]) if (!pending.has(k)) mem.delete(k); await getAll(); onExternalChange?.(); }; } catch {}
-  addEventListener('pagehide', () => { flush(); });
+  addEventListener('pagehide', () => { journalPending(); flush(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { journalPending(); flush(); } });
 }
 export const dir = () => mem.get('propapp:dir') || { active: '', ids: [] };
 // F-LIVE-07: archived pharmacies keep every record but leave switching, All pharmacies and the counts.
