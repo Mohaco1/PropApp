@@ -11,16 +11,16 @@ function fold(line) { const enc = new TextEncoder(); if (enc.encode(line).length
   for (const ch of line) { const b = enc.encode(ch).length; if (n + b > max) { out.push(cur); cur = ''; n = 0; max = 74; } cur += ch; n += b; }
   out.push(cur); return out.join('\r\n '); }
 export function ics(ph, drafts) {
-  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Sigil//Due dates//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:' + esc(ph.name + ' · due dates')];
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//PharmLedger//Due dates//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:' + esc(ph.name + ' · due dates')];
   for (const it of items(ph, drafts)) {
     // One event per part, each with its own UID (a person can have several items due the same day).
     const dates = it.kind === 'person' ? it.parts.filter(x => isDate(x.date)).map((x, i) => [x.date, it.title + ' · ' + x.title, '-' + (x.key || i)]) : isDate(it.date) ? [[it.date, it.title, '']] : [];
     for (const [d, rawTitle, part] of dates) {
       // R04: an action's own words can contain anything, so the calendar only says an action is due.
-      const title = it.kind === 'action' ? 'Sigil action due · ' + ph.name : rawTitle;
+      const title = it.kind === 'action' ? 'PharmLedger action due · ' + ph.name : rawTitle;
       const day = d.replace(/-/g, ''), next = addDays(d, 1).replace(/-/g, '');
       L.push('BEGIN:VEVENT', 'UID:' + esc(ph.id + '-' + it.key + part + (it.kind === 'action' ? '' : '-' + d)) + '@propapp', 'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
-        'DTSTART;VALUE=DATE:' + day, 'DTEND;VALUE=DATE:' + next, 'SUMMARY:' + esc((it.legal ? '[Required by law] ' : '') + title), 'DESCRIPTION:' + esc('Due at ' + ph.name + '. Open Sigil to record it.'),
+        'DTSTART;VALUE=DATE:' + day, 'DTEND;VALUE=DATE:' + next, 'SUMMARY:' + esc((it.legal ? '[Required by law] ' : '') + title), 'DESCRIPTION:' + esc('Due at ' + ph.name + '. Open PharmLedger to record it.'),
         'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(title), 'TRIGGER:-P7D', 'END:VALARM', 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(title), 'TRIGGER:-P1D', 'END:VALARM', 'END:VEVENT');
     }
   }
@@ -30,7 +30,7 @@ export function ics(ph, drafts) {
   for (const [d, what, src, svc] of C.law.DATES.filter(x => /authorit/i.test(x[1]) && x[3]?.some(s => act.includes(s)) && x[0] >= today())) {
     const t = what + ' · ' + ph.name;
     L.push('BEGIN:VEVENT', 'UID:' + esc(ph.id + '-authority-' + d) + '@propapp', 'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
-      'DTSTART;VALUE=DATE:' + d.replace(/-/g, ''), 'DTEND;VALUE=DATE:' + addDays(d, 1).replace(/-/g, ''), 'SUMMARY:' + esc('[Required by law] ' + t), 'DESCRIPTION:' + esc('Check the replacement authority is in place (' + src + '). Open Sigil for details.'),
+      'DTSTART;VALUE=DATE:' + d.replace(/-/g, ''), 'DTEND;VALUE=DATE:' + addDays(d, 1).replace(/-/g, ''), 'SUMMARY:' + esc('[Required by law] ' + t), 'DESCRIPTION:' + esc('Check the replacement authority is in place (' + src + '). Open PharmLedger for details.'),
       'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(t), 'TRIGGER:-P30D', 'END:VALARM', 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(t), 'TRIGGER:-P7D', 'END:VALARM', 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(t), 'TRIGGER:-P1D', 'END:VALARM', 'END:VEVENT');
   }
   // R10: an action keeps one UID (its id), so a new due date moves the existing event; the file ends with CRLF.

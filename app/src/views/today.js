@@ -52,7 +52,7 @@ function notice(c, list) {
   const ids = c.store.activeIds();
   if (ids.length > 1) { const tot = ids.reduce((t, id) => { const p = c.store.pharmacy(id); return t + (p ? counts(items(p, c.store.drafts(id))).overdue : 0); }, 0);
     return h`<button class="siteline" data-act="go" data-to="allsites">${tot === 1 ? '1 overdue' : tot + ' overdue'} across your ${ids.length} pharmacies · see all</button>`; }
-  if (isPWA() && !standalone() && !ph.flags?.installHintDone) return h`<div class="installline"><button class="quietline" data-act="go" data-to="backup">Add Sigil to your Home Screen before you enter records · how</button><button class="iconbtn" data-act="hideinstall" aria-label="Hide this">✕</button></div>`;
+  if (isPWA() && !standalone() && !ph.flags?.installHintDone) return h`<div class="installline"><button class="quietline" data-act="go" data-to="backup">Add PharmLedger to your Home Screen before you enter records · how</button><button class="iconbtn" data-act="hideinstall" aria-label="Hide this">✕</button></div>`;
   return '';
 }
 export function switcher(c) {

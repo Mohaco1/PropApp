@@ -24,7 +24,7 @@ register('actions', {
       ${n.open ? btn('Copy summary for the pharmacist on duty', 'pdsum', { kind: 'link' }) : ''}` });
   },
   acts: { f: (c, d) => { c.ui.actF = d.f; c.rerender(); },
-    // Sigil brief: a de-identified summary of open actions to paste into a message (titles and due dates only).
+    // PharmLedger brief: a de-identified summary of open actions to paste into a message (titles and due dates only).
     pdsum: async c => { const t = today(), open = Object.values(c.ph.actions).filter(a => a.status === 'open').sort((a, b) => (a.due || '9').localeCompare(b.due || '9'));
       const txt = c.ph.name + ' · open actions · ' + fmt(t) + '\n' + open.map(a => '- ' + a.title + (a.due ? ' · due ' + fmt(a.due) + (a.due < t ? ' (overdue)' : '') : '')).join('\n') + '\nNo patient names or identifiers, please.';
       if (await copyText(txt)) c.toast('Copied. Check it has no patient details, then paste it into a message.'); else c.toast('Copy didn’t work here.'); }, open: (c, d) => c.go('action', { id: d.id }), add: c => c.go('action-new') },

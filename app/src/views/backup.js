@@ -2,8 +2,8 @@
 import { isLegacyBackup, importLegacy } from '../legacy.js';
 import { addDays, daysBetween, today } from '../dates.js';
 import { saveFile } from '../ics.js';
-// Sigil rebrand: the backup keeps its PropApp format marker so every earlier backup and every new one restore the same way.
-export function pharmacyBackup(c) { return { app: 'PropApp', product: 'Sigil', format: 1, exportedAt: new Date().toISOString(), pharmacy: c.ph, drafts: c.drafts }; }
+// Rebrands (Sigil, then PharmLedger): the backup keeps its PropApp format marker so every earlier backup and every new one restore the same way.
+export function pharmacyBackup(c) { return { app: 'PropApp', product: 'PharmLedger', format: 1, exportedAt: new Date().toISOString(), pharmacy: c.ph, drafts: c.drafts }; }
 // R01: a restore is checked in full before anything is written, so a damaged file can never overwrite a pharmacy.
 const obj = x => !!x && typeof x === 'object' && !Array.isArray(x);
 export function checkPharmacy(p, drafts) {
@@ -23,9 +23,9 @@ export function checkPharmacy(p, drafts) {
 }
 export function validate(b) {
   let got;
-  if ((b?.app === 'PropApp' || b?.app === 'Sigil') && b.format === 1) got = { pharmacy: b.pharmacy, drafts: b.drafts || {} };
+  if ((b?.app === 'PropApp' || b?.app === 'Sigil' || b?.app === 'PharmLedger') && b.format === 1) got = { pharmacy: b.pharmacy, drafts: b.drafts || {} };
   else if (isLegacyBackup(b)) got = importLegacy(b);
-  else throw Error('This file is not a Sigil backup (or one from PropApp or R.Pharmacy).');
+  else throw Error('This file is not a PharmLedger backup (or one from Sigil, PropApp or R.Pharmacy).');
   checkPharmacy(got.pharmacy, got.drafts);
   return got;
 }
@@ -38,7 +38,7 @@ export function backupNow(c) {
 }
 // Counts used to check a restore against its own file (A1: drafts and staff checks included).
 export const tally = (ph, drafts) => ({ records: ph.records.length, actions: Object.keys(ph.actions).length, staff: ph.staff.length, checks: ph.staff.reduce((t, p) => t + Object.keys(p.checks || {}).length, 0), procedures: ph.procedures.length, drafts: Object.keys(drafts || {}).filter(k => !k.includes('/conflict-')).length });
-const b2from = got => got.pharmacy.legacy ? 'a backup from the earlier R.Pharmacy app' : 'a Sigil backup';
+const b2from = got => got.pharmacy.legacy ? 'a backup from the earlier R.Pharmacy app' : 'a PharmLedger backup';
 export async function importBackup(c, file) {
   if (!file) return;
   try {

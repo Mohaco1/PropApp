@@ -132,7 +132,7 @@ function finish(c, r, d, items, prog, title) {
     ${missing.length ? '' : btn('Copy summary for the pharmacist on duty', 'pdsum', { kind: 'link' })}
     ${btn('Discard this visit', 'discard', { kind: 'link' })}` });
 }
-// Sigil brief: what the visit found, de-identified, to paste into a message for the pharmacist on duty.
+// PharmLedger brief: what the visit found, de-identified, to paste into a message for the pharmacist on duty.
 export function visitSummary(ph, d, items) { const found = items.filter(it => d.items[it.key]?.status === 'issue');
   return ph.name + ' · site visit ' + fmt(d.date || today()) + '\n' + (found.length ? 'To fix:\n' + found.map(it => '- ' + it.title + ': ' + (d.items[it.key].text || '').trim() + (d.items[it.key].due ? ' · by ' + fmt(d.items[it.key].due) : '')).join('\n') : 'No issues found.') + '\n' + (items.length - found.length) + ' other checks fine.\nNo patient names or identifiers, please.'; }
 register('visit-fin-hook', { render: () => '' });

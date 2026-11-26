@@ -3,7 +3,7 @@
 // text otherwise), generates the draft there, then generates it in the rebuild from the same answers.
 // The only allowed difference is "approve it in Policies" → "adopt it in Procedures" (Gemini N-12).
 const { chromium } = require('playwright'); const path = require('path'); const esbuild = require('esbuild');
-const VERIFIED = require('../src/content/verified-steps.json'); const applyVerified = t => { let s = String(t).split('R.Pharmacy').join('Sigil'); for (const [a, b] of VERIFIED.pairs) s = s.split(a).join(b); const L = '• Steps marked “— verify”: check each against the full official document before approving'; return /— verify/.test(s.replace(L, '')) ? s : s.replace(L + '\n', ''); };
+const VERIFIED = require('../src/content/verified-steps.json'); const applyVerified = t => { let s = String(t).split('R.Pharmacy').join('PharmLedger'); for (const [a, b] of VERIFIED.pairs) s = s.split(a).join(b); const L = '• Steps marked “— verify”: check each against the full official document before approving'; return /— verify/.test(s.replace(L, '')) ? s : s.replace(L + '\n', ''); };
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage(); p.on('dialog', d => d.accept());
   await p.goto('file://' + path.resolve(__dirname, '../../uat/app/rpharmacy-uat-testing.html')); await p.waitForTimeout(1500);

@@ -12,8 +12,8 @@ register('welcome', {
     if (c.ui.setupStep === undefined) { const saved = c.store.getPref('setup-draft'); if (saved) { c.ui.setup = saved.setup; c.ui.setupStep = saved.step; } }
     const step = c.ui.setupStep || 0;
     if (step === 0) return h`<div class="welcome">
-      <div class="wm" aria-label="Sigil"><span class="wm-mark" aria-hidden="true">${logo(48)}</span>Sigil</div>
-      <p class="wm-line">Built for the owner’s side of the counter.</p>
+      <div class="wm" aria-label="PharmLedger"><span class="wm-mark" aria-hidden="true">${logo(48)}</span>PharmLedger</div>
+      <p class="wm-line">For the owner’s side of the counter.</p>
       <p class="muted wm-sub">Your legal and best-practice duties as a pharmacy owner, in one calm place.</p>
       ${btn('Set up your pharmacy', 'start-setup', { kind: 'primary', cls: 'big' })}
       <div class="welcome-more">
@@ -36,7 +36,7 @@ register('welcome', {
       <div class="dock-inline">${btn('Finish setup', null, { kind: 'primary', type: 'submit' })}</div></form>` });
   },
   acts: {
-    // Sigil brief: copy setup from another pharmacy (services, their setup answers, procedures as drafts, quarter rhythm).
+    // PharmLedger brief: copy setup from another pharmacy (services, their setup answers, procedures as drafts, quarter rhythm).
     copyfrom: (c, d) => { const s = c.ui.setup, src = d.id ? c.store.pharmacy(d.id) : null; s.copyFrom = src ? src.id : '';
       if (src) s.services = Object.entries(src.services).filter(([, v]) => v.active).map(([k]) => k); c.rerender(); },
     'start-setup': c => { c.ui.setupStep = 1; c.rerender(); },

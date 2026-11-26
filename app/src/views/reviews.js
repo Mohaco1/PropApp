@@ -100,7 +100,7 @@ register('review', {
         ${qs.map((q, i) => h`<div class="card qlist-item"><p class="qtext">${i + 1}. ${q.text}</p><div class="chips">${q.options.map(o => h`<button type="button" class="chip ${d.answers[i] === o.value ? 'on' : ''} ${o.issue ? 'issue' : ''}" data-act="qa" data-i="${i}" data-v="${o.value}" aria-pressed="${d.answers[i] === o.value}">${o.label || o.value}</button>`)}</div></div>`)}
         <div class="btnrow">${btn('One at a time', 'qlist', { data: { on: '' } })}${btn('Finish', 'step', { kind: 'primary', data: { s: total }, disabled: left > 0 })}</div>` }); }
     const q = qs[step], ans = d.answers[step] || '', isIssue = q.options.find(o => o.value === ans)?.issue;
-    // Sigil brief: the previous record's answer for this question, shown (never selected for the owner). Its note,
+    // PharmLedger brief: the previous record's answer for this question, shown (never selected for the owner). Its note,
     // which often says where the evidence is kept, can be copied into this answer's note with one tap.
     const prevRec = c.ph.records.filter(x => x.type === a.id).sort((x, y) => y.date.localeCompare(x.date))[0];
     const prevAns = prevRec?.answers?.find(x => x.text === q.text) || (prevRec?.answers?.length === total ? prevRec.answers[step] : null);

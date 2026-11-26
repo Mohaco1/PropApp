@@ -54,7 +54,7 @@ export function packData(ph, drafts, from = addMonths(today(), -12)) {
 const RANGES = [['12', 'Last 12 months'], ['24', 'Last 24 months'], ['all', 'All']];
 const SECS = [['rev', 'Reviews, visits and meetings'], ['s8', 'S8 stock checks'], ['act', 'Actions'], ['staff', 'Staff'], ['obl', 'Evidence locations'], ['proc', 'Procedures']];
 const has = d => ({ rev: d.reviews.length > 0, s8: d.s8.length > 0, act: d.open.length + d.closed.length + d.staffClosed.length > 0, staff: d.staff.length > 0, obl: d.obligations.length + d.archives.length > 0, proc: d.procedures.length > 0 });
-// Sigil brief: "Show on screen (read-only)". The same pack, with the period and sections already chosen, on its own
+// PharmLedger brief: "Show on screen (read-only)". The same pack, with the period and sections already chosen, on its own
 // screen with no edit controls or tab bar, to hand the phone to an inspector.
 register('inspect', { tab: 'more', noNav: true, render: c => packScreen(c, true) });
 register('pack', {
@@ -83,7 +83,7 @@ function packScreen(c, inspect) {
           <p>Proprietor${ph.proprietors.length === 1 ? '' : 's'}: ${ph.proprietors.map(p => p.name).join(', ') || '—'}</p>
           <p>${first ? 'From ' + full(first) + ' to ' + full(today()) : 'No records yet'} (${period}) · made ${full(today())}</p>
           <p>Proprietor oversight record only: statutory S8 registers, dispensing records and cold-chain logs stay in their primary pharmacy systems.</p>
-          <p>Made with Sigil · built for the owner’s side of the counter. Designed for de-identified proprietor records: check your notes before sharing.</p>
+          <p>Made with PharmLedger · for the owner’s side of the counter. Designed for de-identified proprietor records: check your notes before sharing.</p>
           <p>Today: ${d.n.overdue === 1 ? '1 item overdue' : d.n.overdue + ' items overdue'} · ${d.n.all - d.n.tocheck === 1 ? '1 item' : (d.n.all - d.n.tocheck) + ' items'} in the plan · law and practice updates read: ${d.updatesRead} of ${UPDATES.length}</p></header>
         ${sec('rev', 'Reviews, visits and meetings · ' + d.reviews.length, table(['Date', 'What', 'Recorded by', 'Issues', 'Next due'], d.reviews, 'None recorded in this period.'))}
         ${sec('s8', 'S8 stock checks · ' + s8Count(d.s8), table(['Reviewed', 'Outcome', 'Stock check', 'Pharmacist', 'Next due'], d.s8, 'None recorded in this period.'))}

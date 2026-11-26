@@ -1,4 +1,4 @@
-# Sigil (formerly PropApp / R.Pharmacy): standing rules
+# PharmLedger (formerly Sigil, PropApp / R.Pharmacy): standing rules
 
 Read this before any work. These are the owner's instructions and decisions. Don't reverse them without asking the owner.
 
@@ -34,7 +34,7 @@ Read this before any work. These are the owner's instructions and decisions. Don
 - **Leave as it is:** the vaccination "record the GP" wording.
 - **Sign-in and hosting (D3):** a managed back end in Sydney, emailed-link sign-in. Not yet built.
 - **Look (P-06, 24 Nov):** the owner picked "E+++ Coastal Precision" from the Grand Finale Studio. It is a token and theme layer at the end of `app/src/styles.css`: a white header with a teal-to-ocean strip, ocean primary (#005792), weights 400/500/600, and urgency rails only on overdue and due-soon rows. Change colours there, not in the screens.
-- **Name (25 Nov, owner via Gemini brief):** the app is **Sigil**, tagline “Built for the owner’s side of the counter.” Storage keys (`propapp:*`) and the backup format stay as they are, so earlier data and backups restore.
+- **Name (26 Nov, owner via the PharmLedger spec):** the app is **PharmLedger**, tagline “For the owner’s side of the counter.” (It was Sigil from 25 Nov.) Icon: Option C, a deep-teal (#0f766e) ledger with a spine cut and an ocean-blue (#005792) plus on an off-white (#f8fafc) tile. Storage keys (`propapp:*`) and the backup format stay as they are, so earlier data and backups (PropApp, Sigil, R.Pharmacy) restore.
 - **OTP file reviews (26 Nov, owner):** Quarterly is listed first as the suggestion; the owner picks it. Never pre-selected.
 - **The owner leads on product decisions.** Claude leads the build and shouldn't ask about things it can decide. When something is needed from Gemini (an independent review), give the owner a ready-to-paste prompt.
 

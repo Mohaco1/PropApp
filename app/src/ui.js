@@ -1,8 +1,9 @@
 // Shared building blocks. One shell for every screen (design rule 4), thumb-sized controls (rule 11).
 import { h, raw } from './util.js';
-// Trial batch 1: the Sigil mark. One continuous rounded S-loop in deep teal on an off-white tile with a hairline border.
-export const LOGO_PATH = 'M66 30c-3-7-10-10-17-10-10 0-17 6-17 14 0 18 36 12 36 31 0 9-8 15-18 15-8 0-15-4-18-11';
-export const logo = (size = 28) => raw(`<svg class="logo" width="${size}" height="${size}" viewBox="0 0 100 100" role="img" aria-label="Sigil" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="98" height="98" rx="24" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/><path d="${LOGO_PATH}" fill="none" stroke="#0f766e" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
+// The PharmLedger mark (Option C, 26 Nov): an upright deep-teal bound ledger with a spine cut, and an ocean-blue pharmacy
+// plus interlocking its right edge, on an off-white tile with a hairline border. tools/make-icons.js draws the same MARK.
+export const LOGO_MARK = '<rect x="22" y="16" width="42" height="66" rx="7" fill="#0f766e"/><rect x="31" y="16" width="3.5" height="66" fill="#f8fafc"/><path d="M57 42h15v11h11v15H72v11H57V68H46V53h11z" fill="#005792" stroke="#f8fafc" stroke-width="4" stroke-linejoin="round" paint-order="stroke"/>';
+export const logo = (size = 28) => raw(`<svg class="logo" width="${size}" height="${size}" viewBox="0 0 100 100" role="img" aria-label="PharmLedger" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="98" height="98" rx="24" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>${LOGO_MARK}</svg>`);
 // How many pharmacies are on this device (set by app.js each render): the site switch is a pill only when there are several.
 export const env = { sites: 1 };
 const I = {

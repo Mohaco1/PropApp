@@ -1,4 +1,4 @@
-/* Sigil (formerly PropApp) · one calm phone-first style. Tokens first; every colour comes from them (light and dark). */
+/* PharmLedger (formerly PropApp) · one calm phone-first style. Tokens first; every colour comes from them (light and dark). */
 :root{--bg:#f6f7f8;--surface:#fff;--fg:#14181f;--muted:#5a6472;--line:#e3e6ea;--primary:#14181f;--on-primary:#fff;--accent:#1f5fbf;
 --bad:#b42318;--badbg:#fdecea;--warn:#a15c07;--warnbg:#fff4e0;--ok:#1b7f4b;--okbg:#e7f5ec;--law:#6b2bb8;--lawbg:#f2ebfb;
 --r:12px;--gap:16px;--font:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color-scheme:light}
@@ -251,7 +251,7 @@ a.linkbtn{text-decoration:none}
 .badge{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--tint);color:var(--primary);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
 .toast{left:16px;right:16px;transform:none;max-width:none;text-align:center;font-size:15px}@media (prefers-reduced-motion:no-preference){.toast{animation:up2 .18s ease-out}@keyframes up2{from{transform:translateY(8px);opacity:0}}}
 
-/* Sigil: Quarter Balancer */
+/* PharmLedger: Quarter Balancer */
 .qgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .qcol{border:1px solid var(--line);border-radius:12px;padding:8px;background:var(--surface);display:flex;flex-direction:column;gap:6px;min-width:0}
 .qcol.over{outline:2px solid var(--primary)}
@@ -262,13 +262,13 @@ a.linkbtn{text-decoration:none}
 .qbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
 .qbar span{flex-basis:100%;font-size:14px;color:var(--muted)}
 
-/* Sigil: Defer 3 days */
+/* PharmLedger: Defer 3 days */
 .rowwrap{display:flex;align-items:stretch}
 .rowwrap>.row{flex:1;min-width:0}
 .defer{flex:none;width:48px;min-height:44px;border:0;border-left:1px solid var(--line);background:none;color:var(--muted);font:inherit;font-size:12px;line-height:1.2;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center}.defer b{font-size:15px;color:var(--fg)}
 .rowwrap+.row,.row+.rowwrap,.rowwrap+.rowwrap{border-top:1px solid var(--line)}
 
-/* Sigil: last time's answer */
+/* PharmLedger: last time's answer */
 .lasttime{margin:0;padding:8px 12px;border-left:3px solid var(--primary);background:var(--surface);border-radius:8px;font-size:14px;color:var(--muted)}
 .lasttime .eyebrow{display:block}
 
@@ -277,7 +277,7 @@ a.linkbtn{text-decoration:none}
 .placechips{margin-top:8px}
 .placechips .chip{min-height:44px}
 
-/* Trial batch 1: Sigil logo (the SVG carries its own tile) */
+/* Trial batch 1: PharmLedger logo (the SVG carries its own tile) */
 .mark{background:none!important;width:22px;height:22px}.mark .logo{display:block}
 .wm-mark{background:none!important;width:48px;height:48px}.wm-mark .logo{display:block}
 .plogo{display:inline-block;vertical-align:-5px}

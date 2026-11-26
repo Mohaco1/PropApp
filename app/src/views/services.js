@@ -212,7 +212,7 @@ function doneScreen(c, id, prog) {
   return screen({ title: serviceName(id), back: true, body: h`${prog}<h2 class="big-title">What happens next</h2>
     ${p.later ? note(p.later + (p.later === 1 ? ' answer is' : ' answers are') + ' marked “Check later”. They stay on Today until you confirm them.', 'warn') : note('Every question answered.', 'ok')}
     <form class="form" data-form="fin">
-    ${revs.length ? h`<section class="sec"><h2 class="sec-title">Its reviews · first dates</h2><p class="muted">Suggested dates. Change any of them.</p>${revs.map(a => field(a.name + ' · ' + a.frequency.toLowerCase(), textInput('d:' + a.id, c.ph.schedule[a.id] || suggestedNext(c.ph, a.id, today()), { type: 'date', min: today() })))}</section>` : ''}
+    ${revs.length ? h`<section class="sec"><h2 class="sec-title">Its reviews · first dates</h2><p class="muted">Suggested dates. Change any of them.</p>${revs.map(a => field(a.name + ' · ' + a.frequency.toLowerCase(), textInput('d:' + a.id, c.ph.schedule[a.id] || suggestedNext(c.ph, a.id, today()), { type: 'date', min: c.ph.schedule[a.id] && c.ph.schedule[a.id] < today() ? c.ph.schedule[a.id] : today() })))}</section>` : ''}
     ${events.length ? h`<p class="muted">${events.map(a => a.name).join(', ')}: done when you start or change the service.</p>` : ''}
     <section class="sec"><h2 class="sec-title">Its procedure</h2><p class="muted">Finishing writes a draft procedure from your answers (version 0.1) in Procedures. Nothing is adopted until you say so.</p></section>
     <div class="dock-inline">${btn(revs.length ? 'Save dates and finish' : 'Finish setup', null, { kind: 'primary', type: 'submit', cls: 'block' })}</div></form>` });

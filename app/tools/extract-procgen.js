@@ -23,7 +23,7 @@ const sqSrc = fs.readFileSync(path.resolve(__dirname, '../../uat/layers/setup-qu
 // owner confirms them) with honest wording.
 const rename = t => t.replace(/\(Policies\)/g, '(Procedures)')
   // Owner trial: remember which setup answer each “[Confirm: …]” gap belongs to (output unchanged)
-  .split("c=(k,fn,what)=>{const v=a[k];if(RPH.proc.known(v))return fn(v,RPH.proc.show(id,k,v));confirm.push(what);return '[Confirm: '+what+']';}").join("c=(k,fn,what)=>{const v=a[k];if(RPH.proc.known(v))return fn(v,RPH.proc.show(id,k,v));confirm.push(what);(RPH.proc.gapKey??={})[id+'|'+what]=k;return '[Confirm: '+what+']';}").replace(/R\.Pharmacy/g, 'Sigil')
+  .split("c=(k,fn,what)=>{const v=a[k];if(RPH.proc.known(v))return fn(v,RPH.proc.show(id,k,v));confirm.push(what);return '[Confirm: '+what+']';}").join("c=(k,fn,what)=>{const v=a[k];if(RPH.proc.known(v))return fn(v,RPH.proc.show(id,k,v));confirm.push(what);(RPH.proc.gapKey??={})[id+'|'+what]=k;return '[Confirm: '+what+']';}").replace(/R\.Pharmacy/g, 'PharmLedger')
   .replace("'No advertising, signage, brochures or social posts about medicinal cannabis '+RS+'.'", "'No advertising, signage, brochures or social posts about medicinal cannabis (NSW Health, Cannabis medicines FAQ)'+'.'")
   .replace("RS='(NSW Health/TGA, per your research — verify)'", "RS='(source to confirm with NSW Health or the TGA — verify)'")
   .replace("V='(Strive for 5 / NSW Health, per your plan — verify)'", "V='(Strive for 5 / NSW Health — check against the current edition — verify)'")

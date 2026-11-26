@@ -35,7 +35,7 @@ export function parsePlain(txt, t = today()) {
     let d = yr + '-' + String(mon + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0'); if (!m[5] && d < t) d = (yr + 1) + d.slice(4); return d; }
   return '';
 }
-// Sigil brief: the Quarter Balancer. Service annual reviews shown in their quarter with a count; tap one to move it
+// PharmLedger brief: the Quarter Balancer. Service annual reviews shown in their quarter with a count; tap one to move it
 // with a 1-tap bar, or drag it to another quarter on a desktop. Moving only changes the quarter (stored in
 // ph.quarters); dates change when the owner taps Align.
 const QN = { 2: 'Feb', 5: 'May', 8: 'Aug', 11: 'Nov' };

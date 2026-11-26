@@ -14,11 +14,13 @@ function open() {
   });
 }
 async function getAll() {
-  if (useLS || !db) { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith('propapp:') && !pending.has(k)) try { mem.set(k, JSON.parse(localStorage.getItem(k))); if (k.startsWith('propapp:ph:') || k === 'propapp:dir') seen.set(k, JSON.parse(localStorage.getItem(k))); } catch {} } return; }
+  if (useLS || !db) { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith('propapp:') && !pending.has(k) && !inflight.has(k)) try { mem.set(k, JSON.parse(localStorage.getItem(k))); if (k.startsWith('propapp:ph:') || k === 'propapp:dir') seen.set(k, JSON.parse(localStorage.getItem(k))); } catch {} } return; }
   await new Promise(res => {
     const tx = db.transaction(ST), s = tx.objectStore(ST), r = s.openCursor();
-    // A value this window hasn't saved yet stays as it is (and keeps its merge base), so the save can merge both sides.
-    r.onsuccess = () => { const c = r.result; if (c) { if (!pending.has(c.key)) { mem.set(c.key, c.value); loadedAt.set(c.key, Date.now()); if (String(c.key).startsWith('propapp:ph:') || c.key === 'propapp:dir') seen.set(c.key, clone(c.value)); } c.continue(); } else res(); };
+    // A value this window hasn't saved yet, or is saving right now, stays as it is (and keeps its merge base), so the save
+    // can merge both sides. (Gates flake, 26 Nov: reloading a key mid-save replaced this tab's copy with one missing its own
+    // change, and its next save then merged that change away.)
+    r.onsuccess = () => { const c = r.result; if (c) { if (!pending.has(c.key) && !inflight.has(c.key)) { mem.set(c.key, c.value); loadedAt.set(c.key, Date.now()); if (String(c.key).startsWith('propapp:ph:') || c.key === 'propapp:dir') seen.set(c.key, clone(c.value)); } c.continue(); } else res(); };
     r.onerror = () => res();
   });
 }
@@ -131,7 +133,7 @@ export async function init(onExternalChange) {
   onChange = onExternalChange;
   await open(); await getAll();
   if (!useLS) await replayJournal();
-  try { chan = new BroadcastChannel('propapp'); chan.onmessage = async () => { for (const k of [...mem.keys()]) if (!pending.has(k)) mem.delete(k); await getAll(); onExternalChange?.(); }; } catch {}
+  try { chan = new BroadcastChannel('propapp'); chan.onmessage = async () => { for (const k of [...mem.keys()]) if (!pending.has(k) && !inflight.has(k)) mem.delete(k); await getAll(); onExternalChange?.(); }; } catch {}
   addEventListener('pagehide', () => { journalPending(); flush(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) { journalPending(); flush(); } });
 }

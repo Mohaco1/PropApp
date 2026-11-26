@@ -11,7 +11,7 @@ export function anchor(y, m) { let d = y + '-' + String(m).padStart(2, '0') + '-
 const anchors = (t, months) => { const y = +t.slice(0, 4), out = []; for (let k = y - 1; k <= y + 2; k++) for (const m of months) out.push(anchor(k, m)); return out.sort(); };
 const nearest = (list, d) => list.reduce((best, a) => best === null || Math.abs(daysBetween(d, a)) < Math.abs(daysBetween(d, best)) ? a : best, null);
 const FIXED = ['CO-P', 'CO-F'];
-// Sigil brief: the Quarter Balancer. Service annual reviews are spread evenly over Feb, May, Aug and Nov instead of all
+// PharmLedger brief: the Quarter Balancer. Service annual reviews are spread evenly over Feb, May, Aug and Nov instead of all
 // landing in Aug. Seasonal defaults first (vaccination before flu season; PPA supply programs before 30 June;
 // prescribing in Aug; higher-risk OTP, cannabis, vaping and NSP in Nov), then the least-loaded quarter. The owner can
 // move any of them (stored in ph.quarters); nothing here changes a date until the owner taps Align.
@@ -59,7 +59,7 @@ export function undoAlign(ph) {
   for (const x of u.changes) { if (x.kind === 'review') { if (ph.schedule?.[x.id] === x.to) ph.schedule[x.id] = x.from; } else { const p = ph.staff.find(s => s.id === x.id); if (p && p.annualDue === x.to) p.annualDue = x.from; } }
   delete ph.flags.alignUndo; return u.changes.length;
 }
-// Sigil brief: "Defer 3 days" for an owner who isn't on site. Only actions and reviews or meetings that aren't
+// PharmLedger brief: "Defer 3 days" for an owner who isn't on site. Only actions and reviews or meetings that aren't
 // required by law, only when they're due today or overdue, and never anything already in progress. The S8 review is
 // never moved past its s 111 limit (checked here too, whatever calls it).
 export const canDefer = it => !it.legal && !it.started && ['action', 'review', 'meeting'].includes(it.kind) && (it.bucket === 'overdue' || it.bucket === 'today');

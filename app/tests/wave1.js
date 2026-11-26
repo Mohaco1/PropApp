@@ -67,7 +67,7 @@ const restore = async (p, file) => { await tap(p, 'More'); await p.getByRole('bu
   await p.fill('input[name=title]', 'Ring Mrs Example about her pack (fictional)'); await tap(p, 'Save action'); await p.waitForTimeout(300);
   await tap(p, 'More'); await p.getByRole('button', { name: /^Calendar/ }).first().click(); await p.waitForTimeout(200);
   const ics = await download(p, 'Download calendar file');
-  ok(!/Mrs Example/.test(ics) && /SUMMARY:Sigil action due · Wattle Grove Pharmacy/.test(ics), 'R04 calendar file: actions show “Sigil action due · pharmacy”, never their own words');
+  ok(!/Mrs Example/.test(ics) && /SUMMARY:PharmLedger action due · Wattle Grove Pharmacy/.test(ics), 'R04 calendar file: actions show “PharmLedger action due · pharmacy”, never their own words');
   await tap(p, 'More'); await p.getByRole('button', { name: /^Evidence pack/ }).click(); t = await text(p);
   ok(/Designed for de-identified proprietor records: check your notes before sharing\./.test(t) && !/no patient information/.test(t), 'R04 the pack no longer claims “no patient information”');
 
