@@ -256,7 +256,8 @@ a.linkbtn{text-decoration:none}
 .qcol{border:1px solid var(--line);border-radius:12px;padding:8px;background:var(--surface);display:flex;flex-direction:column;gap:6px;min-width:0}
 .qcol.over{outline:2px solid var(--primary)}
 .qhead{margin:0 0 2px;font-size:14px;color:var(--muted)}
-.qpill{min-height:44px;text-align:left;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);font:inherit;font-size:14px;padding:6px 10px;cursor:grab;overflow-wrap:anywhere}
+.qpill{display:flex;flex-direction:column;gap:6px;text-align:left;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);font-size:14px;padding:8px 10px;cursor:grab;overflow-wrap:anywhere}
+.qmovebtn{align-self:flex-start;min-height:44px;min-width:72px;border:1.5px solid var(--accent,#005792);border-radius:8px;background:var(--surface);color:var(--accent,#005792);font:inherit;font-size:14px;font-weight:600;padding:0 14px;cursor:pointer}
 .qpill.on{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary) inset}
 .qbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
 .qbar span{flex-basis:100%;font-size:14px;color:var(--muted)}

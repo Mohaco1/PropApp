@@ -33,16 +33,16 @@ const TMP = path.join(require('os').tmpdir(), 'sigil-test'); fs.mkdirSync(TMP, {
   ok(/Feb · \d+ services?/.test(await text(p)), 'Balancer: each quarter shows its load count');
   ok(await p.locator('.qcol[data-q="5"] .qpill', { hasText: /Home delivery|Residential aged care|Medicines reviews/ }).count() >= 2 && await p.locator('.qcol[data-q="11"] .qpill', { hasText: /cannabis|vaping|Needle/i }).count() === 3, 'Balancer: seasonal defaults (PPA supply programs in May; NSP, vaping and cannabis in Nov)');
   await p.locator('.qbal').scrollIntoViewIfNeeded(); await p.screenshot({ path: path.join(OUT, '32_quarter_balancer_390px.png') });
+  // drag and drop (desktop)
+  const drag = p.locator('.qcol[data-q="5"] .qpill').first(), dn = await drag.locator('.qname').innerText();
+  await drag.dragTo(p.locator('.qcol[data-q="8"]'), { sourcePosition: { x: 10, y: 10 } }); await p.waitForTimeout(250);
+  ok(await p.locator('.qcol[data-q="8"] .qpill', { hasText: dn }).count() === 1, 'Balancer: drag-and-drop moves “' + dn + '” to Aug');
   // tap to move
-  const first = p.locator('.qcol[data-q="2"] .qpill').first(), name = await first.innerText(); await first.click(); await p.waitForTimeout(150);
-  ok(await p.locator('.qbar').count() === 1, 'Balancer: tapping a service shows a 1-tap Feb · May · Aug · Nov bar');
+  const first = p.locator('.qcol[data-q="2"] .qpill').first(), name = await first.locator('.qname').innerText(); await first.locator('.qmovebtn').tap(); await p.waitForTimeout(150);
+  ok(await p.locator('.qbar').count() === 1, 'Balancer: each service has a visible Move button; tapping it shows a 1-tap Feb · May · Aug · Nov bar');
   await p.locator('.qbar .chip', { hasText: 'Nov' }).click(); await p.waitForTimeout(250);
   ok(await p.locator('.qcol[data-q="11"] .qpill', { hasText: name }).count() === 1, 'Balancer: tap-to-move puts “' + name + '” in Nov');
   let ph = await activePh(p); ok(Object.values(ph.quarters || {}).includes(11) && ph.history.some(l => /Quarter Balancer/.test(l.what)), 'Balancer: the move is saved and logged');
-  // drag and drop (desktop)
-  const drag = p.locator('.qcol[data-q="5"] .qpill').first(), dn = await drag.innerText();
-  await drag.dragTo(p.locator('.qcol[data-q="8"]')); await p.waitForTimeout(250);
-  ok(await p.locator('.qcol[data-q="8"] .qpill', { hasText: dn }).count() === 1, 'Balancer: drag-and-drop moves “' + dn + '” to Aug');
   // 3. Copy setup from another pharmacy (Wattle Grove → a new store)
   const wg = Object.values(await saved(p)).find(x => x?.name === 'Wattle Grove Pharmacy');
   await tap(p, 'Today'); await p.locator('.ph-switch').click(); await tap(p, 'Set up another pharmacy'); await p.fill('input[name=name]', 'Second Store Pharmacy (fictional)'); await tap(p, 'Continue'); await p.fill('input[name=owner0]', 'Sam Owner'); await tap(p, 'Continue');

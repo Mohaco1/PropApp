@@ -25,6 +25,8 @@ const ABOUT = { adherence: 'Medicine adherence support means structured help for
 const COPY = {
   'Does your pharmacy’s NSW Health approval to dose OTP patients have any special conditions? (optional)': ['Does your NSW Health letter approving OTP dosing here list any extra conditions? Most don’t: leave it blank if yours doesn’t.', 'If it does (for example, a maximum number of patients), the procedure lists them so whoever is dosing follows them.', true],
   'Software used to record doses': ['Which software records OTP doses?', 'The procedure names it, so a locum knows where to record each dose. Tap one you’ve used before, or type it.'],
+  'How often are OTP patient files reviewed?': ['How often do you review OTP patient files?', 'No fixed legal interval has been found for this. Quarterly is suggested because it fits your four quarters; every six months or yearly is fine if that suits you.', true],
+  'Do you supply THC-containing (Schedule 8) medicinal cannabis products?': ['Do you supply any Schedule 8 medicinal cannabis? That’s anything with THC, including CBD-dominant (Category 2) products.', 'Only CBD-only products with 98% or more CBD (TGA Category 1) are Schedule 4. Anything else is Schedule 8, so your S8 storage and register apply. A Schedule 3 low-dose CBD entry exists, but no product is registered under it (TGA).', true],
   'Software used for OTP patient files': ['Which software holds OTP patient files?', 'The procedure tells staff where to find a patient’s OTP file.'],
 };
 function places(ph, skip) { const out = new Set();
@@ -101,7 +103,9 @@ register('service-setup', {
       <div class="list">${locs.map(x => row({ title: procWord(RPH.qm.metaFor(id, x.key).label || x.label), sub: a[x.key] ? (a[x.key] === NV ? 'Check later' : a[x.key]) : '', chev: false }))}</div>
       <div class="btnrow">${btn('Answer now', 'recnow', { kind: 'primary' })}${btn('Skip for now', 'recskip')}</div>` });
     let input;
-    if (k === 'single' || k === 'role') { const opts = RPH.qm.optionsFor(id, [f.key, f.label, f.options]); input = h`${choice('v', [...opts.map(o => ({ value: o, label: show(id, f.key, o) })), { value: NV, label: 'Check later' }], split(v)[0]?.split(':')[0] === v.split(':')[0] ? v.split(':')[0] : v)}
+    if (k === 'single' || k === 'role') { let opts = RPH.qm.optionsFor(id, [f.key, f.label, f.options]);
+      // Trial batch 1: for OTP file reviews, Quarterly is listed first as the suggestion (it fits the four quarters); nothing is picked for the owner.
+      if (id === 'otp' && f.key === 'fileFrequency' && opts.includes('Quarterly')) opts = ['Quarterly', ...opts.filter(o => o !== 'Quarterly')]; input = h`${choice('v', [...opts.map(o => ({ value: o, label: show(id, f.key, o) })), { value: NV, label: 'Check later' }], split(v)[0]?.split(':')[0] === v.split(':')[0] ? v.split(':')[0] : v)}
       ${(m.describe || ['Different local arrangement', 'Someone else']).some(o => v.startsWith(o)) ? field('Describe', textInput('d', v.includes(':') ? v.slice(v.indexOf(':') + 1).trim() : '')) : ''}`; }
     else if (k === 'multi' && id === 'vaccination' && f.key === 'vaccines') { const on = split(v);
       input = h`${RPH.sq.VGROUPS.map(([g, list]) => h`<fieldset class="field vgroup"><legend class="field-label">${g}</legend>${btn('Select all', 'vall', { kind: 'link', data: { g } })}<div class="ticks">${list.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v, o) ? h`checked` : ''}><span>${o}</span></label>`)}</div></fieldset>`)}

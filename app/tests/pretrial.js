@@ -76,7 +76,7 @@ const above = async (p, name) => { await p.waitForTimeout(250); const f = await 
   await p.locator('label.choice', { hasText: /^Checked$/ }).first().click(); await tap(p, 'Next'); await p.waitForTimeout(60);
   ok(/Workers compensation \(icare\)/.test(await text(p)), 'Track D question 14: workers compensation policy current and wages declared');
   await p.locator('label.choice', { hasText: /^Checked$/ }).first().click(); await tap(p, 'Next'); await p.waitForTimeout(60);
-  ok(/NASH PKI certificate \(valid for 2 years\) and the PRODA B2B device \(extended every 6 months\)/.test(await text(p)), 'Micro-patch question 15: NASH and PRODA B2B expiry check');
+  ok(/NASH PKI certificate \(valid for 2 years\) is in date, and the PRODA B2B device/.test(await text(p)), 'Micro-patch question 15: NASH and PRODA B2B expiry check');
   await p.getByRole('button', { name: 'Back', exact: true }).click();
   // E2: S8 review asks about invoices and destruction witnesses
   await tap(p, 'Reviews'); await p.fill('input[type=search]', ''); await p.getByRole('button', { name: /S8 stock check/ }).first().click(); await tap(p, 'Start review');

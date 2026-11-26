@@ -42,10 +42,10 @@ const QN = { 2: 'Feb', 5: 'May', 8: 'Aug', 11: 'Nov' };
 function balancer(c) {
   const list = serviceAnnuals(c.ph); if (list.length < 2) return '';
   const map = quarterMap(c.ph), pick = c.ui.qpick;
-  return h`<section class="sec qbal"><h2 class="sec-title">Service reviews by quarter</h2><p class="muted">Spread evenly so no quarter piles up. Tap one to move it.</p>
+  return h`<section class="sec qbal"><h2 class="sec-title">Service reviews by quarter</h2><p class="muted">Spread evenly so no quarter piles up. Tap Move on any of them to change its quarter.</p>
     <div class="qgrid">${QUARTER_MONTHS.map(q => { const xs = list.filter(a => map[a.id] === q);
       return h`<div class="qcol" data-q="${q}"><p class="qhead"><b>${QN[q]}</b> · ${xs.length === 1 ? '1 service' : xs.length + ' services'}</p>
-        ${xs.map(a => h`<button class="qpill${pick === a.id ? ' on' : ''}" data-act="qpick" data-id="${a.id}" draggable="true" data-drag="${a.id}">${a.name}</button>`)}</div>`; })}</div>
+        ${xs.map(a => h`<div class="qpill${pick === a.id ? ' on' : ''}" draggable="true" data-drag="${a.id}"><span class="qname">${a.name}</span><button type="button" class="qmovebtn" data-act="qpick" data-id="${a.id}" aria-label="Move ${a.name} to another quarter">${pick === a.id ? 'Moving…' : 'Move'}</button></div>`)}</div>`; })}</div>
     ${pick && map[pick] ? h`<div class="qbar" role="group" aria-label="Move to"><span>Move ${list.find(a => a.id === pick)?.name} to</span>${QUARTER_MONTHS.map(q => h`<button class="chip ${map[pick] === q ? 'on' : ''}" data-act="qmove" data-q="${q}">${QN[q]}</button>`)}</div>` : ''}</section>`;
 }
 const moveQuarter = (c, id, q) => { const name = serviceAnnuals(c.ph).find(a => a.id === id)?.name || id; c.ui.qpick = '';

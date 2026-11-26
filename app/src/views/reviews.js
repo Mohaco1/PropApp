@@ -40,7 +40,7 @@ const EXTRA_Q = { B1: ['Invoice spot-check (Pharmacy Council, Supporting resourc
   'SafeScript NSW (NSW Health, Privacy and security): each pharmacist uses their own login with multi-factor authentication, no logins are shared, and staff know that unauthorised access, use or disclosure carries penalties under the Regulation (logins from outside Australia are blocked).',
   'IT backups (best practice): a restore from the dispensing and business system backups was tested this year, the backup is kept off the premises or in the cloud, and the result was recorded.',
   'Workers compensation (icare): the NSW workers compensation policy is current, and at renewal the actual wages paid in the last policy period were declared (icare: a legal requirement).',
-  'Digital certificates (Services Australia): the NASH PKI certificate (valid for 2 years) and the PRODA B2B device (extended every 6 months) that the dispensing and claiming software use are in date, with their expiry dates noted.'] };
+  'Digital certificates (Services Australia): the NASH PKI certificate (valid for 2 years) is in date, and the PRODA B2B device the dispensing and claiming software use has been reactivated in the last 6 months (it must be reactivated at least every 6 months), with both dates noted.'] };
 export function questionsFor(id) {
   if (id === 'service-otp') return OTP_MONTHLY;
   const base = C.reviews.forms[id]?.questions || [];
