@@ -4,7 +4,7 @@ import { register } from '../app.js';
 import { h } from '../util.js';
 import { screen, btn, row, field, textInput, textArea, choice, note, why, empty, pill } from '../ui.js';
 import { C } from '../content.js';
-import { RPH, visibleFields, tidyAnswers, draftText } from '../procgen.js';
+import { QLD_OPTS, RPH, visibleFields, tidyAnswers, draftText } from '../procgen.js';
 import { uid } from '../util.js';
 import { catalog, applies, serviceName, suggestedNext, reviewById } from '../rules.js';
 import { today, addDays, fmt } from '../dates.js';
@@ -16,6 +16,25 @@ const show = (id, k, v) => ROLE_SHOW(RPH.qm.showFor(id, k, v));
 const split = v => RPH.qm.split(v);
 // Owner trial (26 Nov): an option whose own name has a comma ("Creams, ointments and gels") was split in two when read
 // back, so its tick never showed. Ticked options are matched against the whole stored list instead.
+// Trial batch 1: "Places & systems". Everything already typed for a software, system or "where exactly" question in
+// this pharmacy is offered as a one-tap chip under the next such box. Tapping fills the box (it's then saved like typing);
+// nothing is filled on its own.
+// Trial batch 1: plainer wording for questions the owner found unclear, with one line on why it's asked.
+// [new question, why we ask, hide the old note]
+const ABOUT = { adherence: 'Medicine adherence support means structured help for patients to take their medicines as prescribed, such as dose administration aids (DAAs) and MedsCheck reviews.' };
+const COPY = {
+  'Does your pharmacy’s NSW Health approval to dose OTP patients have any special conditions? (optional)': ['Does your NSW Health letter approving OTP dosing here list any extra conditions? Most don’t: leave it blank if yours doesn’t.', 'If it does (for example, a maximum number of patients), the procedure lists them so whoever is dosing follows them.', true],
+  'Software used to record doses': ['Which software records OTP doses?', 'The procedure names it, so a locum knows where to record each dose. Tap one you’ve used before, or type it.'],
+  'Software used for OTP patient files': ['Which software holds OTP patient files?', 'The procedure tells staff where to find a patient’s OTP file.'],
+};
+function places(ph, skip) { const out = new Set();
+  for (const [sid, s] of Object.entries(ph.services || {})) { if (!s.active) continue; for (const f of fieldsFor(ph, sid)) { const k = kindOf(sid, f), v = s.answers?.[f.key];
+    if (!v || v === NV || (sid + '/' + f.key) === skip) continue;
+    if (k === 'text' && v.length <= 60) out.add(v.trim());
+    if (k === 'location' && v.includes(' — ')) { const d = v.slice(v.indexOf(' — ') + 3).trim(); if (d && d.length <= 60) out.add(d); }
+    if (k === 'proc' && v.startsWith('We have our own:')) { const d = v.split(':').slice(1).join(':').trim(); if (d && d.length <= 60) out.add(d); } } }
+  return [...out].slice(0, 8); }
+const placeChips = (ph, skip, cur) => { const xs = places(ph, skip).filter(x => x !== cur); return xs.length ? h`<div class="chips placechips" role="group" aria-label="Used before">${xs.map(x => h`<button type="button" class="chip" data-act="place" data-v="${x}">${x}</button>`)}</div>` : ''; };
 const norm = x => String(x || '').split(',').map(y => y.trim()).join(',');
 const has = (v, o) => { const s = ',' + norm(v) + ',', n = norm(o); return s.includes(',' + n + ',') || s.includes(',' + n + ':'); };
 function fieldsFor(ph, id) { const a = ph.services[id]?.answers || {}; const all = visibleFields(ph, id, a).map(f => ({ key: f[0], label: f[1], options: f[2], section: f[3], extra: f[4] }));
@@ -56,7 +75,7 @@ register('services', {
 function needsLead(ph) { return !ph.lead && Object.keys(ph.services).some(id => ph.services[id].active && (RPH.sq.LEAD[id] || []).length); }
 // C-09: the "who runs your services" question, shown in place on the first service's setup (no extra screen).
 function leadScreen(c, from) { const opts = ['Pharmacist in charge', 'Designated pharmacist', 'Proprietor', 'Someone else'];
-  return screen({ title: 'Day to day', back: true, body: h`<h2 class="big-title">Who runs your services day to day?</h2>${from ? h`<p class="note ok">Asked once for all your services. Then you’ll carry on with ${serviceName(from)}.</p>` : ''}<p class="muted">For example, who handles exceptions and escalations. You stay responsible overall.</p>
+  return screen({ title: 'Day to day', back: true, body: h`<h2 class="big-title">Who runs your services day to day?</h2>${from ? h`<p class="note ok">Asked once for all your services. Then you’ll carry on with ${serviceName(from)}.</p>` : ''}<p class="muted">For example, who handles exceptions and escalations. You stay responsible overall.</p><p class="whyask"><b>Why we ask:</b> each procedure names this person as the one staff go to when something unusual happens. It doesn’t change who’s responsible: that’s always you.</p>
       <form class="form" data-form="leadsave">${choice('lead', opts.map(v => ({ value: v, label: ROLE_SHOW(v) })), c.ph.lead || '')}${field('If someone else, who (role, not a name is fine)', textInput('other', ''))}
       <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` });
 }
@@ -87,8 +106,9 @@ register('service-setup', {
     else if (k === 'multi' && id === 'vaccination' && f.key === 'vaccines') { const on = split(v);
       input = h`${RPH.sq.VGROUPS.map(([g, list]) => h`<fieldset class="field vgroup"><legend class="field-label">${g}</legend>${btn('Select all', 'vall', { kind: 'link', data: { g } })}<div class="ticks">${list.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v, o) ? h`checked` : ''}><span>${o}</span></label>`)}</div></fieldset>`)}
       <label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
-    else if (k === 'multi') { const opts = RPH.qm.optionsFor(id, [f.key, f.label, f.options]); const on = split(v);
-      input = h`<div class="ticks">${opts.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v, o) ? h`checked` : ''}><span>${show(id, f.key, o)}</span></label>`)}</div>
+    else if (k === 'multi') { const qldGate = id === 'prescribing' && f.key === 'pathway', qld = s.qld === 'yes';
+      const opts = RPH.qm.optionsFor(id, [f.key, f.label, f.options]).filter(o => !qldGate || qld || !QLD_OPTS.has(o) || has(v, o)); const on = split(v);
+      input = h`${qldGate ? h`<div class="card qldgate"><p class="field-label">Does any pharmacist here hold Queensland-pathway training (the expanded conditions, or JCU training for starting the pill)?</p><div class="chips">${[['yes', 'Yes, show those conditions'], ['no', 'No']].map(([k2, l]) => h`<button type="button" class="chip ${(s.qld || 'no') === k2 ? 'on' : ''}" data-act="qld" data-v="${k2}">${l}</button>`)}</div></div>` : ''}<div class="ticks">${opts.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v, o) ? h`checked` : ''}><span>${show(id, f.key, o)}</span></label>`)}</div>
       ${(m.describe || []).some(o => on.some(x => x.startsWith(o))) ? field('Describe', textInput('d', (on.find(x => x.includes(':')) || '').split(':').slice(1).join(':').trim())) : ''}
       <label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
     else if (k === 'routes') { const on = split(v); input = h`<p class="muted">Tick each that applies.</p><div class="ticks">${ROUTES.map(([o, l]) => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v, o) ? h`checked` : ''}><span>${l}</span></label>`)}</div><label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
@@ -97,15 +117,15 @@ register('service-setup', {
       <p class="hint">Tick only what is already in place. Anything not ticked becomes one action to confirm.</p>`; }
     else if (k === 'location') { const on = split(v.split(' — ')[0]); const detail = v.includes(' — ') ? v.slice(v.indexOf(' — ') + 3) : '';
       input = h`<div class="ticks">${RPH.sq.REC_BASE.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v.split(' — ')[0], o) ? h`checked` : ''}><span>${o}</span></label>`)}</div>
-      ${field('Where exactly? (optional)', textInput('d', detail, { placeholder: 'e.g. DAA consent folder, dispensary shelf 2' }), 'Used in the procedure so anyone can find it.')}
+      ${field('Where exactly? (optional)', textInput('d', detail, { placeholder: 'e.g. DAA consent folder, dispensary shelf 2' }), 'Used in the procedure so anyone can find it.')}${placeChips(c.ph, id + '/' + f.key, detail)}
       <label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
     else if (k === 'proc') { const p = RPH.sq.PROC[id][f.key]; input = h`${choice('v', [{ value: 'Draft it for me', label: 'Draft it for me' }, { value: 'We have our own procedure', label: 'We have our own procedure' }, { value: NV, label: 'Check later' }], v.split(':')[0])}
-      ${v.startsWith('We have our own') ? field('Where is it kept?', textInput('d', v.split(':').slice(1).join(':').trim())) : ''}${why('What “Draft it for me” writes', procWord(p.text))}`; }
-    else input = h`${textInput('d', v === NV ? '' : v, { placeholder: 'Type your answer' })}<label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`;
+      ${v.startsWith('We have our own') ? h`${field('Where is it kept?', textInput('d', v.split(':').slice(1).join(':').trim()))}${placeChips(c.ph, id + '/' + f.key, v.split(':').slice(1).join(':').trim())}` : ''}${why('What “Draft it for me” writes', procWord(p.text))}`; }
+    else input = h`${textInput('d', v === NV ? '' : v, { placeholder: 'Type your answer' })}${placeChips(c.ph, id + '/' + f.key, v)}<label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`;
     const maxQ = (C.services.setupFields[id] || []).length;
     return screen({ title: serviceName(id), back: true, saved: 'Saved', body: h`${prog}<p class="steps">Question ${idx + 1}${maxQ > fs.length ? ' · more may follow, depending on your answers' : ' of ' + fs.length}</p>
       ${window.PROPAPP_UAT ? h`<div class="uatq"><span>UAT · this question:</span>${['Could be usual', 'Must always ask', 'No opinion'].map(x => h`<button class="chip ${window.uatMarkOf?.(id + '/' + f.key) === x ? 'on' : ''}" data-act="uatq" data-k="${id + '/' + f.key}" data-v="${x}">${x}</button>`)}</div>` : ''}
-      <form class="form" data-form="next" data-change="ans"><p class="qtext">${procWord(label)}</p>${m.note ? h`<p class="muted">${procWord(m.note)}</p>` : ''}${input}</form>
+      ${idx === 0 && ABOUT[id] ? h`<p class="whyask"><b>What this is:</b> ${ABOUT[id]}</p>` : ''}<form class="form" data-form="next" data-change="ans"><p class="qtext">${procWord(COPY[label]?.[0] || label)}</p>${COPY[label]?.[1] ? h`<p class="whyask"><b>Why we ask:</b> ${COPY[label][1]}</p>` : ''}${m.note && !COPY[label]?.[2] ? h`<p class="muted">${procWord(m.note)}</p>` : ''}${input}</form>
       ${c.ui.returnTo?.id === id ? h`<div class="btnrow">${btn('Save and back to the procedure', 'ret', { kind: 'primary', cls: 'block' })}</div>` : h`<div class="btnrow">${btn('Previous', 'step', { data: { s: idx - 1 }, disabled: idx === 0 })}${btn(idx === fs.length - 1 ? 'Finish' : 'Next', 'step', { kind: 'primary', data: { s: idx + 1 } })}</div>`}` });
   },
   changes: { ans: (c, el, r, ev) => { const form = el.closest('form'), id = r.id, fs = fieldsFor(c.ph, id), a = c.ph.services[id].answers || {};
@@ -125,7 +145,9 @@ register('service-setup', {
     c.ui['ss:' + id] = idx; if (before !== v) c.rerender(); } },
 
   forms: { fin: (c, f, el, r) => finishService(c, r.id, f), leadsave: (c, f) => leadSave(c, f, () => c.rerender()) },
-  acts: { uatq: async (c, d) => { await window.uatMark?.(d.k, d.v); c.rerender(); },
+  acts: { qld: (c, d) => c.change(ph => { ph.services.prescribing.qld = d.v; }, d.v === 'yes' ? 'Queensland-pathway conditions shown' : 'Queensland-pathway conditions hidden'),
+    place: (c, d, el) => { const form = el.closest('form'), inp = form?.querySelector('input[name=d]'); if (!inp) return; inp.value = d.v; inp.dispatchEvent(new Event('change', { bubbles: true })); },
+    uatq: async (c, d) => { await window.uatMark?.(d.k, d.v); c.rerender(); },
     vall: (c, d, el) => { const fs = el.closest('fieldset'); fs.querySelectorAll('input[type=checkbox]').forEach(i => { i.checked = true; }); fs.closest('form').dispatchEvent(new Event('change', { bubbles: true })); },
     step: (c, d, el, r) => { const s = Math.max(0, +d.s); c.ui['ss:' + r.id] = s; c.change(ph => { ph.services[r.id].pos = s; }); window.scrollTo(0, 0); },
     recnow: (c, d, el, r) => c.change(ph => { ph.services[r.id].recIntro = 'now'; }),

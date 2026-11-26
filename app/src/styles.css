@@ -270,3 +270,8 @@ a.linkbtn{text-decoration:none}
 /* Sigil: last time's answer */
 .lasttime{margin:0;padding:8px 12px;border-left:3px solid var(--primary);background:var(--surface);border-radius:8px;font-size:14px;color:var(--muted)}
 .lasttime .eyebrow{display:block}
+
+/* Trial batch 1: why we ask, places chips */
+.whyask{margin:0;padding:8px 12px;background:var(--surface);border-left:3px solid var(--teal,#0f766e);border-radius:8px;font-size:14px;color:var(--muted)}
+.placechips{margin-top:8px}
+.placechips .chip{min-height:44px}
