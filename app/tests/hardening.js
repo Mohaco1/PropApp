@@ -74,7 +74,7 @@ const next = p => p.getByRole('button', { name: /^(Next|Finish)$/ }).first();
   await tap(p, 'Reviews'); await p.getByRole('button', { name: /S8 stock check/ }).first().tap(); await tap(p, 'Start review'); await p.waitForTimeout(200);
   await p.locator('label.choice', { hasText: /^Incomplete$/ }).tap(); await p.fill('textarea[name=issue]', 'Count interrupted (fictional)'); await p.waitForTimeout(100); await tap(p, 'Next');
   // wait for each question to change rather than a fixed pause (the fixed pauses were what made earlier S8 runs flaky)
-  for (let i = 1; i < 9; i++) { const n = await qn(p); await p.locator('label.choice').first().tap(); await p.waitForTimeout(80); await next(p).tap();
+  for (let i = 1; i < 9; i++) { const n = await qn(p); await p.locator('label.choice').first().tap(); await p.waitForTimeout(300); await next(p).tap();
     await p.waitForFunction(k => !document.body.innerText.includes('Question ' + k + ' of'), n, { timeout: 5000 }).catch(() => {}); }
   await p.getByRole('button', { name: 'Save review' }).waitFor({ timeout: 5000 }); await tap(p, 'Save review'); await p.waitForTimeout(400);
   ph = await activePh(p); const due = ph.schedule.B1;

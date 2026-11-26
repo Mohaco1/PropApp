@@ -56,9 +56,9 @@ const journaled = k => !useLS && (k.startsWith('propapp:ph:') || k.startsWith('p
 function journal(k, v) { if (!journaled(k)) return; const jk = JOURNAL + TAB + ':' + k;
   try { if (v === undefined) { localStorage.removeItem(jk); return; } localStorage.setItem(jk, JSON.stringify({ v, base: seen.get(k) ?? null, at: Date.now(), baseAt: loadedAt.get(k) || 0, replace: replacing.has(k) })); } catch {} }
 function journalPending() { for (const [k, v] of inflight) if (!pending.has(k)) journal(k, v); for (const [k, v] of pending) journal(k, v); }
-// When this tab last read each pharmacy from storage. A restore stamps the time it replaced a pharmacy; anything this tab
-// wants to save that was based on an older read (or a journal entry from before the restore) is dropped, so a restore
-// always wins over stale copies in other tabs.
+// When this tab last read each pharmacy from storage. A restore stamps the time it replaced a pharmacy, and a leftover
+// journal entry based on an older read is discarded, so it can't bring back what the restore replaced. (Dropping live
+// saves on the same test made two tabs saving together lose an action, so live saves merge as before.)
 const loadedAt = new Map(), inflight = new Map();
 const restoredAt = k => { try { return Number(localStorage.getItem(RESTORED + k) || 0); } catch { return 0; } };
 async function replayJournal() { const keys = []; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k?.startsWith(JOURNAL)) keys.push(k); } } catch {}
@@ -104,7 +104,6 @@ export function flush() { running = (running || Promise.resolve()).then(flushNow
 async function flushNow() {
   clearTimeout(timer); if (!pending.size) return true;
   let batch = [...pending].map(([k, v]) => [k, v, v]); pending.clear(); kept = false; merged3 = false;
-  batch = batch.filter(([k]) => !(journaled(k) && !replacing.has(k) && restoredAt(k) > (loadedAt.get(k) || 0)));
   if (!batch.length) { setStatus('saved'); return true; }
   for (const [k, v] of batch) inflight.set(k, v);
   try {
