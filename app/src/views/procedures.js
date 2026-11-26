@@ -2,7 +2,7 @@
 // Edit and Adopt (Gemini F-08). Each "[Confirm: …]" gap links to the question that fills it. Adopting is blocked while
 // any remain (owner decision). Nothing is approved for the owner.
 import { register } from '../app.js';
-import { h, uid } from '../util.js';
+import { h, uid, raw } from '../util.js';
 import { screen, btn, row, field, textArea, textInput, note, empty, pill, why } from '../ui.js';
 import { draftText, blockers, procWording, visibleFields } from '../procgen.js';
 import { serviceName } from '../rules.js';
@@ -20,6 +20,19 @@ export const procReviewDue = p => addMonths(day((p.reviews || []).at(-1)?.date |
 const words = t => new Set(String(t).toLowerCase().match(/[a-z0-9]{4,}/g) || []);
 function bestQuestion(ph, id, gap) { const fs = visibleFields(ph, id, ph.services[id]?.answers || {}), a = ph.services[id]?.answers || {}, g = words(gap);
   let best = '', score = 0; fs.forEach(f => { const w = words(f[1]), s = [...g].filter(x => w.has(x)).length + (!a[f[0]] || a[f[0]] === 'Needs verification' ? 0.5 : 0); if (s > score) { score = s; best = f[0]; } }); return score >= 1 ? questionIndex(ph, id, best) : -1; }
+// Trial batch 1: the procedure shown as tappable sections ("1. Purpose", "4. Procedure"…), the first one open. The
+// wording is exactly the procedure's text; only the layout changes. "Open all" shows everything at once.
+export function docView(text) {
+  const lines = String(text).split('\n'), parts = []; let cur = { head: '', body: [] };
+  for (let i = 0; i < lines.length; i++) { const l = lines[i];
+    if (/^\d+\. [A-Z][^.]{0,50}$/.test(l.trim()) && (i === 0 || !lines[i - 1].trim())) { parts.push(cur); cur = { head: l.trim(), body: [] }; } else cur.body.push(l); }
+  parts.push(cur);
+  if (parts.length < 3) return h`<div class="doc">${text}</div>`;
+  const [pre, ...secs] = parts;
+  return h`<div class="docwrap"><div class="doc docpre">${pre.body.join('\n').trim()}</div>
+    <p class="docall"><button type="button" class="linkbtn" data-act="docall">Open all sections</button></p>
+    ${secs.map((x, i) => h`<details class="docsec"${i === 0 ? raw(' open') : ''}><summary>${x.head}</summary><div class="doc">${x.body.join('\n').trim()}</div></details>`)}</div>`;
+}
 register('procedures', {
   tab: 'more',
   render(c) {
@@ -54,10 +67,10 @@ register('procedure', {
         ${c.ui['am:' + id] ? h`<form class="form" data-form="amend">${field('Local amendment (how your pharmacy does this differently)', textArea('amendment', p.amendment || '', { rows: 3 }))}<div class="btnrow">${btn('Save amendment', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'amno')}</div></form>` : btn(p.amendment ? 'Change the local amendment' : 'Add a local amendment', 'am', { kind: 'link' })}
         </div></section>` : ''}
       ${(() => { const acts = Object.values(c.ph.actions).filter(a => a.source?.type === 'procedure' && a.source.service === id); return h`<section class="sec"><h2 class="sec-title">Actions for this procedure · ${acts.length}</h2>${acts.length ? h`<div class="list">${acts.map(a => row({ title: a.title, right: a.status === 'closed' ? 'Closed' : 'Open', act: 'go', data: { to: 'action', id: a.id } }))}</div>` : ''}${btn('+ Add an action for this procedure', 'linkact', { kind: 'link' })}</section>`; })()}
-      <div class="doc">${adoptedWording(v, v.edited ? v.body : procWording(v.body))}</div>
+      ${docView(adoptedWording(v, v.edited ? v.body : procWording(v.body)))}
       ${p.versions.length > 1 ? why('Version history · ' + p.versions.length, h`<div class="list">${p.versions.slice().reverse().map((x, i) => row({ title: 'Version ' + x.v + (i === 0 ? ' (current)' : ''), sub: [x.status, fmt(day(x.at)), x.adoptedBy && 'adopted by ' + x.adoptedBy, x.edited && 'wording edited'].filter(Boolean).join(' · '), chev: false }))}</div>`) : ''}` });
   },
-  acts: {
+  acts: { docall: () => document.querySelectorAll('details.docsec').forEach(d => { d.open = true; }),
     mode: (c, d, el, r) => { c.ui['pm:' + r.id] = d.m; c.rerender(); },
     rv: (c, d, el, r) => { c.ui['rv:' + r.id] = true; c.rerender(); }, rvno: (c, d, el, r) => { c.ui['rv:' + r.id] = false; c.rerender(); },
     am: (c, d, el, r) => { c.ui['am:' + r.id] = true; c.rerender(); }, amno: (c, d, el, r) => { c.ui['am:' + r.id] = false; c.rerender(); },

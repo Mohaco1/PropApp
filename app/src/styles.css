@@ -281,3 +281,16 @@ a.linkbtn{text-decoration:none}
 .mark{background:none!important;width:22px;height:22px}.mark .logo{display:block}
 .wm-mark{background:none!important;width:48px;height:48px}.wm-mark .logo{display:block}
 .plogo{display:inline-block;vertical-align:-5px}
+
+.tabsub{margin:0 0 4px;font-size:14px}
+
+/* Trial batch 1: procedure sections */
+.docwrap{display:flex;flex-direction:column;gap:8px}
+.docsec{border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.docsec>summary{min-height:48px;display:flex;align-items:center;padding:0 14px;font-weight:600;cursor:pointer}
+.docsec>.doc{border:0;border-top:1px solid var(--line);border-radius:0 0 12px 12px}
+.docall{margin:0}
+
+.qlist-item .qtext{margin:0 0 8px}
+.qlist-item .chip{min-height:44px}
+.qlist-item .chip.issue.on{border-color:var(--bad,#b42318)}

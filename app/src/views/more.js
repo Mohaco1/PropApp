@@ -83,6 +83,7 @@ register('calendar', {
     }
     const found = c.ui.calFind ? parsePlain(c.ui.calFind) : '';
     return screen({ title: 'Calendar', back: true, body: h`
+      <p class="muted tabsub">The same due dates as Today and Reviews, laid out by week, month or year.</p>
       <div class="seg">${[['weeks', 'Weeks'], ['month', 'Month'], ['year', 'Year plan']].map(([k, l]) => h`<button class="${k === view ? 'on' : ''}" data-act="v" data-v="${k}">${l}</button>`)}</div>
       <form class="form findrow" data-form="find"><label class="field"><span class="field-label">Find a date</span><input class="input" name="find" placeholder="e.g. 1 Dec, next Friday" value="${c.ui.calFind || ''}"></label>${btn('Find', null, { type: 'submit' })}</form>
       ${c.ui.calFind ? (found ? h`<div class="card"><p><b>${fmt(found, { weekday: true })}</b> · ${all.filter(i => i.date === found).length ? all.filter(i => i.date === found).map(i => i.title).join(', ') : 'nothing due'}</p>${btn('Schedule a meeting on this date', 'go', { data: { to: 'schedule', id: found } })}</div>` : note('I couldn’t read that date. Try “1 Dec” or “next Friday”.', 'warn')) : ''}

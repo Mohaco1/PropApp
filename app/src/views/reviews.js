@@ -60,7 +60,7 @@ register('reviews', {
     const n = Object.fromEntries(F.map(([k]) => [k, k === 'done' ? done.length : rows.filter(pick[k]).length]));
     const list = f === 'done' ? [] : rows.filter(pick[f]).filter(x => !q || (x.a.name + ' ' + x.a.frequency).toLowerCase().includes(q)).sort((x, y) => (x.b === 'inactive') - (y.b === 'inactive') || (x.date || '9').localeCompare(y.date || '9'));
     const doneList = done.filter(r => !q || ((reviewById(r.type)?.name || r.title) + ' ' + r.by).toLowerCase().includes(q));
-    return screen({ title: 'Reviews', body: h`
+    return screen({ title: 'Reviews', body: h`<p class="muted tabsub">Every check in your plan and when it’s next due. Today shows only what needs doing now.</p>
       <label class="search">${icon('search')}<input class="input" name="q" type="search" placeholder="Search reviews" value="${c.ui.revQ || ''}" data-input="q" autocomplete="off"></label>
       <div class="chips">${F.map(([k, l]) => h`<button class="chip ${k === f ? 'on' : ''}" data-act="f" data-f="${k}">${l} · ${n[k]}</button>`)}</div>
       ${f === 'done' ? h`<div class="list">${doneList.length ? doneList.map(r => row({ title: r.extra ? 'Extra site visit' : reviewById(r.type)?.name || r.title, sub: r.by + (r.actionIds?.length ? ' · ' + r.actionIds.length + (r.actionIds.length === 1 ? ' action' : ' actions') : ''), right: fmt(r.date), act: 'rec', data: { id: r.id } })) : empty('Nothing recorded yet.')}</div>`
@@ -93,6 +93,12 @@ register('review', {
     const step = d.step || 0, total = qs.length;
     const prog = h`<div class="prog">${qs.map((q, i) => h`<i class="${i === step ? 'cur' : d.answers[i] ? (q.options.find(o => o.value === d.answers[i])?.issue ? 'bad' : 'done') : ''}"></i>`)}<i class="${step >= total ? 'cur' : ''}"></i></div>`;
     if (step >= total) return finishReview(c, a, d, qs, prog);
+    // Trial batch 1: "Answer as a list" for routine reviews. Every question on one screen, one tap per answer, nothing
+    // pre-answered. An issue answer goes back to the step view at that question so the owner can say what needs fixing.
+    if (d.list) { const left = qs.filter((q, i) => !d.answers[i]).length;
+      return screen({ title: a.name, back: true, site: c.ph.name, saved: 'Saved', body: h`${prog}<p class="steps">${left ? (left === 1 ? '1 question left' : left + ' questions left') : 'All answered'} · tap one answer for each</p>
+        ${qs.map((q, i) => h`<div class="card qlist-item"><p class="qtext">${i + 1}. ${q.text}</p><div class="chips">${q.options.map(o => h`<button type="button" class="chip ${d.answers[i] === o.value ? 'on' : ''} ${o.issue ? 'issue' : ''}" data-act="qa" data-i="${i}" data-v="${o.value}" aria-pressed="${d.answers[i] === o.value}">${o.label || o.value}</button>`)}</div></div>`)}
+        <div class="btnrow">${btn('One at a time', 'qlist', { data: { on: '' } })}${btn('Finish', 'step', { kind: 'primary', data: { s: total }, disabled: left > 0 })}</div>` }); }
     const q = qs[step], ans = d.answers[step] || '', isIssue = q.options.find(o => o.value === ans)?.issue;
     // Sigil brief: the previous record's answer for this question, shown (never selected for the owner). Its note,
     // which often says where the evidence is kept, can be copied into this answer's note with one tap.
@@ -104,7 +110,8 @@ register('review', {
         ${choice('ans', q.options.map(o => ({ value: o.value, label: o.label || o.value })), ans, { issueValues: q.options.filter(o => o.issue).map(o => o.value) })}
         ${isIssue ? h`${field('What needs fixing?', textArea('issue', d.issues?.[step]?.text || '', { rows: 2 }))}${field('Fix by', textInput('due', d.issues?.[step]?.due || addDays(today(), 30), { type: 'date' }))}` : ''}
         ${ans && !isIssue ? h`${field('Note (optional)', textArea('note', d.notesQ?.[step] || '', { rows: 2 }))}${prevAns?.note && !d.notesQ?.[step] ? btn('Use last time’s note', 'uselast', { kind: 'link', data: { s: step } }) : ''}` : ''}</form>
-      <div class="btnrow">${btn('Previous', 'step', { data: { s: step - 1 }, disabled: step === 0 })}${btn(step === total - 1 ? 'Finish' : 'Next', 'step', { kind: 'primary', data: { s: step + 1 } })}</div>` });
+      <div class="btnrow">${btn('Previous', 'step', { data: { s: step - 1 }, disabled: step === 0 })}${btn(step === total - 1 ? 'Finish' : 'Next', 'step', { kind: 'primary', data: { s: step + 1 } })}</div>
+      ${total > 3 ? btn('Answer as a list', 'qlist', { kind: 'link', data: { on: '1' } }) : ''}` });
   },
   // R09: notes and issue text are kept as they're typed (not only when the box loses focus), so a reload or a phone
   // call mid-sentence loses nothing. Typing never redraws the screen.
@@ -125,6 +132,9 @@ register('review', {
     fin: (c, el, r, e) => { const d = structuredClone(c.draft(dkey(r.id))); d.fields = { ...(d.fields || {}), ...Object.fromEntries(new FormData(el.closest('form'))) }; c.saveDraft(dkey(r.id), d); if (r.id === 'B1' && e?.target?.name === 'stockDate') c.rerender(); }, // el is the form; the changed field is e.target
   },
   acts: {
+    qlist: (c, dd, el, r) => { const d = structuredClone(c.draft(dkey(r.id))); d.list = !!dd.on; c.saveDraft(dkey(r.id), d); c.rerender(); window.scrollTo(0, 0); },
+    qa: (c, dd, el, r) => { const d = structuredClone(c.draft(dkey(r.id))), qs = questionsFor(r.id), i = +dd.i, o = qs[i]?.options.find(x => x.value === dd.v); if (!o) return;
+      d.answers[i] = o.value; if (o.issue) { d.list = false; d.step = i; } c.saveDraft(dkey(r.id), d); c.rerender(); },
     start: (c, d, el, r) => { c.saveDraft(dkey(r.id), { date: today(), answers: {}, step: 0 }); c.rerender(); },
     uselast: (c, dd, el, r) => { const a = reviewById(r.id), qs = questionsFor(r.id), s = +dd.s, prev = c.ph.records.filter(x => x.type === r.id).sort((x, y) => y.date.localeCompare(x.date))[0];
       const pa = prev?.answers?.find(x => x.text === qs[s]?.text) || (prev?.answers?.length === qs.length ? prev.answers[s] : null); if (!pa?.note) return;

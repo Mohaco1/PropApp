@@ -32,9 +32,13 @@ function notice(c, list) {
     if (!vq && legalOver) return h`<button class="siteline" data-act="resume-visit" data-extra="1">Extra visit in progress · ${n} checked · resume</button>`;
     return h`<div class="card hero warm"><p class="eyebrow">Visit in progress</p><h2>${vq ? 'Quarterly visit' : 'Extra visit'} · ${n} checked</h2><p class="muted">Started ${fmt(d.date)}. Your answers are saved on this device.</p>${btn('Resume visit', 'resume-visit', { kind: 'primary', data: { extra: vq ? '' : '1' } })}</div>`; }
   const act = Object.entries(ph.services).filter(([, s]) => s.active), todo = act.filter(([, s]) => s.setup !== 'done');
+  // Trial batch 1: "Legal items first · do the rest later" turns the setup card into one quiet line, so Today leads with
+  // what's due by law; setup carries on from that line (or More › Services) whenever the owner is ready.
+  if (todo.length && ph.flags?.setupLater) return h`<button class="siteline" data-act="setupnext" data-id="${(todo.find(([, s]) => s.setup === 'doing') || todo[0])[0]}">Service setup · ${todo.length} to do · carry on when you’re ready</button>`;
   if (todo.length) return h`<div class="card hero"><p class="eyebrow">Finish setting up · ${todo.length} left</p>
     <ul class="checklist">${act.map(([id, s]) => h`<li class="${s.setup === 'done' ? 'done' : ''}"><span aria-hidden="true">${s.setup === 'done' ? '✓' : '○'}</span>${serviceName(id)}<span class="muted">${s.setup === 'done' ? 'Done' : s.setup === 'doing' ? 'In progress' : 'To do'}</span></li>`)}</ul>
     ${btn(todo.some(([, s]) => s.setup === 'doing') ? 'Carry on setting up' : 'Set up services', 'setupnext', { kind: 'primary', data: { id: (todo.find(([, s]) => s.setup === 'doing') || todo[0])[0] } })}
+    ${todo.length > 1 ? btn('Legal items first · do the rest later', 'setuplater', { kind: 'link' }) : ''}
     ${ph.flags?.icsHint ? '' : h`<div class="btnrow">${btn('Add due dates to your phone calendar', 'icsnow', { kind: 'link' })}${btn('Not now', 'icshide', { kind: 'link' })}</div>`}</div>`;
   if (act.length && !ph.settings.allSetSeen) return h`<div class="card hero warm"><p class="eyebrow">All set up</p><h2>${ph.name} is set up</h2><p class="muted">Every service has its questions answered and a draft procedure. Today now shows what's due.</p>${btn('Got it', 'allset', { kind: 'primary' })}</div>`;
   // A1: a calm backup nudge after 7 days and 10 or more changes since the last one (or since setup)
@@ -78,6 +82,7 @@ register('today', {
     backupsnooze: c => c.change(ph => { (ph.flags ??= {}).backupSnooze = today(); }),
     defer: (c, d) => { const it = items(c.ph, c.drafts).find(x => x.key === d.key); if (!it || !canDefer(it)) return;
       let nd = null; c.change(ph => { nd = deferItem(ph, it); if (nd) logNote(ph, 'Deferred 3 days · ' + it.title); }, 'Moved 3 days later'); },
+    setuplater: c => c.change(ph => { (ph.flags ??= {}).setupLater = true; }, 'Setup can wait. Legal items first.'),
     icsnow: c => { const ok = saveFile(c.ph.name.replace(/\W+/g, '-') + '-due-dates.ics', ics(c.ph, c.drafts), 'text/calendar'); c.change(ph => { (ph.flags ??= {}).icsHint = true; }, ok ? 'Calendar file ready: open it to add the dates.' : 'Couldn’t make the file here.'); },
     icshide: c => c.change(ph => { (ph.flags ??= {}).icsHint = true; }),
     hideinstall: c => c.change(ph => { (ph.flags ??= {}).installHintDone = true; }),

@@ -14,9 +14,10 @@ export const ctx = {
   replace(name, params = {}) { S.stack.pop(); S.stack.push({ name, ...params }); render(true); },
   back() { S.toast = ''; S.stack.pop(); render(true); const from = (S.stack.at(-1) || {}).from ?? (S.stack.length ? '' : S.tabFrom); if (!refocus(from)) focusTitle(); },
   tab(name) { S.toast = ''; S.tab = name; S.stack = []; render(true); },
-  change(fn, message) {
+  // opts.redraw false: save without redrawing (a typed answer, so the button the owner is tapping isn't replaced mid-tap).
+  change(fn, message, opts = {}) {
     const next = clone(S.ph); const r = fn(next); if (r === false) return false;
-    S.ph = next; store.savePharmacy(next); askToKeep(); if (message) ctx.toast(message); render(); return true;
+    S.ph = next; store.savePharmacy(next); askToKeep(); if (message) ctx.toast(message); if (opts.redraw !== false) render(); return true;
   },
   draft(key) { return S.drafts[key] || null; },
   saveDraft(key, value) { const rev = S.drafts[key]?.rev; store.saveDraft(S.ph.id, key, value, rev); S.drafts = store.drafts(S.ph.id); },

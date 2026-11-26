@@ -49,6 +49,9 @@ function kindOf(id, f) {
   const m = RPH.qm.metaFor(id, f.key);
   if (RPH.sq.PROC[id]?.[f.key]) return 'proc';
   if ((RPH.sq.REC[id] || []).includes(f.key) || m.type === 'location') return 'location';
+  // Owner trial: "software" questions are typed answers. They were drawn as a text box but saved as if they had options,
+  // so the typed name was lost and Next stayed put (Staged supply Q2, Vaccination Q3, OTP dose and file software).
+  if (m.type === 'software') return 'text';
   if (m.type) return m.type;
   return f.options ? 'single' : 'text';
 }
@@ -87,7 +90,7 @@ register('lead', {
   render(c, r) { return leadScreen(c, r?.from); },
   forms: { leadsave: (c, f) => leadSave(c, f, () => c.back()) },
 });
-register('service-setup', {
+const SETUP = {
   tab: 'more',
   render(c, r) {
     const id = r.id, s = c.ph.services[id]; if (!s) return screen({ title: 'Service', back: true, body: empty('Not found.') });
@@ -99,6 +102,7 @@ register('service-setup', {
     const f = fs[idx], m = RPH.qm.metaFor(id, f.key), k = kindOf(id, f), v = a[f.key] || '', label = m.label || f.label;
     const locs = fs.filter(x => isLoc(id, x));
     if (k === 'location' && idx === fs.indexOf(locs[0]) && !s.recIntro && c.ui.returnTo?.id !== id) return screen({ title: serviceName(id), back: true, body: h`${prog}
+      ${ABOUT[id] ? h`<p class="whyask"><b>What this is:</b> ${ABOUT[id]}</p>` : ''}
       <h2 class="big-title">Where you keep records · optional now</h2><p class="muted">${locs.length === 1 ? '1 question' : locs.length + ' questions'} about where records are kept, so a procedure can tell someone where to look. Answer them now, or skip and confirm them later from Today.</p>
       <div class="list">${locs.map(x => row({ title: procWord(RPH.qm.metaFor(id, x.key).label || x.label), sub: a[x.key] ? (a[x.key] === NV ? 'Check later' : a[x.key]) : '', chev: false }))}</div>
       <div class="btnrow">${btn('Answer now', 'recnow', { kind: 'primary' })}${btn('Skip for now', 'recskip')}</div>` });
@@ -132,7 +136,7 @@ register('service-setup', {
       ${idx === 0 && ABOUT[id] ? h`<p class="whyask"><b>What this is:</b> ${ABOUT[id]}</p>` : ''}<form class="form" data-form="next" data-change="ans"><p class="qtext">${procWord(COPY[label]?.[0] || label)}</p>${COPY[label]?.[1] ? h`<p class="whyask"><b>Why we ask:</b> ${COPY[label][1]}</p>` : ''}${m.note && !COPY[label]?.[2] ? h`<p class="muted">${procWord(m.note)}</p>` : ''}${input}</form>
       ${c.ui.returnTo?.id === id ? h`<div class="btnrow">${btn('Save and back to the procedure', 'ret', { kind: 'primary', cls: 'block' })}</div>` : h`<div class="btnrow">${btn('Previous', 'step', { data: { s: idx - 1 }, disabled: idx === 0 })}${btn(idx === fs.length - 1 ? 'Finish' : 'Next', 'step', { kind: 'primary', data: { s: idx + 1 } })}</div>`}` });
   },
-  changes: { ans: (c, el, r, ev) => { const form = el.closest('form'), id = r.id, fs = fieldsFor(c.ph, id), a = c.ph.services[id].answers || {};
+  changes: { ans: (c, el, r, ev, quiet) => { const form = el.closest('form'), id = r.id, fs = fieldsFor(c.ph, id), a = c.ph.services[id].answers || {};
     const idx = Math.min(c.ui['ss:' + id] ?? fs.findIndex(f => !answered(a, f.key)), fs.length); const f = fs[idx < 0 ? 0 : idx]; if (!f) return;
     // A real answer always replaces "Check later"; ticking "Check later" itself sets it.
     const k = kindOf(id, f), fd = new FormData(form), d = (fd.get('d') || '').toString().trim(), nv = ev?.target?.name === 'nv' ? fd.get('nv') : (ev?.target?.name ? null : fd.get('nv'));
@@ -144,16 +148,21 @@ register('service-setup', {
     else if (k === 'text') v = d;
     else { const ch = (fd.get('v') || '').toString(); v = d && (ch.startsWith('We have our own') || RPH.qm.describes(id, f.key, ch)) ? ch + ': ' + d : ch; }
     const before = a[f.key];
+    // A typed box (software, "where exactly", where a procedure is kept) is saved without redrawing: nothing on screen
+    // depends on it, and redrawing as the box loses focus swallowed the owner's tap on Next.
+    const typed = ev?.target?.name === 'd' && (k === 'text' || k === 'location' || k === 'proc' || k === 'multi' || k === 'single');
     c.change(ph => { const s = ph.services[id]; s.answers = { ...s.answers, [f.key]: v }; if (s.setup === 'todo') s.setup = 'doing';
-      if (k === 'routes') { const r = split(v); ph.flags = { ...ph.flags, house: r.includes('house'), routeA: r.includes('routeA'), routeB: r.includes('routeB') }; } });
-    c.ui['ss:' + id] = idx; if (before !== v) c.rerender(); } },
+      if (k === 'routes') { const r = split(v); ph.flags = { ...ph.flags, house: r.includes('house'), routeA: r.includes('routeA'), routeB: r.includes('routeB') }; } }, '', { redraw: !(typed || quiet) });
+    c.ui['ss:' + id] = idx; if (before !== v && !quiet && !typed) c.rerender(); } },
+  // Owner trial: Next or Previous saves whatever is typed in the box first, so a typed answer is never lost.
 
   forms: { fin: (c, f, el, r) => finishService(c, r.id, f), leadsave: (c, f) => leadSave(c, f, () => c.rerender()) },
   acts: { qld: (c, d) => c.change(ph => { ph.services.prescribing.qld = d.v; }, d.v === 'yes' ? 'Queensland-pathway conditions shown' : 'Queensland-pathway conditions hidden'),
     place: (c, d, el) => { const form = el.closest('form'), inp = form?.querySelector('input[name=d]'); if (!inp) return; inp.value = d.v; inp.dispatchEvent(new Event('change', { bubbles: true })); },
     uatq: async (c, d) => { await window.uatMark?.(d.k, d.v); c.rerender(); },
     vall: (c, d, el) => { const fs = el.closest('fieldset'); fs.querySelectorAll('input[type=checkbox]').forEach(i => { i.checked = true; }); fs.closest('form').dispatchEvent(new Event('change', { bubbles: true })); },
-    step: (c, d, el, r) => { const s = Math.max(0, +d.s); c.ui['ss:' + r.id] = s; c.change(ph => { ph.services[r.id].pos = s; }); window.scrollTo(0, 0); },
+    step: (c, d, el, r) => { const form = document.querySelector('main form[data-form=next]'), inp = form?.querySelector('input[name=d]'); if (inp && inp.value.trim()) SETUP.changes.ans(c, form, r, { target: inp }, true);
+      const s = Math.max(0, +d.s); c.ui['ss:' + r.id] = s; c.change(ph => { ph.services[r.id].pos = s; }); window.scrollTo(0, 0); },
     recnow: (c, d, el, r) => c.change(ph => { ph.services[r.id].recIntro = 'now'; }),
     recskip: (c, d, el, r) => { const fs = fieldsFor(c.ph, r.id); c.change(ph => { const s = ph.services[r.id]; s.recIntro = 'skipped'; for (const f of fs.filter(x => isLoc(r.id, x))) if (!answered(s.answers, f.key)) s.answers[f.key] = NV; s.pos = fs.length; if (s.setup === 'todo') s.setup = 'doing'; }, 'Skipped. They are on Today under “To confirm”.'); c.ui['ss:' + r.id] = fs.length; c.rerender(); },
     finish: (c, d, el, r) => finishService(c, r.id),
@@ -161,7 +170,8 @@ register('service-setup', {
       c.change(ph => { const p = ph.procedures.find(x => x.service === r.id); if (!p || p.status === 'adopted') return; const v = p.versions.at(-1), t = draftText(ph, r.id);
         if (!v.edited && t && t !== v.generated) { const m = String(v.v).match(/^(\d+)\.(\d+)/); p.versions.push({ v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }); log(ph, 'Procedure redrafted from a setup answer · ' + serviceName(r.id)); } }, 'Saved. The draft is updated.');
       c.back(); } },
-});
+};
+register('service-setup', SETUP);
 function svcReviews(ph, id) { return catalog().filter(a => a.service === id); }
 function doneScreen(c, id, prog) {
   const p = serviceProgress(c.ph, id), probe = { ...c.ph, services: { ...c.ph.services, [id]: { ...c.ph.services[id], active: true } } };

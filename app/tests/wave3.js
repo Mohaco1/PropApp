@@ -31,6 +31,8 @@ const { phone, ok, done, tap, text } = require('./helpers.js');
   // Wattle Grove's draft comes from the old app; the owner chooses to update it (never automatic)
   ok(await p.getByRole('button', { name: 'Update the draft' }).count() === 1, 'F-LIVE-11 an older stored draft is offered “Update the draft” (not changed for the owner)');
   await tap(p, 'Update the draft'); await p.waitForTimeout(300);
+  ok(await p.locator('details.docsec').count() >= 5 && await p.locator('details.docsec[open]').count() === 1, 'Trial batch 1: the procedure is shown as tappable sections, the first one open');
+  await tap(p, 'Open all sections'); await p.waitForTimeout(150);
   t = await text(p); ok(!/per your (research|plan)/.test(t) && !/— verify/.test(t) && /NSW Health, Vaccine storage and cold chain management/.test(t) && /your pharmacy’s practice/.test(t), 'F-LIVE-11 + B7 the vaccination procedure has no “per your plan” and no “— verify”: steps cite NSW Health or say they are the pharmacy’s own practice');
   ok(!/steps marked “— verify”/.test(t), 'B7 the vaccination draft has no “— verify” blocker left');
   await done(b, errors);
