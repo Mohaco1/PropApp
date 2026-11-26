@@ -317,3 +317,28 @@ table.yearplan{width:100%}.yearplan th,.yearplan td{width:auto;min-width:0;paddi
 .why summary{list-style:none;justify-content:space-between;gap:12px}.why summary::-webkit-details-marker{display:none}
 .why summary::after{content:'';flex:none;width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translate(-2px,-2px);transition:transform .15s;opacity:.7}
 .why[open] summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+
+/* Foldables (26 Nov): unfolded screens (700 px+) get a left rail, list + record side by side, and a centred single pane
+   elsewhere. Phones and fold cover screens (under 700 px) are untouched: every rule here is inside these media queries. */
+@media (min-width:700px){
+  #app{max-width:none;margin:0}
+  #app.has-nav{padding-bottom:0;padding-left:calc(84px + env(safe-area-inset-left,0px))}
+  .nav{top:0;bottom:0;right:auto;width:calc(84px + env(safe-area-inset-left,0px));flex-direction:column;justify-content:flex-start;gap:4px;border-top:0;border-right:1px solid var(--line);padding:max(12px,env(safe-area-inset-top,0px)) 0 env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+  .nav button{flex:0 0 auto;max-width:none;width:100%;min-height:64px}
+  .nav button.on::before{top:50%;left:4px;width:2.5px;height:24px;margin:-12px 0 0}
+  #app>.screen{max-width:640px;margin:0 auto}
+  .split{display:grid;grid-template-columns:minmax(300px,38%) minmax(0,1fr);height:100vh;height:100dvh}
+  .pane-master,.pane-detail{min-width:0;height:100vh;height:100dvh;overflow-y:auto;overscroll-behavior:contain}
+  .pane-master{border-right:1px solid var(--line);background:var(--bg)}
+  .pane-detail .screen{max-width:760px;margin:0 auto}
+  .pane-master .row.active{box-shadow:inset 3px 0 0 var(--primary);background:var(--tint)}
+  .toast{left:calc(84px + 16px)}
+  .qgrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+/* Two screen segments side by side (a hinge): the list fills the left segment (beside the rail), the record the right,
+   and the gap matches the hinge so nothing sits across the fold. Single-pane screens move to the right segment. */
+@media (min-width:700px) and (horizontal-viewport-segments:2){
+  .split{grid-template-columns:calc(env(viewport-segment-width 0 0) - 84px) minmax(0,1fr);column-gap:calc(env(viewport-segment-left 1 0) - env(viewport-segment-right 0 0))}
+  #app.has-nav>.screen{max-width:env(viewport-segment-width 1 0);margin:0 0 0 calc(env(viewport-segment-left 1 0) - 84px)}
+  #app:not(.has-nav)>.screen{max-width:env(viewport-segment-width 1 0);margin:0 0 0 env(viewport-segment-left 1 0)}
+}
