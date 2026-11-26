@@ -14,6 +14,10 @@ const procWord = t => String(t).replace(/\(Policies\)/g, '(Procedures)').replace
 const ROLE_SHOW = v => v === 'Pharmacist in charge' ? 'The pharmacist on duty' : v; // owner decision: no pharmacist-in-charge role
 const show = (id, k, v) => ROLE_SHOW(RPH.qm.showFor(id, k, v));
 const split = v => RPH.qm.split(v);
+// Owner trial (26 Nov): an option whose own name has a comma ("Creams, ointments and gels") was split in two when read
+// back, so its tick never showed. Ticked options are matched against the whole stored list instead.
+const norm = x => String(x || '').split(',').map(y => y.trim()).join(',');
+const has = (v, o) => { const s = ',' + norm(v) + ',', n = norm(o); return s.includes(',' + n + ',') || s.includes(',' + n + ':'); };
 function fieldsFor(ph, id) { const a = ph.services[id]?.answers || {}; const all = visibleFields(ph, id, a).map(f => ({ key: f[0], label: f[1], options: f[2], section: f[3], extra: f[4] }));
   // Record-location questions come last, as an optional step (overnight brief S3-04).
   return [...all.filter(f => kindOf(id, f) !== 'location'), ...all.filter(f => kindOf(id, f) === 'location')]; }
@@ -81,18 +85,18 @@ register('service-setup', {
     if (k === 'single' || k === 'role') { const opts = RPH.qm.optionsFor(id, [f.key, f.label, f.options]); input = h`${choice('v', [...opts.map(o => ({ value: o, label: show(id, f.key, o) })), { value: NV, label: 'Check later' }], split(v)[0]?.split(':')[0] === v.split(':')[0] ? v.split(':')[0] : v)}
       ${(m.describe || ['Different local arrangement', 'Someone else']).some(o => v.startsWith(o)) ? field('Describe', textInput('d', v.includes(':') ? v.slice(v.indexOf(':') + 1).trim() : '')) : ''}`; }
     else if (k === 'multi' && id === 'vaccination' && f.key === 'vaccines') { const on = split(v);
-      input = h`${RPH.sq.VGROUPS.map(([g, list]) => h`<fieldset class="field vgroup"><legend class="field-label">${g}</legend>${btn('Select all', 'vall', { kind: 'link', data: { g } })}<div class="ticks">${list.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${on.includes(o) ? h`checked` : ''}><span>${o}</span></label>`)}</div></fieldset>`)}
+      input = h`${RPH.sq.VGROUPS.map(([g, list]) => h`<fieldset class="field vgroup"><legend class="field-label">${g}</legend>${btn('Select all', 'vall', { kind: 'link', data: { g } })}<div class="ticks">${list.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v, o) ? h`checked` : ''}><span>${o}</span></label>`)}</div></fieldset>`)}
       <label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
     else if (k === 'multi') { const opts = RPH.qm.optionsFor(id, [f.key, f.label, f.options]); const on = split(v);
-      input = h`<div class="ticks">${opts.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${on.some(x => x === o || x.startsWith(o + ':')) ? h`checked` : ''}><span>${show(id, f.key, o)}</span></label>`)}</div>
+      input = h`<div class="ticks">${opts.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v, o) ? h`checked` : ''}><span>${show(id, f.key, o)}</span></label>`)}</div>
       ${(m.describe || []).some(o => on.some(x => x.startsWith(o))) ? field('Describe', textInput('d', (on.find(x => x.includes(':')) || '').split(':').slice(1).join(':').trim())) : ''}
       <label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
-    else if (k === 'routes') { const on = split(v); input = h`<p class="muted">Tick each that applies.</p><div class="ticks">${ROUTES.map(([o, l]) => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${on.includes(o) ? h`checked` : ''}><span>${l}</span></label>`)}</div><label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
+    else if (k === 'routes') { const on = split(v); input = h`<p class="muted">Tick each that applies.</p><div class="ticks">${ROUTES.map(([o, l]) => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v, o) ? h`checked` : ''}><span>${l}</span></label>`)}</div><label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
     else if (k === 'checklist') { const items = RPH.qm.checkItems(id, f.key, a); const on = split(v);
-      input = h`${m.source ? h`<p class="muted">${m.source}</p>` : ''}<div class="ticks">${items.map(it => h`<label class="tick"><input type="checkbox" name="m" value="${it.v}" ${on.includes(it.v) ? h`checked` : ''}><span>${it.t}</span></label>`)}</div>
+      input = h`${m.source ? h`<p class="muted">${m.source}</p>` : ''}<div class="ticks">${items.map(it => h`<label class="tick"><input type="checkbox" name="m" value="${it.v}" ${has(v, it.v) ? h`checked` : ''}><span>${it.t}</span></label>`)}</div>
       <p class="hint">Tick only what is already in place. Anything not ticked becomes one action to confirm.</p>`; }
     else if (k === 'location') { const on = split(v.split(' — ')[0]); const detail = v.includes(' — ') ? v.slice(v.indexOf(' — ') + 3) : '';
-      input = h`<div class="ticks">${RPH.sq.REC_BASE.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${on.includes(o) ? h`checked` : ''}><span>${o}</span></label>`)}</div>
+      input = h`<div class="ticks">${RPH.sq.REC_BASE.map(o => h`<label class="tick"><input type="checkbox" name="m" value="${o}" ${has(v.split(' — ')[0], o) ? h`checked` : ''}><span>${o}</span></label>`)}</div>
       ${field('Where exactly? (optional)', textInput('d', detail, { placeholder: 'e.g. DAA consent folder, dispensary shelf 2' }), 'Used in the procedure so anyone can find it.')}
       <label class="tick"><input type="checkbox" name="nv" value="1" ${v === NV ? h`checked` : ''}><span>Check later</span></label>`; }
     else if (k === 'proc') { const p = RPH.sq.PROC[id][f.key]; input = h`${choice('v', [{ value: 'Draft it for me', label: 'Draft it for me' }, { value: 'We have our own procedure', label: 'We have our own procedure' }, { value: NV, label: 'Check later' }], v.split(':')[0])}

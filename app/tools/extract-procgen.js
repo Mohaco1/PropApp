@@ -21,7 +21,7 @@ const sqSrc = fs.readFileSync(path.resolve(__dirname, '../../uat/layers/setup-qu
 // F-LIVE-11: the placeholder citation is replaced. The one claim checked on 25 Nov (no advertising of medicinal
 // cannabis: NSW Health cannabis FAQ) gets its source; the others keep "— verify" (adoption stays blocked until the
 // owner confirms them) with honest wording.
-const rename = t => t.replace(/\(Policies\)/g, '(Procedures)')
+const rename = t => t.replace(/\(Policies\)/g, '(Procedures)').replace(/R\.Pharmacy/g, 'Sigil')
   .replace("'No advertising, signage, brochures or social posts about medicinal cannabis '+RS+'.'", "'No advertising, signage, brochures or social posts about medicinal cannabis (NSW Health, Cannabis medicines FAQ)'+'.'")
   .replace("RS='(NSW Health/TGA, per your research — verify)'", "RS='(source to confirm with NSW Health or the TGA — verify)'")
   .replace("V='(Strive for 5 / NSW Health, per your plan — verify)'", "V='(Strive for 5 / NSW Health — check against the current edition — verify)'")

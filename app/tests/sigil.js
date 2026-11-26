@@ -88,5 +88,14 @@ const TMP = path.join(require('os').tmpdir(), 'sigil-test'); fs.mkdirSync(TMP, {
     await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(60); }
   const vs = await copied(p, 'Copy summary for the pharmacist on duty');
   ok(/^Wattle Grove Pharmacy · site visit 25 Nov/.test(vs.clip) && /No issues found\.|To fix:/.test(vs.clip) && /other checks fine\./.test(vs.clip) && /No patient names or identifiers, please\.$/.test(vs.clip), 'Copy summary: the finished visit’s findings, de-identified');
+  // Owner trial 26 Nov: a tick whose option name has a comma ("Creams, ointments and gels") stays ticked (real touch taps)
+  { const s3 = await phone({ time: '2026-11-26T10:00:00+11:00' }); const q = s3.p; q.on('pageerror', e => errors.push(e.message));
+    await tap(q, 'Set up your pharmacy'); await q.fill('input[name=name]', 'Tick Test Pharmacy (fictional)'); await tap(q, 'Continue'); await q.fill('input[name=owner0]', 'Sam Owner'); await tap(q, 'Continue');
+    await q.locator('label.tick', { hasText: 'Simple compounding' }).first().tap(); await tap(q, 'Finish setup'); await q.waitForTimeout(400); await tap(q, 'Set up services'); await q.waitForTimeout(300);
+    if (await q.getByRole('button', { name: /^Answer/ }).count()) { await q.getByRole('button', { name: /^Answer/ }).tap(); await q.locator('label.choice').nth(2).tap(); await tap(q, 'Save'); await q.waitForTimeout(200); }
+    await q.getByRole('button', { name: /^Simple compounding/ }).first().tap(); await q.waitForTimeout(300);
+    for (const x of ['Creams, ointments and gels', 'Capsules']) { await q.locator('main form label.tick', { hasText: x }).tap(); await q.waitForTimeout(400); }
+    ok(await q.locator('main form label.tick', { hasText: 'Creams, ointments and gels' }).locator('input').isChecked() && await q.locator('main form label.tick', { hasText: 'Capsules' }).locator('input').isChecked(), 'Trial fix: “Creams, ointments and gels” stays ticked after a tap (commas in an option name)');
+    await s3.b.close(); }
   await done(b, errors);
 })();

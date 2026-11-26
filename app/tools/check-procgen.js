@@ -1,6 +1,6 @@
 // Proves the rebuilt procedure drafts are word-for-word the same as the current app's, for the example pharmacy.
 const { chromium } = require('playwright'); const path = require('path'); const esbuild = require('esbuild');
-const VERIFIED = require('../src/content/verified-steps.json'); const applyVerified = t => { let s = String(t); for (const [a, b] of VERIFIED.pairs) s = s.split(a).join(b); const L = '• Steps marked “— verify”: check each against the full official document before approving'; return /— verify/.test(s.replace(L, '')) ? s : s.replace(L + '\n', ''); }; const fs = require('fs');
+const VERIFIED = require('../src/content/verified-steps.json'); const applyVerified = t => { let s = String(t).split('R.Pharmacy').join('Sigil'); for (const [a, b] of VERIFIED.pairs) s = s.split(a).join(b); const L = '• Steps marked “— verify”: check each against the full official document before approving'; return /— verify/.test(s.replace(L, '')) ? s : s.replace(L + '\n', ''); }; const fs = require('fs');
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage(); p.on('dialog', d => d.accept());
   await p.goto('file://' + path.resolve(__dirname, '../../uat/app/rpharmacy-uat-testing.html')); await p.waitForTimeout(1500);

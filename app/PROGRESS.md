@@ -496,3 +496,8 @@ From Gemini's "Locked Pre-Trial Brief & Claude Prompts" and the "Final Pre-Beta 
    - Nothing is completed or saved for you.
 
 **Tests:** new suite `tests/sigil.js` (rebrand, backup compatibility, balancer spread, tap and drag moves, clone, copy summaries, defer and the S8 guard, Inspector view, last time).
+
+## Owner trial fix · 26 Nov 2026 · build 8131823503
+- **Ticks that wouldn't stay ticked:** setup options whose name contains a comma (e.g. "Creams, ointments and gels", the "stuck" checkboxes in the trial notes) were read back split in two, so their tick vanished. They're now matched against the whole stored answer. Regression test added in `tests/sigil.js` (real touch taps).
+- **Rebrand leftover:** "R.Pharmacy" in setup and procedure text is now "Sigil". The parity checks apply the same change to the old app's text, and all 17 drafts are still identical.
+- The phone app files in `docs/` are refreshed.

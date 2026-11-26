@@ -225,7 +225,7 @@ serviceSourceNotes.prescribing=[
  {title:'Authority: supply of Schedule 4 substances by pharmacists, uncomplicated urinary tract infection',url:'',edition:'H26/93535; expires 4 November 2027',basis:'Health Secretary authority under Regulation 2026 s 43',locator:'Clauses 1–3; approved pharmacy definition',scope:'Approved pharmacists at an approved pharmacy',status:'Instrument text read (supplied November 2026)',trigger:'Expiry, variation or replacement'},
  {title:'Authority: supply of Schedule 4 substances by pharmacists, continuation of hormonal contraception',url:'',edition:'H26/93525; signed 5 November 2026; expires 4 November 2027',basis:'Health Secretary authority under Regulation 2026 s 43',locator:'Clauses 1–3; approved pharmacy definition',scope:'Approved pharmacists at an approved pharmacy',status:'Instrument text read (supplied November 2026)',trigger:'Expiry, variation or replacement'},
  {title:'Authority: supply of Schedule 4 substances by pharmacists, minor dermatological conditions',url:'',edition:'H26/93532; expires 4 November 2027',basis:'Health Secretary authority under Regulation 2026 s 43',locator:'Clauses 1–3; impetigo, herpes zoster, atopic dermatitis, mild plaque psoriasis',scope:'Approved pharmacists at an approved pharmacy',status:'Instrument text read (supplied November 2026)',trigger:'Expiry, variation or replacement'},
- {title:'NSW Pharmacist Practice Standards (UTI, hormonal contraception, impetigo, herpes zoster, atopic dermatitis, mild plaque psoriasis)',url:'',edition:'Supplied November 2026',basis:'Practice standards referenced by the authorities',locator:'Per condition',scope:'Clinical practice for each service',status:'Documents supplied; clinical content not summarised in R.Pharmacy',trigger:'Change of standards'}];
+ {title:'NSW Pharmacist Practice Standards (UTI, hormonal contraception, impetigo, herpes zoster, atopic dermatitis, mild plaque psoriasis)',url:'',edition:'Supplied November 2026',basis:'Practice standards referenced by the authorities',locator:'Per condition',scope:'Clinical practice for each service',status:'Documents supplied; clinical content not summarised in Sigil',trigger:'Change of standards'}];
 for(const s of serviceSourceNotes.otp||[])if(s.title==='NSW OTP Standards')s.status='Standards text read (supplied November 2026): community pharmacy items 1–7';
 // Site visit: S8 storage expectations from the Regulation and the Medicine Storage Standards; DAA label checks.
 for(const m of RPH.sv.coreMeta){
@@ -283,10 +283,10 @@ const SQ_VACCINES=['COVID-19','Diphtheria/tetanus/pertussis (e.g. dTpa or ADT)',
  }
  for(const [id,keys] of Object.entries(RPH.sq.REC))for(const k of keys){
   const opts=k==='air'?['Australian Immunisation Register (AIR) portal',...RPH.sq.REC_BASE]:RPH.sq.REC_BASE;
-  add(id,k,{type:'multi',options:opts,display:{Other:'Other (describe)'},describe:['Other'],note:'Tick where these records are kept. R.Pharmacy doesn’t hold them; it records where they are so a review can find them.'});
+  add(id,k,{type:'multi',options:opts,display:{Other:'Other (describe)'},describe:['Other'],note:'Tick where these records are kept. Sigil doesn’t hold them; it records where they are so a review can find them.'});
  }
  add('daa','sampleReviewer',{type:'multi',...SQ_ROLE});
- add('daa','sampleFrequency',{note:'This is your own quality check. R.Pharmacy hasn’t found a fixed legal interval for it; choose what suits your pharmacy (check program rules if packs are PPA-funded).'});
+ add('daa','sampleFrequency',{note:'This is your own quality check. Sigil hasn’t found a fixed legal interval for it; choose what suits your pharmacy (check program rules if packs are PPA-funded).'});
  add('daa','sampleMethod',{showIf:()=>false});add('otp','sampleMethod',{showIf:()=>false});
  for(const p of ['HMR','RMMR'])for(const x of ['reviewer','referral']){const row=sopFields.reviews.find(f=>f[0]===p+x);add('reviews',p+x,{type:'multi',options:(row?.[2]||[]).filter(v=>v!=='Needs verification')});}
  add('vaccination','funding',{type:'multi',label:'Which government-funded vaccine programs do you take part in?',options:['National Immunisation Program (NIP)','NSW state-funded vaccines','Private (paid) vaccines only'],legacy:{Participating:'National Immunisation Program (NIP)','Private only':'Private (paid) vaccines only'}});
@@ -350,13 +350,13 @@ fsCard=function(id,move=''){const r=sqCard(id,move);
  add('otp','medicines',{options:['Methadone oral liquid','Buprenorphine/naloxone sublingual films',LAIB],note:'Tick LAIB if your pharmacists give the injections here.'});
  add('otp','laib',{showIf:()=>false});
  add('otp','approvalConditions',{label:'Does your pharmacy’s NSW Health approval to dose OTP patients have any special conditions? (optional)',note:'Only if your approval letter lists extra conditions, e.g. a maximum number of patients. Leave blank if none.'});
- add('otp','fileFrequency',{note:'R.Pharmacy hasn’t found a fixed legal interval for this review; choose what suits your pharmacy. (To be source-checked against the NSW OTP guidance.)'});
+ add('otp','fileFrequency',{note:'Sigil hasn’t found a fixed legal interval for this review; choose what suits your pharmacy. (To be source-checked against the NSW OTP guidance.)'});
  /* OTP procedures: same choice as elsewhere. No "done but not written down". */
  const proc={incidents:'missed doses and intoxicated patients',incidentProcess:'reporting and notifying OTP incidents',films:'supervising film doses',takeawayControls:'authorised take-away doses',maintenance:'pump cleaning, calibration and maintenance'};
  for(const [k,what] of Object.entries(proc)){
   add('otp',k,{options:[SQ_DRAFT,SQ_OWN],display:{[SQ_DRAFT]:'Draft it for me (a section to complete in your OTP procedure)',[SQ_OWN]:'We already have our own (say where it is kept)'},describe:[SQ_OWN],
    legacy:{'Documented local procedure':SQ_OWN,'Done, not written down':SQ_DRAFT,'No documented procedure yet':SQ_DRAFT},task:{[SQ_DRAFT]:'Complete the '+what+' section of your OTP procedure'},
-   note:'R.Pharmacy adds this section to your OTP procedure with a Task to complete it. Clinical steps aren’t written for you here because they must follow the current NSW OTP guidance.'});
+   note:'Sigil adds this section to your OTP procedure with a Task to complete it. Clinical steps aren’t written for you here because they must follow the current NSW OTP guidance.'});
   (RPH.sq.PROC.otp??={})[k]={label:'Procedure for '+what,text:'[Confirm: write the steps for '+what+', following the current NSW OTP guidance]'};
   const row=sopFields.otp.find(f=>f[0]===k);if(row)row[2]=[SQ_DRAFT,SQ_OWN];
   RPH.express&&(RPH.express.ASSUME.otp??=[]).push(k);
@@ -550,7 +550,7 @@ RPH.proc.templates={
    records:['Drug register'+(paper?' and subsidiary register':'')+' entries as above; registers and records are kept for at least 2 years and available for inspection ('+RPH.proc.REG+' s 185(3)).','Staff training records showing staff are trained for the service ('+RPH.proc.STD+' 1(g)).',c('fileSystem',(v,s)=>'Patient files are kept in '+s+'.','where OTP patient files are kept')],
    incidents:[own('incidentProcess','reporting and notifying OTP incidents'),'Register discrepancies are investigated and reported as the Regulation requires.'],
    oversight:['The proprietor checks the OTP procedure covers every part of '+RPH.proc.STD+' item 1 (see “Your OTP procedure”), reviews OTP exceptions at the site visit and the monthly OTP check-in, and reviews this procedure at least annually.'],
-   sources:['NSW Opioid Treatment Program, OTP Standards (NSW Ministry of Health, November 2026): Standards for pharmacists practising at community pharmacy dosing points, items 1–7.','Medicines, Poisons and Therapeutic Goods Regulation 2026 (NSW), 2026 No 330: s 185.','Current NSW OTP clinical guidance (referenced; clinical steps are not written by R.Pharmacy).']};
+   sources:['NSW Opioid Treatment Program, OTP Standards (NSW Ministry of Health, November 2026): Standards for pharmacists practising at community pharmacy dosing points, items 1–7.','Medicines, Poisons and Therapeutic Goods Regulation 2026 (NSW), 2026 No 330: s 185.','Current NSW OTP clinical guidance (referenced; clinical steps are not written by Sigil).']};
  }
 };
 const procDoc=sopDocument;
@@ -691,7 +691,7 @@ sopDocument=function(id){
    'Label and record each supply as a dispensed medicine (Regulation 2026 s 115, s 134).',
    'Used devices and batteries go to e-waste (remove and tape the battery if safe), not the RUM bin or general waste; liquids, pods and cartridges may go in the RUM bin '+NV+'.',
    c('scopeEvidence',v=>String(v).startsWith('We have our own')?'Follow the pharmacy’s own vape supply procedure as well.':null,'the vape supply procedure')],
-  records:['Consultation, consent, ID check and supply are recorded in the dispensing system; patient details stay there, not in R.Pharmacy.','Schedule 3: the SAS Category C notification and its date.',REC],
+  records:['Consultation, consent, ID check and supply are recorded in the dispensing system; patient details stay there, not in Sigil.','Schedule 3: the SAS Category C notification and its date.',REC],
   incidents:['A faulty product or adverse event: look after the patient, stop supply of that product, and report to the TGA and the sponsor within 15 calendar days '+NV+'.'],
   sources:[REG+': s 48, s 115, s 134, s 185.','NSW Health, Legislative requirements for vaping products (current 20 Aug 2026) and Vaping goods pharmacy self-assessment tool (June 2026) — read in full 20 Nov 2026. Steps still marked “verify” are TGA rules NSW Health does not restate.']});
  T.cannabis=(a,c)=>{const thc=a.thc==='Yes';return Object.assign({},base,{
@@ -719,7 +719,7 @@ sopDocument=function(id){
   steps:['Do checks in a private area.','Only trained staff do checks; training in the measuring technique is recorded.','Maintain and calibrate each device as its manufacturer directs; record it.',c('qc',(v,s)=>'Calibration and quality-control records are kept in: '+s+'.','where equipment calibration and QC records are kept'),
    RPH.qm.has(a.tests,'Blood pressure')?'Blood pressure: the person sits quietly first, arm supported at heart level, with the right cuff size for their arm.':null,
    'Explain the result and what it means, in writing where useful, and answer questions.','Follow your written thresholds for abnormal results: what to advise, when to re-check, and when to refer to a GP or urgent care. [Confirm: your thresholds for each check]','Record each result, the advice and any referral; where you track a person’s results over time, record it in the patient’s record.'],
-  records:['Results and referrals stay in the pharmacy’s patient records; R.Pharmacy holds no patient details.',REC],
+  records:['Results and referrals stay in the pharmacy’s patient records; Sigil holds no patient details.',REC],
   incidents:['A dangerously high or low result: follow the urgent referral steps straight away and record it.'],
   sources:[REG+': s 185.','A blood pressure audit used by another app (checks only, not copied).','Device manufacturers’ instructions (referenced).']});
 })();
