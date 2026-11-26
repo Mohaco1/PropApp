@@ -566,3 +566,16 @@ Checked and already passing:
 - `hardening.js` crashed once in 9 early runs without a log; it then passed 5 of 5 with logs.
 
 **Tests:** new suites `tests/hardening.js` and `tests/upgrade.js`. All 24 suites passed in one run on this build, and check-procgen-all is identical across 17.
+
+## Owner trial fix: procedures "to confirm" loop · 26 Nov 2026 · build f5225b274a
+"Write the steps…" items (OTP) and "Steps match the current Handbook" (Vaccination) sent the owner back to setup questions that can't clear them. Now:
+- **Write-the-steps items** open Edit with the placeholder selected. "We have our own procedure" replaces just that line.
+- **Check items** are confirmed by the owner's tap ("I've checked it — remove this marker"), in a new version.
+- **Real gaps** open the exact question: the generator records which answer each "[Confirm: …]" comes from.
+- **Hand-edited drafts** take just the part a new answer changes.
+
+**Test:** new `tests/procedures-all.js`. Every one of the 17 services is cleared through the screens, with first-option answers and with "Check later" answers. Nothing is adopted. All 26 suite runs passed in one run.
+
+**Store:** the live-save restore filter is removed. It made two tabs saving together lose an action. Restores still discard older leftover recovery copies.
+
+**Open:** `hardening.js` sometimes loses the Finish tap on the S8 review's last question when it follows an answer within a fraction of a second (about 1 in 3 runs before a realistic pause was added). Not yet root-caused.
