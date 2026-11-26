@@ -74,3 +74,5 @@ These are quoted from Gemini's brief. Claude's environment can't reach servicesa
   - Categories 2–5 (including CBD-dominant Category 2, 60% to under 98% CBD) are Schedule 8.
   - A low-dose (up to 150 mg/day) Schedule 3 entry exists, but no ARTG-registered S3 CBD product does.
 - **Blooms [2025] NSWSC 1211:** paragraphs [294] and [347], via King & Wood Mallesons (unchanged).
+
+**Confirmed 26 Nov 2026:** the owner reports that Gemini checked the PRODA, NASH, PBS, TGA CBD and Blooms statements against their primary sources and they match the wording word for word.

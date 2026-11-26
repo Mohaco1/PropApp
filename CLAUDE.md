@@ -35,6 +35,7 @@ Read this before any work. These are the owner's instructions and decisions. Don
 - **Sign-in and hosting (D3):** a managed back end in Sydney, emailed-link sign-in. Not yet built.
 - **Look (P-06, 24 Nov):** the owner picked "E+++ Coastal Precision" from the Grand Finale Studio. It is a token and theme layer at the end of `app/src/styles.css`: a white header with a teal-to-ocean strip, ocean primary (#005792), weights 400/500/600, and urgency rails only on overdue and due-soon rows. Change colours there, not in the screens.
 - **Name (25 Nov, owner via Gemini brief):** the app is **Sigil**, tagline “Built for the owner’s side of the counter.” Storage keys (`propapp:*`) and the backup format stay as they are, so earlier data and backups restore.
+- **OTP file reviews (26 Nov, owner):** Quarterly is listed first as the suggestion; the owner picks it. Never pre-selected.
 - **The owner leads on product decisions.** Claude leads the build and shouldn't ask about things it can decide. When something is needed from Gemini (an independent review), give the owner a ready-to-paste prompt.
 
 ## Design rules (from the 25 Nov audit: `uat/audit-2026-11-25/`)
