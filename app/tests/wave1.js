@@ -5,7 +5,7 @@ const TMP = path.resolve(__dirname, '../handoff/tmp'); fs.mkdirSync(TMP, { recur
 const restore = async (p, file) => { await tap(p, 'More'); await p.getByRole('button', { name: /^Backup and devices/ }).click(); await p.locator('input[type=file]').setInputFiles(file); await p.waitForTimeout(600); };
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-30T10:00:00+11:00' });
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(3300);
+  await tap(p, 'Try example'); await p.waitForTimeout(3300);
   const ph0 = await activePh(p), all0 = await saved(p), dk = 'propapp:drafts:' + ph0.id;
 
   // R01: a damaged backup with Wattle Grove's id (staff missing) is refused before anything is written

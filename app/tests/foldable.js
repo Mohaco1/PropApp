@@ -11,7 +11,7 @@ const detailTitle = p => p.locator('.pane-detail main').first().innerText().then
   for (const [w, h] of [[344, 882], [768, 882], [882, 768]]) {
     const { b, p, errors: e } = await phone({ time: '2026-11-26T10:00:00+11:00', viewport: { width: w, height: h }, scale: 2 }); e.forEach(x => errors.push(x)); p.on('pageerror', x => errors.push(x.message));
     const tag = w + '×' + h, unfolded = w >= 700;
-    await p.getByRole('button', { name: 'Look around an example pharmacy (fictional)' }).tap(); await p.waitForTimeout(3300);
+    await p.getByRole('button', { name: 'Try example' }).tap(); await p.waitForTimeout(3300);
     ok(await noOverflow(p), tag + ': Today has no sideways scroll');
     const nb = await navBox(p);
     ok(unfolded ? nb.x === 0 && nb.w <= 100 && nb.h >= h - 1 && nb.targets : nb.y + nb.h >= h - 1 && nb.w >= w - 1 && nb.targets, tag + ': ' + (unfolded ? 'left navigation rail' : 'bottom navigation bar, as on a phone') + ', every target 44 px+');

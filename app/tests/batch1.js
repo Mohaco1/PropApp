@@ -53,7 +53,7 @@ const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive
   await tap(p, 'More'); await p.getByRole('button', { name: /^Calendar/ }).first().tap(); ok(/laid out by week, month or year/.test(await text(p)), 'Navigation: Calendar says what it’s for');
   // Quick list on the example's S8 review: one tap each, nothing pre-answered; an issue goes to the step view
   const s2 = await phone({ time: '2026-11-26T10:00:00+11:00', scale: 2 }); const e = s2.p; s2.errors.forEach(x => errors.push(x)); e.on('pageerror', x => errors.push(x.message));
-  await tap(e, 'Look around an example pharmacy (fictional)'); await e.waitForTimeout(3300);
+  await tap(e, 'Try example'); await e.waitForTimeout(3300);
   await tap(e, 'Reviews'); await e.getByRole('button', { name: /S8 stock check/ }).first().tap(); await tap(e, 'Start review'); await e.waitForTimeout(200);
   await e.getByRole('button', { name: 'Answer as a list' }).tap(); await e.waitForTimeout(250);
   ok(await e.locator('.qlist-item').count() === 9 && await e.locator('.qlist-item .chip.on').count() === 0 && await e.getByRole('button', { name: 'Finish' }).isDisabled(), 'Quick list: all 9 S8 questions on one screen, nothing pre-answered, Finish waits for every answer');
@@ -65,7 +65,7 @@ const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive
   ok(/Question 2 of 9/.test(await text(e)) && /What needs fixing\?/.test(await text(e)), 'Quick list: an issue answer goes to that question so the owner can say what needs fixing');
   // Logo on Welcome
   const s3 = await phone({ time: '2026-11-26T10:00:00+11:00', scale: 2 });
-  ok(await s3.p.locator('.wm-mark svg.logo path[fill="#005792"]').count() === 1 && await s3.p.locator('.wm-mark svg.logo path[fill="#0f766e"]').count() === 1, 'Logo: the PharmLedger ledger-and-plus on Welcome');
+  ok(await s3.p.locator('.wm-mark svg.logo path[fill="#0f766e"]').count() === 1 && await s3.p.locator('.wm-mark svg.logo path[fill="#0f2942"]').count() === 1, 'Logo: the PharmLedger ledger-and-plus on Welcome');
   await s3.b.close(); await s2.b.close();
   // Owner trial: typing a software name then ONE tap on Next saves it and moves on (it used to be lost and stay put)
   { const s4 = await phone({ time: '2026-11-26T10:00:00+11:00' }); const t4 = s4.p; t4.on('pageerror', x => errors.push(x.message));

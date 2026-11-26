@@ -8,7 +8,7 @@ const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-25T10:00:00+11:00', scale: 2 });
   const more = re => tap(p, 'More').then(() => p.getByRole('button', { name: re }).first().click());
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(3300);
+  await tap(p, 'Try example'); await p.waitForTimeout(3300);
   const watch = pg => { pg.on('pageerror', e => errors.push(e.message)); pg.on('console', m => { if (m.type() === 'error') errors.push(m.text()); }); };
 
   // ---- Bug 1: two tabs save at the same moment; both actions survive in both tabs

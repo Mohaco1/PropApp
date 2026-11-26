@@ -3,7 +3,7 @@
 const { phone, ok, done, tap, text, saved } = require('./helpers.js');
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-24T10:00:00+11:00' });
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(500);
+  await tap(p, 'Try example'); await p.waitForTimeout(500);
   let t = await text(p);
   ok(/Wattle Grove Pharmacy/.test(t) && /Extra visit (· 4 checked|in progress · 4 checked)/.test(t), 'Today shows the extra visit in progress (one line while a legal item is overdue)');
   ok(/\d+ things are overdue/.test(t), 'status sentence: ' + (t.match(/\d+ things? (is|are) overdue/) || [''])[0]);

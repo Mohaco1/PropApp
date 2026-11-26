@@ -15,7 +15,7 @@ const above = async (p, name) => { await p.waitForTimeout(250); const f = await 
   const more = re => tap(p, 'More').then(() => p.getByRole('button', { name: re }).first().click());
   // A2 on a fresh pharmacy (setup card) first
   await above(p, 'Welcome');
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(3300);
+  await tap(p, 'Try example'); await p.waitForTimeout(3300);
   await tap(p, 'Today'); await above(p, 'Today'); await p.screenshot({ path: path.join(OUT, '20_today_390px.png') });
   for (const [tab, name] of [['Reviews', 'Reviews'], ['Actions', 'Actions'], ['Staff', 'Staff'], ['More', 'More']]) { await tap(p, tab); await above(p, name); }
   await p.screenshot({ path: path.join(OUT, '21_more_390px.png') });
@@ -121,7 +121,7 @@ const above = async (p, name) => { await p.waitForTimeout(250); const f = await 
   ok(/DTSTART;VALUE=DATE:20271104/.test(cal2) && /prescribing Class Authorities/.test(cal2), 'B2 a prescribing pharmacy gets the 4 Nov 2027 expiry');
   // Micro-patch 1: "Align to 4 quarters", in its own fresh browser; the S8 review never goes past its s 111 limit
   { const s2 = await phone({ time: '2026-11-25T10:00:00+11:00' }); const q = s2.p; s2.errors.forEach(e => errors.push(e)); q.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
-    await tap(q, 'Look around an example pharmacy (fictional)'); await q.waitForTimeout(3300);
+    await tap(q, 'Try example'); await q.waitForTimeout(3300);
     // a completed stock check on 20 Oct: the s 111 limit is 20 Jan 2027, before the 1 Feb 2027 quarter anchor
     await tap(q, 'Reviews'); await q.getByRole('button', { name: /S8 stock check/ }).first().click(); await tap(q, 'Start review');
     for (let i = 0; i < 9; i++) { await q.locator('label.choice').first().click(); await q.waitForTimeout(40); await q.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await q.waitForTimeout(60); }

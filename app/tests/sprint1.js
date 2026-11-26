@@ -5,7 +5,7 @@ const { phone, ok, done, tap, text } = require('./helpers.js');
   // N-04: a Content Security Policy inside <head>
   ok(await p.evaluate(() => !!document.querySelector('head meta[http-equiv="Content-Security-Policy"]')), 'N-04 CSP meta is inside <head>');
   ok(await p.evaluate(() => /connect-src 'none'/.test(document.querySelector('head meta[http-equiv="Content-Security-Policy"]')?.content || '')), 'N-04 CSP blocks network connections');
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(500);
+  await tap(p, 'Try example'); await p.waitForTimeout(500);
   // N-05: Today and Calendar agree on overdue
   const todayOver = +(await p.locator('.filters button', { hasText: 'Overdue' }).locator('b').innerText());
   await tap(p, 'More'); await p.getByRole('button', { name: /^Calendar/ }).click(); await p.waitForTimeout(200);

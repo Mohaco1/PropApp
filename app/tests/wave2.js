@@ -3,7 +3,7 @@ const { phone, ok, done, tap, text, activePh } = require('./helpers.js'); const 
 const OUT = path.resolve(__dirname, '../handoff');
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-25T10:00:00+11:00', scale: 2 });
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(3300);
+  await tap(p, 'Try example'); await p.waitForTimeout(3300);
   // R12: the UAT button is in the header bar, 44 px, and never over a row
   const u = await p.evaluate(() => { const b = document.querySelector('#uat-btn'), r = b.getBoundingClientRect(); const rows = [...document.querySelectorAll('.row')].map(x => x.getBoundingClientRect()); return { inBar: b.parentElement.classList.contains('bar'), w: r.width, h: r.height, overlap: rows.some(x => !(x.bottom <= r.top || x.top >= r.bottom || x.right <= r.left || x.left >= r.right)) }; });
   ok(u.inBar && u.w >= 44 && u.h >= 44 && !u.overlap, 'R12 UAT notes is a 44 px button in the header bar, clear of every row');

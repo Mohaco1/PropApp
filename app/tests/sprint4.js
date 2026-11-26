@@ -3,7 +3,7 @@ const { phone, ok, done, tap, text, activePh, download } = require('./helpers.js
 const noSideways = p => p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1);
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-24T10:00:00+11:00' });
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(600);
+  await tap(p, 'Try example'); await p.waitForTimeout(600);
   const more = name => tap(p, 'More').then(() => p.getByRole('button', { name }).first().click());
   // S4-01 procedure lifecycle
   await more(/^Procedures/); await p.getByRole('button', { name: /Staged supply/ }).click(); await tap(p, 'Adopt for use here'); await tap(p, 'Yes, adopt it'); await p.waitForTimeout(200);

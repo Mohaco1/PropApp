@@ -366,3 +366,16 @@ table.yearplan{width:100%}.yearplan th,.yearplan td{width:auto;min-width:0;paddi
 .toast.done::before{content:"✓";display:grid;place-items:center;flex:none;width:22px;height:22px;border-radius:999px;background:var(--ok);color:#fff;font-size:13px;font-weight:600}
 .settle-ic{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:999px;background:var(--okbg);color:var(--ok);font-size:12px;font-weight:600}
 @media (prefers-reduced-motion:no-preference){.toast.done::before,.meta.settle .settle-ic{animation:settle .15s ease-out}@keyframes settle{from{transform:scale(.6);opacity:0}}.meta.settle{animation:settlerow .15s ease-out}@keyframes settlerow{from{opacity:.4;transform:translateY(2px)}}}
+
+/* Final colour (26 Nov, Gemini "Final Colour, Top Stripe & Welcome" spec): Midnight Navy primary and active nav, a navy-to-teal
+   top stripe, Deep Teal as the secondary clinical accent. Secondary grey text stays #526575 (contrast). */
+:root{--primary:#0f2942;--navy:#0f2942;--teal-2:#0f766e;--grad:linear-gradient(90deg,#0f2942,#0f766e)}
+/* Welcome: Centered Calm */
+.welcome.calm{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px}
+.calm-stack{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+.calm-stack .logo{display:block;margin-bottom:4px}
+.calm-name{margin:0;font-size:26px;font-weight:600;letter-spacing:-.02em;line-height:1.15;color:var(--fg)}
+.calm-line{margin:0 0 10px;font-size:15px;color:var(--muted)}
+.calm-stack .btn.primary{width:100%;min-height:48px}
+.calm-links{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;color:var(--muted)}
+.calm-links .linkbtn,.calm-links .btn.link{min-height:44px;padding:0 6px;font-size:15px}

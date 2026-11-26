@@ -1,10 +1,10 @@
 // Shared building blocks. One shell for every screen (design rule 4), thumb-sized controls (rule 11).
 import { h, raw } from './util.js';
-// The PharmLedger mark: Gemini's exact Option C SVG (Visual Polish spec, 26 Nov). A deep-teal ledger with an off-white spine cut,
-// wrapping a right-edge cutout that holds the ocean-blue pharmacy plus, on an off-white tile (1px #dbe3ea edge on light
-// headers). tools/make-icons.js draws the same MARK.
-export const LOGO_MARK = '<path d="M7 6.5h11.5a2 2 0 0 1 2 2v2.2h-2.5a2.3 2.3 0 0 0-2.3 2.3v6a2.3 2.3 0 0 0 2.3 2.3h2.5v2.2a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-15a2 2 0 0 1 2-2z" fill="#0f766e"/><rect x="9.2" y="6.5" width="1.7" height="19" fill="#f8fafc"/><path d="M21 11.5h3v3h3v3h-3v3h-3v-3h-3v-3h3z" fill="#005792"/>';
-export const logo = (size = 28) => raw(`<svg class="logo" width="${size}" height="${size}" viewBox="0 0 32 32" role="img" aria-label="PharmLedger" xmlns="http://www.w3.org/2000/svg"><rect x=".5" y=".5" width="31" height="31" rx="7.5" fill="#f8fafc" stroke="#dbe3ea" stroke-width="1"/>${LOGO_MARK}</svg>`);
+// The PharmLedger mark: Gemini's exact Option C geometry in the final "Top-right" colours (26 Nov): a Midnight Navy (#0f2942)
+// ledger with a Warm Ivory (#fafaf8) spine cut, wrapping a right-edge cutout that holds the Deep Teal (#0f766e) plus, on a
+// Warm Ivory tile (1px #dbe3ea edge on light headers). tools/make-icons.js draws the same MARK.
+export const LOGO_MARK = '<path d="M7 6.5h11.5a2 2 0 0 1 2 2v2.2h-2.5a2.3 2.3 0 0 0-2.3 2.3v6a2.3 2.3 0 0 0 2.3 2.3h2.5v2.2a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-15a2 2 0 0 1 2-2z" fill="#0f2942"/><rect x="9.2" y="6.5" width="1.7" height="19" fill="#fafaf8"/><path d="M21 11.5h3v3h3v3h-3v3h-3v-3h-3v-3h3z" fill="#0f766e"/>';
+export const logo = (size = 28) => raw(`<svg class="logo" width="${size}" height="${size}" viewBox="0 0 32 32" role="img" aria-label="PharmLedger" xmlns="http://www.w3.org/2000/svg"><rect x=".5" y=".5" width="31" height="31" rx="7.5" fill="#fafaf8" stroke="#dbe3ea" stroke-width="1"/>${LOGO_MARK}</svg>`);
 // How many pharmacies are on this device (set by app.js each render): the site switch is a pill only when there are several.
 export const env = { sites: 1 };
 const I = {

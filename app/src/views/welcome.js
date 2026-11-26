@@ -11,15 +11,16 @@ register('welcome', {
   render(c) {
     if (c.ui.setupStep === undefined) { const saved = c.store.getPref('setup-draft'); if (saved) { c.ui.setup = saved.setup; c.ui.setupStep = saved.step; } }
     const step = c.ui.setupStep || 0;
-    if (step === 0) return h`<div class="welcome">
-      <div class="wm" aria-label="PharmLedger"><span class="wm-mark" aria-hidden="true">${logo(48)}</span>PharmLedger</div>
-      <p class="wm-line">For the owner’s side of the counter.</p>
-      <p class="muted wm-sub">Your legal and best-practice duties as a pharmacy owner, in one calm place.</p>
+    // Final Welcome spec (26 Nov): "Centered Calm", one centred 340 px stack on phones and unfolded screens.
+    if (step === 0) return h`<div class="welcome calm"><div class="calm-stack">
+      <span class="wm-mark" aria-hidden="true">${logo(56)}</span>
+      <h1 class="calm-name">PharmLedger</h1>
+      <p class="calm-line">For the owner’s side of the counter.</p>
       ${btn('Set up your pharmacy', 'start-setup', { kind: 'primary', cls: 'big' })}
-      <div class="welcome-more">
-        <label class="linkbtn">Restore a backup<input type="file" accept="application/json,.json" data-change="restore" hidden></label>
-        ${window.PROPAPP_EXAMPLE ? btn('Look around an example pharmacy (fictional)', 'example', { kind: 'link' }) : ''}
-      </div></div>`;
+      <div class="calm-links">
+        <label class="linkbtn">Restore backup<input type="file" accept="application/json,.json" data-change="restore" hidden></label>
+        ${window.PROPAPP_EXAMPLE ? h`<span aria-hidden="true">·</span>${btn('Try example', 'example', { kind: 'link' })}` : ''}
+      </div></div></div>`;
     const d = c.ui.setup || (c.ui.setup = { name: '', address: '', owners: [''], services: [] });
     const head = h`<p class="steps">Step ${step} of 3</p>`;
     if (step === 1) return screen({ title: 'Your pharmacy', back: true, body: h`${head}

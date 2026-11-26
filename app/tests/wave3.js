@@ -3,7 +3,7 @@ const { phone, ok, done, tap, text } = require('./helpers.js');
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-25T10:00:00+11:00' });
   const more = re => tap(p, 'More').then(() => p.getByRole('button', { name: re }).first().click());
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(3300);
+  await tap(p, 'Try example'); await p.waitForTimeout(3300);
   // A. TGA and eNRMC links labelled honestly; new NSW sources listed with links
   await more(/^Law and sources/); await tap(p, 'Sources'); await p.waitForTimeout(300); let t = await text(p);
   ok((t.match(/Quoted by the 25 Nov independent review/g) || []).length === 3, 'Section 4A the 2 TGA vape links and the eNRMC link say they were quoted by the 25 Nov review');

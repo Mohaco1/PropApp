@@ -5,7 +5,7 @@ const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-24T10:00:00+11:00', scale: 2 });
   const more = name => tap(p, 'More').then(() => p.getByRole('button', { name }).first().click());
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(3400);
+  await tap(p, 'Try example'); await p.waitForTimeout(3400);
   // C2-04: Today says how many updates are unread
   await tap(p, 'More'); ok(await p.locator('.badge').first().innerText() === '4 new' && await p.locator('.updline').count() === 0, 'C2-04 More shows “4 new” on Law and sources (A2: not on Today)');
   // C2-01: Sources screen with working external links

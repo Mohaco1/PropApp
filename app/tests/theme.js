@@ -11,12 +11,12 @@ const rgb = hex => 'rgb(' + hex.match(/\w\w/g).map(x => parseInt(x, 16)).join(',
     window.__legacy = []; const orig = document.execCommand.bind(document);
     document.execCommand = (cmd, ...a) => { if (cmd === 'copy') { const el = document.activeElement; window.__legacy.push(el && el.tagName === 'TEXTAREA' ? el.value.slice(el.selectionStart, el.selectionEnd) : String(getSelection())); if (el && el.tagName === 'TEXTAREA') { const cs = getComputedStyle(el); window.__legacyStyle = { left: cs.left, font: cs.fontSize, opacity: cs.opacity, w: el.getBoundingClientRect().width, ro: el.readOnly }; } orig(cmd, ...a); return true; } return orig(cmd, ...a); }; });
   await p.reload(); await p.waitForTimeout(400);
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(600);
+  await tap(p, 'Try example'); await p.waitForTimeout(600);
   // 1. tokens, header strip, monogram badge
   const look = await p.evaluate(() => { const cs = e => getComputedStyle(e); const bar = document.querySelector('.bar'), strip = getComputedStyle(bar, '::before'), mark = document.querySelector('.mark').getBoundingClientRect();
     return { bg: cs(document.body).backgroundColor, bar: cs(bar).backgroundColor, strip: strip.height, grad: strip.backgroundImage, mark: [Math.round(mark.width), Math.round(mark.height)], markText: !!document.querySelector('.mark svg.logo path'), font: cs(document.body).fontFamily }; });
   ok(look.bg === rgb('F2F6F8') && look.bar === rgb('FFFFFF'), 'P-06 canvas #F2F6F8 and white header');
-  ok(look.strip === '3.5px' && /^linear-gradient\(90deg, rgb\(0, 139, 130\) 0%, rgb\(0, 87, 146\) 100%\)$/.test(look.grad), 'P-06 3.5px teal-to-ocean strip on the header');
+  ok(look.strip === '3.5px' && /^linear-gradient\(90deg, rgb\(15, 41, 66\), rgb\(15, 118, 110\)\)$/.test(look.grad), '3.5px navy-to-teal strip on the header');
   ok(look.mark[0] === 22 && look.mark[1] === 22 && look.markText === true, 'P-06 + PharmLedger 22×22 logo badge');
   ok(/^"?Public Sans"?, "?Inter"?/.test(look.font), 'P-06 font stack starts Public Sans, Inter');
   // 2. one pharmacy: no pill switch
@@ -41,7 +41,7 @@ const rgb = hex => 'rgb(' + hex.match(/\w\w/g).map(x => parseInt(x, 16)).join(',
   await p.emulateMedia({ colorScheme: 'dark' }); await p.waitForTimeout(150);
   const dk = await p.evaluate(() => { const r = getComputedStyle(document.documentElement), v = n => r.getPropertyValue(n).trim().toUpperCase();
     return { bg: v('--bg'), surface: v('--surface'), primary: v('--primary'), fg: v('--fg'), body: getComputedStyle(document.body).backgroundColor, rules: [...document.styleSheets].flatMap(s => { try { return [...s.cssRules]; } catch { return []; } }).filter(r => /prefers-color-scheme|data-theme/.test(r.cssText)).length }; });
-  ok(dk.bg === '#F2F6F8' && dk.surface === '#FFFFFF' && dk.primary === '#005792' && dk.fg === '#0F172A' && dk.body === rgb('F2F6F8') && dk.rules === 0, 'Light only: with the phone in dark mode the app keeps --bg #F2F6F8, --surface #FFFFFF, --primary #005792, --fg #0F172A; no dark-mode rules');
+  ok(dk.bg === '#F2F6F8' && dk.surface === '#FFFFFF' && dk.primary === '#0F2942' && dk.fg === '#0F172A' && dk.body === rgb('F2F6F8') && dk.rules === 0, 'Light only: with the phone in dark mode the app keeps --bg #F2F6F8, --surface #FFFFFF, --primary #0F2942, --fg #0F172A; no dark-mode rules');
   await p.emulateMedia({ colorScheme: 'light' }); await p.waitForTimeout(100);
   // F-P06-01 on a real Copy button: review "Copy as text"
   await tap(p, 'Reviews'); await p.locator('.chip', { hasText: /^Completed/ }).click(); await p.locator('.row', { hasText: 'Proprietor site visit' }).first().click();
@@ -72,7 +72,7 @@ const rgb = hex => 'rgb(' + hex.match(/\w\w/g).map(x => parseInt(x, 16)).join(',
   await p.fill('input[name=name]', 'Second Test Pharmacy (fictional)'); await tap(p, 'Continue'); await p.fill('input[name=owner0]', 'Sam Owner'); await tap(p, 'Continue'); await p.locator('label.tick', { hasText: 'Home delivery' }).click(); await tap(p, 'Finish setup'); await p.waitForTimeout(400);
   const sw = await p.evaluate(() => { const b = document.querySelector('.ph-switch.multi'), s = b?.querySelector('.sw-pill'); if (!s) return null; const r = b.getBoundingClientRect(), cs = getComputedStyle(s);
     return { h: Math.round(r.height), color: cs.color, weight: cs.fontWeight, over: document.documentElement.scrollWidth > innerWidth + 1 }; });
-  ok(sw && sw.h >= 44 && sw.color === rgb('005792') && sw.weight === '600' && !sw.over, 'P-06 two pharmacies: the site switch is an ocean pill on a soft track, 44 px tap area');
+  ok(sw && sw.h >= 44 && sw.color === rgb('0F2942') && sw.weight === '600' && !sw.over, 'P-06 two pharmacies: the site switch is an ocean pill on a soft track, 44 px tap area');
   await p.setViewportSize({ width: 320, height: 568 });
   for (const t of ['Today', 'Reviews', 'Actions', 'Staff', 'More']) { await tap(p, t); await p.waitForTimeout(120); ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'P-06 320×568 ' + t + ': no sideways scroll'); }
   await done(b, errors);

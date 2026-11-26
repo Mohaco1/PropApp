@@ -35,7 +35,7 @@ const next = p => p.getByRole('button', { name: /^(Next|Finish)$/ }).first();
 
   // ── 2. Restore never resurrects a discarded edit (two tabs, reload in either order)
   ({ b, p } = await open());
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(3300);
+  await tap(p, 'Try example'); await p.waitForTimeout(3300);
   await tap(p, 'More'); await p.getByRole('button', { name: /^Backup and devices/ }).click(); await p.waitForTimeout(300);
   const bk = await download(p, 'Download a backup'); fs.writeFileSync(path.join(TMP, 'old.json'), bk); fs.writeFileSync(path.join(TMP, 'old2.json'), bk);
   let q = await tab2(p); await addAction(q, 'Newer edit in tab B (fictional)'); await q.waitForTimeout(400);
@@ -112,7 +112,7 @@ const next = p => p.getByRole('button', { name: /^(Next|Finish)$/ }).first();
   await b.close();
   // ── Owner trial (26 Nov): "Write the steps …" items in a procedure no longer loop back to the setup question
   ({ b, p } = await open());
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(3300);
+  await tap(p, 'Try example'); await p.waitForTimeout(3300);
   await tap(p, 'More'); await p.getByRole('button', { name: /^Procedures/ }).first().tap(); await p.getByRole('button', { name: /^Opioid Treatment Program/ }).first().tap(); await p.waitForTimeout(300);
   if (await p.getByRole('button', { name: 'Update the draft' }).count()) { await tap(p, 'Update the draft'); await p.waitForTimeout(300); }
   const nConf = async () => +(((await text(p)).match(/TO CONFIRM BEFORE ADOPTING · (\d+)/i) || [0, 0])[1]);
@@ -131,7 +131,7 @@ const next = p => p.getByRole('button', { name: /^(Next|Finish)$/ }).first();
   // ── Owner trial (26 Nov): a "to confirm" check with no setup question ("Steps match the current Handbook") is
   // confirmed by the owner's own tap in the text, instead of looping back to the service screen
   ({ b, p } = await open());
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(3300);
+  await tap(p, 'Try example'); await p.waitForTimeout(3300);
   await tap(p, 'More'); await p.getByRole('button', { name: /^Procedures/ }).first().tap(); await p.getByRole('button', { name: /^Vaccination/ }).first().tap(); await p.waitForTimeout(300);
   if (await p.getByRole('button', { name: 'Update the draft' }).count()) { await tap(p, 'Update the draft'); await p.waitForTimeout(300); }
   const vrow = p.locator('.row', { hasText: 'Steps match the current Handbook' }).first();

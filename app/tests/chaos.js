@@ -64,7 +64,7 @@ const qn = async p => +(((await text(p)).match(/Question (\d+)/) || [])[1] || 0)
   await b.close();
   // 5. Today moves to the new day after Sydney midnight
   ({ b, p } = await open({ time: '2026-11-26T23:59:40+11:00' }));
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(3000);
+  await tap(p, 'Try example'); await p.waitForTimeout(3000);
   const before = await p.locator('main h1, main .date, main').first().innerText();
   await p.clock.runFor(60000); await p.waitForTimeout(300);
   ok(/Thu 26 Nov/.test(before) && /Fri 27 Nov/.test(await text(p)), 'Fix 5: Today changes from Thu 26 Nov to Fri 27 Nov after Sydney midnight without navigating');

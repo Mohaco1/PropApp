@@ -3,7 +3,7 @@
 const { phone, ok, done, tap, text, activePh, saved, download, copied, otherDeviceSaves } = require('./helpers.js');
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-24T10:00:00+11:00', clip: true });
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(600);
+  await tap(p, 'Try example'); await p.waitForTimeout(600);
   const more = name => tap(p, 'More').then(() => p.getByRole('button', { name }).first().click());
   // S5-02 (a): looking around without changing anything writes nothing
   await p.waitForTimeout(500); const snap = JSON.stringify(await saved(p));

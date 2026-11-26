@@ -3,7 +3,7 @@ const { phone, ok, done, tap, text, saved } = require('./helpers.js'); const pat
 const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive: true });
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-24T10:00:00+11:00', scale: 2 });
-  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(3300);
+  await tap(p, 'Try example'); await p.waitForTimeout(3300);
   // V3-03 evidence pack
   const before = JSON.stringify(await saved(p));
   await tap(p, 'More'); await p.getByRole('button', { name: /^Evidence pack/ }).click(); await p.waitForTimeout(300);

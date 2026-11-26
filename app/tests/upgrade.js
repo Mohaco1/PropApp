@@ -15,7 +15,7 @@ const build = p => p.evaluate(() => document.querySelector('meta[name=propapp-bu
   const p = await ctx.newPage(); const errors = []; p.on('pageerror', e => errors.push(e.message)); p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   await p.goto(URL); await p.waitForTimeout(800);
   ok(await build(p) === '07775c5947', 'Item 7: the old phone app (07775c5947) is running');
-  await p.getByRole('button', { name: 'Look around an example pharmacy (fictional)' }).click(); await p.waitForTimeout(3300);
+  await p.getByRole('button', { name: 'Try example' }).click(); await p.waitForTimeout(3300);
   await p.getByRole('button', { name: 'Actions', exact: true }).click(); await p.getByRole('button', { name: 'Add an action', exact: true }).first().click(); await p.fill('input[name=title]', 'Open action before update (fictional)'); await p.getByRole('button', { name: 'Save action' }).click(); await p.waitForTimeout(300);
   await p.getByRole('button', { name: 'Today', exact: true }).click(); await p.getByRole('button', { name: /Proprietor site visit/ }).first().click(); await p.getByRole('button', { name: 'Start the checks' }).click(); await p.waitForTimeout(300);
   for (let i = 0; i < 2; i++) { await p.locator('label.choice', { hasText: /^Satisfactory$/ }).first().click(); await p.waitForTimeout(100); await p.getByRole('button', { name: /^Next$/ }).click(); await p.waitForTimeout(250); }
