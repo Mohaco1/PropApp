@@ -580,7 +580,7 @@ Checked and already passing:
 
 **Open:** `hardening.js` sometimes loses the Finish tap on the S8 review's last question when it follows an answer within a fraction of a second (about 1 in 3 runs before a realistic pause was added). Not yet root-caused.
 
-## "Onboard me" guides for all 17 services (unified Gemini + Codex spec) · 26 Nov 2026
+## "Onboard me" guides for all 17 services (unified Gemini + Codex spec) · 26 Nov 2026 · build 767072835c
 - **"New to this service? Onboard me"** sits under the heading on the first setup screen; the first question stays visible below it. The guide has:
   - what this is, and a "Watch for" trap;
   - 4–5 numbered steps with official sources that open and close;
@@ -590,3 +590,5 @@ Checked and already passing:
 - **Prescribing gate:** OCP initiation is no longer behind the Queensland gate. It's labelled with its approved awards (JCU, University of Newcastle, UTS), per the NSW protocol. Its checklist line names the three certificates and the private (non-PBS) cost; the unsupported Intention-form claim is removed. The gate now covers only the five Queensland-trained conditions.
 - **Sources:** `uat/research/onboard-sources-2026-11-26.md`.
 - **Tests:** new suite `tests/onboard.js` (108 checks, all 17 services).
+- Shipped as build 767072835c: docs/ refreshed for GitHub Pages; checked under /PropApp/ (installable, offline, icons, no errors).
+- Known flake: gates "confirmed restore … isn't blended in" fails about 1 run in 2–3 (two-tab timing in the test); passes on rerun. Not caused by this build; still to root-cause.

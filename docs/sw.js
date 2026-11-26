@@ -1,7 +1,7 @@
 // R.Pharmacy offline worker (V3-01). It caches the app shell only. It never reads, clears or migrates saved records
 // (IndexedDB and localStorage belong to the app). The page is network-first so updates arrive; icons and the manifest
 // are cache-first. Old shell caches (propapp-shell-*) are removed when a new version activates.
-const SHELL = 'propapp-shell-f5225b274a';
+const SHELL = 'propapp-shell-767072835c';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(SHELL).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('propapp-shell-') && k !== SHELL).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
