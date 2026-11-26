@@ -312,7 +312,7 @@ main p,main h1,main h2,main h3,main li,main dd,main td,main th,.row-title,.row-s
 
 /* Final pre-limit fixes (26 Nov): 2 year plan fits 390 px; 4 table headers; 5 filter chips; 6 Why? chevron */
 table.yearplan{width:100%}.yearplan th,.yearplan td{width:auto;min-width:0;padding:6px 1px}.yearplan thead th:first-child{width:104px}.yearplan th:last-child,.yearplan td:last-child{padding-right:2px}.yearplan th[scope=row]{font-size:12px;text-align:left;padding-right:4px}
-.ptable th{white-space:nowrap}
+@media screen{.ptable th{white-space:nowrap}}
 .filters{grid-template-columns:1fr 1fr 1.6fr .8fr}.filters button{padding:0 4px;min-width:0}.filters button span{white-space:nowrap;font-size:12.5px}
 .why summary{list-style:none;justify-content:space-between;gap:12px}.why summary::-webkit-details-marker{display:none}
 .why summary::after{content:'';flex:none;width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translate(-2px,-2px);transition:transform .15s;opacity:.7}

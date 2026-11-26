@@ -592,3 +592,13 @@ Checked and already passing:
 - **Tests:** new suite `tests/onboard.js` (108 checks, all 17 services).
 - Shipped as build 767072835c: docs/ refreshed for GitHub Pages; checked under /PropApp/ (installable, offline, icons, no errors).
 - Known flake: gates "confirmed restore … isn't blended in" fails about 1 run in 2–3 (two-tab timing in the test); passes on rerun. Not caused by this build; still to root-cause.
+
+## Final pre-limit fixes 1–7 (Gemini handoff doc) · 26 Nov 2026 · build 5359cb8efe
+1. OCP: the NSW Health “Intention to provide expanded community pharmacy services in NSW” form is back in the OCP guide step and checklist line, with the private (non-PBS) cost note (source re-checked: NSW Health OCP initiation page). JCU/Newcastle/UTS wording kept.
+2. Year plan: Quarter Balancer (Move buttons) and Align now sit above the 12-month table; the table fits 390 px with no sideways scroll, so the last month isn’t clipped.
+3. Android hint: “tap the three-dot menu (⋮)” (some Android fonts lack ⋮).
+4. Evidence pack table headers don’t wrap on screen (print layout unchanged).
+5. Today filter chips: one line each, equal height.
+6. “Why?” boxes (incl. “What the section says about who”) show a chevron that turns when opened.
+7. Governance agenda item 1 is now “Incidents and patient safety”; complaints sit only in the Q4 themes item.
+- Added `tools/test-all.sh`. Results: see HANDOFF.md.
