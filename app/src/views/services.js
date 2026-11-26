@@ -43,6 +43,14 @@ function descOf(v, describe, opts) { const s = String(v || ''); for (const o of 
   let rest = s.slice(i + o.length + 1), cut = rest.length;
   for (const x of opts) { if (x === o) continue; const j = rest.indexOf(',' + x); if (j >= 0 && j < cut && (rest[j + 1 + x.length] === undefined || rest[j + 1 + x.length] === ',' || rest[j + 1 + x.length] === ':')) cut = j; }
   return rest.slice(0, cut).trim(); } return ''; }
+// The block of lines that differs between the old and new generated drafts; applied to the owner's edited text only if
+// that text still contains the old block (or, for a single placeholder line, that line). Otherwise null (left alone).
+function patchEdited(oldGen, newGen, body) { const a = String(oldGen).split('\n'), b = String(newGen).split('\n'); let p = 0, q = 0;
+  while (p < a.length && p < b.length && a[p] === b[p]) p++; while (q < a.length - p && q < b.length - p && a[a.length - 1 - q] === b[b.length - 1 - q]) q++;
+  const oldMid = a.slice(p, a.length - q).join('\n'), newMid = b.slice(p, b.length - q).join('\n');
+  if (oldMid && body.includes(oldMid)) return body.split(oldMid).join(newMid);
+  if (!oldMid) { const before = a[p - 1]; if (before !== undefined && body.includes(before + '\n')) return body.replace(before + '\n', before + '\n' + newMid + '\n'); }
+  return null; }
 const norm = x => String(x || '').split(',').map(y => y.trim()).join(',');
 const has = (v, o) => { const s = ',' + norm(v) + ',', n = norm(o); return s.includes(',' + n + ',') || s.includes(',' + n + ':'); };
 function fieldsFor(ph, id) { const a = ph.services[id]?.answers || {}; const all = visibleFields(ph, id, a).map(f => ({ key: f[0], label: f[1], options: f[2], section: f[3], extra: f[4] }));
@@ -178,8 +186,16 @@ const SETUP = {
     recnow: (c, d, el, r) => c.change(ph => { ph.services[r.id].recIntro = 'now'; }),
     recskip: (c, d, el, r) => { const fs = fieldsFor(c.ph, r.id); c.change(ph => { const s = ph.services[r.id]; s.recIntro = 'skipped'; for (const f of fs.filter(x => isLoc(r.id, x))) if (!answered(s.answers, f.key)) s.answers[f.key] = NV; s.pos = fs.length; if (s.setup === 'todo') s.setup = 'doing'; }, 'Skipped. They are on Today under “To confirm”.'); c.ui['ss:' + r.id] = fs.length; c.rerender(); },
     finish: (c, d, el, r) => finishService(c, r.id),
-    ret: (c, d, el, r) => { c.ui.returnTo = null; c.ui['ss:' + r.id] = undefined;
+    ret: (c, d, el, r) => { const fix = c.ui.fixFind?.id === r.id ? c.ui.fixFind.find : ''; const fsr = fieldsFor(c.ph, r.id), fq = fsr[c.ui['ss:' + r.id] ?? -1], ans = fq ? String(c.ph.services[r.id].answers?.[fq.key] || '') : '';
+      c.ui.returnTo = null; c.ui['ss:' + r.id] = undefined; c.ui.fixFind = null; c.ui['pm:' + r.id] = ''; c.ui['pmfind:' + r.id] = '';
       c.change(ph => { const p = ph.procedures.find(x => x.service === r.id); if (!p || p.status === 'adopted') return; const v = p.versions.at(-1), t = draftText(ph, r.id);
+        // Owner trial: a hand-edited draft isn't regenerated, so "We have our own procedure" replaces just that placeholder.
+        if (v.edited && fix && v.body.includes(fix) && ans.startsWith('We have our own')) { const where = ans.split(':').slice(1).join(':').trim(), m = String(v.v).match(/^(\d+)\.(\d+)/);
+          p.versions.push({ ...v, v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body: v.body.split(fix).join('Follow the pharmacy’s own written procedure for this' + (where ? ' (kept: ' + where + ')' : '') + '.'), generated: t || v.generated, at: new Date().toISOString(), status: 'Draft', edited: true }); log(ph, 'Procedure: placeholder replaced by own procedure · ' + serviceName(r.id)); return; }
+        // Owner trial: a hand-edited draft gets only the part this answer changed (when the owner's text still has the
+        // old wording there), so answering a question still clears its item without overwriting the owner's edits.
+        if (v.edited && t && t !== v.generated) { const nb = patchEdited(v.generated, t, v.body); if (nb !== null && nb !== v.body) { const m = String(v.v).match(/^(\d+)\.(\d+)/);
+          p.versions.push({ ...v, v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body: nb, generated: t, at: new Date().toISOString(), status: 'Draft', edited: true }); log(ph, 'Procedure updated from a setup answer (your edits kept) · ' + serviceName(r.id)); return; } }
         if (!v.edited && t && t !== v.generated) { const m = String(v.v).match(/^(\d+)\.(\d+)/); p.versions.push({ v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }); log(ph, 'Procedure redrafted from a setup answer · ' + serviceName(r.id)); } }, 'Saved. The draft is updated.');
       c.back(); } },
 };

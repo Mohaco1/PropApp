@@ -468,7 +468,7 @@ RPH.proc.show=(id,k,v)=>RPH.qm.split(v).map(p=>RPH.qm.showFor(id,k,p)).join(', '
 RPH.proc.known=v=>!!v&&!['Needs verification','Evidence pending'].includes(v);
 RPH.proc.build=function(id,t){
  const a=sopValues(id),confirm=[];
- const c=(k,fn,what)=>{const v=a[k];if(RPH.proc.known(v))return fn(v,RPH.proc.show(id,k,v));confirm.push(what);return '[Confirm: '+what+']';};
+ const c=(k,fn,what)=>{const v=a[k];if(RPH.proc.known(v))return fn(v,RPH.proc.show(id,k,v));confirm.push(what);(RPH.proc.gapKey??={})[id+'|'+what]=k;return '[Confirm: '+what+']';};
  const p=t(a,c),name=serviceName(id),L=[];
  const sec=(n,title,lines,num)=>{const xs=lines.filter(Boolean);if(!xs.length)return;L.push(n+'. '+title);xs.forEach((x,i)=>L.push(num?(i+1)+'. '+x:'• '+x));L.push('');};
  L.push(name+' — standard operating procedure','Draft generated from '+(state.pharmacyName||'the pharmacy')+'’s setup answers and the sources listed at the end. Review it, adjust it to how you work, and approve it in Policies. It is not legal advice.','');

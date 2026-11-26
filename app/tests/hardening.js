@@ -110,5 +110,34 @@ const next = p => p.getByRole('button', { name: /^(Next|Finish)$/ }).first();
   await p.waitForTimeout(300);
   ok(/STORE-A-ONLY note \(fictional\)/.test(await p.evaluate(() => [...document.querySelectorAll('textarea')].map(x => x.value).join(' '))) || /STORE-A-ONLY/.test(JSON.stringify(Object.values(await saved(p)).filter(x => x && typeof x === 'object' && !x.records))), 'Item 4: back at Store A after a reload, its draft note is still there');
   await b.close();
+  // ── Owner trial (26 Nov): "Write the steps …" items in a procedure no longer loop back to the setup question
+  ({ b, p } = await open());
+  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(3300);
+  await tap(p, 'More'); await p.getByRole('button', { name: /^Procedures/ }).first().tap(); await p.getByRole('button', { name: /^Opioid Treatment Program/ }).first().tap(); await p.waitForTimeout(300);
+  if (await p.getByRole('button', { name: 'Update the draft' }).count()) { await tap(p, 'Update the draft'); await p.waitForTimeout(300); }
+  const nConf = async () => +(((await text(p)).match(/TO CONFIRM BEFORE ADOPTING · (\d+)/i) || [0, 0])[1]);
+  const c0 = await nConf();
+  await p.locator('.row', { hasText: 'missed doses' }).first().tap(); await p.waitForTimeout(300);
+  const sel = await p.evaluate(() => { const t = document.querySelector('textarea[name=body]'); return t ? t.value.slice(t.selectionStart, t.selectionEnd) : ''; });
+  ok(/^\[Confirm: write the steps for missed doses/.test(sel), 'Procedure fix: “Write the steps…” opens Edit with that placeholder selected');
+  await p.keyboard.type('Missed doses: follow current NSW OTP guidance (fictional pharmacy steps).'); await tap(p, 'Save as new version'); await p.waitForTimeout(400);
+  const c1 = await nConf();
+  await p.locator('.row', { hasText: 'film doses' }).first().tap(); await p.waitForTimeout(300); await tap(p, 'We already have our own written procedure for this'); await p.waitForTimeout(300);
+  await p.locator('label.choice', { hasText: 'We have our own procedure' }).tap(); await p.waitForTimeout(300); await p.fill('main form input[name=d]', 'OTP folder, dispensary (fictional)'); await p.locator('main form input[name=d]').blur(); await p.waitForTimeout(300);
+  await tap(p, 'Save and back to the procedure'); await p.waitForTimeout(500);
+  const c2 = await nConf(), t2 = await text(p);
+  ok(c0 === 3 && c1 === 2 && c2 === 1 && /Opioid Treatment Program procedure/.test(t2) && !/Update the draft/.test(t2), 'Procedure fix: writing the steps (3 → 2) or choosing “we have our own procedure” (2 → 1) clears each item, back on the procedure, edits kept');
+  await b.close();
+  // ── Owner trial (26 Nov): a "to confirm" check with no setup question ("Steps match the current Handbook") is
+  // confirmed by the owner's own tap in the text, instead of looping back to the service screen
+  ({ b, p } = await open());
+  await tap(p, 'Look around an example pharmacy (fictional)'); await p.waitForTimeout(3300);
+  await tap(p, 'More'); await p.getByRole('button', { name: /^Procedures/ }).first().tap(); await p.getByRole('button', { name: /^Vaccination/ }).first().tap(); await p.waitForTimeout(300);
+  if (await p.getByRole('button', { name: 'Update the draft' }).count()) { await tap(p, 'Update the draft'); await p.waitForTimeout(300); }
+  const vrow = p.locator('.row', { hasText: 'Steps match the current Handbook' }).first();
+  ok(/Check it in the text, then confirm/.test(await vrow.innerText()) && await p.getByRole('button', { name: 'Adopt for use here' }).isDisabled(), 'Procedure fix: a check item says “Check it in the text, then confirm”; Adopt waits');
+  await vrow.tap(); await p.waitForTimeout(300); await tap(p, 'I’ve checked it — remove this marker'); await p.waitForTimeout(400);
+  ok(/Vaccination procedure/.test(await text(p)) && !/TO CONFIRM BEFORE ADOPTING/i.test(await text(p)) && !(await p.getByRole('button', { name: 'Adopt for use here' }).isDisabled()) && (await activePh(p)).procedures.find(x => x.service === 'vaccination').status !== 'adopted', 'Procedure fix: the owner’s tap removes the marker and unlocks Adopt (nothing adopted for them)');
+  await b.close();
   await done({ close: async () => {} }, errors);
 })();
