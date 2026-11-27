@@ -11,8 +11,8 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Repo | `Mohaco1/PropApp`, branch `main` |
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
-| App build id | **`b30f398081`** (Stage 3B final polish, on top of Stage 3A) · `main` is frozen and ready for the Fold trial |
-| Code commit | Stage 3B commit on `main` (code, docs/ and this file for build b30f398081) |
+| App build id | **`cb75c2a7e7`** (Stage 3C final bug cleanups, on top of Stage 3B) · `main` is complete and frozen for the Fold trial |
+| Code commit | Stage 3C commit on `main` (code, docs/ and this file for build cb75c2a7e7) |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -83,11 +83,17 @@ After deploying, an installed phone app picks up the new version when it's reope
 - Screenshots go to `app/handoff/`, which is git-ignored.
 - **Suites:**
   - Original and wave suites: core, sprint1–5, screens, setup-questions, extras, polish, theme, content2, v3, pwa, wave1, wave2, gates, wave3.
-  - Briefs from this week: pretrial, sigil, batch1, batch1a, batch1b, batch2a, batch2b, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual, stage3a, stage3b.
+  - Briefs from this week: pretrial, sigil, batch1, batch1a, batch1b, batch2a, batch2b, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual, stage3a, stage3b, stage3c.
 - **Latest full run on build `2dec2b5fd2`:** see section 9.
 - Note: `tests/upgrade.js` opens a saved old build (07775c5947) from a fixture, so it still taps the old "Look around an example pharmacy (fictional)" label. Leave that label as it is.
 
 ## 7. What was done this week (newest first)
+0. **Stage 3C · final `main` bug cleanups (27 Nov, build `cb75c2a7e7`): done. `main` is complete and frozen for the Galaxy Z Fold trial.**
+   - **Vaccination review, Reporting (part G)** (`reviews.json`, `service-vaccination` question 3): "Yes" is the good answer and "No" is the issue (they were the wrong way round), so History, the CSV and the Evidence pack count it correctly.
+   - **"PIC" leftovers:** the staff role and its requirements key `Pharmacist in charge (PIC)` are now `Pharmacist on duty` (`staff.json`), still hidden from the role picker; `requirements()` in `model.js` maps an older PIC role to the same checks; `legacy.js` still maps an old PIC role to Pharmacist. The meeting field "Attendees or pharmacist in charge consulted" is now "Pharmacist on duty".
+   - **Site visit** (`views/visit.js`): choosing Issue saves Fix by as today + 30 in the draft (what the box shows), and `save()` falls back to + 30, so no visit action has `due: ''`. Each visit answer now stores its `actionId`; `lastVisitIssue` finds the action through it, then through the visit's `actionIds` (an action linked from an earlier visit), then by `source.recordId`.
+   - **Calendar** (`align.js`, `views/more.js`): `applyAlign` remembers when a review had no scheduled date (`unset`), and `undoAlign` deletes it again instead of leaving B1 set to the s 111 limit. The Year plan no longer shows ✓ for an S8 review saved with the stock check incomplete, so an overdue B1 stays ●. `verified-steps.json` power failure (pairs[8]): the second sentence now says to put back any vaccines you moved, matching "leave them in the fridge" in the first (pharmacy practice, not a legal change).
+   - Tests: `tests/stage3c.js` (in `test-all.sh`). Screenshots `app/handoff/stage3c_*.png`.
 0. **Stage 3B · final `main` polish (27 Nov, build `b30f398081`): done. `main` is frozen and ready for the Galaxy Z Fold trial.**
    - **Fold cover (344 px):** `button.ph-switch.single` has `max-width:100%`, `overflow:hidden`, `text-overflow:ellipsis`, `white-space:nowrap`, so a long pharmacy name is cut with "…" and the page never gets wider than 344 px.
    - **Keyboard and ARIA:** the backup file inputs (welcome "Restore backup", Backup and devices "Choose a backup file") use the `.vh-file` visually-hidden class instead of `hidden`, so Tab reaches them; their label shows the focus ring. `.chip:has(:focus-visible)` gives radio chips a ring. The bottom `sheet()` backdrop is a plain `div` (`aria-hidden`), so there's one "Cancel" for screen readers; `app.js` (`sheetFocus`, `sheetKeys`) moves focus to the sheet's primary button when it opens, keeps Tab and Shift+Tab inside, closes on Escape (via the sheet's Cancel) and gives focus back to the button that opened it (Adopt), or the title if it's gone.
@@ -162,13 +168,15 @@ After deploying, an installed phone app picks up the new version when it's reope
 8. **Procedures:** all 17 services can reach "nothing to confirm" through the screens (`tests/procedures-all.js`).
 
 ## 8. Open items and next work
-1. **2-week Galaxy Z Fold trial** (Stage 3B done; `main` frozen for it): owner UAT of the current build on the phone, the cover screen and unfolded. Check the look, the welcome screen, the icon on the home screen, and the hinge spacing: real hinge segments can't be emulated in Playwright.
+1. **2-week Galaxy Z Fold trial** (Stage 3C done; `main` complete and frozen for it): owner UAT of the current build on the phone, the cover screen and unfolded. Check the look, the welcome screen, the icon on the home screen, and the hinge spacing: real hinge segments can't be emulated in Playwright.
 2. **Phase D3** (parked): a managed back end in Sydney with emailed-link sign-in, then the post-trial v4 in-app AI architecture.
 3. **Deferred by the owner:** push notifications, Monday plan.
 4. **Optional, ask the owner first:** rename the repo or Pages path from "PropApp". This changes the phone link and would need a reinstall.
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
+**Stage 3C, build `cb75c2a7e7`:** `test-all.sh` run once in full: all 40 suites pass (stage3c included, and batch3 with its Stage 3B update, which now also passes in the full run) plus Check later, and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`. `main` complete and frozen for the Fold trial.
+
 **Stage 3B, build `b30f398081`:** `test-all.sh` run once in full: 38 of 39 suites passed (stage3b included) plus Check later, and `check-procgen-all` shows all 17 identical. `batch3` failed 1 check (M-08) that expected the example's Year plan to have no Quarter Balancer: with `otp-amenity` now Annual the example has two service annuals, so the Balancer shows. The check now asserts the Align wording matches whichever is on screen; `batch3` re-run alone: all pass. `docs/` refreshed from `dist/pwa/`. `main` frozen for the Fold trial.
 
 **Stage 3A, build `cb301740fb`:** `test-all.sh` run once in full: 36 of 37 suites passed (stage3a included) plus Check later, and `check-procgen-all` shows all 17 identical. `pretrial` failed 2 checks that expected the old behaviour (six pack sections; the calendar offer on a brand-new pharmacy with no dates); both updated and `pretrial` re-run alone: all pass. `docs/` refreshed from `dist/pwa/`.

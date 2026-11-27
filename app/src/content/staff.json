@@ -1,7 +1,7 @@
 {
  "roles": [
   "Pharmacist",
-  "Pharmacist in charge (PIC)",
+  "Pharmacist on duty",
   "Pharmacist manager",
   "Intern",
   "Dispensary technician / assistant",
@@ -146,7 +146,7 @@
     ]
    }
   },
-  "Pharmacist in charge (PIC)": {
+  "Pharmacist on duty": {
    "base": [
     {
      "id": "induction",

@@ -697,3 +697,10 @@ Checked and already passing:
 - otp-amenity Annual; vaccine cold chain "at least two staff who manage vaccines"; sharps link → NSW Health Community sharps management page; adherence description aligned; certificates cite Fair Work Act s 97 and s 107. health.nsw.gov.au was blocked here, so the sharps page and the OTP interval weren't re-read today.
 - New `tests/stage3b.js`. Full test-all once: 38/39 (batch3 M-08 expected no Quarter Balancer in the example; updated, re-run green) plus Check later; procgen identical for all 17. docs/ refreshed.
 
+
+## Stage 3C · final main bug cleanups · 27 Nov 2026 · build cb75c2a7e7
+- Vaccination review, Reporting (part G): Yes is the good answer, No is the issue (were inverted).
+- "Pharmacist in charge (PIC)" role and requirements key → "Pharmacist on duty" (still hidden from the role picker; older PIC roles map to the same checks; legacy import unchanged); meeting field "Attendees or pharmacist in charge consulted" → "Pharmacist on duty".
+- Site visit: choosing Issue saves Fix by = today + 30 in the draft (and save falls back to it), so no action has an empty due date; answers store their actionId and "Last time" finds actions linked from an earlier visit.
+- Calendar: Undo of Align deletes a schedule date that was unset before (B1 no longer left at the s 111 limit); Year plan shows an overdue S8 as ● even with an incomplete S8 review that month; power-failure verified step sentence 2 now matches sentence 1.
+- New `tests/stage3c.js`. Full test-all once: 40/40 plus Check later; procgen identical for all 17. docs/ refreshed.

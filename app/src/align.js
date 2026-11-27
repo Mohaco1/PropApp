@@ -51,12 +51,14 @@ export function alignPlan(ph, t = today()) {
   return out;
 }
 export function applyAlign(ph, changes) {
+  // Stage 3C: remember whether a review had its own scheduled date, so Undo can take a new one away again.
+  const kept = changes.map(x => x.kind === 'review' ? { ...x, unset: ph.schedule?.[x.id] === undefined } : x);
   for (const x of changes) { if (x.kind === 'review') (ph.schedule ??= {})[x.id] = x.to; else { const p = ph.staff.find(s => s.id === x.id); if (p) p.annualDue = x.to; } }
-  (ph.flags ??= {}).alignUndo = { at: today(), changes };
+  (ph.flags ??= {}).alignUndo = { at: today(), changes: kept };
 }
 export function undoAlign(ph) {
   const u = ph.flags?.alignUndo; if (!u) return 0;
-  for (const x of u.changes) { if (x.kind === 'review') { if (ph.schedule?.[x.id] === x.to) ph.schedule[x.id] = x.from; } else { const p = ph.staff.find(s => s.id === x.id); if (p && p.annualDue === x.to) p.annualDue = x.from; } }
+  for (const x of u.changes) { if (x.kind === 'review') { if (ph.schedule?.[x.id] === x.to) { if (x.unset) delete ph.schedule[x.id]; else ph.schedule[x.id] = x.from; } } else { const p = ph.staff.find(s => s.id === x.id); if (p && p.annualDue === x.to) p.annualDue = x.from; } }
   delete ph.flags.alignUndo; return u.changes.length;
 }
 // PharmLedger brief: "Defer 3 days" for an owner who isn't on site. Only actions and reviews or meetings that aren't

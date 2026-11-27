@@ -4,7 +4,7 @@ import { h, html } from '../util.js';
 import { screen, row, icon, section, btn, empty, field, textInput, note, choice } from '../ui.js';
 import { fmt, fullDate, today, dueText, weekStart, addDays, addMonths, monthName, isDate, day } from '../dates.js';
 import { items, ranked, bucket, reviewDue } from '../summary.js';
-import { plan, monthsFor, reviewById } from '../rules.js';
+import { plan, monthsFor, reviewById, stockIncomplete } from '../rules.js';
 import { note as log } from '../model.js';
 import { ics, saveFile } from '../ics.js';
 import { historyRows, csv, printable } from '../export.js';
@@ -69,9 +69,10 @@ register('calendar', {
         ${sel ? section(fmt(sel, { weekday: true }), all.filter(i => i.date === sel).length ? listOf(all.filter(i => i.date === sel)) : empty('Nothing due that day.'), btn('Schedule a meeting', 'go', { kind: 'link', data: { to: 'schedule', id: sel } })) : section('Due in ' + monthName(first) + ' · ' + inMonth.length, inMonth.length ? listOf(inMonth) : empty('Nothing due this month.'))}`;
     } else {
       // Year plan: each review across the next 12 months. ● due, ✓ done, ○ expected repeat.
+      // Stage 3C: an S8 review saved with the stock check incomplete isn't done, so it never shows ✓ over an overdue ●.
       const months = Array.from({ length: 12 }, (_, k) => addMonths(t.slice(0, 7) + '-01', k - 5).slice(0, 7));
       const revs = plan(c.ph).filter(a => !a.event);
-      const mark = (a, m) => { const done = c.ph.records.some(r => r.type === a.id && r.date.slice(0, 7) === m), due = reviewDue(c.ph, a.id); if (done) return ['✓', 'done']; if (due && due.slice(0, 7) === m) return ['●', due < t ? 'bad' : 'due'];
+      const mark = (a, m) => { const done = c.ph.records.some(r => r.type === a.id && r.date.slice(0, 7) === m && !(a.id === 'B1' && stockIncomplete(r))), due = reviewDue(c.ph, a.id); if (done) return ['✓', 'done']; if (due && due.slice(0, 7) === m) return ['●', due < t ? 'bad' : 'due'];
         const mo = monthsFor(c.ph, a); if (due && mo && m > due.slice(0, 7)) { const diff = (+m.slice(0, 4) - +due.slice(0, 4)) * 12 + (+m.slice(5) - +due.slice(5, 7)); if (diff % mo === 0) return ['○', 'rep']; } return ['', '']; };
       const bal = balancer(c); body = h`${bal}
         ${(() => { const n = alignPlan(c.ph).length, u = c.ph.flags?.alignUndo;

@@ -50,7 +50,7 @@ export function addRecord(ph, rec) {
 
 // ---------- staff ----------
 export function requirements(person) {
-  const R = C.staff.requirements[person.role] || C.staff.requirements.Pharmacist;
+  const R = C.staff.requirements[/\bPIC\b|in charge/i.test(person.role || '') ? 'Pharmacist on duty' : person.role] || C.staff.requirements.Pharmacist;
   const out = [...R.base];
   for (const s of person.services || []) for (const r of R.services[s] || []) if (!out.some(x => x.id === r.id)) out.push(r);
   return out;

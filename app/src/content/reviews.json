@@ -1040,7 +1040,7 @@
      "required": true
     },
     {
-     "label": "Attendees or pharmacist in charge consulted",
+     "label": "Pharmacist on duty",
      "type": "text",
      "id": "people",
      "required": false
@@ -1517,11 +1517,11 @@
      "options": [
       {
        "value": "No",
-       "issue": false
+       "issue": true
       },
       {
        "value": "Yes",
-       "issue": true
+       "issue": false
       }
      ]
     }

@@ -24,7 +24,11 @@ const key = extra => extra ? 'visit/extra' : 'visit/quarterly';
 function lastVisitIssue(ph, itemKey) {
   const visits = ph.records.filter(r => r.type === 'Q1').sort((a, b) => b.date.localeCompare(a.date));
   for (const v of visits) { const a = v.answers.find(x => x.item === itemKey); if (a && a.answer === 'Issue') {
-    const act = Object.values(ph.actions).find(x => x.source?.recordId === v.id && (x.source.item === v.answers.find(y => y.item === itemKey)?.text || x.title === a.note));
+    // Stage 3C: an issue linked to an action raised at an earlier visit is found through the visit's actionIds (and the
+    // answer's own actionId, saved from now on), not only through the action's source record.
+    const all = Object.values(ph.actions), ids = v.actionIds || [], same = x => x.source?.item === a.text || x.title === a.note;
+    const act = (a.actionId && ph.actions[a.actionId]) || all.find(x => x.source?.recordId === v.id && same(x))
+      || all.find(x => ids.includes(x.id) && x.source?.recordId !== v.id && (same(x) || (x.log || []).some(l => a.note && (l.text || '').endsWith(': ' + a.note))));
     return { date: v.date, text: a.note, closed: act?.status === 'closed' ? act.closed.date : '', open: act?.status === 'open' ? act : null }; } }
   return null;
 }
@@ -99,6 +103,9 @@ const VISIT = {
   changes: {
     ans: (c, el, r) => { const form = el.closest('form'); const k = key(r.extra), d = structuredClone(c.draft(k)); const its = visitItems(c.ph), f0 = its.findIndex(x => !d.items[x.key]?.status), it = its[d.step ?? (f0 < 0 ? 0 : f0)]; const f = Object.fromEntries(new FormData(form));
       d.items[it.key] = { ...(d.items[it.key] || {}), status: f.status || '', text: f.text ?? d.items[it.key]?.text ?? '', due: f.due ?? d.items[it.key]?.due ?? '', ref: f.ref ?? d.items[it.key]?.ref ?? '', link: f.link ?? d.items[it.key]?.link ?? '', ev: f.ev ?? d.items[it.key]?.ev ?? '' };
+      // Stage 3C: choosing Issue starts the Fix by date at 30 days (what the date box shows), so a visit saved without
+      // touching the date never raises an action with no due date.
+      if (d.items[it.key].status === 'issue' && !isDate(d.items[it.key].due)) d.items[it.key].due = addDays(today(), 30);
       if ('vaccEvent' in f || 'vaccSighted' in f) d.vacc = { event: f.vaccEvent || '', sighted: f.vaccSighted || '', auditDate: f.vaccDate || '' };
       d.step = its.indexOf(it);
       const redraw = (f.ev || '') !== (c.draft(k).items[it.key]?.ev || '') || (f.status || '') !== (c.draft(k).items[it.key]?.status || '') || ('vaccSighted' in f && f.vaccSighted !== c.draft(k).vacc?.sighted);
@@ -153,8 +160,9 @@ function save(c, r) {
       answers: items.map(it => { const a = d.items[it.key]; return { item: it.key, text: it.title, answer: C.visit.answerText[a.status] || a.status, isIssue: a.status === 'issue', note: (a.text || '').trim(), ref: a.ref || '' }; }),
       fields: { vacc: d.vacc || {}, serviceEvidence: Object.fromEntries(items.filter(it => !it.core && d.items[it.key]?.ev).map(it => [it.service, { status: d.items[it.key].ev, ref: d.items[it.key].ref || '' }])) } });
     for (const it of items) { const a = d.items[it.key]; if (a.status !== 'issue') continue;
-      if (a.link && ph.actions[a.link]?.status === 'open') { const la = ph.actions[a.link]; la.log.push({ at: new Date().toISOString(), by: rec.by, kind: 'updated', text: 'Seen again at the ' + (r.extra ? 'extra visit' : 'site visit') + ' on ' + d.date + ': ' + a.text.trim() }); rec.actionIds.push(la.id); continue; }
-      const ac = newAction(ph, { title: a.text.trim(), due: a.due, source: { type: 'visit', recordId: rec.id, label: (r.extra ? 'Extra visit' : 'Site visit') + ' · ' + d.date, item: it.title } }); rec.actionIds.push(ac.id); }
+      const ans = rec.answers.find(x => x.item === it.key);
+      if (a.link && ph.actions[a.link]?.status === 'open') { const la = ph.actions[a.link]; la.log.push({ at: new Date().toISOString(), by: rec.by, kind: 'updated', text: 'Seen again at the ' + (r.extra ? 'extra visit' : 'site visit') + ' on ' + d.date + ': ' + a.text.trim() }); rec.actionIds.push(la.id); if (ans) ans.actionId = la.id; continue; }
+      const ac = newAction(ph, { title: a.text.trim(), due: isDate(a.due) ? a.due : addDays(today(), 30), source: { type: 'visit', recordId: rec.id, label: (r.extra ? 'Extra visit' : 'Site visit') + ' · ' + d.date, item: it.title } }); rec.actionIds.push(ac.id); if (ans) ans.actionId = ac.id; }
     if (!r.extra && isDate(f.next)) ph.schedule.Q1 = f.next;
   }, 'Visit saved');
   c.saveDraft(k, null); c.tab('today');

@@ -97,7 +97,7 @@ register('person-edit', {
     const p = { ...(c.ph.staff.find(x => x.id === r.id) || { name: '', role: '', engagement: 'Regular', start: '', services: [], annualDue: '' }), ...(c.ui.personTry?.id === (r.id || '') ? c.ui.personTry.v : {}) };
     const act = Object.entries(c.ph.services).filter(([, s]) => s.active).map(([id]) => id);
     return screen({ title: r.id ? 'Edit ' + p.name : 'Add staff member', back: true, body: h`<form class="form" data-form="save">
-      ${field('Name', textInput('name', p.name, { required: true }), c.ui.nameErr ? h`<span class="err">Enter a name.</span>` : '')}${field('Role', select('role', [['', 'Choose…'], ...C.staff.roles.filter(x => !/in charge/i.test(x)).map(x => [x, x])], c.ui.roleTry ?? p.role), c.ui.roleErr ? h`<span class="err">Choose a role.</span>` : '')}
+      ${field('Name', textInput('name', p.name, { required: true }), c.ui.nameErr ? h`<span class="err">Enter a name.</span>` : '')}${field('Role', select('role', [['', 'Choose…'], ...C.staff.roles.filter(x => !/in charge|on duty/i.test(x)).map(x => [x, x])], c.ui.roleTry ?? p.role), c.ui.roleErr ? h`<span class="err">Choose a role.</span>` : '')}
       ${field('Engagement', select('engagement', C.staff.engagements.map(x => [x, x]), p.engagement))}${field('Start date (optional)', textInput('start', p.start, { type: 'date' }))}
       ${act.length ? h`<fieldset class="field"><legend class="field-label">Services they do</legend><div class="ticks">${act.map(s => h`<label class="tick"><input type="checkbox" name="svc" value="${s}" ${p.services.includes(s) ? h`checked` : ''}><span>${serviceName(s)}</span></label>`)}</div></fieldset>` : ''}
       <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` });
