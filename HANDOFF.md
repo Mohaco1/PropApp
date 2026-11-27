@@ -11,8 +11,8 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Repo | `Mohaco1/PropApp`, branch `main` |
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
-| App build id | **`2a5fec8631`** (Stage 3D storage, backup and offline worker safety, on top of Stage 3C) · `main` is complete and frozen for the Fold trial |
-| Code commit | Stage 3D commit on `main` (code, docs/ and this file for build 2a5fec8631) |
+| App build id | **`2a07045bc2`** (Stage 3E final pre-trial consolidation, on top of Stage 3D) · **Stage 3E complete: `main` is frozen for the Galaxy Z Fold trial** |
+| Code commit | Stage 3E commit on `main` (code, docs/ and this file for build 2a07045bc2) |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -83,11 +83,21 @@ After deploying, an installed phone app picks up the new version when it's reope
 - Screenshots go to `app/handoff/`, which is git-ignored.
 - **Suites:**
   - Original and wave suites: core, sprint1–5, screens, setup-questions, extras, polish, theme, content2, v3, pwa, wave1, wave2, gates, wave3.
-  - Briefs from this week: pretrial, sigil, batch1, batch1a, batch1b, batch2a, batch2b, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual, stage3a, stage3b, stage3c, stage3d.
+  - Briefs from this week: pretrial, sigil, batch1, batch1a, batch1b, batch2a, batch2b, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual, stage3a, stage3b, stage3c, stage3d, stage3e.
 - **Latest full run on build `2dec2b5fd2`:** see section 9.
 - Note: `tests/upgrade.js` opens a saved old build (07775c5947) from a fixture, so it still taps the old "Look around an example pharmacy (fictional)" label. Leave that label as it is.
 
 ## 7. What was done this week (newest first)
+0. **Stage 3E · final pre-trial consolidation (27 Nov, build `2a07045bc2`): done. `main` is now frozen for the Galaxy Z Fold trial.**
+   - Cross-tab and arming: another tab switching pharmacy resets this tab to Today with no leftover screen state; a same-pharmacy reload keeps unsaved typing (procedure edits); Delete/Discard/Stop/Adopt arming clears on any navigation (Back included) and after a save.
+   - Settings: Delete only for UAT/demo pharmacies (`\bUAT\b`, so not "Equator") or truly empty ones (no adopted procedure, document, evidence location or log either); `removePharmacy` never opens an archived one; a DAA "Later" item settles when its action closes; Sources can re-raise a source once its re-check closes.
+   - Staff: the failed-Add role stays with that form; an abandoned annual check can't save "Current" over a newer issue; Update → Issue keeps the Next date; a blank last day is refused, a future one keeps the person current until then (`p.leaving`, settled on load/midnight); checks record the role, and a check made under the other role group (e.g. Intern prescribing support) doesn't verify a pharmacist's.
+   - Summary/calendar: staff check-back dates on the person row; the .ics has staff dates beyond 30 days; `saveFile` is async and reports cancelled/failed shares and downloads.
+   - Services/procedures: answers save to the question shown (`s.pos`); Next/Finish wait for an answer or Check later (optional and tick-list questions excepted); a note when answers diverge from the draft; copying a pharmacy rebuilds DAA/OTP flags and keeps `edited`; blank procedure text refused; Adopt checks the exact draft version and markers at "Yes, adopt it"; a 1.1 draft keeps 1.0's annual review; 2.0 gets a fresh review date (`summary.procReviewDue`); redrafting an edited draft patches it where possible.
+   - Reviews/visit/dates/export/build: Save review follows the receipt and OTP threshold; future review dates refused; stopped services' reviews are preview only even with a draft; the handover copy lists Check later items and evidence gaps; `isDate` rejects 29 Feb (non-leap) and 31 Feb; Calendar redraws at midnight; an extra visit never ticks the quarterly visit; History CSV has every action event; the build id hashes the shell, CSPs, UAT flag, manifest, worker and icons; `test-all.sh` exits 1 if any suite fails.
+   - NSW wording (from the owner's brief; health.nsw.gov.au, legislation.nsw.gov.au and tga.gov.au were unreachable, so **not re-verified against primary sources**): s 148(2)(a)(i) "or engaged"; s 33(2)(b) smallest pack only for aerosols/inhalers, anovulant tablets, creams, liquids, ointments, never S4D/S8; s 111(3) takeover inventory due immediately (`rules.s8Takeover`); cannabis Category 1 = ≥98% CBD and ≤2% other cannabinoids (S4), Categories 2–5 S8; Sublocade no new starts, discontinued 31 Dec 2026 (final orders 11 Dec), Buvidal continues; mpox (JYNNEOS) AIR opt-out separate record; "responsible person" kept only in the s 108 definition.
+   - Print and Fold cover: procedures print (`print-keep`, all sections opened for print); History print table has thead and column widths; `.ptable` cells `overflow-wrap:anywhere`; `.psub` `break-after:avoid`; History date range stacks under 360 px.
+   - Tests: `tests/stage3e.js` (in `test-all.sh`); setup-questions, onboarding-polish and batch1 updated for the intended changes (Next now needs an answer or Check later; the Category 1 wording).
 0. **Stage 3D · storage, backup and offline worker safety (27 Nov, build `2a5fec8631`): done, at the owner's request after the freeze. `main` stays complete and frozen for the Galaxy Z Fold trial.**
    - Restore is all-or-nothing (`store.restorePharmacy`): a failed write (storage full) is taken back and shows an error, not a receipt; the replace confirmation is tied to the pharmacy id; restoring an archived pharmacy unarchives and opens it.
    - Journal: storage denied (SecurityError) no longer stops startup; journal entries are cleared and restore stamps (pharmacy and drafts) written only after IndexedDB commits; older "replace" leftovers are discarded; `propapp:dir` is journaled with a new pharmacy's first save; the localStorage fallback writes under `navigator.locks`.
@@ -174,13 +184,15 @@ After deploying, an installed phone app picks up the new version when it's reope
 8. **Procedures:** all 17 services can reach "nothing to confirm" through the screens (`tests/procedures-all.js`).
 
 ## 8. Open items and next work
-1. **2-week Galaxy Z Fold trial** (Stage 3C done; `main` complete and frozen for it): owner UAT of the current build on the phone, the cover screen and unfolded. Check the look, the welcome screen, the icon on the home screen, and the hinge spacing: real hinge segments can't be emulated in Playwright.
+1. **2-week Galaxy Z Fold trial** (Stage 3E done; `main` complete and frozen for it): owner UAT of the current build on the phone, the cover screen and unfolded. Check the look, the welcome screen, the icon on the home screen, and the hinge spacing: real hinge segments can't be emulated in Playwright.
 2. **Phase D3** (parked): a managed back end in Sydney with emailed-link sign-in, then the post-trial v4 in-app AI architecture.
 3. **Deferred by the owner:** push notifications, Monday plan.
 4. **Optional, ask the owner first:** rename the repo or Pages path from "PropApp". This changes the phone link and would need a reinstall.
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
+**Stage 3E, build `2a07045bc2`:** `test-all.sh` run once in full: 39 of 42 suites passed (stage3e included) plus Check later, and `check-procgen-all` shows all 17 identical. setup-questions, onboarding-polish and batch1 failed on expectations of the old behaviour (Next skipping blank questions; the old Category 1 wording); those tests were updated and the 3 suites re-run green. `docs/` refreshed from `dist/pwa/`. **Stage 3E complete: `main` frozen for the Fold trial.**
+
 **Stage 3D, build `2a5fec8631`:** `test-all.sh` run in full: all 41 suites pass (stage3d included) plus Check later, and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`. `main` complete and frozen for the Fold trial.
 
 **Stage 3C, build `cb75c2a7e7`:** `test-all.sh` run once in full: all 40 suites pass (stage3c included, and batch3 with its Stage 3B update, which now also passes in the full run) plus Check later, and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`. `main` complete and frozen for the Fold trial.

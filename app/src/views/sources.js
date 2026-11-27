@@ -21,6 +21,9 @@ export function usedBy(ph) {
   for (const k in out) out[k] = [...new Set(out[k])];
   return out;
 }
+// Stage 3E: "Re-check raised" shows only while that re-check action is open; once it's closed, a later change to the
+// same source can be raised again.
+const recheckOpen = (ph, title) => Object.values(ph.actions).some(a => a.status === 'open' && a.source?.kind === 'source' && a.source.label === 'Sources · ' + title);
 const link = url => h`<a class="linkbtn" href="${url}" target="_blank" rel="noopener noreferrer">Open source ↗</a>`;
 register('sources', {
   tab: 'more',
@@ -29,7 +32,7 @@ register('sources', {
     const card = ([k, title, read, , url]) => { const u = used[k];
       return h`<div class="row static src"><span class="row-main"><span class="row-title">${title}</span><span class="row-sub">${read === 'quoted' ? 'Quoted by the 25 Nov independent review (this site blocks automated reading here)' : read ? 'Last read ' + fmt(read) : 'Link from the 25 Nov review, not yet checked'}${u.length ? ' · used in ' + u.length + (u.length === 1 ? ' place' : ' places') : ''}</span>
         ${u.length ? h`<details class="src-used"><summary>Where it’s used</summary><ul class="plain">${u.map(x => h`<li>${x}</li>`)}</ul></details>` : ''}
-        <span class="src-acts">${link(url)}${u.length ? (raised[k] ? h`<span class="meta">Re-check raised ${fmt(raised[k])}</span>` : btn('This source changed', 'changed', { kind: 'link', data: { k } })) : ''}</span></span></div>`; };
+        <span class="src-acts">${link(url)}${u.length ? (raised[k] && recheckOpen(c.ph, title) ? h`<span class="meta">Re-check raised ${fmt(raised[k])}</span>` : btn('This source changed', 'changed', { kind: 'link', data: { k } })) : ''}</span></span></div>`; };
     const inUse = SOURCES.filter(s => used[s[0]].length), other = SOURCES.filter(s => !used[s[0]].length);
     return screen({ title: 'Sources', back: true, body: h`<p class="muted">Every rule in the app comes from one of these. If one changes, tap “This source changed”: you get one action listing what to look at again. Nothing is changed for you.</p>
       ${section('Used in your pharmacy · ' + inUse.length, h`<div class="list">${inUse.map(card)}</div>`)}

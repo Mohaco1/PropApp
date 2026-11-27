@@ -712,3 +712,11 @@ Checked and already passing:
 - Offline worker (`pwa-assets/sw.js`, `BUILD` now substituted everywhere by `tools/build.js`): a non-ok navigation response (503) opens the cached shell; a page is cached as the shell only if its `propapp-build` marker is the worker's build (install too); `pwa.js` asks a new controller for its build on `controllerchange` and reloads once into it when the tab runs an older build.
 - New `tests/stage3d.js` (in `test-all.sh`). Screenshots `app/handoff/stage3d_*.png`. Full test-all once: 41/41 plus Check later; procgen identical for all 17 (an earlier attempt hit the 10-minute shell limit on a non-UAT build and was re-run in full on the `--uat` build). docs/ refreshed.
 
+## Stage 3E · final pre-trial consolidation · 27 Nov 2026 · build 2a07045bc2
+- Cross-tab reload resets on a pharmacy switch and keeps unsaved typing otherwise; arming cleared on navigation and save; tighter Delete; archived pharmacies never activated; DAA Later items and Sources re-checks settle when their actions close.
+- Staff: role-scoped failed Add, no stale "Current" in the annual check, Next date kept, last day required (future keeps them current), role-qualified service checks. Summary: staff check-back; .ics beyond 30 days; async `saveFile`.
+- Services: answers to `s.pos`, Next needs an answer or Check later, draft-behind note; copy rebuilds flags and keeps `edited`. Procedures: blank refused, adopt verifies version and markers, 1.0 review kept under a 1.1 draft, 2.0 fresh date.
+- Reviews: Save review follows required fields, no future dates, preview-only stopped services. Visit handover lists Check later. Strict `isDate`, midnight Calendar, Year plan extra visit, History CSV action events, build hash over shell/CSP/UAT/manifest/worker/icons, test-all exit code.
+- NSW wording per the owner's brief (not re-verified: official sites unreachable): s 148 "or engaged", s 33(2)(b), s 111(3) takeover, cannabis Category 1, Sublocade, mpox AIR, "responsible person". Procedure print, History print thead, `.ptable` wrapping, 344 px date range.
+- New `tests/stage3e.js` (60+ checks). Full test-all once: 39/42 plus Check later, procgen identical; 3 suites updated for intended behaviour and re-run green. docs/ refreshed.
+

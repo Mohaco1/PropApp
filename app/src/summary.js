@@ -18,7 +18,9 @@ export function reviewDue(ph, id) {
 }
 const visitStarted = (drafts, extra) => !!drafts?.[extra ? 'visit/extra' : 'visit/quarterly'];
 // Everything the owner might need to do, one entry per job.
-export function items(ph, drafts = {}, t = today()) {
+// opts.ahead: how many days ahead a staff expiry or annual check joins its person's row (30 on screen; the calendar
+// file passes Infinity so every known staff date reaches the phone's calendar).
+export function items(ph, drafts = {}, t = today(), { ahead = 30 } = {}) {
   const out = [];
   // reviews in this pharmacy's plan
   for (const a of plan(ph)) {
@@ -35,8 +37,9 @@ export function items(ph, drafts = {}, t = today()) {
     // H-10: a staff action joins its person's row only while that person is active staff; otherwise (former staff, or
     // someone removed) it is its own row, so Today and Actions always count the same open actions.
     const pid = ac.source?.type === 'staff' && ph.staff.some(p => p.id === ac.source.staffId && p.active !== false) ? ac.source.staffId : '';
-    if (pid) { (people.get(pid) || people.set(pid, []).get(pid)).push({ type: 'action', date: ac.due, title: ac.title, id: ac.id }); continue; }
     const cb = ac.waiting?.checkBack;
+    // Stage 3E: a staff action that is waiting on someone carries its check-back date on the person's row too.
+    if (pid) { (people.get(pid) || people.set(pid, []).get(pid)).push({ type: 'action', date: ac.due, title: ac.title, id: ac.id, waiting: !!ac.waiting, checkBack: cb || '', checkBackDue: !!(cb && cb <= t) }); continue; }
     out.push({ key: 'action/' + ac.id, kind: 'action', ref: ac.id, title: ac.title, date: ac.due, bucket: bucket(ac.due, t), legal: false,
       sub: ac.waiting ? (cb && cb <= t ? 'Check back today' : 'Waiting · check back ' + fmt(cb)) : 'Action', waiting: !!ac.waiting, checkBackDue: !!(cb && cb <= t) });
   }
@@ -45,17 +48,19 @@ export function items(ph, drafts = {}, t = today()) {
     const list = people.get(p.id) || [];
     for (const r of requirements(p)) {
       const cs = credentialState(p, r.id);
-      if (cs.expiry && daysBetween(t, cs.expiry) <= 30) list.push({ type: 'expiry', date: cs.expiry, title: r.label, id: r.id });
+      if (cs.expiry && daysBetween(t, cs.expiry) <= ahead) list.push({ type: 'expiry', date: cs.expiry, title: r.label, id: r.id });
     }
-    if (isDate(p.annualDue) && daysBetween(t, p.annualDue) <= 30) list.push({ type: 'annual', date: p.annualDue, title: 'Annual check', id: 'annual' });
+    if (isDate(p.annualDue) && daysBetween(t, p.annualDue) <= ahead) list.push({ type: 'annual', date: p.annualDue, title: 'Annual check', id: 'annual' });
     if (!list.length) continue;
     list.sort((a, b) => (a.date || '9').localeCompare(b.date || '9'));
     const date = list.find(x => isDate(x.date))?.date || '';
-    const n = list.length;
-    out.push({ key: 'person/' + p.id, kind: 'person', ref: p.id, title: p.name, date, bucket: bucket(date, t), legal: false, sub: n === 1 ? list[0].title : plural(n, 'check'), parts: list });
+    const n = list.length, cbDue = list.some(x => x.checkBackDue), waiting = list.filter(x => x.waiting), cbNext = waiting.map(x => x.checkBack).filter(isDate).sort()[0];
+    out.push({ key: 'person/' + p.id, kind: 'person', ref: p.id, title: p.name, date, bucket: bucket(date, t), legal: false, sub: (n === 1 ? list[0].title : plural(n, 'check')) + (cbDue ? ' · check back today' : cbNext ? ' · waiting, check back ' + fmt(cbNext) : ''), parts: list, waiting: waiting.length > 0, checkBackDue: cbDue });
   }
   // adopted procedures: annual review
-  for (const p of ph.procedures || []) { if (p.status !== 'adopted') continue; const last = (p.reviews || []).at(-1)?.date || day(p.versions.filter(v => v.status === 'Adopted').at(-1)?.adoptedAt || p.versions.at(-1).at); const date = addMonths(last, 12);
+  // Stage 3E: a newer draft (1.1) doesn't hide the review of the version still in use (1.0); a newly adopted version
+  // (2.0) starts its own 12 months.
+  for (const p of ph.procedures || []) { if (!(p.versions || []).some(v => v.status === 'Adopted')) continue; const date = procReviewDue(p);
     out.push({ key: 'procedure/' + p.service, kind: 'procedure', ref: p.service, title: p.title.replace(/ SOP$/, '') + ' · annual review', date, bucket: bucket(date, t), legal: false, sub: 'Procedure' }); }
   // setup answers still to confirm
   for (const [sid, s] of Object.entries(ph.services)) {
@@ -99,3 +104,7 @@ export function sentence(list, ph) {
   return { tone: 'ok', text: 'Nothing overdue.', start: next || null };
 }
 export { reviewById };
+// Stage 3E: the one reading of a procedure's next annual review: 12 months after its last review or the adoption of the
+// version in use, whichever is later.
+export function procReviewDue(p) { const ad = (p.versions || []).filter(v => v.status === 'Adopted').at(-1), rv = (p.reviews || []).at(-1)?.date || '';
+  const base = [day(ad?.adoptedAt || ad?.at || p.versions?.at(-1)?.at || ''), day(rv)].filter(isDate).sort().at(-1); return base ? addMonths(base, 12) : ''; }

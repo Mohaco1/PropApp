@@ -139,9 +139,12 @@ table.cal{width:100%;border-collapse:collapse;font-size:14px} table.cal td,table
 #uat-btn{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:15;min-height:44px;padding:8px 14px;border-radius:999px;border:1px dashed var(--warn);background:var(--warnbg);color:var(--fg);font-weight:600}
 #uat-dlg{border:0;border-radius:14px;padding:16px;width:min(520px,calc(100% - 24px));background:var(--surface);color:var(--fg)}#uat-dlg::backdrop{background:rgb(0 0 0/.5)}
 .uat-h{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:10px}.uat-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:40vh;overflow:auto}
-.daterange{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.daterange{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}.daterange>*{min-width:0}.daterange .input{min-width:0;width:100%;max-width:100%}
+@media (max-width:359px){.daterange{grid-template-columns:minmax(0,1fr)}}
 .print-only{display:none}
-@media print{.nav,.bar,#uat-btn,.toast,.body>*:not(.print-only){display:none!important}.print-only{display:block}.print-only h1{font-size:18px}body{background:#fff;color:#000}table.cal td,table.cal th{border-bottom:1px solid #999;font-size:12px}}
+@media print{.nav,.bar,#uat-btn,.toast,.body>*:not(.print-only):not(.print-keep){display:none!important}.print-keep .no-print{display:none!important}
+ details.docsec>.doc{display:block!important}details.docsec::details-content{content-visibility:visible;display:block}details.docsec{break-inside:auto;border:0}details.docsec>summary{min-height:0;padding:8px 0 4px}details.docsec>summary::after{display:none}
+ table.cal thead{display:table-header-group}table.cal tr{break-inside:avoid}table.cal td,table.cal th{overflow-wrap:anywhere}table.histprint{table-layout:fixed}.print-only{display:block}.print-only h1{font-size:18px}body{background:#fff;color:#000}table.cal td,table.cal th{border-bottom:1px solid #999;font-size:12px}}
 .err{display:block;color:var(--bad);font-weight:600;font-size:14px;margin-top:4px}
 .ph-switch{display:block;border:0;background:none;padding:12px 0;margin:-12px 0;min-height:44px;text-align:left;cursor:pointer;font:inherit;font-size:13px;color:var(--muted)}
 .quietline{border:0;background:none;color:var(--muted);text-align:left;min-height:44px;padding:0;font:inherit;font-size:15px;text-decoration:underline;cursor:pointer}
@@ -152,7 +155,7 @@ table.cal{width:100%;border-collapse:collapse;font-size:14px} table.cal td,table
 .empty-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:18px;background:var(--surface);border:1px dashed var(--line);border-radius:12px}
 .checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.checklist li{display:flex;gap:10px;align-items:baseline}.checklist li .muted{margin-left:auto;font-size:14px}.checklist li.done{color:var(--muted)}
 /* Stage 3A: a sub-heading inside an evidence pack section. */
-.pack .psub{font-size:15px;font-weight:600;margin:12px 0 6px}
+.pack .psub{font-size:15px;font-weight:600;margin:12px 0 6px;break-after:avoid;page-break-after:avoid}
 /* Stage 3A: a service still to set up on Today's Finish setting up card is a 44 px tap straight to its setup. */
 .checklist .checkgo{display:flex;gap:10px;align-items:center;width:100%;min-height:44px;margin:0;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}.checklist .checkgo .muted{margin-left:auto;font-size:14px}.checklist .checkgo .muted::after{content:' ›'}
 .facts{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}.facts dt{color:var(--muted);font-size:14px}.facts dd{margin:0}
@@ -316,7 +319,7 @@ a.srclink{display:inline-flex;align-items:center;min-height:44px;overflow-wrap:a
 /* Final pre-limit fixes (26 Nov): 2 year plan fits 390 px; 4 table headers; 5 filter chips; 6 Why? chevron */
 table.yearplan{width:100%}.yearplan th,.yearplan td{width:auto;min-width:0;padding:6px 1px}.yearplan thead th:first-child{width:104px}.yearplan th:last-child,.yearplan td:last-child{padding-right:2px}.yearplan th[scope=row]{font-size:12px;text-align:left;padding-right:4px}
 /* H-05: the pack's tables wrap inside the phone width (344 px and up) so no column, Next due included, is clipped */
-.pscroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}.ptable{table-layout:auto}.ptable th,.ptable td{white-space:normal;overflow-wrap:break-word}
+.pscroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}.ptable{table-layout:auto}.ptable th,.ptable td{white-space:normal;overflow-wrap:anywhere}
 @media screen and (max-width:420px){.pack{padding:12px}.ptable{font-size:12.5px}.ptable th,.ptable td{padding:6px 4px}}
 .filters{grid-template-columns:1fr 1fr 1.6fr .8fr}.filters button{padding:0 4px;min-width:0}.filters button span{white-space:nowrap;font-size:12.5px}
 .why summary{list-style:none;justify-content:space-between;gap:12px}.why summary::-webkit-details-marker{display:none}

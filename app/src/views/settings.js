@@ -62,7 +62,11 @@ register('pharmacies', {
 });
 // F-LIVE-07 (owner approved): archive a real pharmacy (records kept, can be undone); delete only a test or fictional
 // pharmacy, or one with nothing recorded, after a backup prompt and a second tap. The open pharmacy is never offered.
-export const deletable = p => /\(fictional\)|\btest\b|UAT/i.test(p.name) || (!p.records.length && !Object.keys(p.actions).length && !p.staff.length);
+// Stage 3E: "UAT" or "test" must be a word of its own (so "Equator Pharmacy" is never offered), and "nothing recorded"
+// also means no adopted procedure, document reference, evidence location or My log entry.
+export const isDemo = p => !!p.flags?.example || /\(fictional\)|\btest\b|\bUAT\b/i.test(p.name || '');
+export const deletable = p => isDemo(p) || (!p.records.length && !Object.keys(p.actions).length && !p.staff.length && !(p.procedures || []).some(x => (x.versions || []).some(v => v.status === 'Adopted'))
+  && !(p.documents || []).length && !Object.values(p.obligations || {}).some(o => o && (o.where || o.date)) && !(p.log || []).length);
 register('phmanage', {
   tab: 'more',
   render(c) { const d = c.store.dir(), others = d.ids.filter(id => id !== c.ph.id && !(d.archived || []).includes(id)).map(id => c.store.pharmacy(id)).filter(Boolean);
@@ -73,7 +77,7 @@ register('phmanage', {
   acts: {
     arch: (c, d) => { c.store.setArchived(d.id, true); c.rerender(); c.toast('Archived. Records kept; unarchive it from Pharmacies.'); },
     del: async (c, d) => { if (c.ui.delArmed !== d.id) { c.ui.delArmed = d.id; c.rerender(); return; } c.ui.delArmed = ''; const name = c.store.pharmacy(d.id)?.name; c.store.removePharmacy(d.id); await c.store.flush(); c.rerender(); c.toast('Deleted ' + name + ' from this device'); },
-    delbk: (c, d) => { const p = c.store.pharmacy(d.id); saveFile(p.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify({ app: 'PropApp', format: 1, exportedAt: new Date().toISOString(), pharmacy: p, drafts: c.store.drafts(d.id) }), 'application/json'); c.toast('Backup download requested'); },
+    delbk: async (c, d) => { const p = c.store.pharmacy(d.id); const ok = await saveFile(p.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify({ app: 'PropApp', format: 1, exportedAt: new Date().toISOString(), pharmacy: p, drafts: c.store.drafts(d.id) }), 'application/json'); c.toast(ok ? 'Backup download requested' : 'The backup wasn’t saved. Try again before deleting.'); },
   },
 });
 // Tell me once: change to how DAAs are packed. Items and sources from the current app (uat/layers/change.js).
@@ -90,17 +94,22 @@ function itemsFor(from, to) { const add = to.filter(k => !from.includes(k)), out
   out.push({ key: 'procedure', tag: 'setup', title: 'Update your DAA procedure answers', text: 'Opens the DAA setup questions, starting with how packs are made. Any new procedure wording is a draft; your current adopted version stays in use until you adopt the new one.', src: 'Your DAA procedure' });
   return out; }
 const TAG = { law: 'Required by law', check: 'Check', rec: 'Recommended', setup: 'Your procedure' };
+// Stage 3E: an item put off with "Later" is settled once the action it raised is closed, so a finished change no longer
+// stays open for ever and the next change can be told.
+const laterAction = (ph, it, title) => (it.actionId && ph.actions[it.actionId]) || Object.values(ph.actions).filter(a => a.source?.type === 'change' && a.title === title + ' (DAA packing change)').sort((a, b) => (b.created || '').localeCompare(a.created || ''))[0];
+const settled = (ph, ch, k) => { const it = ch.items[k]; if (!it || it.status === 'done') return true; if (it.status !== 'later') return false; const def = itemsFor(ch.from || [], ch.to || []).find(i => i.key === k); return laterAction(ph, it, def?.title || '')?.status === 'closed'; };
+const openChange = ph => (ph.changes || []).find(x => Object.keys(x.items || {}).some(k => !settled(ph, x, k)));
 const nowRoutes = ph => (ph.services.daa?.answers?.routes ? ph.services.daa.answers.routes.split(',') : ['house']).filter(Boolean);
 register('tellmeonce', {
   tab: 'more',
   render(c) {
     if (!c.ph.services.daa?.active) return screen({ title: 'DAA packing change', back: true, body: note('Dose administration aids isn’t one of your services.', 'warn') });
-    const open = (c.ph.changes || []).find(x => Object.values(x.items).some(i => i.status !== 'done'));
+    const open = openChange(c.ph);
     if (open) { const items = itemsFor(open.from, open.to);
       return screen({ title: 'DAA packing change', back: true, body: h`<p class="muted">From ${open.start ? fmt(open.start) : 'now'}: ${open.to.map(k => ROUTES.find(r => r[0] === k)[1]).join(' + ')}${open.packer ? ' · ' + open.packer : ''}.</p>
         ${note('Kept as it is: open actions, past reviews and review dates.', 'ok')}
         <div class="list">${items.map(i => { const st = open.items[i.key]?.status; return h`<div class="row static"><span class="row-main"><span class="row-title">${i.title}</span><span class="row-sub"><span class="law">${TAG[i.tag]}</span> ${i.text}</span><span class="row-sub">${i.src}</span>
-          ${st === 'done' ? pill('Done', 'ok') : st === 'later' ? pill('Later · an action was raised', 'warn') : h`<span class="btnrow">${btn(i.key === 'procedure' ? 'Open DAA questions' : 'Done', 'item', { data: { k: i.key, s: 'done' } })}${i.key !== 'procedure' ? btn('Later', 'item', { kind: 'link', data: { k: i.key, s: 'later' } }) : ''}</span>`}</span></div>`; })}</div>` }); }
+          ${st === 'done' || settled(c.ph, open, i.key) ? pill('Done', 'ok') : st === 'later' ? pill('Later · an action was raised', 'warn') : h`<span class="btnrow">${btn(i.key === 'procedure' ? 'Open DAA questions' : 'Done', 'item', { data: { k: i.key, s: 'done' } })}${i.key !== 'procedure' ? btn('Later', 'item', { kind: 'link', data: { k: i.key, s: 'later' } }) : ''}</span>`}</span></div>`; })}</div>` }); }
     const cur = nowRoutes(c.ph);
     return screen({ title: 'DAA packing change', back: true, body: h`<p class="muted">Now: ${cur.map(k => ROUTES.find(r => r[0] === k)?.[1]).join(' + ')}. Tell the app once and it lists only what depends on the change.</p>
       <form class="form" data-form="start"><fieldset class="field"><legend class="field-label">How packs will be made</legend><div class="ticks">${ROUTES.map(([k, l, s]) => h`<label class="tick"><input type="checkbox" name="to" value="${k}" ${cur.includes(k) ? h`checked` : ''}><span>${l}<span class="hint">${s}</span></span></label>`)}</div></fieldset>
@@ -112,10 +121,10 @@ register('tellmeonce', {
       ph.changes.push({ id: uid(), service: 'daa', from, to, packer: f.packer.trim(), start: f.start, items, at: new Date().toISOString() });
       ph.services.daa.answers = { ...ph.services.daa.answers, routes: to.join(',') }; ph.flags = { ...ph.flags, house: to.includes('house'), routeA: to.includes('routeA'), routeB: to.includes('routeB') };
       log(ph, 'DAA packing change recorded · ' + to.join(' + ')); }, 'Saved'); } },
-  acts: { item: (c, d) => { const open = (c.ph.changes || []).find(x => Object.values(x.items).some(i => i.status !== 'done'));
+  acts: { item: (c, d) => { const open = openChange(c.ph); if (!open) return;
     if (d.k === 'procedure') { c.change(ph => { ph.changes.find(x => x.id === open.id).items.procedure.status = 'done'; ph.services.daa.setup = 'doing'; }); c.ui['ss:daa'] = 0; c.go('service-setup', { id: 'daa' }); return; }
     const it = itemsFor(open.from, open.to).find(i => i.key === d.k);
-    c.change(ph => { const ch = ph.changes.find(x => x.id === open.id); ch.items[d.k].status = d.s; if (d.s === 'later') newAction(ph, { title: it.title + ' (DAA packing change)', due: addDays(today(), 14), source: { type: 'change', label: 'DAA packing change' } }); }, d.s === 'done' ? 'Marked done' : 'An action was raised'); } },
+    c.change(ph => { const ch = ph.changes.find(x => x.id === open.id); ch.items[d.k].status = d.s; if (d.s === 'later') ch.items[d.k].actionId = newAction(ph, { title: it.title + ' (DAA packing change)', due: addDays(today(), 14), source: { type: 'change', label: 'DAA packing change' } }).id; }, d.s === 'done' ? 'Marked done' : 'An action was raised'); } },
 });
 
 register('receipt', {

@@ -12,7 +12,7 @@ function fold(line) { const enc = new TextEncoder(); if (enc.encode(line).length
   out.push(cur); return out.join('\r\n '); }
 export function ics(ph, drafts) {
   const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//PharmLedger//Due dates//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:' + esc(ph.name + ' · due dates')];
-  for (const it of items(ph, drafts)) {
+  for (const it of items(ph, drafts, today(), { ahead: Infinity })) {
     // One event per part, each with its own UID (a person can have several items due the same day).
     // H-08: a part's UID comes from its id (an action id, requirement id or "annual"), never its position, so it stays
     // the same when other checks come and go. A staff action is an action: its words and the person's name stay out.
@@ -43,9 +43,13 @@ export function ics(ph, drafts) {
 // Save a file. In the claude.ai viewer downloads are blocked, so the text is also offered to copy.
 let dl;
 try { window.claude?.use?.('downloads').then(x => { dl = x; }).catch(() => {}); } catch {}
-export function saveFile(name, text, type = 'text/plain') {
-  if (dl) { dl.save({ filename: name, data: new Blob([text], { type }) }).catch(() => {}); return true; }
+// Stage 3E: resolves true only once the download or share has really gone through, false if it failed or the share
+// sheet was cancelled (the screens then say so instead of "ready"). The share and the link click still start inside the
+// tap, before anything is awaited, as phones require.
+export async function saveFile(name, text, type = 'text/plain') {
+  if (dl) { try { await dl.save({ filename: name, data: new Blob([text], { type }) }); return true; } catch { return false; } }
   // V3-02: a calendar file goes to the phone's share sheet where it can (iPhone: tap Calendar to add the events).
-  if (/calendar|json/.test(type) && navigator.canShare) { try { const f = new File([text], name, { type: /json/.test(type) ? 'application/json' : 'text/calendar;charset=utf-8' }); if (navigator.canShare({ files: [f] })) { navigator.share({ files: [f], title: name }).catch(() => {}); return true; } } catch {} }
+  if (/calendar|json/.test(type) && navigator.canShare) { let f = null; try { f = new File([text], name, { type: /json/.test(type) ? 'application/json' : 'text/calendar;charset=utf-8' }); if (!navigator.canShare({ files: [f] })) f = null; } catch { f = null; }
+    if (f) { try { await navigator.share({ files: [f], title: name }); return true; } catch { return false; } } }
   try { const u = URL.createObjectURL(new Blob([text], { type })); const a = document.createElement('a'); a.href = u; a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); return true; } catch { return false; }
 }

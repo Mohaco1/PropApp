@@ -5208,7 +5208,7 @@
     },
     {
      "n": 10,
-     "text": "Consent and records (Vaccination Standards, part F): consent recorded for every vaccination and kept 7 years (or until 25 for under-18s); AIR checked before and updated within 10 business days. If ownership changes, a new AIR provider number and a new VAN are needed.",
+     "text": "Consent and records (Vaccination Standards, part F): consent recorded for every vaccination and kept 7 years (or until 25 for under-18s); AIR checked before and updated within 10 business days (exception: if a person given mpox vaccine (JYNNEOS) opts out of AIR reporting, record the vaccination in a separate vaccine-use record instead). If ownership changes, a new AIR provider number and a new VAN are needed.",
      "options": [
       {
        "value": "Checked",

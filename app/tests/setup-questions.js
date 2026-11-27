@@ -1,6 +1,10 @@
 // Service setup at phone size, tapped: vaccines show in 4 groups with "Select all" (owner, 24 Nov: must not go back to
 // typing each one), DAA packing has its three choices, and finishing a service raises the 2026 checklist action.
 const { phone, ok, done, tap, text, activePh } = require('./helpers.js');
+// Stage 3E: Next waits for an answer, so a blank question is marked "Check later" before moving on.
+const later = async p => { const f = 'form[data-form=next]'; const on = await p.evaluate(f => { const F = document.querySelector(f); if (!F) return true; return [...F.querySelectorAll('input')].some(i => /radio|checkbox/.test(i.type) ? i.checked : i.value.trim()); }, f); if (on) return false;
+  const nv = p.locator(f + ' input[name=nv]'); if (await nv.count()) { await nv.check({ force: true }); await p.waitForTimeout(300); return false; }
+  const r = p.locator(f + ' input[value="Needs verification"]'); if (await r.count()) { await r.check({ force: true }); await p.waitForTimeout(500); return true; } return false; };
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-24T10:00:00+11:00' });
   await tap(p, 'Set up your pharmacy'); await p.fill('input[name=name]', 'Test Pharmacy (fictional)'); await tap(p, 'Continue');
@@ -9,7 +13,7 @@ const { phone, ok, done, tap, text, activePh } = require('./helpers.js');
   await tap(p, 'Finish setup'); await p.waitForTimeout(400); await tap(p, 'Set up services');
   await p.getByRole('button', { name: /Answer/ }).click(); await p.locator('label.choice').nth(2).click(); await tap(p, 'Save');
   await p.getByRole('button', { name: /^Vaccination/ }).click(); await p.waitForTimeout(200);
-  for (let i = 0; i < 6; i++) { if (await p.locator('.vgroup').count()) break; const c = p.locator('form label.choice').first(); if (await c.count()) await c.click(); await tap(p, 'Next'); await p.waitForTimeout(80); }
+  for (let i = 0; i < 6; i++) { if (await p.locator('.vgroup').count()) break; const c = p.locator('form label.choice').first(); if (await c.count()) await c.click(); else if (await later(p)) continue; await tap(p, 'Next'); await p.waitForTimeout(80); }
   ok(await p.locator('.vgroup').count() === 4, 'vaccines shown in 4 groups');
   ok(await p.locator('.vgroup').first().getByRole('button', { name: 'Select all' }).count() === 1, 'each group has Select all');
   await p.locator('.vgroup').first().getByRole('button', { name: 'Select all' }).click(); await p.waitForTimeout(200);

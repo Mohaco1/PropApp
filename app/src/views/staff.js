@@ -7,6 +7,8 @@ import { C } from '../content.js';
 import { fmt, today, addMonths, addDays, dueText, isDate, daysBetween } from '../dates.js';
 import { requirements, credentialState, annualCheck, newAction, addRecord, note as log } from '../model.js';
 import { serviceName } from '../rules.js';
+// Stage 3E: "Current" (same as last time) stands only for a check that is still verified and not expiring in 30 days.
+const sameOk = (p, id) => { const s = credentialState(p, id); return s.state === 'ok' && !(s.expiry && daysBetween(today(), s.expiry) <= 30); };
 const METHODS = C.staff.methods.filter(m => !['On file only', 'Not available', 'Applicability assessed'].includes(m));
 function personStatus(p) {
   const rs = requirements(p).map(r => credentialState(p, r.id));
@@ -45,6 +47,7 @@ register('person', {
     const reqs = requirements(p), [st, tone] = p.active === false ? ['Former staff', ''] : personStatus(p);
     const acts = Object.values(c.ph.actions).filter(a => a.status === 'open' && a.source?.staffId === p.id);
     return screen({ title: p.name, back: true, site: c.ph.name, body: h`<p class="muted">${p.role}${p.engagement ? ' · ' + p.engagement : ''}${p.start ? ' · started ' + fmt(p.start) : ''}</p>
+      ${p.active !== false && p.leaving ? h`<p class="note warn">Last day ${fmt(p.leaving)}. They stay in current staff until then.</p>` : ''}
       <p>${pill(st, tone)} ${p.active !== false && p.annualDue ? h`<span class="muted">Annual check: ${dueText(p.annualDue)}</span>` : ''}</p>
       ${p.active !== false ? btn('Annual check', 'go', { kind: 'primary', cls: 'block', data: { to: 'annual', id: p.id } }) : ''}
       ${acts.length ? h`<section class="sec"><h2 class="sec-title">Open actions · ${acts.length}</h2><div class="list">${acts.map(a => row({ title: a.title.replace(' · ' + p.name, ''), right: dueText(a.due), tone: a.due < today() ? 'bad' : '', act: 'go', data: { to: 'action', id: a.id } }))}</div></section>` : ''}
@@ -84,11 +87,13 @@ register('cred', {
     if ((f.r === 'issue' || f.r === 'na') && !String(f.n || '').trim()) { c.toast(f.r === 'issue' ? 'Say what needs sorting.' : 'Say why it doesn’t apply.'); return; }
     if (f.r === 'ok' && isDate(f.x) && f.x < today()) { c.toast('That date has already passed. Mark it as an issue instead.'); return; }
     c.change(ph => { const x = ph.staff.find(y => y.id === pid); x.checks ??= {};
-      const it = { result: f.r, date: today(), method: f.r === 'ok' ? f.m : '', expiry: f.r === 'ok' ? f.x || '' : '', ref: f.r === 'ok' ? (f.f || '').trim() : '', note: f.r === 'ok' ? '' : f.n.trim() };
+      const it = { result: f.r, date: today(), method: f.r === 'ok' ? f.m : '', expiry: f.r === 'ok' ? f.x || '' : '', ref: f.r === 'ok' ? (f.f || '').trim() : '', note: f.r === 'ok' ? '' : f.n.trim(), role: x.role || '' };
       x.checks[q.id] = it;
       const rec = addRecord(ph, { type: 'A1', kind: 'staff', title: 'Credential check · ' + q.label + ' · ' + x.name, date: today(), answers: [{ id: q.id, text: q.label, answer: f.r, isIssue: f.r === 'issue', note: it.note, expiry: it.expiry }], fields: { personId: x.id, single: q.id } });
       if (f.r === 'issue') rec.actionIds.push(newAction(ph, { title: q.label + ' · ' + x.name + ': ' + it.note, due: addDays(today(), 30), source: { type: 'staff', staffId: x.id, req: q.id, label: 'Credential check' } }).id);
-    }, 'Saved'); if (c.ui.cred) c.ui.cred[r.id] = null; c.back(); } },
+    }, 'Saved'); if (c.ui.cred) c.ui.cred[r.id] = null;
+    // Stage 3E: an annual check left half-done keeps no "Current" answer for a check that has just changed.
+    if (c.ui.annual?.[pid]?.[qid]) delete c.ui.annual[pid][qid]; c.back(); } },
 });
 register('person-edit', {
   tab: 'staff',
@@ -97,17 +102,19 @@ register('person-edit', {
     const p = { ...(c.ph.staff.find(x => x.id === r.id) || { name: '', role: '', engagement: 'Regular', start: '', services: [], annualDue: '' }), ...(c.ui.personTry?.id === (r.id || '') ? c.ui.personTry.v : {}) };
     const act = Object.entries(c.ph.services).filter(([, s]) => s.active).map(([id]) => id);
     return screen({ title: r.id ? 'Edit ' + p.name : 'Add staff member', back: true, body: h`<form class="form" data-form="save">
-      ${field('Name', textInput('name', p.name, { required: true }), c.ui.nameErr ? h`<span class="err">Enter a name.</span>` : '')}${field('Role', select('role', [['', 'Choose…'], ...C.staff.roles.filter(x => !/in charge|on duty/i.test(x)).map(x => [x, x])], c.ui.roleTry ?? p.role), c.ui.roleErr ? h`<span class="err">Choose a role.</span>` : '')}
+      ${field('Name', textInput('name', p.name, { required: true }), c.ui.nameErr ? h`<span class="err">Enter a name.</span>` : '')}${field('Role', select('role', [['', 'Choose…'], ...C.staff.roles.filter(x => !/in charge|on duty/i.test(x)).map(x => [x, x])], p.role), c.ui.roleErr ? h`<span class="err">Choose a role.</span>` : '')}
       ${field('Engagement', select('engagement', C.staff.engagements.map(x => [x, x]), p.engagement))}${field('Start date (optional)', textInput('start', p.start, { type: 'date' }))}
       ${act.length ? h`<fieldset class="field"><legend class="field-label">Services they do</legend><div class="ticks">${act.map(s => h`<label class="tick"><input type="checkbox" name="svc" value="${s}" ${p.services.includes(s) ? h`checked` : ''}><span>${serviceName(s)}</span></label>`)}</div></fieldset>` : ''}
       <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` });
   },
   forms: { save: (c, f, el, r) => { f.name = (f.name || '').trim(); c.ui.nameErr = !f.name; c.ui.roleErr = !f.role;
-      if (c.ui.nameErr || c.ui.roleErr) { c.ui.personTry = { id: r.id || '', v: { name: f.name, engagement: f.engagement, start: f.start, services: [...el.querySelectorAll('input[name=svc]:checked')].map(i => i.value) } }; c.ui.roleTry = f.role || ''; c.rerender(); document.querySelector(c.ui.nameErr ? 'input[name=name]' : 'select[name=role]')?.focus(); return; }
-      c.ui.personTry = null; c.ui.roleTry = undefined; const svcs = [...el.querySelectorAll('input[name=svc]:checked')].map(i => i.value); let id = r.id;
+      if (c.ui.nameErr || c.ui.roleErr) { c.ui.personTry = { id: r.id || '', v: { name: f.name, role: f.role || '', engagement: f.engagement, start: f.start, services: [...el.querySelectorAll('input[name=svc]:checked')].map(i => i.value) } }; c.rerender(); document.querySelector(c.ui.nameErr ? 'input[name=name]' : 'select[name=role]')?.focus(); return; }
+      c.ui.personTry = null; const svcs = [...el.querySelectorAll('input[name=svc]:checked')].map(i => i.value); let id = r.id;
     c.change(ph => { let p = ph.staff.find(x => x.id === r.id);
       if (!p) { p = { id: uid(), name: '', role: '', engagement: 'Regular', start: '', end: '', active: true, services: [], annualDue: '', checks: {} }; ph.staff.push(p); id = p.id; }
       const changed = p.role && (p.role !== f.role || p.engagement !== f.engagement);
+      // Stage 3E: a service check made under the old role keeps that role, so it can't stand in for the new role's check.
+      if (p.role && p.role !== f.role) for (const c0 of Object.values(p.checks || {})) if (c0 && !c0.role) c0.role = p.role;
       Object.assign(p, { name: f.name.trim(), role: f.role, engagement: f.engagement, start: f.start, services: svcs });
       if (!p.annualDue) p.annualDue = addDays(today(), 30);
       log(ph, (r.id ? 'Updated staff · ' : 'Added staff · ') + p.name);
@@ -118,6 +125,8 @@ register('annual', {
   tab: 'staff',
   render(c, r) {
     const p = c.ph.staff.find(x => x.id === r.id), reqs = requirements(p), A = c.ui.annual?.[p.id] || {};
+    // Stage 3E: "Current" is only offered (and only kept) while the last check is still current and not due.
+    for (const q of reqs) if (A[q.id]?.r === 'same' && !sameOk(p, q.id)) delete A[q.id];
     const soon = q => { const s = credentialState(p, q.id); return s.state === 'expired' || s.state === 'issue' || (s.expiry && daysBetween(today(), s.expiry) <= 30); };
     const urgent = reqs.filter(soon), steady = reqs.filter(q => !soon(q)), bulk = steady.filter(q => credentialState(p, q.id).state === 'ok' && !A[q.id]);
     const lastLine = q => { const s = credentialState(p, q.id), last = p.checks?.[q.id]; return last ? s.label + (last.date ? ' · ' + fmt(last.date) : '') + (last.method ? ' · ' + last.method : '') : 'Not checked before'; };
@@ -134,39 +143,43 @@ register('annual', {
       ${urgent.length ? h`<section class="sec"><h2 class="sec-title">Expired or expiring soon · ${urgent.length}</h2><p class="muted">Check each of these yourself. Enter the new date when you've seen it.</p>${urgent.map(card)}</section>` : ''}
       <section class="sec"><h2 class="sec-title">${urgent.length ? 'Everything else' : 'Checks'} · ${steady.length}</h2>
         ${bulk.length > 1 ? btn('Confirm these ' + bulk.length + ' unchanged', 'all', { cls: 'block' }) : ''}${steady.map(card)}</section>
-        ${field('Next annual check', textInput('next', addMonths(today(), 12), { type: 'date' }))}
+        ${field('Next annual check', textInput('next', c.ui.annualNext?.[p.id] || addMonths(today(), 12), { type: 'date' }))}
         <div class="dock-inline">${btn('Save annual check', null, { kind: 'primary', type: 'submit' })}</div></form>` });
   },
-  changes: { ans: (c, el, r) => { const f = Object.fromEntries(new FormData(el.closest('form'))); const A = {}; for (const [k, v] of Object.entries(f)) { const [t, id] = k.split(':'); if (!id) continue; (A[id] ??= {})[t] = v; } const before = JSON.stringify(Object.fromEntries(Object.entries(c.ui.annual?.[r.id] || {}).map(([k, v]) => [k, v.r]))); c.ui.annual = { ...(c.ui.annual || {}), [r.id]: A }; if (before !== JSON.stringify(Object.fromEntries(Object.entries(A).map(([k, v]) => [k, v.r])))) c.rerender(); } },
+  changes: { ans: (c, el, r) => { const f = Object.fromEntries(new FormData(el.closest('form'))); const A = {}; if (f.next) c.ui.annualNext = { ...(c.ui.annualNext || {}), [r.id]: f.next }; for (const [k, v] of Object.entries(f)) { const [t, id] = k.split(':'); if (!id) continue; (A[id] ??= {})[t] = v; } const before = JSON.stringify(Object.fromEntries(Object.entries(c.ui.annual?.[r.id] || {}).map(([k, v]) => [k, v.r]))); c.ui.annual = { ...(c.ui.annual || {}), [r.id]: A }; if (before !== JSON.stringify(Object.fromEntries(Object.entries(A).map(([k, v]) => [k, v.r])))) c.rerender(); } },
   acts: { all: (c, d, el, r) => { const p = c.ph.staff.find(x => x.id === r.id), A = { ...(c.ui.annual?.[r.id] || {}) };
     for (const q of requirements(p)) { const s = credentialState(p, q.id); if (!A[q.id] && s.state === 'ok' && !(s.expiry && daysBetween(today(), s.expiry) <= 30)) A[q.id] = { r: 'same' }; }
     c.ui.annual = { ...(c.ui.annual || {}), [r.id]: A }; c.rerender(); } },
   forms: { save: (c, f, el, r) => {
     const p = c.ph.staff.find(x => x.id === r.id), reqs = requirements(p), A = c.ui.annual?.[p.id] || {};
+    for (const q of reqs) if (A[q.id]?.r === 'same' && !sameOk(p, q.id)) delete A[q.id];
     const missing = reqs.filter(q => !A[q.id]?.r || (A[q.id].r === 'ok' && !A[q.id].m) || (['issue', 'na'].includes(A[q.id].r) && !A[q.id].n?.trim()));
     if (missing.length) { c.toast(missing.length === 1 ? 'One item still needs an answer: ' + missing[0].label : missing.length + ' items still need an answer.'); return; }
     const expired = reqs.filter(q => A[q.id].r === 'ok' && isDate(A[q.id].x) && A[q.id].x < today());
     if (expired.length) { c.toast('“' + expired[0].label + '” has already expired. Mark it as an issue instead.'); return; }
     c.change(ph => { const items = reqs.map(q => { const a = A[q.id], last = p.checks?.[q.id] || {};
-        return a.r === 'same' ? { id: q.id, label: q.label, result: 'ok', method: last.method, expiry: last.expiry, ref: last.ref } : { id: q.id, label: q.label, result: a.r, method: a.m || '', expiry: a.x || '', ref: a.f || '', note: a.n || '' }; });
+        return a.r === 'same' ? { id: q.id, label: q.label, result: 'ok', method: last.method, expiry: last.expiry, ref: last.ref, role: p.role || '' } : { id: q.id, label: q.label, result: a.r, method: a.m || '', expiry: a.r === 'ok' ? a.x || '' : '', ref: a.r === 'ok' ? a.f || '' : '', note: a.r === 'ok' ? '' : a.n || '', role: p.role || '' }; });
       const rec = annualCheck(ph, p.id, today(), items, f.next);
       for (const it of items.filter(i => i.result === 'issue')) rec.actionIds.push(newAction(ph, { title: it.label + ' · ' + p.name + ': ' + it.note, due: addDays(today(), 30), source: { type: 'staff', staffId: p.id, req: it.id, label: 'Annual check' } }).id);
-    }, 'Annual check saved'); c.ui.annual[p.id] = null; c.back(); } },
+    }, 'Annual check saved'); c.ui.annual[p.id] = null; if (c.ui.annualNext) delete c.ui.annualNext[p.id]; c.back(); } },
 });
 // Leaving: keys, IT access, handover, plus S8 items (NSW Medicine Storage Standards via uat/NSW-HEALTH-GAP-ANALYSIS.md G1).
 const LEAVE = [['keys', 'Keys and physical access returned'], ['access', 'IT accounts and service access removed'], ['s8codes', 'Personal S8 safe codes or biometrics removed (NSW Medicine Storage Standards)'], ['eregister', 'Electronic drug register login removed, if one is used'], ['codes', 'Shared codes changed and keys accounted for: safe, alarm and door codes the person knew (best practice)'], ['handover', 'Open actions and records handed over']];
 register('leaving', {
   tab: 'staff',
   render(c, r) { const p = c.ph.staff.find(x => x.id === r.id);
-    return screen({ title: p.name + ' is leaving', back: true, body: h`<form class="form" data-form="save">${field('Last day', textInput('end', today(), { type: 'date' }))}
+    return screen({ title: p.name + ' is leaving', back: true, body: h`<form class="form" data-form="save">${field('Last day', textInput('end', p.leaving || today(), { type: 'date' }))}
       ${LEAVE.map(([k, l]) => h`<div class="card"><p class="field-label">${l}</p>${choice(k, [{ value: 'done', label: 'Done' }, { value: 'later', label: 'Not yet' }, { value: 'na', label: 'Not applicable' }], '', { inline: true })}</div>`)}
       <p class="hint">Anything marked “Not yet” becomes an action.</p><div class="dock-inline">${btn('Move to former staff', null, { kind: 'primary', type: 'submit' })}</div></form>` }); },
-  forms: { save: (c, f, el, r) => { if (LEAVE.some(([k]) => !f[k])) { c.toast('Answer each item.'); return; }
-    c.change(ph => { const p = ph.staff.find(x => x.id === r.id); p.active = false; p.end = f.end;
+  forms: { save: (c, f, el, r) => { if (!isDate(f.end)) { const inp = el.querySelector('input[name=end]'); if (inp && !inp.parentNode.querySelector('.err')) inp.insertAdjacentHTML('afterend', '<span class="err" role="alert">Enter their last day.</span>'); inp?.setAttribute('aria-invalid', 'true'); c.toast('Enter their last day.'); inp?.focus(); return; } if (LEAVE.some(([k]) => !f[k])) { c.toast('Answer each item.'); return; }
+    // Stage 3E: a last day still to come keeps them in Current staff until that day (Today moves them then).
+    const later = f.end > today();
+    c.change(ph => { const p = ph.staff.find(x => x.id === r.id); p.end = f.end; if (later) p.leaving = f.end; else { p.active = false; delete p.leaving; }
       const rec = addRecord(ph, { type: 'A1', kind: 'departure', title: 'Leaving · ' + p.name, date: f.end, answers: LEAVE.map(([k, l]) => ({ item: k, text: l, answer: { done: 'Done', later: 'Not yet', na: 'N/A' }[f[k]], isIssue: f[k] === 'later' })), fields: { personId: p.id } });
       for (const [k, l] of LEAVE.filter(([k]) => f[k] === 'later')) rec.actionIds.push(newAction(ph, { title: l.replace(/ \(.*\)$/, '') + ' · ' + p.name, due: addDays(f.end, 1), source: { type: 'leaving', recordId: rec.id, label: 'Leaving · ' + p.name } }).id);
-    }, 'Moved to former staff'); c.tab('staff'); } },
+    }, later ? 'Saved. ' + p0name(c, r.id) + ' stays in current staff until ' + fmt(f.end) + '.' : 'Moved to former staff'); c.tab('staff'); } },
 });
+const p0name = (c, id) => c.ph.staff.find(x => x.id === id)?.name || 'They';
 const LOCUM = [['register', 'Checked their registration on the public register'], ['access', 'Given only the drug register and dispensing access they need'], ['keys', 'Agreed how keys or S8 codes come back at the end']];
 register('locum', {
   tab: 'staff',

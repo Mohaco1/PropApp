@@ -8,7 +8,7 @@ import { C } from '../content.js';
 import { fmt, fullDate, today, addMonths, isDate, daysBetween, day } from '../dates.js';
 import { reviewById, activeServices, serviceName, stockIncomplete } from '../rules.js';
 import { UPDATES } from '../content/updates.js';
-import { items, counts } from '../summary.js';
+import { items, counts, procReviewDue } from '../summary.js';
 import { requirements, credentialState } from '../model.js';
 import { issueCount } from '../issues.js';
 import { ARCHIVES, locationRows } from './law.js';
@@ -53,7 +53,7 @@ export function packData(ph, drafts, from = addMonths(today(), -12)) {
     // Stage 3A: the version in use (adopted, when and by whom) is kept apart from a newer draft still waiting to be adopted.
     procedures: activeServices(ph).map(id => { const p = ph.procedures.find(x => x.service === id), v = p?.versions?.at(-1), adopted = p?.versions?.filter(x => x.status === 'Adopted').at(-1);
       const pending = v && v.status !== 'Adopted' ? v : null;
-      return [serviceName(id), adopted ? adopted.v : v ? 'None adopted' : 'Not drafted', adopted ? ['Adopted ' + full(day(adopted.adoptedAt || adopted.at)), adopted.adoptedBy && 'by ' + adopted.adoptedBy].filter(Boolean).join(' ') : '', pending ? 'Draft ' + pending.v + ' · ' + full(day(pending.at)) : '', p?.reviews?.length ? full(String(p.reviews.at(-1).date).slice(0, 10)) : '']; }),
+      return [serviceName(id), adopted ? adopted.v : v ? 'None adopted' : 'Not drafted', adopted ? ['Adopted ' + full(day(adopted.adoptedAt || adopted.at)), adopted.adoptedBy && 'by ' + adopted.adoptedBy].filter(Boolean).join(' ') + (procReviewDue(p) ? ' · next review ' + full(procReviewDue(p)) : '') : '', pending ? 'Draft ' + pending.v + ' · ' + full(day(pending.at)) : '', p?.reviews?.length ? full(String(p.reviews.at(-1).date).slice(0, 10)) : '']; }),
     amendments: activeServices(ph).map(id => [id, ph.procedures.find(x => x.service === id)]).filter(([, p]) => p?.amendment?.trim()).map(([id, p]) => [serviceName(id), p.amendment.trim()]),
     // Stage 3A: the owner's own log and where other documents are kept (references only, never the document).
     log: (ph.log || []).filter(x => isDate(x.date) && x.date >= from).sort((a, b) => b.date.localeCompare(a.date)).map(x => [full(x.date), x.what || '', x.kind || '', x.ref || '', x.by || '']),

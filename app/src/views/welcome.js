@@ -115,8 +115,15 @@ function copySetup(src, ph) {
   if (src.lead) ph.lead = src.lead;
   const at = new Date().toISOString();
   ph.procedures = (src.procedures || []).filter(p => ph.services[p.service]).map(p => { const v = p.versions.filter(x => x.status === 'Adopted').at(-1) || p.versions.at(-1);
-    const body = String(v.body).split(src.name).join(ph.name);
-    return { id: uid(), service: p.service, title: p.title, status: 'draft', versions: [{ v: '0.1', body, generated: body, at, status: 'Draft', note: 'Copied from ' + src.name }] }; });
+    const swap = t => String(t ?? '').split(src.name).join(ph.name), body = swap(v.body);
+    // Stage 3E: hand-edited wording stays marked as edited (with the text it was written from), so a later redraft
+    // patches it instead of replacing the owner's wording with a fresh draft.
+    return { id: uid(), service: p.service, title: p.title, status: 'draft', versions: [{ v: '0.1', body, generated: v.edited && v.generated ? swap(v.generated) : body, at, status: 'Draft', note: 'Copied from ' + src.name, ...(v.edited ? { edited: true } : {}) }] }; });
+  // Stage 3E: the flags the copied answers drive (how DAAs are packed, the OTP 80-a-day threshold) are rebuilt from them,
+  // so the plan here has the same reviews as the answers say.
+  const routes = ph.services.daa?.active ? String(ph.services.daa.answers?.routes || '').split(',').filter(Boolean) : [];
+  if (routes.length) ph.flags = { ...ph.flags, house: routes.includes('house'), routeA: routes.includes('routeA'), routeB: routes.includes('routeB') };
+  const vb = ph.services.otp?.active ? ph.services.otp.answers?.volumeBand : undefined; if (vb !== undefined) ph.flags = { ...ph.flags, volume: vb === 'Yes' };
 }
 function keep(c) { c.store.setPref('setup-draft', { step: c.ui.setupStep, setup: c.ui.setup }); c.store.flush(); }
 function collect(d) { document.querySelectorAll('[name^=owner]').forEach((i, n) => { d.owners[n] = i.value; }); }

@@ -10,6 +10,10 @@ async function setup(p, services) {
   for (const s of services) await p.locator('label.tick', { hasText: s }).first().click();
   await p.getByRole('button', { name: 'Finish setup', exact: true }).click(); await p.waitForTimeout(400);
 }
+// Stage 3E: Next waits for an answer, so a blank question is marked "Check later" before moving on.
+const later = async p => { const f = 'form[data-form=next]'; const on = await p.evaluate(f => { const F = document.querySelector(f); if (!F) return true; return [...F.querySelectorAll('input')].some(i => /radio|checkbox/.test(i.type) ? i.checked : i.value.trim()); }, f); if (on) return false;
+  const nv = p.locator(f + ' input[name=nv]'); if (await nv.count()) { await nv.check({ force: true }); await p.waitForTimeout(300); return false; }
+  const r = p.locator(f + ' input[value="Needs verification"]'); if (await r.count()) { await r.check({ force: true }); await p.waitForTimeout(500); return true; } return false; };
 (async () => {
   const { b, p, errors } = await phone({ time: '2026-11-27T10:00:00+11:00' });
   await setup(p, ['Dose administration aids', 'Home delivery']);
@@ -57,14 +61,14 @@ async function setup(p, services) {
   // Multi-select (ticks) waits for Next
   for (let i = 0; i < 25; i++) { if (await p.locator('form[data-form=next] label.tick input[name=m]').count() || /What happens next/.test(await text(p))) break;
     if (await p.getByRole('button', { name: 'Answer now', exact: true }).count()) { await tap(p, 'Answer now'); await p.waitForTimeout(150); continue; }
-    await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(450); }
+    if (await later(p)) continue; await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(450); }
   if (await p.locator('form[data-form=next] label.tick input[name=m]').count()) { const qm = await qn(p); await p.locator('form[data-form=next] label.tick').first().click(); await p.waitForTimeout(500);
     ok(await qn(p) === qm, 'a tick question waits for Next'); } else ok(false, 'reached a tick question');
   // Keyboard-safe: "Where exactly?" on a short screen keeps Next in view
   await p.setViewportSize({ width: 390, height: 380 });
   for (let i = 0; i < 25; i++) { if (await p.locator('form[data-form=next] input[name=d]').count() && /Where exactly/.test(await text(p))) break;
     if (await p.getByRole('button', { name: 'Answer now', exact: true }).count()) { await tap(p, 'Answer now'); await p.waitForTimeout(150); continue; }
-    if (/What happens next/.test(await text(p))) break; await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(450); }
+    if (/What happens next/.test(await text(p))) break; if (await later(p)) continue; await p.getByRole('button', { name: /^(Next|Finish)$/ }).click(); await p.waitForTimeout(450); }
   if (await p.locator('form[data-form=next] input[name=d]').count()) { await p.evaluate(() => window.scrollTo(0, 0)); await p.locator('form[data-form=next] input[name=d]').focus(); await p.waitForTimeout(250);
     ok(await inView(p, 'main .btnrow .btn.primary'), 'Next stays in view with “Where exactly?” focused at 390 × 380');
     ok(await p.evaluate(() => document.activeElement.getBoundingClientRect().top >= (document.querySelector('.bar')?.getBoundingClientRect().bottom || 0)), 'the focused box stays below the header'); }

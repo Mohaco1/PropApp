@@ -12,7 +12,9 @@ export function today() {
 }
 const parse = s => { const [y, m, d] = String(s).slice(0, 10).split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
 const iso = dt => dt.toISOString().slice(0, 10);
-export const isDate = s => /^\d{4}-\d{2}-\d{2}$/.test(String(s || '').slice(0, 10));
+// Stage 3E: a real calendar day only. "2026-02-29" or "2026-02-31" is not a date (it used to roll into March).
+export const validDay = (y, m, d) => m >= 1 && m <= 12 && d >= 1 && d <= new Date(Date.UTC(y, m, 0)).getUTCDate();
+export const isDate = s => { const t = String(s || '').slice(0, 10); if (!/^\d{4}-\d{2}-\d{2}$/.test(t)) return false; const [y, m, d] = t.split('-').map(Number); return validDay(y, m, d); };
 export const addDays = (s, n) => { const d = parse(s); d.setUTCDate(d.getUTCDate() + n); return iso(d); };
 export function addMonths(s, n) {
   const d = parse(s), day = d.getUTCDate();

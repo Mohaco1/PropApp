@@ -1,8 +1,8 @@
 // R.Pharmacy offline worker (V3-01). It caches the app shell only. It never reads, clears or migrates saved records
 // (IndexedDB and localStorage belong to the app). The page is network-first so updates arrive; icons and the manifest
 // are cache-first. Old shell caches (propapp-shell-*) are removed when a new version activates.
-const SHELL = 'propapp-shell-2a5fec8631';
-const BUILD = '2a5fec8631';
+const SHELL = 'propapp-shell-2a07045bc2';
+const BUILD = '2a07045bc2';
 const FILES = ['./manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 // Stage 3D: a page is stored as the shell only if it is this worker's own build (its propapp-build marker matches), so
 // an error page, a half-deployed copy or another build is never what opens offline.

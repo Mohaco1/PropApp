@@ -14,7 +14,7 @@
    "s 111",
    "S8 inventory every 3 months",
    "An accurate inventory of all S8 substances every 3 months (unless NSW Health approved other times), entered in the drug register under the last entry for each substance with the quantity held and the date, and signed.",
-   "The responsible person (the proprietor) must ensure it is made",
+   "You, as proprietor, must ensure it is made",
    []
   ],
   [
@@ -30,14 +30,14 @@
    "s 122",
    "S8 storage",
    "S8 kept in a dedicated, locked room, receptacle or fridge, on its own (except with S9, or in a fridge holding only scheduled substances), fixed to the premises and not accessible to the public. Keys kept on a pharmacist or in a separately locked receptacle only a pharmacist can open; codes never told to anyone who is not a pharmacist.",
-   "You (the Regulation names the pharmacist in charge on the day, s 122(2))",
+   "You, as proprietor, overall; day to day, the pharmacist on duty keeps the S8 store locked and holds its keys (s 122(2))",
    []
   ],
   [
    "s148",
    "s 148",
    "S8 destruction at the pharmacy",
-   "Destroyed in front of an eligible witness (a pharmacist not employed at or financially interested in the pharmacy and not family, or a medical or nurse practitioner who is not family), and recorded in the drug register: date, substance and quantity, both names, registration numbers and signatures.",
+   "Destroyed in front of an eligible witness (s 148(2)(a)(i): a pharmacist not employed or engaged at, or financially interested in, the pharmacy and not family, or a medical or nurse practitioner not employed or engaged at the pharmacy and not family; “engaged” covers locums and contractors), and recorded in the drug register: date, substance and quantity, both names, registration numbers and signatures.",
    "The pharmacist destroying it",
    []
   ],
@@ -127,7 +127,7 @@
    "s33",
    "s 33–35",
    "Supply without a prescription",
-   "Emergency and continued-supply rules (for example s 33: up to 7 days’ treatment or the smallest pack, not again within 30 days) and their records.",
+   "Emergency and continued-supply rules (for example s 33: up to 7 days’ treatment, not again within 30 days; the smallest pack on the market only for an aerosol or inhaler, anovulant tablets, a cream, a liquid or an ointment (s 33(2)(b)); never S4D or S8) and their records.",
    "The supplying pharmacist",
    [
     "prescribing",
@@ -160,7 +160,7 @@
    "Storage Standards",
    "Medicine Storage Standards (S8 safe and fridge)",
    "S8 in a safe built to the Standards (9 mm steel, welded, flush door, locking bar, five-lever lock) or a Grade VII strongroom, fixed with robust fastening; S8 fridge locked, fixed and holding only scheduled medicines; codes changed regularly and removed for leavers.",
-   "You, as owner and responsible person (the Regulation also names the pharmacist in charge on duty, s 122)",
+   "You, as proprietor, overall; day to day, the pharmacist on duty (s 122)",
    []
   ],
   [
@@ -168,7 +168,7 @@
    "s 112",
    "Drug register lost or destroyed",
    "Written notice to the Health Secretary immediately (including missing pages or an electronic register that can’t be opened), an accurate S8 inventory, and a new register.",
-   "The responsible person (the proprietor)",
+   "You, as proprietor",
    []
   ],
   [
@@ -251,7 +251,7 @@
    "People (NSW Pharmacist Vaccination Standards; NSW Health): a named vaccine coordinator and a backup; at least two staff who manage vaccines have completed the NSW Health Vaccine Storage and Cold Chain Management module (all who handle vaccines are strongly encouraged to), with certificates kept; each immuniser’s NSW Pharmacist Immuniser Declaration Form is kept on the premises.",
    "Stock and power (NSW Health; Safe vaccine storage checklist): NIP and state-funded stock kept apart from private stock and labelled; domestic or bar fridges not used; the power-failure plan has been practised.",
    "Room (Vaccination Standards, part D): not the dispensary, with no patient access to S3, S4 or S8 medicines on the way in or out; two chairs (the patient’s is not a stool or on wheels); space to lie down; stretcher access; the fridge is locked if the public can reach it.",
-   "Consent and records (Vaccination Standards, part F): consent recorded for every vaccination and kept 7 years (or until 25 for under-18s); AIR checked before and updated within 10 business days. If ownership changes, a new AIR provider number and a new VAN are needed."
+   "Consent and records (Vaccination Standards, part F): consent recorded for every vaccination and kept 7 years (or until 25 for under-18s); AIR checked before and updated within 10 business days (exception: if a person given mpox vaccine (JYNNEOS) opts out of AIR reporting, record the vaccination in a separate vaccine-use record instead). If ownership changes, a new AIR provider number and a new VAN are needed."
   ],
   "service-vaccination": [
    "Reporting (Vaccination Standards, part G): adverse events reported to the public health unit (1300 066 055) straight after the response and by the next business day; administration errors disclosed to the patient, recorded on AIR and reported to the public health unit; cold-chain breaches of NIP or state stock reported and the stock quarantined at 2–8 °C labelled “Do not use”."

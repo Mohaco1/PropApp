@@ -5,7 +5,7 @@ import { h, uid } from '../util.js';
 import { screen, btn, row, field, textInput, textArea, select, note, why, empty, section } from '../ui.js';
 import { C } from '../content.js';
 import { fmt, today, dueText, isDate, day } from '../dates.js';
-import { s8Limit, latestStockCheck, activeServices, serviceName } from '../rules.js';
+import { s8Limit, latestStockCheck, activeServices, serviceName, s8Takeover } from '../rules.js';
 import { RPH } from '../procgen.js';
 import { questionLabel, s8Answers } from './services.js';
 import { reviewDue } from '../summary.js';
@@ -26,7 +26,7 @@ register('s8', {
     return screen({ title: 'S8 at a glance', back: true, body: h`
       <div class="card"><p class="eyebrow"><span class="law">Required by law</span> Inventory every 3 months (s 111)</p>
         <p>${last ? 'Last stock check ' + fmt(last) : 'No stock check recorded yet'} · ${due ? dueText(due) + ' (' + fmt(due) + ')' : 'no date set'}</p>
-        ${lim ? h`<p class="muted">The law’s latest date is ${fmt(lim)}: 3 months after the last stock check.</p>` : ''}${btn('S8 stock check', 'go', { kind: 'primary', data: { to: 'review', id: 'B1' } })}</div>
+        ${s8Takeover(c.ph) ? note('You’ve taken over this pharmacy: make an S8 inventory in the drug register now (s 111(3)). The previous owner’s 3-month date doesn’t apply.', 'warn') : lim ? h`<p class="muted">The law’s latest date is ${fmt(lim)}: 3 months after the last stock check.</p>` : ''}${btn('S8 stock check', 'go', { kind: 'primary', data: { to: 'review', id: 'B1' } })}</div>
       ${s8acts.length ? section('Open S8 actions · ' + s8acts.length, h`<div class="list">${s8acts.map(a => row({ title: a.title, right: dueText(a.due), act: 'go', data: { to: 'action', id: a.id } }))}</div>`) : ''}
       ${section('The rules, and where your records are', h`<div class="list">${rows.map(o => obRow(c.ph, o))}</div>`)}
       ${s8Setup(c.ph)}
@@ -76,7 +76,7 @@ register('changes', {
     ${L.OWN.map(([t, xs]) => section(t, h`<div class="card"><ul class="plain">${xs.map(x => h`<li>${x}</li>`)}</ul></div>`))}
     ${btn('Changing how DAAs are packed?', 'go', { kind: 'link', data: { to: 'tellmeonce' } })}
     ${c.ph.inherited ? note('Marked as a newly bought pharmacy. Your next site visit asks you to confirm what the previous owner recorded.', 'ok') : btn('I’ve just bought this pharmacy', 'bought')}` }); },
-  acts: { bought: c => c.change(ph => { ph.inherited = { since: today() }; log(ph, 'Marked as a newly bought pharmacy'); }, 'Your next visit will ask you to confirm what the previous owner recorded.') },
+  acts: { bought: c => c.change(ph => { ph.inherited = { since: today() }; log(ph, 'Marked as a newly bought pharmacy'); }, 'Marked. Make an S8 inventory now (s 111(3)); it’s on Today. Your next visit asks you to confirm what the previous owner recorded.') },
 });
 
 // Incident steps (S4-04): the current app's "If something goes wrong" cards, word for word (uat/layers/inspection.js),
@@ -84,7 +84,7 @@ register('changes', {
 const INCIDENTS = [
   ['S8 or S4D missing or stolen', ['Unexplained loss or theft: notify NSW Pharmaceutical Services immediately, using their online form for lost or stolen S8 and S4D medicines.', 'Keep a copy of the submitted form.', 'Record the loss in the drug register.', 'If more details come to light, submit the form again with them.', 'An explained loss (for example dead space in a syringe, or a witnessed spill) is recorded in the drug register; it is not notified.'], 'NSW Health · Notifying the loss or theft of medicines', 'https://www.health.nsw.gov.au/pharmaceutical/Pages/lost-stolen-drugs.aspx'],
   ['Drug register lost or destroyed', ['This includes missing pages, or an electronic register you can no longer open (for example after a system failure or ransomware).', 'Notify NSW Pharmaceutical Services immediately, in writing, with what happened (s 112). Keep a copy.', 'Make an accurate inventory of all S8 held and enter it in a new drug register (s 112).', 'Try to find out what happened and recover the register or pages if you can.', 'If S8 is also missing, notify that separately using the lost or stolen form.'], 'NSW Health · Loss or destruction of a drug register', 'https://www.health.nsw.gov.au/pharmaceutical/Pages/lost-stolen-drug-register.aspx'],
-  ['Destroying S8 at the pharmacy', ['Use an independent witness: a pharmacist, medical practitioner or nurse practitioner who is not employed at the pharmacy, not a family member, and (if a pharmacist) has no financial interest in it (s 148).', 'Patient returns go in the register on receipt; expired stock is moved to a separate “for destruction” page.', 'Render it unusable (never down a sink or toilet) and record the date, medicine and quantity, and both names, registration numbers and signatures.'], 'NSW Health · Destruction of S8 medicines at community pharmacies', 'https://www.health.nsw.gov.au/pharmaceutical/pharmacists/Pages/schedule8-destruction.aspx'],
+  ['Destroying S8 at the pharmacy', ['Use an independent witness: a pharmacist, medical practitioner or nurse practitioner who is not employed or engaged at the pharmacy (locums and contractors count as engaged), not a family member, and (if a pharmacist) has no financial interest in it (s 148(2)(a)(i)).', 'Patient returns go in the register on receipt; expired stock is moved to a separate “for destruction” page.', 'Render it unusable (never down a sink or toilet) and record the date, medicine and quantity, and both names, registration numbers and signatures.'], 'NSW Health · Destruction of S8 medicines at community pharmacies', 'https://www.health.nsw.gov.au/pharmaceutical/pharmacists/Pages/schedule8-destruction.aspx'],
   // Content v2 (C2-02): exact steps from My Health Records Act 2012 s 75, My Health Records Rules 2026 r 21(4)(e),
   // and Privacy Act 1988 ss 26WH–26WL (read 25 Nov 2026; uat/research/content-v2-sources-2026-11-25.md).
   ['Privacy or My Health Record data breach', ['Contain it as far as you reasonably can: for example, suspend a user account that may be compromised or stop the access (My Health Records Rules 2026 r 21(4)(e)).',

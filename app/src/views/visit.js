@@ -148,8 +148,17 @@ function finish(c, r, d, items, prog, title) {
     ${btn('Discard this visit', 'discard', { kind: 'link' })}` });
 }
 // PharmLedger brief: what the visit found, de-identified, to paste into a message for the pharmacist on duty.
-export function visitSummary(ph, d, items) { const found = items.filter(it => d.items[it.key]?.status === 'issue');
-  return ph.name + ' · site visit ' + fmt(d.date || today()) + '\n' + (found.length ? 'To fix:\n' + found.map(it => '- ' + it.title + ': ' + (d.items[it.key].text || '').trim() + (d.items[it.key].due ? ' · by ' + fmt(d.items[it.key].due) : '')).join('\n') : 'No issues found.') + '\n' + (items.length - found.length) + ' other checks fine.\nNo patient names or identifiers, please.'; }
+// Stage 3E: "Check later" items and evidence that couldn't be verified are listed too, so the summary never says "No
+// issues found" while something is still open; only Satisfactory checks are counted as fine.
+export function visitSummary(ph, d, items) { const st = it => d.items[it.key] || {}, found = items.filter(it => st(it).status === 'issue'), later = items.filter(it => st(it).status === 'verify');
+  const evNote = items.filter(it => !it.core && /Gap|Issue|Unable/.test(st(it).ev || '') && st(it).status !== 'issue'), fine = items.filter(it => st(it).status === 'ok' && !evNote.includes(it)).length, na = items.filter(it => st(it).status === 'na').length; // only Satisfactory counts as fine
+  const lines = [ph.name + ' · site visit ' + fmt(d.date || today())];
+  if (found.length) lines.push('To fix:', ...found.map(it => '- ' + it.title + ': ' + (st(it).text || '').trim() + (st(it).due ? ' · by ' + fmt(st(it).due) : '')));
+  if (later.length) lines.push('To check later:', ...later.map(it => '- ' + it.title + ((st(it).text || '').trim() ? ': ' + st(it).text.trim() : '')));
+  if (evNote.length) lines.push('Evidence to follow up:', ...evNote.map(it => '- ' + it.title + ': ' + st(it).ev + (st(it).ref ? ' (' + st(it).ref + ')' : '')));
+  if (!found.length && !later.length && !evNote.length) lines.push('No issues found.');
+  lines.push((na ? (na === 1 ? '1 check not applicable. ' : na + ' checks not applicable. ') : '') + (fine === 1 ? '1 other check fine.' : fine + ' other checks fine.'), 'No patient names or identifiers, please.');
+  return lines.join('\n'); }
 register('visit-fin-hook', { render: () => '' });
 function save(c, r) {
   const k = key(r.extra), d = c.draft(k), items = visitItems(c.ph);

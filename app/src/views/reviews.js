@@ -84,7 +84,8 @@ register('review', {
     if (a.kind === 'meeting') return screen({ title: a.name, back: true, body: btn('Open this meeting', 'go', { kind: 'primary', data: { to: 'meeting', id: a.id } }) });
     const ap = applies(c.ph, a), d = c.draft(dkey(a.id)), qs = questionsFor(a.id), due = reviewDue(c.ph, a.id);
     const last = c.ph.records.filter(x => x.type === a.id).sort((x, y) => y.date.localeCompare(x.date))[0];
-    if (!d) return screen({ title: a.name, back: true, site: c.ph.name, body: h`
+    if (!d || !ap.applies) return screen({ title: a.name, back: true, site: c.ph.name, body: h`
+      ${d && !ap.applies ? note('Your earlier answers are kept, but this review can’t be finished while it isn’t in your plan.', 'info') : ''}
       <p class="muted">${a.legal ? h`<span class="law">Required by law</span> ` : ''}${legalLine(a)}</p>${why('Why?', whyText(a))}
       ${!ap.applies ? note('Preview only: ' + ap.why + '.', 'warn') : ''}
       <dl class="facts"><dt>How often</dt><dd>${c.ph.intervals?.[a.id] || a.frequency}</dd>${a.id === 'B1' ? (() => { const done = c.ph.records.filter(x => x.type === 'B1' && !stockIncomplete(x)).sort((x, y) => x.date.localeCompare(y.date)).at(-1), stock = latestStockCheck(c.ph);
@@ -123,7 +124,7 @@ register('review', {
   inputs: {
     qi: (c, el, r, e) => { if (e.target.type === 'radio') return; const d = structuredClone(c.draft(dkey(r.id))); const f = Object.fromEntries(new FormData(el.closest('form'))); const s = d.step || 0; d.issues ??= {}; d.notesQ ??= {};
       if ('issue' in f) d.issues[s] = { text: f.issue, due: f.due }; if ('note' in f) d.notesQ[s] = f.note; c.saveDraft(dkey(r.id), d); },
-    fini: (c, el, r, e) => { if (e.target.type === 'date') return; const d = structuredClone(c.draft(dkey(r.id))); d.fields = { ...(d.fields || {}), ...Object.fromEntries(new FormData(el.closest('form'))) }; c.saveDraft(dkey(r.id), d); },
+    fini: (c, el, r, e) => { if (e.target.type === 'date') return; const d = structuredClone(c.draft(dkey(r.id))); d.fields = { ...(d.fields || {}), ...Object.fromEntries(new FormData(el.closest('form'))) }; c.saveDraft(dkey(r.id), d); refreshSave(c, r.id); },
   },
   changes: {
     q: (c, el, r) => { const d = structuredClone(c.draft(dkey(r.id))); const f = Object.fromEntries(new FormData(el.closest('form'))); const s = d.step || 0; const before = d.answers[s];
@@ -132,13 +133,15 @@ register('review', {
       // Stage 3A: no auto-advance here. Every clean answer reveals "Note (optional)" (and an issue reveals its fix box and
       // date), so moving on by itself after 600 ms yanked the owner away before they could read or tap the box. Next moves on.
     },
-    fin: (c, el, r, e) => { const d = structuredClone(c.draft(dkey(r.id))); d.fields = { ...(d.fields || {}), ...Object.fromEntries(new FormData(el.closest('form'))) }; c.saveDraft(dkey(r.id), d); if (r.id === 'B1' && e?.target?.name === 'stockDate') c.rerender(); }, // el is the form; the changed field is e.target
+    fin: (c, el, r, e) => { const d = structuredClone(c.draft(dkey(r.id))); d.fields = { ...(d.fields || {}), ...Object.fromEntries(new FormData(el.closest('form'))) }; c.saveDraft(dkey(r.id), d);
+      // Stage 3E: a required answer (council receipt, OTP threshold) or a date redraws, so Save review and its notes follow.
+      if ((r.id === 'B1' && e?.target?.name === 'stockDate') || e?.target?.name === 'date' || (e?.target?.tagName === 'SELECT' && (EXTRA[r.id] || []).some(([k, , , req]) => req && k === e.target.name))) c.rerender(); else refreshSave(c, r.id); }, // el is the form; the changed field is e.target
   },
   acts: {
     qlist: (c, dd, el, r) => { const d = structuredClone(c.draft(dkey(r.id))); d.list = !!dd.on; c.saveDraft(dkey(r.id), d); c.rerender(); window.scrollTo(0, 0); },
     qa: (c, dd, el, r) => { const d = structuredClone(c.draft(dkey(r.id))), qs = questionsFor(r.id), i = +dd.i, o = qs[i]?.options.find(x => x.value === dd.v); if (!o) return;
       d.answers[i] = o.value; if (o.issue) { d.list = false; d.step = i; } c.saveDraft(dkey(r.id), d); c.rerender(); },
-    start: (c, d, el, r) => { c.saveDraft(dkey(r.id), { date: today(), answers: {}, step: 0 }); c.rerender(); },
+    start: (c, d, el, r) => { if (!applies(c.ph, reviewById(r.id)).applies) return; c.saveDraft(dkey(r.id), { date: today(), answers: {}, step: 0 }); c.rerender(); },
     uselast: (c, dd, el, r) => { const a = reviewById(r.id), qs = questionsFor(r.id), s = +dd.s, prev = c.ph.records.filter(x => x.type === r.id).sort((x, y) => y.date.localeCompare(x.date))[0];
       const pa = prev?.answers?.find(x => x.text === qs[s]?.text) || (prev?.answers?.length === qs.length ? prev.answers[s] : null); if (!pa?.note) return;
       const d = structuredClone(c.draft(dkey(r.id))); (d.notesQ ??= {})[s] = pa.note; c.saveDraft(dkey(r.id), d); c.rerender(); },
@@ -149,16 +152,26 @@ register('review', {
 });
 // C-01: a 3-month limit that has already passed becomes a short planning window (today to +14 days), never a max in the past.
 const s8Window = l => l && l < today() ? addDays(today(), S8_GRACE_DAYS) : l;
+// Stage 3E: one reading of what still stops Save review (unanswered questions, a required field such as the council
+// receipt or the OTP 80-a-day answer, a stock-check or review date in the future), used to draw the screen and to
+// update the button as the owner types.
+function finState(c, a, d, qs) { const fields = d.fields || {}, inc = a.id === 'B1' && d.answers[0] === 'Incomplete';
+  const missing = qs.map((q, i) => i).filter(i => !d.answers[i] || (qs[i].options.find(o => o.value === d.answers[i])?.issue && !d.issues?.[i]?.text?.trim()));
+  const ex = (EXTRA[a.id] || []).filter(([k]) => !(inc && (k === 'stockDate' || k === 'stockBy'))), needs = ex.filter(([k, , , req]) => req && !String(fields[k] || '').trim());
+  const future = a.id === 'B1' && !inc && isDate(fields.stockDate) && fields.stockDate > today(), lateDate = isDate(fields.date || d.date) && (fields.date || d.date) > today();
+  return { missing, needs, future, lateDate, ex, inc, blocked: missing.length > 0 || needs.length > 0 || future || lateDate }; }
+function refreshSave(c, id) { const a = reviewById(id), d = c.draft(dkey(id)); if (!a || !d) return; const st = finState(c, a, d, questionsFor(id)), b = document.querySelector('main [data-act=save]'); if (b) b.disabled = st.blocked;
+  const n = document.querySelector('main .needs-note'); if (n && !st.needs.length) n.textContent = ''; }
 function finishReview(c, a, d, qs, prog) {
-  const fields = d.fields || {}, missing = qs.map((q, i) => i).filter(i => !d.answers[i] || (qs[i].options.find(o => o.value === d.answers[i])?.issue && !d.issues?.[i]?.text?.trim()));
+  const fields = d.fields || {}, st = finState(c, a, d, qs), missing = st.missing;
   const issues = qs.filter((q, i) => q.options.find(o => o.value === d.answers[i])?.issue).length;
   // R02/R05: an incomplete stock check doesn't move the S8 deadline (the last completed one still sets it); every date
   // here uses the one calendar-month helper (addMonths), so screens agree across month ends and daylight saving.
-  const inc = a.id === 'B1' && d.answers[0] === 'Incomplete', future = a.id === 'B1' && isDate(fields.stockDate) && fields.stockDate > today();
+  const inc = st.inc, future = st.future;
   const lim = a.id !== 'B1' ? '' : inc ? s8Limit(c.ph) : isDate(fields.stockDate) && !future ? addMonths(fields.stockDate, 3) : '';
   const max = a.id !== 'B1' ? '' : inc ? s8Max(c.ph) : s8Window(lim), past = !!lim && lim < today();
   const sug = a.months ? (a.id === 'B1' ? (past ? max : lim) : suggestedNext(c.ph, a.id, d.date)) : '';
-  const ex = (EXTRA[a.id] || []).filter(([k]) => !(inc && (k === 'stockDate' || k === 'stockBy'))), needs = ex.filter(([k, , , req]) => req && !String(fields[k] || '').trim());
+  const ex = st.ex, needs = st.needs;
   return screen({ title: a.name, back: true, site: c.ph.name, saved: 'Saved', body: h`${prog}<h2 class="big-title">Finish the review</h2>
     ${missing.length ? h`<div class="list">${missing.map(i => row({ title: qs[i].text, sub: d.answers[i] ? 'Say what needs fixing' : 'Not answered yet', act: 'step', data: { s: i } }))}</div>` : note(issues ? issues + (issues === 1 ? ' issue becomes an action.' : ' issues become actions.') : 'Every question answered.', issues ? 'warn' : 'ok')}
     <form class="form" data-form="fin" data-change="fin" data-input="fini">
@@ -167,13 +180,17 @@ function finishReview(c, a, d, qs, prog) {
       ${field('Note (optional)', textArea('notes', fields.notes || '', { rows: 2 }))}
       ${a.months ? field('Next due', textInput('next', fields.next || (sug && max && sug > max ? max : sug), { type: 'date', max: max || '' }), a.id === 'B1' ? (inc ? (lim ? 'The stock check wasn’t finished, so the deadline stays 3 months after the last completed one (' + fmt(lim) + ').' : 'The stock check wasn’t finished and there’s no completed one on record: arrange it as soon as you can.') + (past ? ' That date has passed: plan it on or before ' + fmt(max) + '.' : '') : lim ? 'The law sets the latest date: 3 months after the stock check (' + fmt(lim) + ').' + (past ? ' That date has passed: plan it on or before ' + fmt(max) + '.' : '') : 'Enter the stock-check date first. The next date can’t be more than 3 months after it.') : '') : ''}
     </form>
-    ${future ? note('The stock-check date can’t be in the future.', 'warn') : ''}
-    ${needs.length ? note('Still needed: ' + needs.map(x => x[1]).join(', ') + '.', 'warn') : ''}
-    ${btn('Save review', 'save', { kind: 'primary', cls: 'block', disabled: missing.length > 0 || needs.length > 0 || future })}${btn('Discard', 'discard', { kind: 'link' })}` });
+    ${future ? note('The stock-check date can’t be in the future.', 'warn') : ''}${st.lateDate ? note('The review date can’t be in the future.', 'warn') : ''}
+    <div class="needs-note">${needs.length ? note('Still needed: ' + needs.map(x => x[1]).join(', ') + '.', 'warn') : ''}</div>
+    ${btn('Save review', 'save', { kind: 'primary', cls: 'block', disabled: st.blocked })}${btn('Discard', 'discard', { kind: 'link' })}` });
 }
 function saveReview(c, id) {
-  const a = reviewById(id), d = c.draft(dkey(id)), qs = questionsFor(id);
+  const a = reviewById(id), d = c.draft(dkey(id)), qs = questionsFor(id); if (!d) return;
   const form = document.querySelector('form[data-form=fin]'); const f = { ...(d.fields || {}), ...(form ? Object.fromEntries(new FormData(form)) : {}) };
+  // Stage 3E: a stopped service's review is a preview only, even with answers left from before; no future review date.
+  if (!applies(c.ph, a).applies) { c.toast('Preview only: this review isn’t in your plan now.'); return; }
+  if (isDate(f.date || d.date) && (f.date || d.date) > today()) { c.toast('The review date can’t be in the future.'); return; }
+  if (finState(c, a, { ...d, fields: f }, qs).blocked) { c.rerender(); return; }
   if (id === 'B1') { const inc = d.answers[0] === 'Incomplete';
     if (!inc && isDate(f.stockDate) && f.stockDate > today()) { c.toast('The stock-check date can’t be in the future.'); return; }
     if (inc) { f.stockIncomplete = true; delete f.stockDate; delete f.stockBy; }
@@ -197,7 +214,7 @@ export function recordText(ph, rec) { const a = reviewById(rec.type), acts = (re
     rec.notes ? '\nNote: ' + rec.notes : '', acts.length ? '\nActions:\n' + acts.map(x => '• ' + x.title + ' · ' + (x.status === 'closed' ? 'closed ' + fmt(x.closed?.date) + (x.closed?.what ? ': ' + x.closed.what : '') : 'open, due ' + fmt(x.due))).join('\n') : '', '', 'From PharmLedger. Records stay in the pharmacy’s own systems; no patient details.'].join('\n'); }
 register('record', {
   tab: 'reviews',
-  acts: { dlrec: (c, d) => { const rec = c.ph.records.find(x => x.id === d.id); const ok = saveFile((c.ph.name + ' ' + (reviewById(rec.type)?.name || rec.title) + ' ' + rec.date).replace(/[^\w]+/g, '-') + '.txt', recordText(c.ph, rec)); c.toast(ok ? 'Summary ready' : 'Downloads are blocked here. Use Copy as text.'); },
+  acts: { dlrec: async (c, d) => { const rec = c.ph.records.find(x => x.id === d.id); const ok = await saveFile((c.ph.name + ' ' + (reviewById(rec.type)?.name || rec.title) + ' ' + rec.date).replace(/[^\w]+/g, '-') + '.txt', recordText(c.ph, rec)); c.toast(ok ? 'Summary ready' : 'Downloads are blocked here. Use Copy as text.'); },
     copyrec: async (c, d) => { const rec = c.ph.records.find(x => x.id === d.id); const t = recordText(c.ph, rec);
     if (await copyText(t)) { c.toast('Copied'); } else { c.toast('Copy didn’t work here.'); } } },
   render(c, r) {

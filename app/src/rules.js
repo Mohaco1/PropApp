@@ -45,7 +45,12 @@ export function latestStockCheck(ph) {
   return (ph.records || []).filter(r => r.type === 'B1' && isDate(r.fields?.stockDate) && !stockIncomplete(r)).map(r => r.fields.stockDate).sort().at(-1) || '';
 }
 // s 111: the next S8 inventory can't be later than 3 months after the latest stock-check date.
-export function s8Limit(ph) { const d = latestStockCheck(ph); return d ? addMonths(d, 3) : ''; }
+// Stage 3E: s 111(3): whoever takes control of the pharmacy has an S8 inventory made immediately. While a takeover is
+// marked (More → Bought, selling or closing) and no completed stock check is dated on or after it, the S8 check is due
+// on the takeover date itself, not 3 months after the previous owner's last one. (Wording supplied by the owner's
+// 27 Nov brief; the Regulation page couldn't be read from here.)
+export const s8Takeover = ph => { const since = ph?.inherited?.since; return !!since && isDate(since) && !(latestStockCheck(ph) >= since); };
+export function s8Limit(ph) { if (s8Takeover(ph)) return ph.inherited.since; const d = latestStockCheck(ph); return d ? addMonths(d, 3) : ''; }
 // C-01: the latest date the next S8 inventory can be planned for. 3 months after the last completed stock check, or
 // 3 months from today when none is recorded yet. If that has already passed (overdue), a short planning window of
 // today to +14 days instead, so the date can still be set ("a helper, not a policeman").

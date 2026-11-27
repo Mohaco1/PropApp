@@ -4,6 +4,7 @@ import { clone, html } from './util.js';
 import { nav, env } from './ui.js';
 import { startPWA, askToKeep } from './pwa.js';
 import { today } from './dates.js';
+import { settleLeavers } from './model.js';
 const views = {};
 // Visual Polish spec: a finished item's toast gets a check that settles in 150 ms.
 const DONE = /\b(closed|saved|adopted|recorded|done|set up|checked|added|updated|confirmed)\b/i;
@@ -22,7 +23,11 @@ function splitFor(r, v) { if (!WIDE.matches || !S.ph || !S.stack.length || v.noN
 function routeFor(el) { const r = S.ph ? ctx.route : { name: 'welcome' }; if (pane && el?.closest?.('.pane-master')) return { r: pane.r, v: views[pane.r.name] || {}, depth: pane.depth }; return { r, v: views[r.name] || {}, depth: null }; }
 export const register = (name, v) => { views[name] = v; };
 // C-02: screens can listen for navigation (a pending "choose the file again" restore is disarmed by it).
-const navigated = () => { try { window.dispatchEvent(new Event('pl:navigate')); } catch {} };
+// Stage 3E: a two-tap confirmation (Delete, Discard, Stop offering, the Adopt sheet) is disarmed by any navigation, Back
+// included, and by any successful save, so an old first tap can never confirm a later, different act.
+const ARMED = /^(delArmed|discardArmed|armed|stopArmed|ad:.*)$/;
+const disarm = () => { for (const k of Object.keys(S.ui)) if (ARMED.test(k)) delete S.ui[k]; };
+const navigated = () => { disarm(); try { window.dispatchEvent(new Event('pl:navigate')); } catch {} };
 export const SAVE_FAILED = 'Couldn’t save on this device just now (storage may be full). Nothing was changed; free some space or download a backup, then try again.';
 const S = { ph: null, drafts: {}, stack: [], tab: 'today', toast: '', ui: {} };
 export const ctx = {
@@ -36,7 +41,7 @@ export const ctx = {
   // opts.redraw false: save without redrawing (a typed answer, so the button the owner is tapping isn't replaced mid-tap).
   change(fn, message, opts = {}) {
     const next = clone(S.ph); const r = fn(next); if (r === false) return false;
-    S.ph = next; store.savePharmacy(next); askToKeep(); if (message) ctx.toast(message); if (opts.redraw !== false) render(); return true;
+    S.ph = next; store.savePharmacy(next); disarm(); askToKeep(); if (message) ctx.toast(message); if (opts.redraw !== false) render(); return true;
   },
   draft(key) { return S.drafts[key] || null; },
   saveDraft(key, value) { const rev = S.drafts[key]?.rev; store.saveDraft(S.ph.id, key, value, rev); S.drafts = store.drafts(S.ph.id); },
@@ -52,7 +57,14 @@ export const ctx = {
 };
 function load() {
   const d = store.dir(); S.ph = d.active ? store.pharmacy(d.active) : null; S.drafts = S.ph ? store.drafts(S.ph.id) : {};
+  if (S.ph?.staff?.some(p => p.leaving && p.leaving <= today() && p.active !== false)) { const n = clone(S.ph); settleLeavers(n); S.ph = n; store.savePharmacy(n); }
 }
+// Stage 3E: another tab saved. If it switched the open pharmacy, this tab starts again on Today with no screen state or
+// confirmation left over from the other pharmacy. Otherwise the screen redraws and anything typed but not yet saved here
+// (a procedure being edited, a note) is put back as it was, with the cursor.
+function reload() { const was = S.ph?.id || '', keep = typed(el => el.tagName === 'TEXTAREA' || /^(text|search|)$/.test(el.type || '')); load();
+  if ((S.ph?.id || '') !== was) { S.stack = []; S.tab = 'today'; for (const k of Object.keys(S.ui)) delete S.ui[k]; render(true); return; }
+  render(); retype(keep); }
 let root;
 // R06: the header's saved indicator says what storage really did: Saving…, Saved, or Save failed (retrying).
 const SAVE = { saving: 'Saving…', saved: 'Saved', failed: 'Save failed · retrying', full: 'Storage full · back up now' };
@@ -102,7 +114,7 @@ function sheetKeys(e) { const sh = root.querySelector('.sheet'); if (!sh) return
 // is read off the form fields first and put back afterwards, with the cursor where it was, so a fold never wipes a form.
 function fieldKeys() { const seen = {}; return [...root.querySelectorAll('input,textarea,select')].filter(el => el.name && el.type !== 'file').map(el => {
   const k = (el.closest('.pane-master') ? 'm' : 'd') + '|' + (el.form?.dataset.form || '') + '|' + el.name + '|' + (/^(radio|checkbox)$/.test(el.type) ? el.value : ''); seen[k] = (seen[k] || 0) + 1; return [k + '|' + seen[k], el]; }); }
-function typed() { const out = new Map(); let focus = null; for (const [k, el] of fieldKeys()) {
+function typed(only) { const out = new Map(); let focus = null; for (const [k, el] of fieldKeys()) { if (only && !only(el)) continue;
     if (el === document.activeElement) focus = { k, s: el.selectionStart, e: el.selectionEnd };
     if (/^(radio|checkbox)$/.test(el.type)) { if (el.checked !== el.defaultChecked) out.set(k, { checked: el.checked }); }
     else if (el.tagName === 'SELECT') { if ([...el.options].some(o => o.selected !== o.defaultSelected)) out.set(k, { value: el.value }); }
@@ -132,17 +144,21 @@ const common = { acts: {
 }, forms: {} };
 export async function start(el) {
   root = el;
-  await store.init(() => { load(); render(); });
+  await store.init(() => reload());
   store.watchStatus(s => { showSave(s); if (s === 'failed') ctx.toast('Couldn’t save just now. Trying again; keep this page open.'); if (s === 'full') ctx.toast('Storage full: download a backup now (More → Backup and devices). Keep this page open.'); });
   startPWA();
   load();
   // Chaos test fix 5: when the date rolls over (Sydney midnight) while Today is showing, Today redraws with the new date.
-  // Checked every 30 s and whenever the app comes back to the front; other screens are never redrawn under the owner.
-  let shownDay = today(); const dayCheck = () => { const t = today(); if (t === shownDay) return; shownDay = t; if (S.ph && !S.stack.length && S.tab === 'today') render(); };
+  // Checked every 30 s and whenever the app comes back to the front. Stage 3E: Calendar redraws too (it has no form to
+  // lose); other screens are never redrawn under the owner.
+  let shownDay = today(); const dayCheck = () => { const t = today(); if (t === shownDay) return; shownDay = t; if (S.ph?.staff?.some(p => p.leaving && p.leaving <= t)) load(); if (S.ph && ((!S.stack.length && S.tab === 'today') || ctx.route.name === 'calendar')) render(); };
   setInterval(dayCheck, 30000); document.addEventListener('visibilitychange', () => { if (!document.hidden) dayCheck(); });
   document.addEventListener('click', e => { lastTap = e.target.closest?.('[data-act]') || null; handle(e, 'click'); });
   document.addEventListener('submit', e => handle(e, 'submit'));
   document.addEventListener('keydown', sheetKeys);
+  // Stage 3E: printing a procedure prints every section, opened for the print and closed again afterwards.
+  addEventListener('beforeprint', () => { for (const d of document.querySelectorAll('details.docsec:not([open])')) { d.open = true; d.dataset.printOpen = '1'; } });
+  addEventListener('afterprint', () => { for (const d of document.querySelectorAll('details.docsec[data-print-open]')) { d.open = false; delete d.dataset.printOpen; } });
   document.addEventListener('input', e => { const el = e.target.closest('[data-input]'); if (!el) return; const { r, v } = routeFor(el); v.inputs?.[el.dataset.input]?.(ctx, el, r, e); });
   document.addEventListener('change', e => { const el = e.target.closest('[data-change]'); if (!el) return; const { r, v } = routeFor(el); v.changes?.[el.dataset.change]?.(ctx, el, r, e); });
   WIDE.addEventListener?.('change', () => { const keep = typed(); render(); retype(keep); });

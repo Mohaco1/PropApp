@@ -126,7 +126,7 @@ export const ONBOARD = {
       ['Check the TGA notified list before ordering', 'Check each product on the TGA notified vape list, and store out of public sight.', [S.tgaVapeList, S.tgaVapePh]],
       ['Rehearse supply and pharmacist absence', 'Walk through counselling, recording, the SAS Category C notification, and what staff say when no pharmacist is on duty.', []]] },
   cannabis: { what: 'Checking, obtaining and supplying the exact prescribed medicinal cannabis product.', watch: 'A category-only prescription isn’t enough, and brand substitution isn’t allowed. CBD-dominant Category 2 products (under 98% CBD) are still Schedule 8.', follow: 'Cannabis: agree the category-only and out-of-stock steps',
-    steps: [['Check ingredients and schedule', 'Check the exact brand, strengths, registration status and schedule: Category 1 (98% or more CBD) is Schedule 4; Categories 2–5 are Schedule 8.', [S.tgaCann]],
+    steps: [['Check ingredients and schedule', 'Check the exact brand, strengths, registration status and schedule: Category 1 (98% or more CBD and no more than 2% other cannabinoids) is Schedule 4; Categories 2–5 are Schedule 8.', [S.tgaCann]],
       ['Check unregistered access and NSW rules', 'For unregistered products, check the Commonwealth SAS or Authorised Prescriber pathway and any NSW approval.', [S.nswCann]],
       ['Trace S8 handling (Categories 2–5)', 'Confirm ordering, receipt, S8 safe storage, drug register entries and discrepancy checks.', [S.s8]],
       ['Rehearse a category-only or out-of-stock script', 'Agree who contacts the prescriber to clarify before supply.', []]] },

@@ -200,6 +200,6 @@ export async function restorePharmacy(ph, all) {
   if (!pending.size) { clearTimeout(timer); tries = 0; quota = 0; setStatus('saved'); }
   return false;
 }
-export function removePharmacy(id) { put('propapp:ph:' + id, undefined); put('propapp:drafts:' + id, undefined); const d = clone(dir()); d.ids = d.ids.filter(x => x !== id); d.archived = (d.archived || []).filter(x => x !== id); if (d.active === id) d.active = d.ids[0] || ''; setDir(d); }
+export function removePharmacy(id) { put('propapp:ph:' + id, undefined); put('propapp:drafts:' + id, undefined); const d = clone(dir()); d.ids = d.ids.filter(x => x !== id); d.archived = (d.archived || []).filter(x => x !== id); if (d.active === id) d.active = d.ids.find(x => !d.archived.includes(x)) || ''; setDir(d); } // Stage 3E: never an archived one
 export const getPref = k => mem.get('propapp:pref:' + k);
 export const setPref = (k, v) => put('propapp:pref:' + k, v);

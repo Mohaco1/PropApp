@@ -53,9 +53,10 @@ export function validate(b) {
 }
 // A1: one backup action (Backup screen and the Today nudge). On phones that can, it opens the share sheet so the file
 // goes straight to iCloud Drive, Google Drive or email; otherwise it downloads.
-export function backupNow(c) {
-  const ok = saveFile(c.ph.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify(pharmacyBackup(c)), 'application/json');
+export async function backupNow(c) {
+  const ok = await saveFile(c.ph.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify(pharmacyBackup(c)), 'application/json');
   if (ok) c.change(ph => { ph.settings.lastBackup = new Date().toISOString(); if (ph.flags) delete ph.flags.backupSnooze; }, 'Backup download requested');
+  else c.toast('The backup wasn’t saved (the download or share didn’t go through). Try again, or open the app in your phone’s browser.');
   return ok;
 }
 // Counts used to check a restore against its own file (A1: drafts and staff checks included).

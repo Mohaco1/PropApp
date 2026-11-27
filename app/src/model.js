@@ -57,9 +57,14 @@ export function requirements(person) {
 }
 // Latest check for one requirement: { result: 'ok' | 'issue' | 'na', date, method, expiry, ref, note } or null.
 export const lastCheck = (person, reqId) => person.checks?.[reqId] || null;
+// Stage 3E: pharmacists and support staff have different checks under the same id (service/prescribing is a pharmacist's
+// own prescribing authority, but an intern's supervised support duties). A check recorded under the other kind of role
+// never counts for the role the person has now.
+export const roleGroup = role => /^Pharmacist\b|\bPIC\b|in charge/i.test(role || '') ? 'pharmacist' : 'support';
 export function credentialState(person, reqId) {
   const c = lastCheck(person, reqId);
   if (!c) return { state: 'none', label: 'Not checked yet' };
+  if (c.role && roleGroup(c.role) !== roleGroup(person.role)) return { state: 'none', label: 'Not checked for this role' };
   if (c.result === 'issue') return { state: 'issue', label: 'Needs review' };
   if (c.result === 'na') return { state: 'na', label: 'Not applicable' };
   if (isDate(c.expiry) && c.expiry < today()) return { state: 'expired', label: 'Expired ' + fmt(c.expiry), expiry: c.expiry };
@@ -70,9 +75,11 @@ export function annualCheck(ph, personId, date, items, next) {
   p.checks ??= {};
   const answers = [];
   for (const it of items) {
-    p.checks[it.id] = { result: it.result, date, method: it.method || '', expiry: it.expiry || '', ref: it.ref || '', note: it.note || '' };
+    p.checks[it.id] = { result: it.result, date, method: it.method || '', expiry: it.expiry || '', ref: it.ref || '', note: it.note || '', role: it.role || p.role || '' };
     answers.push({ id: it.id, text: it.label, answer: it.result, isIssue: it.result === 'issue', note: it.note || '', expiry: it.expiry || '' });
   }
   p.lastCheck = date; p.annualDue = next || addMonths(date, 12);
   return addRecord(ph, { type: 'A1', kind: 'staff', title: 'Annual check · ' + p.name, date, answers, fields: { personId, next: p.annualDue } });
 }
+// Stage 3E: someone whose last day was set in advance stays in current staff until that day, then moves to former staff.
+export function settleLeavers(ph, t = today()) { let n = 0; for (const p of ph?.staff || []) if (p.leaving && p.leaving <= t && p.active !== false) { p.active = false; p.end = p.leaving; delete p.leaving; note(ph, 'Moved to former staff (last day ' + fmt(p.end) + ') · ' + p.name); n++; } return n; }

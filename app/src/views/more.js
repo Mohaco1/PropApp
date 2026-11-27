@@ -32,7 +32,9 @@ export function parsePlain(txt, t = today()) {
   m = s.match(/^(next )?(sun|mon|tue|wed|thu|fri|sat)[a-z]*$/); if (m) { const dow = new Date(t + 'T00:00:00Z').getUTCDay(), want = DAYS.indexOf(m[2]); let d = (want - dow + 7) % 7 || 7; if (m[1] && d < 7) d += 0; return addDays(t, d); }
   m = s.match(/^(\d{1,2})(st|nd|rd|th)?\s+([a-z]{3})[a-z]*(\s+(\d{4}))?$/) || s.match(/^([a-z]{3})[a-z]*\s+(\d{1,2})(st|nd|rd|th)?(\s+(\d{4}))?$/);
   if (m) { const day = +(isNaN(+m[1]) ? m[2] : m[1]), mon = MONS.indexOf(isNaN(+m[1]) ? m[1] : m[3]), yr = m[5] ? +m[5] : +t.slice(0, 4); if (mon < 0 || day < 1 || day > 31) return '';
-    let d = yr + '-' + String(mon + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0'); if (!m[5] && d < t) d = (yr + 1) + d.slice(4); return d; }
+    let d = yr + '-' + String(mon + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0'); if (!m[5] && d < t) d = (yr + 1) + d.slice(4);
+    // Stage 3E: "29 Feb" in a year without one, or "31 Feb", isn't read as a day in March.
+    return isDate(d) ? d : ''; }
   return '';
 }
 // PharmLedger brief: the Quarter Balancer. Service annual reviews shown in their quarter with a count; tap one to move it
@@ -72,7 +74,8 @@ register('calendar', {
       // Stage 3C: an S8 review saved with the stock check incomplete isn't done, so it never shows ✓ over an overdue ●.
       const months = Array.from({ length: 12 }, (_, k) => addMonths(t.slice(0, 7) + '-01', k - 5).slice(0, 7));
       const revs = plan(c.ph).filter(a => !a.event);
-      const mark = (a, m) => { const done = c.ph.records.some(r => r.type === a.id && r.date.slice(0, 7) === m && !(a.id === 'B1' && stockIncomplete(r))), due = reviewDue(c.ph, a.id); if (done) return ['✓', 'done']; if (due && due.slice(0, 7) === m) return ['●', due < t ? 'bad' : 'due'];
+      // Stage 3E: an extra visit never ticks off the quarterly visit.
+      const mark = (a, m) => { const done = c.ph.records.some(r => r.type === a.id && r.date.slice(0, 7) === m && !(a.id === 'B1' && stockIncomplete(r)) && !(a.id === 'Q1' && r.extra)), due = reviewDue(c.ph, a.id); if (done) return ['✓', 'done']; if (due && due.slice(0, 7) === m) return ['●', due < t ? 'bad' : 'due'];
         const mo = monthsFor(c.ph, a); if (due && mo && m > due.slice(0, 7)) { const diff = (+m.slice(0, 4) - +due.slice(0, 4)) * 12 + (+m.slice(5) - +due.slice(5, 7)); if (diff % mo === 0) return ['○', 'rep']; } return ['', '']; };
       const bal = balancer(c); body = h`${bal}
         ${(() => { const n = alignPlan(c.ph).length, u = c.ph.flags?.alignUndo;
@@ -102,7 +105,7 @@ register('calendar', {
     align: c => { const ch = alignPlan(c.ph); if (!ch.length) return; c.change(ph => { applyAlign(ph, ch); log(ph, 'Due dates aligned to 4 quarters · ' + ch.length + (ch.length === 1 ? ' date' : ' dates')); }, ch.length === 1 ? '1 date aligned' : ch.length + ' dates aligned'); },
     unalign: c => c.change(ph => { const n = undoAlign(ph); log(ph, 'Quarter alignment undone · ' + n + (n === 1 ? ' date' : ' dates')); }, 'Alignment undone'), open: async (c, d) => { const { openItem } = await import('./today.js'); const it = items(c.ph, c.drafts).find(i => i.key === d.key); if (it) openItem(c, it); },
     mon: (c, d) => { c.ui.calM = addMonths((c.ui.calM || today().slice(0, 7)) + '-01', +d.d).slice(0, 7); c.ui.calDay = ''; c.rerender(); }, day: (c, d) => { c.ui.calDay = c.ui.calDay === d.d ? '' : d.d; c.rerender(); },
-    ics: c => { const ok = saveFile(c.ph.name.replace(/\W+/g, '-') + '-due-dates.ics', ics(c.ph, c.drafts), 'text/calendar'); c.toast(ok ? 'Calendar file ready. If nothing downloads here, open the app in your phone’s browser.' : 'Downloads are blocked here.'); } },
+    ics: async c => { const ok = await saveFile(c.ph.name.replace(/\W+/g, '-') + '-due-dates.ics', ics(c.ph, c.drafts), 'text/calendar'); c.toast(ok ? 'Calendar file ready. If nothing downloads here, open the app in your phone’s browser.' : 'Downloads are blocked here.'); } },
 });
 register('schedule', {
   tab: 'more',
@@ -111,7 +114,7 @@ register('schedule', {
       ${field('Date', textInput('date', r.id || addDays(today(), 7), { type: 'date', min: today() }))}<div class="dock-inline">${btn('Schedule', null, { kind: 'primary', type: 'submit' })}</div></form>` }); },
   forms: { save: (c, f) => { if (!f.m || !f.date) { c.toast('Choose a meeting and a date.'); return; } c.change(ph => { ph.schedule[f.m] = f.date; log(ph, 'Meeting scheduled · ' + reviewById(f.m).name + ' · ' + f.date); }, reviewById(f.m).name + ' scheduled for ' + fmt(f.date)); c.back(); } },
 });
-const filtered = c => { const q = (c.ui.histQ || '').toLowerCase(), type = c.ui.histT || 'all', from = c.ui.histFrom || '', thru = c.ui.histThru || ''; return historyRows(c.ph).filter(r => (type === 'all' || r.type === type) && (!q || (r.title + ' ' + r.detail + ' ' + r.by).toLowerCase().includes(q)) && (!from || r.date >= from) && (!thru || r.date <= thru)); };
+const filtered = (c, events = false) => { const q = (c.ui.histQ || '').toLowerCase(), type = c.ui.histT || 'all', from = c.ui.histFrom || '', thru = c.ui.histThru || ''; return historyRows(c.ph, { events }).filter(r => (type === 'all' || r.type === type) && (!q || (r.title + ' ' + r.detail + ' ' + r.by).toLowerCase().includes(q)) && (!from || r.date >= from) && (!thru || r.date <= thru)); };
 register('history', {
   tab: 'more',
   render(c) {
@@ -125,7 +128,7 @@ register('history', {
       <div class="daterange">${field('From', h`<input class="input" type="date" name="from" value="${from}" data-change="from">`)}${field('Through', h`<input class="input" type="date" name="thru" value="${thru}" data-change="thru">`)}</div>
       <p class="muted">${rows.length} ${rows.length === 1 ? 'entry' : 'entries'} · kept on this device</p>
       <div class="btnrow">${btn('Download CSV', 'csv')}${btn('Print or save as PDF', 'print')}${btn('Copy as text', 'copy')}</div>
-      <div class="print-only"><h1>${c.ph.name} · history${from || thru ? ' · ' + (from ? fullDate(from) : 'start') + ' to ' + (thru ? fullDate(thru) : 'today') : ''}</h1><table class="cal"><tr><th>Date</th><th>Type</th><th>What</th><th>Status</th><th>By</th><th>Details</th></tr>${rows.map(r => h`<tr><td>${fullDate(r.date)}</td><td>${r.type}</td><td>${r.title}</td><td>${r.status}</td><td>${r.by}</td><td>${r.detail}</td></tr>`)}</table></div>
+      <div class="print-only"><h1>${c.ph.name} · history${from || thru ? ' · ' + (from ? fullDate(from) : 'start') + ' to ' + (thru ? fullDate(thru) : 'today') : ''}</h1><table class="cal histprint"><colgroup><col style="width:13%"><col style="width:11%"><col style="width:27%"><col style="width:11%"><col style="width:12%"><col style="width:26%"></colgroup><thead><tr><th>Date</th><th>Type</th><th>What</th><th>Status</th><th>By</th><th>Details</th></tr></thead><tbody>${rows.map(r => h`<tr><td>${fullDate(r.date)}</td><td>${r.type}</td><td>${r.title}</td><td>${r.status}</td><td>${r.by}</td><td>${r.detail}</td></tr>`)}</tbody></table></div>
       <div class="list">${rows.slice(0, n).map(r => row({ title: r.title, sub: [r.type, r.status, r.detail].filter(Boolean).join(' · '), right: fmt(r.date), act: r.type === 'Action' ? 'act' : r.id ? 'rec' : '', data: { id: r.id }, chev: !!r.id }))}</div>
       ${rows.length > n ? btn('Show more', 'more', { kind: 'link' }) : ''}` });
   },
@@ -133,7 +136,7 @@ register('history', {
   changes: { from: (c, el) => { c.ui.histFrom = el.value; c.rerender(); }, thru: (c, el) => { c.ui.histThru = el.value; c.rerender(); } },
   acts: { t: (c, d) => { c.ui.histT = d.t; c.rerender(); }, more: c => { c.ui.histN = (c.ui.histN || 40) + 60; c.rerender(); }, act: (c, d) => c.go('action', { id: d.id }), rec: (c, d) => c.go('record', { id: d.id }),
     print: c => { try { window.print(); } catch {} setTimeout(() => c.toast('If no print window opened, open the app file in your browser to print or save a PDF.'), 400); },
-    csv: c => { const ok = saveFile('history-' + c.ph.name.replace(/\W+/g, '-') + '-' + today() + '.csv', csv(c.ph, filtered(c)), 'text/csv'); c.toast(ok ? 'CSV ready' : 'Downloads are blocked here. Use Copy as text.'); },
+    csv: async c => { const ok = await saveFile('history-' + c.ph.name.replace(/\W+/g, '-') + '-' + today() + '.csv', csv(c.ph, filtered(c, true)), 'text/csv'); c.toast(ok ? 'CSV ready' : 'Downloads are blocked here. Use Copy as text.'); },
     copy: async c => { if (await copyText(printable(c.ph, filtered(c)))) { c.toast('Copied'); } else { c.toast('Copy didn’t work here.'); } } },
 });
 

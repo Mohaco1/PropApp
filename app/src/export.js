@@ -2,7 +2,9 @@
 import { reviewById } from './rules.js';
 import { answerIsIssue } from './issues.js';
 import { fmt, day, today } from './dates.js';
-export function historyRows(ph) {
+// opts.events (the CSV): every entry of each action's own log as a row too (raised, updated, asked, reopened, closed),
+// so a closed-then-reopened action shows each step, not just where it ended.
+export function historyRows(ph, { events = false } = {}) {
   const rows = [];
   for (const r of ph.records) {
     const name = r.extra ? 'Extra site visit' : r.title || reviewById(r.type)?.name || r.type;
@@ -14,6 +16,7 @@ export function historyRows(ph) {
     rows.push({ date: a.closed?.date || a.created, type: 'Action', title: a.title, by: a.closed?.by || (a.log || []).find(e => e.by)?.by || '', status: a.status === 'closed' ? 'Closed' : a.waiting ? 'Open · waiting' : 'Open', due: a.due || '', done: a.closed?.date || '',
       detail: [a.source?.label ? 'From ' + a.source.label.replace(/ · \d{4}-\d{2}-\d{2}$/, '') : '', a.closed?.what ? 'What was seen: ' + a.closed.what : '', a.waiting ? 'Asked for: ' + a.waiting.asked : ''].filter(Boolean).join(' · '), id: a.id });
   }
+  if (events) for (const a of Object.values(ph.actions)) for (const e of a.log || []) rows.push({ date: day(e.at), type: 'Action event', title: a.title, by: e.by || '', status: { raised: 'Raised', closed: 'Closed', reopened: 'Reopened', asked: 'Waiting', updated: 'Updated' }[e.kind] || e.kind || '', due: '', done: e.kind === 'closed' ? day(e.at) : '', detail: e.text || '', id: a.id });
   for (const l of ph.log || []) rows.push({ date: l.date, type: 'My log', title: l.what, by: l.by || '', status: '', due: '', done: '', detail: [l.kind, l.ref].filter(Boolean).join(' · '), id: '' });
   // M-07: every History event is in the export (procedures, services, evidence locations, DAA, calendar, staff, setup),
   // except the four already listed above from their own records: recorded reviews, raised and closed actions, My log.

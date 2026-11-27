@@ -43,7 +43,7 @@ const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive
     await p.waitForTimeout(300); await next(); }
   ok(gateOk, 'Queensland gate: the Queensland-only conditions are hidden until the owner says a pharmacist holds that training');
   await tap(p, 'More'); await p.getByRole('button', { name: /^Services/ }).tap(); await p.getByRole('button', { name: /^Medicinal cannabis/ }).first().tap(); await p.waitForTimeout(300);
-  let cbd = false; for (let i = 0; i < 10; i++) { const t = await text(p); if (/Do you supply any Schedule 8 medicinal cannabis\?/.test(t)) { cbd = /98% or more CBD \(TGA Category 1\) are Schedule 4/.test(t) && /Schedule 3 low-dose CBD entry exists, but no product is registered/.test(t) && !/CBD-only products are not S8/.test(t); break; }
+  let cbd = false; for (let i = 0; i < 10; i++) { const t = await text(p); if (/Do you supply any Schedule 8 medicinal cannabis\?/.test(t)) { cbd = /98% or more CBD and no more than 2% other cannabinoids \(TGA Category 1\) are Schedule 4/.test(t) && /Schedule 3 low-dose CBD entry exists, but no product is registered/.test(t) && !/CBD-only products are not S8/.test(t); break; }
     const ch = p.locator('main form label.choice'); if (await ch.count()) await ch.first().tap(); else { const tk = p.locator('main form label.tick'); if (await tk.count()) await tk.first().tap(); } await p.waitForTimeout(300); await next(); }
   ok(cbd, 'CBD: only Category 1 CBD (98%+) is Schedule 4; everything else is Schedule 8; the S3 note is there');
   await tap(p, 'More'); await p.getByRole('button', { name: /^Services/ }).tap(); await p.getByRole('button', { name: /^Medicine adherence/ }).first().tap(); await p.waitForTimeout(300);

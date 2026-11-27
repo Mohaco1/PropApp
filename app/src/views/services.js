@@ -31,7 +31,7 @@ const COPY = {
   'Does your pharmacy’s NSW Health approval to dose OTP patients have any special conditions? (optional)': ['Does your NSW Health letter approving OTP dosing here list any extra conditions? Most don’t: leave it blank if yours doesn’t.', 'If it does (for example, a maximum number of patients), the procedure lists them so whoever is dosing follows them.', true],
   'Software used to record doses': ['Which software records OTP doses?', 'The procedure names it, so a locum knows where to record each dose. Tap one you’ve used before, or type it.'],
   'How often are OTP patient files reviewed?': ['How often do you review OTP patient files?', 'No fixed legal interval has been found for this. Quarterly is suggested because it fits your four quarters; every six months or yearly is fine if that suits you.', true],
-  'Do you supply THC-containing (Schedule 8) medicinal cannabis products?': ['Do you supply any Schedule 8 medicinal cannabis? That’s anything with THC, including CBD-dominant (Category 2) products.', 'Only CBD-only products with 98% or more CBD (TGA Category 1) are Schedule 4. Anything else is Schedule 8, so your S8 storage and register apply. A Schedule 3 low-dose CBD entry exists, but no product is registered under it (TGA).', true],
+  'Do you supply THC-containing (Schedule 8) medicinal cannabis products?': ['Do you supply any Schedule 8 medicinal cannabis? That’s anything with THC, including CBD-dominant (Category 2) products.', 'Only CBD-only products with 98% or more CBD and no more than 2% other cannabinoids (TGA Category 1) are Schedule 4. Anything else is Schedule 8, so your S8 storage and register apply. A Schedule 3 low-dose CBD entry exists, but no product is registered under it (TGA).', true],
   'Software used for OTP patient files': ['Which software holds OTP patient files?', 'The procedure tells staff where to find a patient’s OTP file.'],
 };
 function places(ph, skip) { const out = new Set();
@@ -50,7 +50,7 @@ function descOf(v, describe, opts) { const s = String(v || ''); for (const o of 
   return rest.slice(0, cut).trim(); } return ''; }
 // The block of lines that differs between the old and new generated drafts; applied to the owner's edited text only if
 // that text still contains the old block (or, for a single placeholder line, that line). Otherwise null (left alone).
-function patchEdited(oldGen, newGen, body) { const a = String(oldGen).split('\n'), b = String(newGen).split('\n'); let p = 0, q = 0;
+export function patchEdited(oldGen, newGen, body) { const a = String(oldGen).split('\n'), b = String(newGen).split('\n'); let p = 0, q = 0;
   while (p < a.length && p < b.length && a[p] === b[p]) p++; while (q < a.length - p && q < b.length - p && a[a.length - 1 - q] === b[b.length - 1 - q]) q++;
   const oldMid = a.slice(p, a.length - q).join('\n'), newMid = b.slice(p, b.length - q).join('\n');
   if (oldMid && body.includes(oldMid)) return body.split(oldMid).join(newMid);
@@ -75,6 +75,15 @@ function kindOf(id, f) {
   return f.options ? 'single' : 'text';
 }
 const answered = (a, k) => a[k] !== undefined && String(a[k]).trim() !== '';
+// Stage 3E: the question on screen, read the same way when drawing it and when saving its answer (the saved position
+// s.pos counts, not just the first unanswered question), so an answer always lands on the question it was given for.
+const stepOf = (c, id, fs) => { const s = c.ph.services[id] || {}, a = s.answers || {}; return Math.min(c.ui['ss:' + id] ?? s.pos ?? fs.findIndex(f => !answered(a, f.key)), fs.length); };
+// A question may be left blank only if it says it's optional, or it's a tick list (unticked items become one action).
+const optional = (id, f) => /\(optional\)/i.test((RPH.qm.metaFor(id, f.key).label || '') + ' ' + f.label) || kindOf(id, f) === 'checklist';
+const blank = (ph, id, f) => !answered(ph.services[id]?.answers || {}, f.key) && !optional(id, f);
+// Answers changed since the procedure draft was written: the draft the answers would write now differs from the one
+// this draft was made from. Shown on the service and its questions so the owner can update the draft.
+export const draftBehind = (ph, id) => { const p = ph.procedures?.find(x => x.service === id), v = p?.versions?.at(-1); if (!v || ph.services[id]?.setup !== 'done') return false; let t = ''; try { t = draftText(ph, id); } catch {} return !!t && t !== v.generated; };
 export function questionIndex(ph, id, key) { return fieldsFor(ph, id).findIndex(f => f.key === key); }
 export function questionLabel(ph, id, key) { const f = fieldsFor(ph, id).find(x => x.key === key); return f ? (RPH.qm.metaFor(id, key).label || f.label) : key; }
 export function serviceProgress(ph, id) { const a = ph.services[id]?.answers || {}, fs = fieldsFor(ph, id); const n = fs.filter(f => answered(a, f.key)).length; return { n, total: fs.length, later: fs.filter(f => a[f.key] === NV).length }; }
@@ -118,7 +127,7 @@ const SETUP = {
   render(c, r) {
     const id = r.id, s = c.ph.services[id]; if (!s) return screen({ title: 'Service', back: true, body: empty('Not found.') });
     if (needsLead(c.ph) && (RPH.sq.LEAD[id] || []).length) return leadScreen(c, id);
-    const fs = fieldsFor(c.ph, id), a = s.answers || {}, step = Math.min(c.ui['ss:' + id] ?? s.pos ?? fs.findIndex(f => !answered(a, f.key)), fs.length);
+    const fs = fieldsFor(c.ph, id), a = s.answers || {}, step = stepOf(c, id, fs);
     const idx = step < 0 ? fs.length : step;
     const prog = h`<div class="prog">${fs.map((f, i) => h`<i class="${i === idx ? 'cur' : answered(a, f.key) ? 'done' : ''}"></i>`)}</div>`;
     if (idx >= fs.length) return doneScreen(c, id, prog);
@@ -161,7 +170,7 @@ const SETUP = {
       ${c.ui.returnTo?.id === id ? h`<div class="btnrow">${btn('Save and back to the procedure', 'ret', { kind: 'primary', cls: 'block' })}</div>` : h`<div class="btnrow">${btn('Previous', 'step', { data: { s: idx - 1 }, disabled: idx === 0 })}${btn(idx === fs.length - 1 ? 'Finish' : 'Next', 'step', { kind: 'primary', data: { s: idx + 1 } })}</div>`}` });
   },
   changes: { ans: (c, el, r, ev, quiet) => { if (!quiet) c.ui.answerAt = Date.now(); const form = el.closest('form'), id = r.id, fs = fieldsFor(c.ph, id), a = c.ph.services[id].answers || {};
-    const idx = Math.min(c.ui['ss:' + id] ?? fs.findIndex(f => !answered(a, f.key)), fs.length); const f = fs[idx < 0 ? 0 : idx]; if (!f) return;
+    const idx = stepOf(c, id, fs); const f = fs[idx < 0 ? 0 : idx]; if (!f) return;
     // A real answer always replaces "Check later"; ticking "Check later" itself sets it.
     const k = kindOf(id, f), fd = new FormData(form), d = (fd.get('d') || '').toString().trim(), nv = ev?.target?.name === 'nv' ? fd.get('nv') : (ev?.target?.name ? null : fd.get('nv'));
     let v;
@@ -198,6 +207,9 @@ const SETUP = {
     // After an automatic move on, one Next tap within 900 ms with no new answer was meant for the question just answered.
     step: (c, d, el, r) => { const now = Date.now(), fwd = +d.s > (c.ui['ss:' + r.id] ?? -1); clearTimeout(c.ui.autoT); if (fwd && now - (c.ui.stepAt || 0) < (c.ui.autoAt === c.ui.stepAt ? 900 : 400) && (c.ui.answerAt || 0) < c.ui.stepAt) { c.ui.autoAt = 0; return; } if (fwd) c.ui.stepAt = now;
       const form = document.querySelector('main form[data-form=next]'), inp = form?.querySelector('input[name=d]'); if (inp && inp.value.trim()) SETUP.changes.ans(c, form, r, { target: inp }, true);
+      // Stage 3E: Next and Finish wait for an answer, or for "Check later" to be ticked (optional questions excepted).
+      if (fwd) { const fs = fieldsFor(c.ph, r.id), cur = fs[stepOf(c, r.id, fs)]; if (cur && blank(c.ph, r.id, cur)) { c.ui.stepAt = 0; const m = document.querySelector('main form[data-form=next]');
+        if (m && !m.querySelector('.err')) m.insertAdjacentHTML('beforeend', '<p class="err" role="alert">Answer this question, or tick “Check later” to come back to it.</p>'); c.toast('Answer this question, or tick “Check later”.'); return; } }
       const s = Math.max(0, +d.s); c.ui['ss:' + r.id] = s; c.change(ph => { ph.services[r.id].pos = s; }); c.store.flush(); window.scrollTo(0, 0); },
     recnow: (c, d, el, r) => c.change(ph => { ph.services[r.id].recIntro = 'now'; }),
     recskip: (c, d, el, r) => { const fs = fieldsFor(c.ph, r.id); c.change(ph => { const s = ph.services[r.id]; s.recIntro = 'skipped'; for (const f of fs.filter(x => isLoc(r.id, x))) if (!answered(s.answers, f.key)) s.answers[f.key] = NV; s.pos = fs.length; if (s.setup === 'todo') s.setup = 'doing'; }, 'Skipped. They are on Today under “To confirm”.'); c.ui['ss:' + r.id] = fs.length; c.rerender(); },
@@ -238,7 +250,8 @@ function doneScreen(c, id, prog) {
   const inVisit = svcReviews(c.ph, id).some(a => !a.event && /site visit/.test(applies(probe, a).why || ''));
   if (inVisit) revs = [{ ...reviewById('Q1'), name: 'Proprietor site visit (' + serviceName(id) + ' is checked here)' }, ...revs];
   return screen({ title: serviceName(id), back: true, body: h`${prog}<h2 class="big-title">What happens next</h2>
-    ${p.later ? note(p.later + (p.later === 1 ? ' answer is' : ' answers are') + ' marked “Check later”. They stay on Today until you confirm them.', 'warn') : note('Every question answered.', 'ok')}
+    ${(() => { const left = fieldsFor(c.ph, id).filter(f => blank(c.ph, id, f)).length; return left ? note(left + (left === 1 ? ' question isn’t' : ' questions aren’t') + ' answered yet. Go back and answer ' + (left === 1 ? 'it' : 'them') + ', or tick “Check later”.', 'warn') : ''; })()}
+    ${p.later ? note(p.later + (p.later === 1 ? ' answer is' : ' answers are') + ' marked “Check later”. They stay on Today until you confirm them.', 'warn') : fieldsFor(c.ph, id).some(f => blank(c.ph, id, f)) ? '' : note('Every question answered.', 'ok')}
     <form class="form" data-form="fin">
     ${revs.length ? h`<section class="sec"><h2 class="sec-title">Its reviews · first dates</h2><p class="muted">Suggested dates. Change any of them.</p>${revs.map(a => field(a.name + ' · ' + a.frequency.toLowerCase(), textInput('d:' + a.id, c.ph.schedule[a.id] || suggestedNext(c.ph, a.id, today()), { type: 'date', min: c.ph.schedule[a.id] && c.ph.schedule[a.id] < today() ? c.ph.schedule[a.id] : today() })))}</section>` : ''}
     ${events.length ? h`<p class="muted">${events.map(a => a.name).join(', ')}: done when you start or change the service.</p>` : ''}
@@ -275,6 +288,7 @@ register('service', {
     const proc = c.ph.procedures.find(p => p.service === id);
     return screen({ title: serviceName(id), back: true, body: h`<p>${pill(s.setup === 'done' ? 'Set up' : 'Setup not finished', s.setup === 'done' ? 'ok' : 'warn')}</p>
       <div class="btnrow">${btn('Edit answers', 'edit')}${btn(proc ? 'Open procedure' : 'Draft its procedure', 'go', { data: { to: 'procedure', id } })}</div>
+      ${draftBehind(c.ph, id) ? note(h`Your answers changed since the procedure draft was written. ${btn('Open the procedure to update it', 'go', { kind: 'link', data: { to: 'procedure', id } })}`, 'warn') : ''}
       ${id === 'daa' ? btn('Change how DAAs are packed', 'go', { kind: 'link', data: { to: 'tellmeonce' } }) : ''}
       <section class="sec"><h2 class="sec-title">Your answers</h2><div class="list">${fs.map((f, i) => row({ title: RPH.qm.metaFor(id, f.key).label || f.label, sub: a[f.key] === NV ? 'Check later' : a[f.key] ? split(a[f.key]).map(v => (ROUTES.find(r => r[0] === v) || [])[1] || show(id, f.key, v)).join(', ') : 'Not answered', tone: a[f.key] === NV ? 'warn' : '', act: 'q', data: { i } }))}</div></section>
       ${btn('Stop offering this service', 'stop', { kind: 'link' })}` });

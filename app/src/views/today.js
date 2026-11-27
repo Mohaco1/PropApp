@@ -86,7 +86,7 @@ register('today', {
     defer: (c, d) => { const it = items(c.ph, c.drafts).find(x => x.key === d.key); if (!it || !canDefer(it)) return;
       let nd = null; c.change(ph => { nd = deferItem(ph, it); if (nd) logNote(ph, 'Deferred 3 days · ' + it.title); }, 'Moved 3 days later'); },
     setuplater: c => c.change(ph => { (ph.flags ??= {}).setupLater = true; }, 'Setup can wait. Legal items first.'),
-    icsnow: c => { const ok = saveFile(c.ph.name.replace(/\W+/g, '-') + '-due-dates.ics', ics(c.ph, c.drafts), 'text/calendar'); c.change(ph => { (ph.flags ??= {}).icsHint = true; }, ok ? 'Calendar file ready: open it to add the dates.' : 'Couldn’t make the file here.'); },
+    icsnow: async c => { const ok = await saveFile(c.ph.name.replace(/\W+/g, '-') + '-due-dates.ics', ics(c.ph, c.drafts), 'text/calendar'); c.change(ph => { (ph.flags ??= {}).icsHint = true; }, ok ? 'Calendar file ready: open it to add the dates.' : 'Couldn’t make the file here.'); },
     icshide: c => c.change(ph => { (ph.flags ??= {}).icsHint = true; }),
     hideinstall: c => c.change(ph => { (ph.flags ??= {}).installHintDone = true; }),
     filter: (c, d) => { c.ui.todayFilter = d.f; c.rerender(); },

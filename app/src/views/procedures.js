@@ -9,13 +9,14 @@ import { serviceName } from '../rules.js';
 import { fmt, today, day } from '../dates.js';
 import { note as log, newAction } from '../model.js';
 import { addDays, addMonths } from '../dates.js';
-import { questionIndex } from './services.js';
+import { questionIndex, patchEdited } from './services.js';
 const current = p => p?.versions?.at(-1);
 // Annual procedure review: 12 months after the last review, or after adoption.
 // F-LIVE-08: an adopted version never calls itself a draft. Only how it's shown changes; the stored text is untouched.
 export const adoptedWording = (v, t) => v.status !== 'Adopted' ? t : String(t).replace(/Draft generated from (.+?)’s setup answers and the sources listed at the end\. Review it, adjust it to how you work, and (?:adopt it in Procedures|approve it in Policies)\./,
   (m, who) => 'Adopted procedure (version ' + v.v + ', adopted ' + fmt(day(v.adoptedAt || v.at)) + '), prepared from ' + who + '’s setup answers and the sources listed at the end.');
-export const procReviewDue = p => addMonths(day((p.reviews || []).at(-1)?.date || p.versions.filter(v => v.status === 'Adopted').at(-1)?.adoptedAt || p.versions.at(-1).at), 12);
+export { procReviewDue } from '../summary.js';
+import { procReviewDue } from '../summary.js';
 // Which setup question fills a "[Confirm: …]" gap: the unanswered or "Check later" question sharing the most words.
 const words = t => new Set(String(t).toLowerCase().match(/[a-z0-9]{4,}/g) || []);
 // Owner trial: which setup answer a gap belongs to, and whether it's already answered (then the gap is something to
@@ -34,10 +35,10 @@ export function docView(text) {
   for (let i = 0; i < lines.length; i++) { const l = lines[i];
     if (/^\d+\. [A-Z][^.]{0,50}$/.test(l.trim()) && (i === 0 || !lines[i - 1].trim())) { parts.push(cur); cur = { head: l.trim(), body: [] }; } else cur.body.push(l); }
   parts.push(cur);
-  if (parts.length < 3) return h`<div class="doc">${text}</div>`;
+  if (parts.length < 3) return h`<div class="doc print-keep">${text}</div>`;
   const [pre, ...secs] = parts;
-  return h`<div class="docwrap"><div class="doc docpre">${pre.body.join('\n').trim()}</div>
-    <p class="docall"><button type="button" class="linkbtn" data-act="docall">Open all sections</button></p>
+  return h`<div class="docwrap print-keep"><div class="doc docpre">${pre.body.join('\n').trim()}</div>
+    <p class="docall no-print"><button type="button" class="linkbtn" data-act="docall">Open all sections</button></p>
     ${secs.map((x, i) => h`<details class="docsec"${i === 0 ? raw(' open') : ''}><summary>${x.head}</summary><div class="doc">${x.body.join('\n').trim()}</div></details>`)}</div>`;
 }
 register('procedures', {
@@ -68,9 +69,10 @@ const VIEW = {
     if (mode === 'edit') return screen({ title: 'Edit wording', back: true, body: h`${finding ? (/^\[Confirm: write the steps/i.test(finding) ? h`<div class="note warn"><p><b>${finding.replace(/^\[Confirm: |\]$/g, '')}.</b> The highlighted line is a placeholder: replace it with your pharmacy’s steps, following current NSW OTP guidance, then tap Save as new version. Adopt unlocks when no “[Confirm: …]” lines are left.</p>${btn('We already have our own written procedure for this', 'fixq', { kind: 'link', data: { q: finding.replace(/^\[Confirm: |\]$/g, '') } })}</div>`
       : h`<div class="note warn"><p><b>To check: ${finding.replace(/^\[Confirm: |\]$/g, '')}.</b> Read the highlighted step against its source (listed at the end of the procedure). Change the wording here if anything differs. When you’re satisfied, remove the marker.</p>${btn('I’ve checked it — remove this marker', 'checked', { cls: 'block' })}${bestQuestion(c.ph, id, finding.replace(/^\[Confirm: |\]$/g, '')) >= 0 ? btn('Change my setup answer instead', 'fixq', { kind: 'link', data: { q: finding.replace(/^\[Confirm: |\]$/g, '') } }) : ''}</div>`) : ''}<form class="form" data-form="edit">${field('Procedure text', textArea('body', legacyWords(v.body), { rows: 18, noPatient: true }))}<div class="dock-inline">${btn('Save as new version', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'mode', { data: { m: '' } })}</div></form>` });
     return screen({ title: serviceName(id) + ' procedure', back: true, site: c.ph.name, body: h`
+      <h1 class="print-only">${c.ph.name} · ${serviceName(id)} procedure · ${p.status === 'adopted' ? 'version ' + v.v + ' (adopted)' : 'draft ' + v.v}</h1>
       <p>${pill(p.status === 'adopted' ? 'Adopted · version ' + v.v : 'Draft ' + v.v, p.status === 'adopted' ? 'ok' : 'warn')} <span class="muted">${fmt(day(v.at))}</span></p>
       ${inUse ? note('Version ' + inUse.v + ', adopted ' + fmt(day(inUse.adoptedAt || inUse.at)) + ', stays in use until you adopt this draft.', 'ok') : ''}
-      ${changed ? note(h`Your setup answers changed since this draft. ${btn('Update the draft', 'regen', { kind: 'link' })}`, 'warn') : ''}
+      ${changed ? note(h`Your setup answers changed since this draft.${v.edited ? ' Updating keeps your edited wording where it can.' : ''} ${btn('Update the draft', 'regen', { kind: 'link' })}`, 'warn') : ''}
       ${b.length && p.status !== 'adopted' ? h`<section class="sec"><h2 class="sec-title">To confirm before adopting · ${b.length}</h2><div class="list">${b.map(x => /^write the steps/i.test(x) ? row({ title: x.charAt(0).toUpperCase() + x.slice(1), sub: 'Write the steps yourself in Edit (PharmLedger doesn’t write clinical steps), or say you have your own procedure', act: 'fixwrite', data: { q: x } })
           : row({ title: x.charAt(0).toUpperCase() + x.slice(1), sub: 'Check it in the text, then confirm', act: 'fixwrite', data: { q: x } }))}</div></section>` : ''}
       <div class="btnrow">${btn('Edit', 'mode', { data: { m: 'edit' } })}${p.status !== 'adopted' ? btn('Adopt for use here', 'adopt', { kind: 'primary', disabled: b.length > 0 }) : ''}</div>
@@ -94,7 +96,7 @@ const VIEW = {
     // The owner's tap confirms the check: the marker is removed in a new version (nothing is confirmed for them).
     checked: (c, d, el, r) => { const f = c.ui['pmfind:' + r.id]; if (!f) return; const ta = document.querySelector('textarea[name=body]');
       c.change(ph => { const p = ph.procedures.find(x => x.service === r.id), v = p?.versions.at(-1); if (!v) return false; const body = (ta ? ta.value : v.body).split(' ' + f).join('').split(f).join(''); const m = String(v.v).match(/^(\d+)\.(\d+)/);
-        p.versions.push({ ...v, v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body, generated: draftText(ph, r.id) || v.generated, at: new Date().toISOString(), status: 'Draft', edited: true }); log(ph, 'Procedure check confirmed · ' + serviceName(r.id) + ' · ' + f.replace(/^\[Confirm: |\]$/g, '')); }, 'Checked. Marker removed.');
+        p.versions.push({ ...v, v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body, generated: v.generated, at: new Date().toISOString(), status: 'Draft', edited: true }); log(ph, 'Procedure check confirmed · ' + serviceName(r.id) + ' · ' + f.replace(/^\[Confirm: |\]$/g, '')); }, 'Checked. Marker removed.');
       c.ui['pm:' + r.id] = ''; c.ui['pmfind:' + r.id] = ''; c.rerender(); },
     fixwrite: (c, d, el, r) => { c.ui['pm:' + r.id] = 'edit'; c.ui['pmfind:' + r.id] = '[Confirm: ' + d.q + ']'; c.rerender(); window.scrollTo(0, 0); },
     rv: (c, d, el, r) => { c.ui['rv:' + r.id] = true; c.rerender(); }, rvno: (c, d, el, r) => { c.ui['rv:' + r.id] = false; c.rerender(); },
@@ -102,17 +104,25 @@ const VIEW = {
     linkact: (c, d, el, r) => { let id; c.change(ph => { id = newAction(ph, { title: 'Update ' + serviceName(r.id) + ' procedure: ', due: addDays(today(), 30), source: { type: 'procedure', service: r.id, label: serviceName(r.id) + ' procedure' } }).id; }); c.ui.actMode = { ...(c.ui.actMode || {}), [id]: 'edit' }; c.go('action', { id }); },
     fix: (c, d, el, r) => { c.ui.fixFind = { id: r.id, find: '[Confirm: ' + d.q + ']' }; const i = bestQuestion(c.ph, r.id, d.q); if (i < 0) { c.go('service', { id: r.id }); c.toast('No single setup question covers this. Check your answers here, or edit the procedure wording.'); return; } c.ui['ss:' + r.id] = i; c.ui.returnTo = { id: r.id }; c.go('service-setup', { id: r.id }); },
     save: (c, d, el, r) => c.change(ph => { ph.procedures.push({ id: uid(), service: r.id, title: serviceName(r.id) + ' procedure', status: 'draft', versions: [{ v: '0.1', body: draftText(ph, r.id), generated: draftText(ph, r.id), at: new Date().toISOString(), status: 'Draft' }] }); log(ph, 'Procedure drafted · ' + serviceName(r.id)); }, 'Draft saved'),
-    regen: (c, d, el, r) => c.change(ph => { const p = ph.procedures.find(x => x.service === r.id), t = draftText(ph, r.id); p.versions.push({ v: next(current(p).v), body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }); p.status = 'draft'; log(ph, 'Procedure redrafted · ' + serviceName(r.id)); }, 'Draft updated', { redraw: true }),
-    adopt: (c, d, el, r) => { const p = c.ph.procedures.find(x => x.service === r.id); if (blockers(current(p).body).length) return; c.ui['ad:' + r.id] = true; c.rerender(); },
+    // Stage 3E: a hand-edited draft keeps the owner's wording: only the part the answers changed is patched in. If that
+    // part was edited too, a fresh draft is written (the edited version stays in the history).
+    regen: (c, d, el, r) => { let kept = false; c.change(ph => { const p = ph.procedures.find(x => x.service === r.id), cur = current(p), t = draftText(ph, r.id); if (!t) return false;
+      const nb = cur.edited ? patchEdited(cur.generated, t, cur.body) : null; kept = nb !== null;
+      p.versions.push({ v: next(cur.v), body: kept ? nb : t, generated: t, at: new Date().toISOString(), status: 'Draft', ...(kept ? { edited: true } : {}) }); p.status = 'draft'; log(ph, 'Procedure redrafted · ' + serviceName(r.id) + (kept ? ' (your edits kept)' : '')); }, 'Draft updated', { redraw: true }); if (kept) c.toast('Draft updated. Your edited wording was kept.'); },
+    adopt: (c, d, el, r) => { const p = c.ph.procedures.find(x => x.service === r.id); if (!p || p.status === 'adopted' || blockers(current(p).body).length) return; c.ui['ad:' + r.id] = { v: current(p).v, at: current(p).at }; c.rerender(); },
     adoptno: (c, d, el, r) => { c.ui['ad:' + r.id] = false; c.rerender(); },
-    adoptyes: (c, d, el, r) => { c.ui['ad:' + r.id] = false;
+    // Stage 3E: "Yes, adopt it" adopts exactly the draft the sheet was opened for, and only if nothing is left to confirm
+    // in it now (another tab may have saved a newer draft, or a marker, in between).
+    adoptyes: (c, d, el, r) => { const armed = c.ui['ad:' + r.id]; c.ui['ad:' + r.id] = false; const p0 = c.ph.procedures.find(x => x.service === r.id), v0 = current(p0);
+      if (!armed || !v0 || p0.status === 'adopted' || v0.v !== armed.v || v0.at !== armed.at || blockers(v0.body).length || !String(v0.body || '').trim()) { c.rerender(); c.toast('This draft changed since you opened it. Read it again before adopting.'); return; }
       c.change(ph => { const q = ph.procedures.find(x => x.service === r.id), v = current(q), nv = adoptVersion(q), by = ph.proprietors.find(x => x.id === ph.recordingAs)?.name || '';
         q.versions.push({ ...v, v: nv, status: 'Adopted', at: new Date().toISOString(), adoptedAt: new Date().toISOString(), adoptedBy: by, from: v.v }); q.status = 'adopted'; log(ph, 'Procedure adopted · ' + serviceName(r.id) + ' · version ' + nv + ' (from draft ' + v.v + ') by ' + by); }, 'Adopted as version ' + adoptVersion(c.ph.procedures.find(x => x.service === r.id))); },
   },
   forms: {
     reviewed: (c, f, el, r) => { c.ui['rv:' + r.id] = false; c.change(ph => { const p = ph.procedures.find(x => x.service === r.id), by = ph.proprietors.find(x => x.id === ph.recordingAs)?.name || ''; (p.reviews ??= []).push({ date: today(), by, version: p.versions.at(-1).v, note: f.note.trim() }); log(ph, 'Procedure reviewed · ' + serviceName(r.id) + ' · version ' + p.versions.at(-1).v + (f.note.trim() ? ' · ' + f.note.trim() : '')); }, 'Review recorded'); },
     amend: (c, f, el, r) => { c.ui['am:' + r.id] = false; c.change(ph => { const p = ph.procedures.find(x => x.service === r.id); p.amendment = f.amendment.trim(); log(ph, 'Local amendment · ' + serviceName(r.id) + ' · ' + (p.amendment || 'removed')); }, 'Amendment saved'); },
-    edit: (c, f, el, r) => { c.ui['pm:' + r.id] = ''; c.change(ph => { const p = ph.procedures.find(x => x.service === r.id), v = current(p); p.versions.push({ v: next(v.v), body: f.body, generated: v.generated, at: new Date().toISOString(), status: 'Draft', edited: true }); p.status = 'draft'; log(ph, 'Procedure wording edited · ' + serviceName(r.id)); }, 'Saved as a new version'); } },
+    edit: (c, f, el, r) => { if (!String(f.body || '').trim()) { const ta = el.querySelector('textarea[name=body]'); if (ta && !ta.parentNode.querySelector('.err')) ta.insertAdjacentHTML('afterend', '<span class="err" role="alert">The procedure can’t be empty. Undo the change, or tap Cancel.</span>'); ta?.setAttribute('aria-invalid', 'true'); ta?.focus(); return; }
+      c.ui['pm:' + r.id] = ''; c.change(ph => { const p = ph.procedures.find(x => x.service === r.id), v = current(p); p.versions.push({ v: next(v.v), body: f.body, generated: v.generated, at: new Date().toISOString(), status: 'Draft', edited: true }); p.status = 'draft'; log(ph, 'Procedure wording edited · ' + serviceName(r.id)); }, 'Saved as a new version'); } },
 };
 register('procedure', VIEW);
 // Adopted versions are whole numbers: the first adoption is 1.0, the next 2.0. Drafts in between are 1.1, 1.2…
