@@ -34,10 +34,10 @@ const above = async (p, name) => { await p.waitForTimeout(250); const f = await 
   ok(pr.ticks <= pr.print, 'B1 the checkboxes sit above “Print or save as PDF”');
   await p.screenshot({ path: path.join(OUT, '22_pack_390px.png') });
   const pack = () => p.evaluate(() => document.querySelector('.pack').innerText);
-  ok(!(await p.locator('label.tick', { hasText: 'Evidence locations' }).locator('input').isChecked()) && /Evidence locations · nothing yet/.test(await text(p)), 'B1 a section with nothing recorded starts unticked and says so');
-  await p.locator('label.tick', { hasText: 'Evidence locations' }).click(); await p.waitForTimeout(200);
+  // Batch 2B (H-05): the example's service record locations now fill Evidence locations, so it starts ticked.
+  ok(await p.locator('label.tick', { hasText: 'Evidence locations' }).locator('input').isChecked() && !/Evidence locations · nothing yet/.test(await text(p)), 'B1 a section with something recorded (service record locations) starts ticked');
   let pk = await pack();
-  ok(/\d+ other obligations? not yet recorded in Evidence locations\./.test(pk) && !/Not recorded/.test(pk), 'B1 unrecorded obligations are one footer line, not table rows');
+  ok(/\d+ other obligations?( and \d+ service records?)? not yet recorded in Evidence locations\./.test(pk) && !/Not recorded/.test(pk), 'B1 unrecorded obligations are one footer line, not table rows');
   // untick S8 → section leaves the printed pack
   await p.locator('label.tick', { hasText: 'S8 stock checks' }).click(); await p.waitForTimeout(200); pk = await pack();
   ok(!/S8 stock checks ·/.test(pk) && /Reviews, visits and meetings ·/.test(pk), 'B1 unticking a section takes it out of the pack');

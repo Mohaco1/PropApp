@@ -656,3 +656,11 @@ Checked and already passing:
 - H-06: "From PharmLedger." on record summaries; `legacyWords` replaces R.Pharmacy and "approve it in Policies" in drafts, Edit wording and edited bodies.
 - M-03: "Why?" drops scraped screen labels; record answers are coloured by `answerIsIssue`.
 - New `tests/batch2a.js` (25 checks). Full run once (finished in two parts after the time limit): 32 of 33 suites plus Check later; hardening crashed on the S8 list-mode Finish tap (5 of 8 alone). procgen identical for all 17.
+
+## Batch 2B (H-05, H-08, H-10, M-02, M-04, hardening) · 27 Nov 2026 · build f43df8205e
+- H-05: evidence pack lists service record locations; pack tables wrap/scroll inside the card at 344/390 px; foldable rules screen-only so A4 print uses the full width.
+- H-08: staff actions redacted in the .ics; part UIDs from ids (`action/<id>` for actions).
+- H-10: Restore to active staff; former staff's open actions are their own Today rows; 44 px incident source links.
+- M-02/M-04: vaccination cold-chain (at least two staff), prescribing 7-year records and 4 Nov 2027 expiry step (+ verified-steps pairs), PIC mapped on import, M2 wording, no-patient-names hints, blank titles/names refused.
+- Hardening S8 Finish stall root-caused in `rebaseDrafts` (own in-flight draft write treated as another tab's) and fixed.
+- New `tests/batch2b.js` (23 checks). Full test-all once: 32/33 (pretrial expected empty evidence section; updated). Final build: affected suites and procgen (17/17) pass.

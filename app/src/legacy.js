@@ -60,7 +60,8 @@ export function importLegacy(backup) {
     const recs = (d.reviews || []).filter(r => r.audit === 'A1' && (r.personId === p.id || r.answers?.some(a => a.personId === p.id))).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
     for (const r of recs) for (const a of r.answers || []) if ((a.personId || r.personId) === p.id && a.requirementId && !a.requirementId.startsWith('departure/'))
       checks[a.requirementId] = { result: RESULT[a.answer] || 'issue', date: a.verificationDate || r.date, method: a.method || '', expiry: a.expiry || '', ref: a.reference || '', note: a.note || '' };
-    ph.staff.push({ id: p.id, name: p.person, role: p.role, engagement: p.engagement || 'Regular', start: p.start || '', end: p.end || '', active: p.active !== false, services: [...(p.services || [])], annualDue: p.annualDue || '', lastCheck: p.lastAssurance || '', checks });
+    // M-04: there is no pharmacist-in-charge role (owner decision); an old "Pharmacist in charge (PIC)" comes in as Pharmacist.
+    ph.staff.push({ id: p.id, name: p.person, role: /in charge|\bPIC\b/i.test(p.role || '') ? 'Pharmacist' : p.role, engagement: p.engagement || 'Regular', start: p.start || '', end: p.end || '', active: p.active !== false, services: [...(p.services || [])], annualDue: p.annualDue || '', lastCheck: p.lastAssurance || '', checks });
   }
   // procedures and document references
   for (const doc of d.documents || []) {

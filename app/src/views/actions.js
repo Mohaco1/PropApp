@@ -35,7 +35,7 @@ register('action-new', {
   render: c => screen({ title: 'New action', back: true, site: c.ph.name, body: h`<form data-form="new" class="form">
     ${field('What needs fixing', textInput('title', '', { required: true }), 'No patient names. For example: “Check fridge log” or “Service fire extinguisher”.')}${field('Due', textInput('due', addDays(today(), 14), { type: 'date' }))}
     <div class="dock-inline">${btn('Save action', null, { kind: 'primary', type: 'submit' })}</div></form>` }),
-  forms: { new: (c, f) => { let id; c.change(ph => { id = newAction(ph, { title: f.title.trim(), due: f.due }).id; }, 'Action saved'); c.replace('action', { id }); } },
+  forms: { new: (c, f) => { if (!String(f.title || '').trim()) { c.toast('Say what needs fixing.'); document.querySelector('main input[name=title]')?.focus(); return; } let id; c.change(ph => { id = newAction(ph, { title: f.title.trim(), due: f.due }).id; }, 'Action saved'); c.replace('action', { id }); } },
 });
 const histText = (ph, a) => [ph.name, 'Action: ' + a.title, a.source?.label ? 'From: ' + a.source.label : '', 'Due: ' + (fmt(a.due) || 'no date') + ' · ' + (a.status === 'closed' ? 'closed ' + fmt(a.closed?.date) : 'open'), '', ...(a.log || []).map(e => fmt(day(e.at)) + (e.by ? ' · ' + e.by : '') + ' · ' + e.text), a.closed?.what ? '\nWhat was seen: ' + a.closed.what : ''].filter(x => x !== '').join('\n');
 const CHIPS = [['In 3 days', 3], ['In a week', 7], ['In 2 weeks', 14]];
@@ -77,6 +77,6 @@ register('action', {
   forms: {
     close: (c, f, el, r) => { if (!f.what.trim()) { c.toast('Say what you saw, so the record shows it.'); return; } c.ui.actMode[r.id] = ''; c.ui.settle = r.id; c.change(ph => closeAction(ph, r.id, f.what.trim(), f.date), 'Action closed'); setTimeout(() => { c.ui.settle = ''; }, 400); },
     wait: (c, f, el, r) => { if (!f.asked.trim()) return; c.ui.actMode[r.id] = ''; c.change(ph => waitOn(ph, r.id, f.asked.trim(), f.cb), 'Saved · check back ' + fmt(f.cb)); },
-    edit: (c, f, el, r) => { c.ui.actMode[r.id] = ''; c.change(ph => { const a = ph.actions[r.id]; const ch = []; if (a.due !== f.due) ch.push('Due date changed to ' + (f.due || 'none')); if (a.title !== f.title.trim()) ch.push('Title changed'); if ((a.progress || '') !== f.progress) ch.push('Progress: ' + f.progress); updateAction(ph, r.id, { title: f.title.trim(), due: f.due, progress: f.progress }, ch.join(' · ') || 'Updated'); }, 'Saved'); },
+    edit: (c, f, el, r) => { if (!String(f.title || '').trim()) { c.toast('The action needs a title.'); document.querySelector('main input[name=title]')?.focus(); return; } c.ui.actMode[r.id] = ''; c.change(ph => { const a = ph.actions[r.id]; const ch = []; if (a.due !== f.due) ch.push('Due date changed to ' + (f.due || 'none')); if (a.title !== f.title.trim()) ch.push('Title changed'); if ((a.progress || '') !== f.progress) ch.push('Progress: ' + f.progress); updateAction(ph, r.id, { title: f.title.trim(), due: f.due, progress: f.progress }, ch.join(' · ') || 'Updated'); }, 'Saved'); },
   },
 });

@@ -32,7 +32,9 @@ export function items(ph, drafts = {}, t = today()) {
   const people = new Map();
   for (const ac of Object.values(ph.actions)) {
     if (ac.status !== 'open') continue;
-    const pid = ac.source?.type === 'staff' ? ac.source.staffId : '';
+    // H-10: a staff action joins its person's row only while that person is active staff; otherwise (former staff, or
+    // someone removed) it is its own row, so Today and Actions always count the same open actions.
+    const pid = ac.source?.type === 'staff' && ph.staff.some(p => p.id === ac.source.staffId && p.active !== false) ? ac.source.staffId : '';
     if (pid) { (people.get(pid) || people.set(pid, []).get(pid)).push({ type: 'action', date: ac.due, title: ac.title, id: ac.id }); continue; }
     const cb = ac.waiting?.checkBack;
     out.push({ key: 'action/' + ac.id, kind: 'action', ref: ac.id, title: ac.title, date: ac.due, bucket: bucket(ac.due, t), legal: false,

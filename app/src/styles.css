@@ -226,7 +226,9 @@ a.linkbtn{text-decoration:none}
  .body>.pack{display:block!important;padding:0;overflow:visible}.pack *{color:#111827!important}
  .phead p{color:#374151!important}.ptable{font-size:10.5pt}.ptable th,.ptable td{border-bottom:1px solid #9ca3af}
  thead{display:table-header-group}tr,.phead{break-inside:avoid;page-break-inside:avoid}.psec h2{break-after:avoid}
- *{-webkit-print-color-adjust:exact;print-color-adjust:exact}#app.has-nav{padding:0!important}}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}#app.has-nav{padding:0!important}
+ /* H-05: A4 uses the full page width, whatever the screen layout (no split panes, no 100vh clipping) */
+ #app,#app>.screen,.pane-detail .screen{max-width:none!important;margin:0!important}.split{display:block!important;height:auto!important}.pane-master{display:none!important}.pane-detail{height:auto!important;overflow:visible!important}.pscroll{overflow:visible}.ptable{width:100%!important}}
 .siteline{display:block;width:100%;min-height:44px;padding:10px 12px;border:0;border-radius:12px;background:var(--track);color:var(--fg);font:inherit;font-weight:600;text-align:left;cursor:pointer;font-variant-numeric:tabular-nums}
 .installline{display:flex;align-items:center;gap:4px}.installline .quietline{flex:1}
 /* R12: UAT notes button lives in the header bar (UAT builds only) */
@@ -299,10 +301,14 @@ main p,main h1,main h2,main h3,main li,main dd,main td,main th,.row-title,.row-s
 .obsrc>summary{min-height:44px;display:flex;align-items:center;color:var(--accent,#005792);cursor:pointer}
 .obsrc a{display:inline-block;min-height:44px;line-height:44px;overflow-wrap:anywhere}
 .obacts{margin-top:8px}
+/* H-10: source links under If something goes wrong are full 44 px tap targets */
+a.srclink{display:inline-flex;align-items:center;min-height:44px;overflow-wrap:anywhere}
 
 /* Final pre-limit fixes (26 Nov): 2 year plan fits 390 px; 4 table headers; 5 filter chips; 6 Why? chevron */
 table.yearplan{width:100%}.yearplan th,.yearplan td{width:auto;min-width:0;padding:6px 1px}.yearplan thead th:first-child{width:104px}.yearplan th:last-child,.yearplan td:last-child{padding-right:2px}.yearplan th[scope=row]{font-size:12px;text-align:left;padding-right:4px}
-@media screen{.ptable th{white-space:nowrap}}
+/* H-05: the pack's tables wrap inside the phone width (344 px and up) so no column, Next due included, is clipped */
+.pscroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}.ptable{table-layout:auto}.ptable th,.ptable td{white-space:normal;overflow-wrap:break-word}
+@media screen and (max-width:420px){.pack{padding:12px}.ptable{font-size:12.5px}.ptable th,.ptable td{padding:6px 4px}}
 .filters{grid-template-columns:1fr 1fr 1.6fr .8fr}.filters button{padding:0 4px;min-width:0}.filters button span{white-space:nowrap;font-size:12.5px}
 .why summary{list-style:none;justify-content:space-between;gap:12px}.why summary::-webkit-details-marker{display:none}
 .why summary::after{content:'';flex:none;width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translate(-2px,-2px);transition:transform .15s;opacity:.7}
@@ -310,7 +316,7 @@ table.yearplan{width:100%}.yearplan th,.yearplan td{width:auto;min-width:0;paddi
 
 /* Foldables (26 Nov): unfolded screens (700 px+) get a left rail, list + record side by side, and a centred single pane
    elsewhere. Phones and fold cover screens (under 700 px) are untouched: every rule here is inside these media queries. */
-@media (min-width:700px){
+@media screen and (min-width:700px){
   #app{max-width:none;margin:0}
   #app.has-nav{padding-bottom:0;padding-left:calc(84px + env(safe-area-inset-left,0px))}
   .nav{top:0;bottom:0;right:auto;width:calc(84px + env(safe-area-inset-left,0px));flex-direction:column;justify-content:flex-start;gap:4px;border-top:0;border-right:1px solid var(--line);padding:max(12px,env(safe-area-inset-top,0px)) 0 env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
@@ -327,7 +333,7 @@ table.yearplan{width:100%}.yearplan th,.yearplan td{width:auto;min-width:0;paddi
 }
 /* Two screen segments side by side (a hinge): the list fills the left segment (beside the rail), the record the right,
    and the gap matches the hinge so nothing sits across the fold. Single-pane screens move to the right segment. */
-@media (min-width:700px) and (horizontal-viewport-segments:2){
+@media screen and (min-width:700px) and (horizontal-viewport-segments:2){
   .split{grid-template-columns:calc(env(viewport-segment-width 0 0) - 84px) minmax(0,1fr);column-gap:calc(env(viewport-segment-left 1 0) - env(viewport-segment-right 0 0))}
   #app.has-nav>.screen{max-width:env(viewport-segment-width 1 0);margin:0 0 0 calc(env(viewport-segment-left 1 0) - 84px)}
   #app:not(.has-nav)>.screen{max-width:env(viewport-segment-width 1 0);margin:0 0 0 env(viewport-segment-left 1 0)}
@@ -360,7 +366,7 @@ table.yearplan{width:100%}.yearplan th,.yearplan td{width:auto;min-width:0;paddi
 .sheet h2{margin:0;font-size:19px}.sheet p{margin:0}
 .sheet .btnrow .btn.primary{flex:1}
 @media (prefers-reduced-motion:no-preference){.sheet{animation:sheetup .18s ease-out}.sheet-back{animation:fadein .18s ease-out}@keyframes sheetup{from{transform:translateY(100%)}}@keyframes fadein{from{opacity:0}}}
-@media (min-width:700px){.sheet-wrap{align-items:center}.sheet{max-width:440px;border-radius:20px;padding-bottom:20px}}
+@media screen and (min-width:700px){.sheet-wrap{align-items:center}.sheet{max-width:440px;border-radius:20px;padding-bottom:20px}}
 /* pill toasts; a finished item gets a check that settles in 150 ms */
 .toast{border-radius:999px;padding:12px 20px;box-shadow:0 6px 20px rgba(15,23,42,.18);display:flex;align-items:center;justify-content:center;gap:8px}
 .toast.done::before{content:"✓";display:grid;place-items:center;flex:none;width:22px;height:22px;border-radius:999px;background:var(--ok);color:#fff;font-size:13px;font-weight:600}

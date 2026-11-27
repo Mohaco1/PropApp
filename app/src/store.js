@@ -96,7 +96,11 @@ function mergeDrafts(k, v, stored) {
 // their base; drafts it changed again keep the old base, so the next save still keeps the other tab's copy.
 function rebaseDrafts(k, v, orig) { const later = pending.get(k), b = bases.get(k) || {}, nb = {};
   for (const dk of new Set([...Object.keys(b), ...Object.keys(v), ...Object.keys(later)])) { if (dk.includes('/conflict-')) continue;
-    if (later[dk] === orig[dk]) { if (v[dk] === undefined) delete later[dk]; else later[dk] = v[dk]; nb[dk] = v[dk]?.rev; } else nb[dk] = b[dk]; }
+    if (later[dk] === orig[dk]) { if (v[dk] === undefined) delete later[dk]; else later[dk] = v[dk]; nb[dk] = v[dk]?.rev; }
+    // Batch 2B (hardening S8 Finish stall): a draft this window changed again whose own copy was just written (nothing
+    // from another tab replaced it) takes that write as its base. Keeping the older base made the next save see "its own"
+    // write as another tab's, so a quick Finish after the last answer became a conflict copy and the screen fell back.
+    else nb[dk] = v[dk] === orig[dk] && v[dk] ? v[dk].rev : b[dk]; }
   bases.set(k, nb); }
 function mergeOne(k, v, stored) {
   if (!v) return v;

@@ -42,8 +42,11 @@ register('person', {
       <section class="sec"><h2 class="sec-title">Checks · ${reqs.length}</h2><div class="list">${reqs.map(q => { const s = credentialState(p, q.id); return row({ title: q.label, sub: s.expiry ? (s.state === 'expired' ? 'Expired ' : 'Valid until ') + fmt(s.expiry) : '', right: s.state === 'ok' ? 'Verified' : s.label, tone: s.state === 'expired' || s.state === 'issue' ? 'bad' : s.state === 'none' ? 'warn' : '', chev: false }); })}</div></section>
       ${p.active !== false ? suggested(c, p) : ''}
       <p class="hint">${p.services?.length ? 'Services: ' + p.services.map(serviceName).join(', ') : 'No services ticked.'}</p>
-      <div class="btnrow">${btn('Edit details', 'go', { data: { to: 'person-edit', id: p.id } })}${p.active !== false ? btn('Leaving', 'go', { data: { to: 'leaving', id: p.id } }) : ''}</div>` });
+      <div class="btnrow">${btn('Edit details', 'go', { data: { to: 'person-edit', id: p.id } })}${p.active !== false ? btn('Leaving', 'go', { data: { to: 'leaving', id: p.id } }) : btn('Restore to active staff', 'restore')}</div>` });
   },
+  // H-10: moving someone to Former staff can be undone (they came back, or it was a mistake). Their leaving record stays
+  // in the history; nothing is marked done or checked for them.
+  acts: { restore: (c, d, el, r) => c.change(ph => { const p = ph.staff.find(x => x.id === r.id); if (!p) return; p.active = true; p.end = ''; log(ph, 'Restored to active staff · ' + p.name); }, 'Restored to active staff') },
 });
 register('person-edit', {
   tab: 'staff',
@@ -82,7 +85,7 @@ register('annual', {
       return h`<div class="card${hot ? ' wait' : ''}"><p class="field-label">${q.label}</p>${lastLine(q) !== common || freq[common] === 1 ? h`<p class="meta">Last: ${lastLine(q)}</p>` : ''}${exp ? h`<p class="${hot ? 'warn' : 'meta'}"><b>${exp}</b></p>` : ''}
         ${choice('r:' + q.id, [...(last && s.state === 'ok' && !hot ? [{ value: 'same', label: 'Current' }] : []), { value: 'ok', label: last ? 'Update' : 'Verified' }, { value: 'issue', label: 'Issue' }, { value: 'na', label: 'N/A' }], a.r || '', { issueValues: ['issue'], inline: true })}
         ${a.r === 'ok' ? h`${field('How did you check?', select('m:' + q.id, [['', 'Choose…'], ...METHODS.map(m => [m, m])], a.m || last?.method || ''))}${field('Valid until (if it expires)', textInput('x:' + q.id, a.x ?? (hot ? '' : last?.expiry ?? ''), { type: 'date' }))}${field('Reference (optional)', textInput('f:' + q.id, a.f ?? last?.ref ?? ''))}` : ''}
-        ${a.r === 'issue' || a.r === 'na' ? field(a.r === 'issue' ? 'What needs sorting?' : 'Why not applicable?', textInput('n:' + q.id, a.n || '')) : ''}</div>`; };
+        ${a.r === 'issue' || a.r === 'na' ? field(a.r === 'issue' ? 'What needs sorting?' : 'Why not applicable?', textInput('n:' + q.id, a.n || ''), 'No patient names.') : ''}</div>`; };
     return screen({ title: 'Annual check · ' + p.name, back: true, body: h`
       ${freq[common] > 1 ? h`<p class="muted">Last time, unless it says otherwise below: ${common}.</p>` : ''}
       <form class="form" data-form="save" data-change="ans">
@@ -129,7 +132,7 @@ register('locum', {
     ${field('Locum’s name', textInput('name', '', { required: true }))}${field('Date', textInput('date', today(), { type: 'date' }))}
     ${LOCUM.map(([k, l]) => h`<div class="card"><p class="field-label">${l}</p>${choice(k, [{ value: 'yes', label: 'Done' }, { value: 'no', label: 'Not yet' }], '', { inline: true })}</div>`)}
     <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` }); },
-  forms: { save: (c, f) => { if (LOCUM.some(([k]) => !f[k])) { c.toast('Answer each item.'); return; }
+  forms: { save: (c, f) => { if (!String(f.name || '').trim()) { c.toast('Enter the locum’s name.'); document.querySelector('main input[name=name]')?.focus(); return; } if (LOCUM.some(([k]) => !f[k])) { c.toast('Answer each item.'); return; }
     c.change(ph => { let p = ph.staff.find(x => x.name === f.name.trim() && x.engagement === 'Locum'); if (!p) { p = { id: uid(), name: f.name.trim(), role: 'Pharmacist', engagement: 'Locum', start: f.date, end: '', active: true, services: [], annualDue: '', checks: {} }; ph.staff.push(p); }
       const rec = addRecord(ph, { type: 'A1', kind: 'staff', title: 'Locum check · ' + p.name, date: f.date, answers: LOCUM.map(([k, l]) => ({ item: k, text: l, answer: f[k] === 'yes' ? 'Done' : 'Not yet', isIssue: f[k] !== 'yes' })), fields: { personId: p.id } });
       for (const [k, l] of LOCUM.filter(([k]) => f[k] === 'no')) rec.actionIds.push(newAction(ph, { title: l + ' · ' + p.name, due: f.date, source: { type: 'staff', staffId: p.id, label: 'Locum check' } }).id);

@@ -16,7 +16,7 @@
    "id": "M2",
    "name": "Proprietor check-in",
    "frequency": "Monthly",
-   "check": "Review incidents, complaints, overdue actions and resource decisions with the pharmacist in charge. Check whether one previous fix worked."
+   "check": "Review incidents, complaints, overdue actions and resource decisions with your pharmacist team. Check whether one previous fix worked."
   },
   {
    "id": "Q1",

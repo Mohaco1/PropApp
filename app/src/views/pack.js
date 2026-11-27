@@ -11,7 +11,7 @@ import { UPDATES } from '../content/updates.js';
 import { items, counts } from '../summary.js';
 import { requirements, credentialState } from '../model.js';
 import { issueCount } from '../issues.js';
-import { ARCHIVES } from './law.js';
+import { ARCHIVES, locationRows } from './law.js';
 import { isPWA } from '../pwa.js';
 const L = C.law;
 // Bug 3: one reading of a record's next due date (reviews keep it in fields.next, visits on the record itself).
@@ -21,7 +21,7 @@ const s8Count = rows => { const done = rows.filter(r => r[1] === 'Completed stoc
 const closedBy = a => a.closed?.by || [...(a.log || [])].reverse().find(e => e.kind === 'closed' && e.by)?.by || '';
 // F-V3-04: the pack's own dates always carry the year.
 const full = s => { const f = fmt(s); return /\d{4}$/.test(f) ? f : f + ' ' + String(s).slice(0, 4); };
-const table = (head, rows, empty) => rows.length ? h`<table class="ptable"><thead><tr>${head.map(x => h`<th>${x}</th>`)}</tr></thead><tbody>${rows.map(r => h`<tr>${r.map(x => h`<td>${x}</td>`)}</tr>`)}</tbody></table>` : h`<p class="meta">${empty}</p>`;
+const table = (head, rows, empty) => rows.length ? h`<div class="pscroll"><table class="ptable"><thead><tr>${head.map(x => h`<th>${x}</th>`)}</tr></thead><tbody>${rows.map(r => h`<tr>${r.map(x => h`<td>${x}</td>`)}</tr>`)}</tbody></table></div>` : h`<p class="meta">${empty}</p>`;
 export function packData(ph, drafts, from = addMonths(today(), -12)) {
   const recs = ph.records.filter(r => r.date >= from).sort((a, b) => b.date.localeCompare(a.date));
   const acts = Object.values(ph.actions);
@@ -45,6 +45,9 @@ export function packData(ph, drafts, from = addMonths(today(), -12)) {
       return [p.name, p.role || '', isDate(p.annualDue) ? fmt(p.annualDue) : '', exp ? exp.q.label + ' · ' + fmt(exp.s.expiry) : '', attention ? attention + ' to look at' : 'Current']; }),
     // B1: only obligations with a recorded location are listed; the rest are one footer line.
     obligations: L.OBL.filter(o => (!o[5].length || o[5].some(s => activeServices(ph).includes(s))) && ph.obligations?.[o[0]]?.where).map(o => [o[1] + ' · ' + o[2], ph.obligations[o[0]].where, isDate(ph.obligations[o[0]].date) ? fmt(ph.obligations[o[0]].date) : '']),
+    // H-05: where each active service keeps its records (the same rows as More → Evidence locations).
+    svcLocations: locationRows(ph).filter(r => r.k.startsWith('svc:') && r.where).map(r => [r.group + ' · ' + r.title, r.where, '']),
+    svcUnrecorded: locationRows(ph).filter(r => r.k.startsWith('svc:') && !r.where).length,
     archives: ARCHIVES.filter(([id]) => ph.archives?.[id]?.where).map(([id, g, t]) => [t, ph.archives[id].where, '']),
     unrecorded: L.OBL.filter(o => (!o[5].length || o[5].some(s => activeServices(ph).includes(s))) && !ph.obligations?.[o[0]]?.where).length,
     procedures: activeServices(ph).map(id => { const p = ph.procedures.find(x => x.service === id), v = p?.versions?.at(-1), adopted = p?.versions?.filter(x => x.status === 'Adopted').at(-1);
@@ -54,7 +57,7 @@ export function packData(ph, drafts, from = addMonths(today(), -12)) {
 // E1: the period to print; B1: which sections to include (on by default only where there's something recorded).
 const RANGES = [['12', 'Last 12 months'], ['24', 'Last 24 months'], ['all', 'All']];
 const SECS = [['rev', 'Reviews, visits and meetings'], ['s8', 'S8 stock checks'], ['act', 'Actions'], ['staff', 'Staff'], ['obl', 'Evidence locations'], ['proc', 'Procedures']];
-const has = d => ({ rev: d.reviews.length > 0, s8: d.s8.length > 0, act: d.open.length + d.closed.length + d.staffClosed.length > 0, staff: d.staff.length > 0, obl: d.obligations.length + d.archives.length > 0, proc: d.procedures.length > 0 });
+const has = d => ({ rev: d.reviews.length > 0, s8: d.s8.length > 0, act: d.open.length + d.closed.length + d.staffClosed.length > 0, staff: d.staff.length > 0, obl: d.obligations.length + d.svcLocations.length + d.archives.length > 0, proc: d.procedures.length > 0 });
 // PharmLedger brief: "Show on screen (read-only)". The same pack, with the period and sections already chosen, on its own
 // screen with no edit controls or tab bar, to hand the phone to an inspector.
 register('inspect', { tab: 'more', noNav: true, render: c => packScreen(c, true) });
@@ -92,7 +95,7 @@ function packScreen(c, inspect) {
         ${sec('act', 'Actions closed · ' + d.closed.length, d.closed.some(r => r[3]) ? table(['Action', 'Closed', 'What was seen', 'By'], d.closed, 'None closed in this period.') : table(['Action', 'Closed', 'What was seen'], d.closed.map(r => r.slice(0, 3)), 'None closed in this period.'))}
         ${d.staffClosed.length ? sec('act', 'Staff checks closed', table(['Person', 'What', 'Latest'], d.staffClosed, '')) : ''}
         ${sec('staff', 'Staff · ' + d.staff.length, table(['Name', 'Role', 'Annual check due', 'Next expiry', 'Checks'], d.staff, 'No staff recorded.'))}
-        ${sec('obl', 'Legal obligations: where the evidence is', h`${table(['Section', 'Where it’s kept', 'Last seen'], [...d.obligations, ...d.archives], 'No evidence locations recorded yet.')}${d.unrecorded ? h`<p class="meta pfoot">${d.unrecorded === 1 ? '1 other obligation' : d.unrecorded + ' other obligations'} not yet recorded in Evidence locations.</p>` : ''}`)}
+        ${sec('obl', 'Legal obligations: where the evidence is', h`${table(['Section', 'Where it’s kept', 'Last seen'], [...d.obligations, ...d.svcLocations, ...d.archives], 'No evidence locations recorded yet.')}${d.unrecorded + d.svcUnrecorded ? h`<p class="meta pfoot">${[d.unrecorded && (d.unrecorded === 1 ? '1 other obligation' : d.unrecorded + ' other obligations'), d.svcUnrecorded && (d.svcUnrecorded === 1 ? '1 service record' : d.svcUnrecorded + ' service records')].filter(Boolean).join(' and ')} not yet recorded in Evidence locations.</p>` : ''}`)}
         ${sec('proc', 'Procedures', table(['Service', 'Version', 'Status', 'Last reviewed'], d.procedures, 'No services set up.'))}
       </div>` });
   }

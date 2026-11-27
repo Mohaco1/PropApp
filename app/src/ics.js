@@ -14,12 +14,14 @@ export function ics(ph, drafts) {
   const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//PharmLedger//Due dates//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:' + esc(ph.name + ' · due dates')];
   for (const it of items(ph, drafts)) {
     // One event per part, each with its own UID (a person can have several items due the same day).
-    const dates = it.kind === 'person' ? it.parts.filter(x => isDate(x.date)).map((x, i) => [x.date, it.title + ' · ' + x.title, '-' + (x.key || i)]) : isDate(it.date) ? [[it.date, it.title, '']] : [];
-    for (const [d, rawTitle, part] of dates) {
+    // H-08: a part's UID comes from its id (an action id, requirement id or "annual"), never its position, so it stays
+    // the same when other checks come and go. A staff action is an action: its words and the person's name stay out.
+    const dates = it.kind === 'person' ? it.parts.filter(x => isDate(x.date)).map((x, i) => [x.date, it.title + ' · ' + x.title, '-' + (x.id || i), x.type === 'action']) : isDate(it.date) ? [[it.date, it.title, '', it.kind === 'action']] : [];
+    for (const [d, rawTitle, part, isAction] of dates) {
       // R04: an action's own words can contain anything, so the calendar only says an action is due.
-      const title = it.kind === 'action' ? 'PharmLedger action due · ' + ph.name : rawTitle;
+      const title = isAction ? 'PharmLedger action due · ' + ph.name : rawTitle;
       const day = d.replace(/-/g, ''), next = addDays(d, 1).replace(/-/g, '');
-      L.push('BEGIN:VEVENT', 'UID:' + esc(ph.id + '-' + it.key + part + (it.kind === 'action' ? '' : '-' + d)) + '@propapp', 'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
+      L.push('BEGIN:VEVENT', 'UID:' + esc(ph.id + '-' + (isAction && it.kind === 'person' ? 'action/' + part.slice(1) : it.key + part) + (isAction ? '' : '-' + d)) + '@propapp', 'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
         'DTSTART;VALUE=DATE:' + day, 'DTEND;VALUE=DATE:' + next, 'SUMMARY:' + esc((it.legal ? '[Required by law] ' : '') + title), 'DESCRIPTION:' + esc('Due at ' + ph.name + '. Open PharmLedger to record it.'),
         'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(title), 'TRIGGER:-P7D', 'END:VALARM', 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(title), 'TRIGGER:-P1D', 'END:VALARM', 'END:VEVENT');
     }

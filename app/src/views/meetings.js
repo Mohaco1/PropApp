@@ -35,9 +35,9 @@ register('meeting', {
       ${openActs.length ? h`<section class="sec"><h2 class="sec-title">Still open from last time</h2><div class="list">${openActs.map(x => row({ title: x.title, right: dueText(x.due), act: 'go', data: { to: 'action', id: x.id } }))}</div></section>` : ''}
       <form class="form" data-form="save" data-input="draft" data-change="draft">${field('Date', textInput('date', val('date', today()), { type: 'date', max: today() }))}
         ${staff.length ? h`<fieldset class="field"><legend class="field-label">Who was there</legend><div class="ticks">${staff.map(p => h`<label class="tick"><input type="checkbox" name="who" value="${p.name}" ${who.includes(p.name) ? h`checked` : ''}><span>${p.name}</span></label>`)}</div></fieldset>` : ''}
-        ${field('Others there (optional)', textInput('others', val('others', '')))}
+        ${field('Others there (optional)', textInput('others', val('others', '')), 'Staff or visitors only. No patient names.')}
         ${sectionsFor(r.id).map((s, i) => field(s, textArea('s' + i, val('s' + i, prev[s] || ''), { rows: 3, noPatient: i === 0 || i === 3 })))}
-        ${field('New action from this meeting (optional)', textInput('action', val('action', '')))}
+        ${field('New action from this meeting (optional)', textInput('action', val('action', '')), 'No patient names.')}
         ${field('Next meeting', textInput('next', val('next', suggestedNext(c.ph, r.id, today())), { type: 'date' }))}
         <div class="dock-inline">${btn('Save meeting', null, { kind: 'primary', type: 'submit' })}</div></form>` });
   },
