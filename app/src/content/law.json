@@ -248,7 +248,7 @@
    "Recalls (TGA, Procedure for recalls, product alerts and product corrections): any recall or alert received since the last visit was acted on as the notice says, affected stock checked, and the response recorded."
   ],
   "vacc-ready": [
-   "People (NSW Pharmacist Vaccination Standards; NSW Health): a named vaccine coordinator and a backup; every staff member handling vaccine storage has completed the NSW Health cold-chain module, with certificates kept; each immuniser’s NSW Pharmacist Immuniser Declaration Form is kept on the premises.",
+   "People (NSW Pharmacist Vaccination Standards; NSW Health): a named vaccine coordinator and a backup; at least two staff who manage vaccines have completed the NSW Health Vaccine Storage and Cold Chain Management module (all who handle vaccines are strongly encouraged to), with certificates kept; each immuniser’s NSW Pharmacist Immuniser Declaration Form is kept on the premises.",
    "Stock and power (NSW Health; Safe vaccine storage checklist): NIP and state-funded stock kept apart from private stock and labelled; domestic or bar fridges not used; the power-failure plan has been practised.",
    "Room (Vaccination Standards, part D): not the dispensary, with no patient access to S3, S4 or S8 medicines on the way in or out; two chairs (the patient’s is not a stool or on wheels); space to lie down; stretcher access; the fridge is locked if the public can reach it.",
    "Consent and records (Vaccination Standards, part F): consent recorded for every vaccination and kept 7 years (or until 25 for under-18s); AIR checked before and updated within 10 business days. If ownership changes, a new AIR provider number and a new VAN are needed."
@@ -289,7 +289,7 @@
    "Premises equipment (Health Practitioner Regulation (NSW) 2025 Sch 5; Council Guide): purpose-built vaccine fridge, dispensing balance, scales to 1 kg, 200/100/10/5 mL measures, funnel, 2 mortars and pestles (1 glass), stirring rod, 2 spatulas, ointment slab, counting tray; scales and measures stamped.",
    "References (Council routine inspections): current Therapeutic Guidelines (digital) and Australian Medicines Handbook readily accessible, plus the Pharmacy Board’s list of reference texts and the NSW Medicines and Poisons Schedules guide. These are the most common inspection failures.",
    "Dispensary (Regulation cl 12(2); Council Guide): lit and ventilated; impervious sink with hot and cold running water; bench at least 40 cm wide with 1 m² of clear working space; a barcode scanner at every dispensing station.",
-   "Displayed names (Council Guide Note 24): owner names at or near the main entrance; the name of the pharmacist in charge on duty next to the dispensing area (it can change day to day). Prices follow the Price Information Code of Practice.",
+   "Displayed names (Council Guide Note 24): owner names at or near the main entrance; the name of the pharmacist on duty next to the dispensing area (it can change day to day). Prices follow the Price Information Code of Practice.",
    "Council kept up to date (Council): renovations to the dispensary or surrounds, name changes, partners added or removed, and interests acquired or disposed of were all notified."
   ],
   "A3": [
@@ -485,7 +485,7 @@
    null,
    "vaccination",
    "NSW Health vaccine cold-chain training module",
-   "Everyone who handles vaccine storage."
+   "At least two staff who manage vaccines."
   ],
   [
    null,

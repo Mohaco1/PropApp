@@ -21,7 +21,7 @@ RPH.has=RPH.qm.has;
 const QM_PROC={options:['Documented local procedure','Done, not written down','No documented procedure yet'],
  display:{'Documented local procedure':'Written procedure in place','Done, not written down':'Done, but not written down','No documented procedure yet':'Not set up yet'}};
 const QM_EVID=(ok,text)=>({options:[ok,'Evidence pending'],display:{[ok]:text,'Evidence pending':'Not checked yet'}});
-const QM_ROLE={type:'role',options:['Pharmacist in charge','Designated pharmacist','Proprietor','Someone else'],display:{'Someone else':'Someone else (describe)'},describe:['Someone else']};
+const QM_ROLE={type:'role',options:['Pharmacist on duty','Designated pharmacist','Proprietor','Someone else'],display:{'Someone else':'Someone else (describe)'},describe:['Someone else']};
 const QM_METH=a=>!a.medicines||a.medicines==='Needs verification'||RPH.qm.has(a.medicines,'Methadone oral liquid');
 const QM_BUP=a=>!a.medicines||a.medicines==='Needs verification'||RPH.qm.has(a.medicines,'Buprenorphine/naloxone sublingual films');
 const QM_PPA=a=>RPH.qm.has(a.funded,'PPA DAA Program');
@@ -264,13 +264,14 @@ RPH.sq.PROC={
  nsp:{safety:{label:'Sharps and needlestick procedure',text:'Use approved sharps containers and never recap needles; after a needlestick or exposure, wash the area, seek same-day medical assessment and record and report the incident. [Confirm: steps match the pharmacy’s infection-control arrangements]'}}
 };
 RPH.sq.REC_BASE=['Dispensing or clinical software','Paper folder in the pharmacy','Shared drive or cloud storage','Other'];
-RPH.sq.REC={vaccination:['air','cold'],staged:['consent'],delivery:['paperwork'],daa:['deliveryEvidence'],complex:['validation'],aged:['agreement','records'],screening:['qc'],cannabis:['scopeEvidence'],prescribing:['authority']};
-for(const id of RPH.qm.genericIds)(RPH.sq.REC[id]??=[]).includes('records')||RPH.sq.REC[id].push('records');
+RPH.sq.REC={vaccination:['air','cold'],staged:['consent'],delivery:['paperwork'],daa:['deliveryEvidence'],complex:['validation'],aged:['agreement','records'],screening:['qc'],prescribing:['authority']};
+/* Stage 3B: only services that ask "where are records kept" get a records location (cannabis, vaping and NSP don't ask it). */
+for(const id of RPH.qm.genericIds)if((sopFields[id]||[]).some(f=>f[0]==='records'))(RPH.sq.REC[id]??=[]).includes('records')||RPH.sq.REC[id].push('records');
 RPH.sq.LEAD={delivery:['escalation'],staged:['exceptions'],adherence:['interruption']};
 for(const id of RPH.qm.genericIds)(RPH.sq.LEAD[id]??=[]).push('responsibility');
 RPH.sq.isLead=(id,k)=>(RPH.sq.LEAD[id]||[]).includes(k);
 RPH.sq.lead=(n=state)=>n.serviceLead||'';
-const SQ_ROLE={options:['Pharmacist in charge','Designated pharmacist','Proprietor','Someone else'],display:{'Someone else':'Someone else (describe)'},describe:['Someone else']};
+const SQ_ROLE={options:['Pharmacist on duty','Designated pharmacist','Proprietor','Someone else'],display:{'Someone else':'Someone else (describe)'},describe:['Someone else']};
 const SQ_VACCINES=['COVID-19','Diphtheria/tetanus/pertussis (e.g. dTpa or ADT)','Hepatitis A','Hepatitis B','Human papillomavirus (HPV)','Haemophilus influenzae type b (Hib)','Influenza','Japanese encephalitis','Measles/mumps/rubella (MMR)','Meningococcal ACWY','Meningococcal B','Meningococcal C','Mpox (JYNNEOS; authorised settings only)','Poliomyelitis','Typhoid (oral or injection)','Cholera (oral)','Varicella (chickenpox)','Zoster (Shingrix only)','Pneumococcal (Capvaxive or Prevenar 20)','RSV (Arexvy or Abrysvo)','Rabies (pre-exposure)','Other'];
 
 (()=>{
@@ -398,10 +399,10 @@ const sqSet3=sopSet;sopSet=function(n,id,values){const v={...values};
   note:'Secured means the package is sealed so tampering shows, kept locked and out of sight in the vehicle, and never left unattended. Tick both if you deliver fridge items.'});
  Object.assign(RPH.qm.displayMap,M.delivery.transport.display);
 })();
-/* Decision 1: no "who is responsible" questions. Procedures name the pharmacist in charge. */
+/* Decision 1: no "who is responsible" questions. Procedures name the pharmacist on duty. */
 RPH.sq.LEAD.daa=[...(RPH.sq.LEAD.daa||[]),'sampleReviewer'];
 const sqFields4=fsFields;fsFields=function(id,a){return sqFields4(id,a).filter(f=>!RPH.sq.isLead(id,f[0]));};
-const sqSet4=sopSet;sopSet=function(n,id,values){const v={...values};for(const k of RPH.sq.LEAD[id]||[])if(!v[k])v[k]=n.serviceLead||'Pharmacist in charge';return sqSet4(n,id,v);};
+const sqSet4=sopSet;sopSet=function(n,id,values){const v={...values};for(const k of RPH.sq.LEAD[id]||[])if(!v[k])v[k]=n.serviceLead||'Pharmacist on duty';return sqSet4(n,id,v);};
 /* Vaccines in groups, each with "Select all". */
 RPH.sq.VGROUPS=[['Seasonal and adult',['COVID-19','Influenza','Pneumococcal (Capvaxive or Prevenar 20)','Zoster (Shingrix only)','RSV (Arexvy or Abrysvo)','Diphtheria/tetanus/pertussis (e.g. dTpa or ADT)']],
  ['Catch-up and childhood',['Measles/mumps/rubella (MMR)','Poliomyelitis','Varicella (chickenpox)','Human papillomavirus (HPV)','Meningococcal ACWY','Meningococcal B','Meningococcal C','Haemophilus influenzae type b (Hib)','Hepatitis A','Hepatitis B']],

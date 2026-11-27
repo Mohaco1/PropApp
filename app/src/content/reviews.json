@@ -165,7 +165,7 @@
   {
    "id": "otp-amenity",
    "name": "OTP daily-volume threshold review",
-   "frequency": "Monthly",
+   "frequency": "Annual",
    "service": "otp",
    "check": "Review the plan and declaration for the selected dosing-volume profile. Confirm the applicable source.",
    "eventOnly": false
@@ -5983,7 +5983,7 @@
     },
     {
      "n": 4,
-     "text": "Displayed names (Council Guide Note 24): owner names at or near the main entrance; the name of the pharmacist in charge on duty next to the dispensing area (it can change day to day). Prices follow the Price Information Code of Practice.",
+     "text": "Displayed names (Council Guide Note 24): owner names at or near the main entrance; the name of the pharmacist on duty next to the dispensing area (it can change day to day). Prices follow the Price Information Code of Practice.",
      "options": [
       {
        "value": "Checked",

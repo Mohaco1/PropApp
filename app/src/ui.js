@@ -44,8 +44,10 @@ const SV = {
 };
 export const svcIcon = id => raw(`<span class="row-ic" aria-hidden="true"><svg viewBox="0 0 24 24">${SV[id] || I.doc}</svg></span>`);
 // Visual Polish spec: one bottom sheet for quick confirmations. One primary action; the backdrop and Cancel both dismiss.
-export const sheet = ({ title, body = '', primary, cancel }) => h`<div class="sheet-wrap"><button type="button" class="sheet-back" data-act="${cancel}" aria-label="Cancel" tabindex="-1"></button>
-  <div class="sheet" role="dialog" aria-modal="true" aria-label="${title}"><span class="sheet-handle" aria-hidden="true"></span><h2>${title}</h2>${body}<div class="btnrow">${primary}${btn('Cancel', cancel)}</div></div></div>`;
+// Stage 3B: the backdrop is not a second "Cancel" button for screen readers (it is a plain tap area); the app moves focus
+// into the sheet when it opens, keeps Tab inside it, closes it on Escape, and puts focus back on the button that opened it.
+export const sheet = ({ title, body = '', primary, cancel }) => h`<div class="sheet-wrap"><div class="sheet-back" data-act="${cancel}" aria-hidden="true"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="${title}"><span class="sheet-handle" aria-hidden="true"></span><h2>${title}</h2>${body}<div class="btnrow">${primary}${btn('Cancel', cancel, { cls: 'sheet-cancel' })}</div></div></div>`;
 export const icon = (n, cls = '') => raw(`<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${I[n] || ''}</svg>`);
 // R07: \`site\` names the pharmacy on edit screens, only when there are 2 or more on the device (plain text, not a switch).
 export function screen({ title, sub = '', back = null, saved = '', body, primary = null, wide = false, right = '', site = '' }) {

@@ -59,7 +59,7 @@
   ],
   [
    "Issue a certificate only when the person must be absent for their own illness or injury, or to care for an ill or injured family or household member (Fair Work Act 2009; PSA/Pharmacy Guild guideline on absence from work certificates — verify).",
-   "Issue a certificate only when the person is not fit for work because of their own illness or injury, or must care for or support a member of their immediate family or household who is ill or injured (Fair Work Act 2009 s 97)."
+   "Issue a certificate only when the person is not fit for work because of their own illness or injury, or must care for or support a member of their immediate family or household who is ill or injured (Fair Work Act 2009 s 97; evidence under s 107)."
   ],
   [
    "Only for illnesses or injuries the pharmacist is qualified to assess, and only if, in the pharmacist’s professional opinion, the person is unfit for work; refer to a doctor otherwise (Fair Work Act 2009; PSA/Pharmacy Guild guideline on absence from work certificates — verify).",
@@ -71,7 +71,7 @@
   ],
   [
    "Fair Work Act 2009 (Cth); Pharmaceutical Society of Australia and Pharmacy Guild of Australia, guideline on absence from work certificates (citing Pharmacy Board of Australia expectations) — found by search; verify against the current guideline.",
-   "Fair Work Act 2009 (Cth) s 97 (read 25 Nov 2026). Also useful: Pharmaceutical Society of Australia and Pharmacy Guild of Australia, guideline on absence from work certificates (not checked by the app)."
+   "Fair Work Act 2009 (Cth) s 97 (read 25 Nov 2026) and s 107 (notice and evidence for personal/carer’s leave). Also useful: Pharmaceutical Society of Australia and Pharmacy Guild of Australia, guideline on absence from work certificates (not checked by the app)."
   ],
   [
    "Supply in person to the patient or their carer (source to confirm with NSW Health or the TGA — verify).",
@@ -124,6 +124,14 @@
   [
    "have their own conditions and records (s 116).\n\n5. Records\n• Records are kept in:",
    "have their own conditions and records (s 116).\n7. The NSW prescribing Class Authorities expire on 4 November 2027: before then, check the replacement authorities are in place and update this procedure; never prescribe under an authority that has lapsed.\n\n5. Records\n• Keep each prescribing consultation’s clinical record securely in digital form for at least 7 years (for a patient under 18, until they turn 25), as the Class Authority conditions for approved pharmacies require.\n• Records are kept in:"
+  ],
+  [
+   "Pharmacist in charge",
+   "Pharmacist on duty"
+  ],
+  [
+   "pharmacist in charge",
+   "pharmacist on duty"
   ]
  ]
 }

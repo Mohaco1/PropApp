@@ -14,7 +14,9 @@ import { keepButtonInView } from './welcome.js';
 keepButtonInView();
 const NV = 'Needs verification';
 const procWord = t => String(t).replace(/\(Policies\)/g, '(Procedures)').replace(/\bin Policies\b/g, 'in Procedures');
-const ROLE_SHOW = v => v === 'Pharmacist in charge' ? 'The pharmacist on duty' : v; // owner decision: no pharmacist-in-charge role
+// Owner decision: no pharmacist-in-charge role. Answers saved before Stage 3B as 'Pharmacist in charge' read the same way.
+const ROLE_SHOW = v => v === 'Pharmacist in charge' || v === 'Pharmacist on duty' ? 'The pharmacist on duty' : v;
+const ROLE_NOW = v => v === 'Pharmacist in charge' ? 'Pharmacist on duty' : v;
 const show = (id, k, v) => ROLE_SHOW(RPH.qm.showFor(id, k, v));
 const split = v => RPH.qm.split(v);
 // Owner trial (26 Nov): an option whose own name has a comma ("Creams, ointments and gels") was split in two when read
@@ -24,7 +26,7 @@ const split = v => RPH.qm.split(v);
 // nothing is filled on its own.
 // Trial batch 1: plainer wording for questions the owner found unclear, with one line on why it's asked.
 // [new question, why we ask, hide the old note]
-const ABOUT = { adherence: 'Medicine adherence support means structured help for patients to take their medicines as prescribed, such as dose administration aids (DAAs) and MedsCheck reviews.' };
+const ABOUT = { adherence: 'Medicine adherence support means structured help for patients to take their medicines as prescribed, such as adherence consultations and refill follow-ups. Dose administration aids (DAAs) and MedsCheck reviews are set up as their own services.' };
 const COPY = {
   'Does your pharmacy’s NSW Health approval to dose OTP patients have any special conditions? (optional)': ['Does your NSW Health letter approving OTP dosing here list any extra conditions? Most don’t: leave it blank if yours doesn’t.', 'If it does (for example, a maximum number of patients), the procedure lists them so whoever is dosing follows them.', true],
   'Software used to record doses': ['Which software records OTP doses?', 'The procedure names it, so a locum knows where to record each dose. Tap one you’ve used before, or type it.'],
@@ -100,9 +102,9 @@ register('services', {
 });
 function needsLead(ph) { return !ph.lead && Object.keys(ph.services).some(id => ph.services[id].active && (RPH.sq.LEAD[id] || []).length); }
 // C-09: the "who runs your services" question, shown in place on the first service's setup (no extra screen).
-function leadScreen(c, from) { const opts = ['Pharmacist in charge', 'Designated pharmacist', 'Proprietor', 'Someone else'];
+function leadScreen(c, from) { const opts = ['Pharmacist on duty', 'Designated pharmacist', 'Proprietor', 'Someone else'];
   return screen({ title: 'Day to day', back: true, body: h`<h2 class="big-title">Who runs your services day to day?</h2>${from ? h`<p class="note ok">Asked once for all your services. Then you’ll carry on with ${serviceName(from)}.</p>` : ''}<p class="muted">For example, who handles exceptions and escalations. You stay responsible overall.</p><p class="whyask"><b>Why we ask:</b> each procedure names this person as the one staff go to when something unusual happens. It doesn’t change who’s responsible: that’s always you.</p>
-      <form class="form" data-form="leadsave">${choice('lead', opts.map(v => ({ value: v, label: ROLE_SHOW(v) })), c.ph.lead || '')}${field('If someone else, who (role, not a name is fine)', textInput('other', ''))}
+      <form class="form" data-form="leadsave">${choice('lead', opts.map(v => ({ value: v, label: ROLE_SHOW(v) })), ROLE_NOW(c.ph.lead || ''))}${field('If someone else, who (role, not a name is fine)', textInput('other', ''))}
       <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` });
 }
 const leadSave = (c, f, after) => { if (!f.lead) return; c.change(ph => { ph.lead = f.lead === 'Someone else' && f.other ? 'Someone else: ' + f.other.trim() : f.lead; }, 'Saved'); after(); };

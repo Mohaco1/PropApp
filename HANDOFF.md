@@ -11,8 +11,8 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Repo | `Mohaco1/PropApp`, branch `main` |
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
-| App build id | **`cb301740fb`** (Stage 3A inspector fixes, on top of Stage 2 v41 parity) |
-| Code commit | Stage 3A commit on `main` (code, docs/ and this file for build cb301740fb) |
+| App build id | **`b30f398081`** (Stage 3B final polish, on top of Stage 3A) · `main` is frozen and ready for the Fold trial |
+| Code commit | Stage 3B commit on `main` (code, docs/ and this file for build b30f398081) |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -83,11 +83,18 @@ After deploying, an installed phone app picks up the new version when it's reope
 - Screenshots go to `app/handoff/`, which is git-ignored.
 - **Suites:**
   - Original and wave suites: core, sprint1–5, screens, setup-questions, extras, polish, theme, content2, v3, pwa, wave1, wave2, gates, wave3.
-  - Briefs from this week: pretrial, sigil, batch1, batch1a, batch1b, batch2a, batch2b, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual, stage3a.
+  - Briefs from this week: pretrial, sigil, batch1, batch1a, batch1b, batch2a, batch2b, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual, stage3a, stage3b.
 - **Latest full run on build `2dec2b5fd2`:** see section 9.
 - Note: `tests/upgrade.js` opens a saved old build (07775c5947) from a fixture, so it still taps the old "Look around an example pharmacy (fictional)" label. Leave that label as it is.
 
 ## 7. What was done this week (newest first)
+0. **Stage 3B · final `main` polish (27 Nov, build `b30f398081`): done. `main` is frozen and ready for the Galaxy Z Fold trial.**
+   - **Fold cover (344 px):** `button.ph-switch.single` has `max-width:100%`, `overflow:hidden`, `text-overflow:ellipsis`, `white-space:nowrap`, so a long pharmacy name is cut with "…" and the page never gets wider than 344 px.
+   - **Keyboard and ARIA:** the backup file inputs (welcome "Restore backup", Backup and devices "Choose a backup file") use the `.vh-file` visually-hidden class instead of `hidden`, so Tab reaches them; their label shows the focus ring. `.chip:has(:focus-visible)` gives radio chips a ring. The bottom `sheet()` backdrop is a plain `div` (`aria-hidden`), so there's one "Cancel" for screen readers; `app.js` (`sheetFocus`, `sheetKeys`) moves focus to the sheet's primary button when it opens, keeps Tab and Shift+Tab inside, closes on Escape (via the sheet's Cancel) and gives focus back to the button that opened it (Adopt), or the title if it's gone.
+   - **Evidence keys:** `RPH.sq.REC` no longer lists `cannabis` (`scopeEvidence`, `records`), `vaping` (`records`) or `nsp` (`records`): those services don't ask where records are kept, so Evidence locations and the Evidence pack showed raw key names. Generic services get a `records` location only if they ask the question (legacy-procgen and `services.json`).
+   - **"Pharmacist in charge":** the lead question and the role options now store "Pharmacist on duty" (an earlier "Pharmacist in charge" answer still shows as "The pharmacist on duty"); the lead default in drafts is "Pharmacist on duty"; `verified-steps.json` maps any older wording in drafts; the displayed-names rule (`law.json`, the site-visit question in `reviews.json`) says "the pharmacist on duty". `law.json` still quotes the Regulation's own term at s 122 (two lines); left as it is.
+   - **Clinical and links:** `otp-amenity` is Annual (matches the yearly amenity-plan review in the onboarding guide and the OTP draft); vaccine cold chain says "at least two staff who manage vaccines" (NSW Health quote in `uat/research/content-v2-sources-2026-11-25.md`); the dead Community Sharps Guidance PDF link is replaced by NSW Health's Community sharps management page (`/community-sharps/Pages/default.aspx`); the adherence description agrees in onboarding and Services (DAAs and MedsCheck are their own services); the certificates step cites Fair Work Act 2009 s 97 and s 107 (evidence). **Not re-read here:** health.nsw.gov.au is blocked from this session, so the sharps page and the OTP Standards' review interval were taken from search listings and earlier research, not read today. The owner may want to open both once.
+   - Tests: `tests/stage3b.js` (in `test-all.sh`). Screenshots `app/handoff/stage3b_*.png`.
 0. **Stage 3A · inspector red-team and walkthrough fixes (27 Nov, build `cb301740fb`): done. Batch 3's Fold-trial readiness still stands.**
    - **Reviews** (`views/reviews.js` `changes.q`): a review question no longer moves on by itself after 600 ms. Every clean answer reveals "Note (optional)" (an issue reveals its fix box and date), so the owner stays on the question and taps Next. Onboarding's single-choice auto-advance is separate and unchanged.
    - **Dead-ends** (`views/today.js`, `views/services.js`, `views/procedures.js`): on Today's Finish setting up card each service still to set up is a 44 px row (`.checkgo`, act `setupone`) straight to its `service-setup`; "Add due dates to your phone calendar" waits until a service is set up or Today has a dated item. "You’re all set" has a "Review procedures" link. "Change my setup answer instead" only shows when `bestQuestion()` finds a question; if a marker's fix still finds none, it opens the service with a toast hint.
@@ -155,13 +162,15 @@ After deploying, an installed phone app picks up the new version when it's reope
 8. **Procedures:** all 17 services can reach "nothing to confirm" through the screens (`tests/procedures-all.js`).
 
 ## 8. Open items and next work
-1. **2-week Galaxy Z Fold trial** (Batch 3 done): owner UAT of the current build on the phone, the cover screen and unfolded. Check the look, the welcome screen, the icon on the home screen, and the hinge spacing: real hinge segments can't be emulated in Playwright.
+1. **2-week Galaxy Z Fold trial** (Stage 3B done; `main` frozen for it): owner UAT of the current build on the phone, the cover screen and unfolded. Check the look, the welcome screen, the icon on the home screen, and the hinge spacing: real hinge segments can't be emulated in Playwright.
 2. **Phase D3** (parked): a managed back end in Sydney with emailed-link sign-in, then the post-trial v4 in-app AI architecture.
 3. **Deferred by the owner:** push notifications, Monday plan.
 4. **Optional, ask the owner first:** rename the repo or Pages path from "PropApp". This changes the phone link and would need a reinstall.
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
+**Stage 3B, build `b30f398081`:** `test-all.sh` run once in full: 38 of 39 suites passed (stage3b included) plus Check later, and `check-procgen-all` shows all 17 identical. `batch3` failed 1 check (M-08) that expected the example's Year plan to have no Quarter Balancer: with `otp-amenity` now Annual the example has two service annuals, so the Balancer shows. The check now asserts the Align wording matches whichever is on screen; `batch3` re-run alone: all pass. `docs/` refreshed from `dist/pwa/`. `main` frozen for the Fold trial.
+
 **Stage 3A, build `cb301740fb`:** `test-all.sh` run once in full: 36 of 37 suites passed (stage3a included) plus Check later, and `check-procgen-all` shows all 17 identical. `pretrial` failed 2 checks that expected the old behaviour (six pack sections; the calendar offer on a brand-new pharmacy with no dates); both updated and `pretrial` re-run alone: all pass. `docs/` refreshed from `dist/pwa/`.
 
 **Stage 2 parity, build `9b350249d1`:** `test-all.sh` run once in full on the final build: all 36 suites pass (parity included, and the 5 suites fixed after Onboarding polish: batch1, pharmledger, procedures-all, batch2a, batch3) plus Check later; `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`.

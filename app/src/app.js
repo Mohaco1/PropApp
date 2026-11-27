@@ -65,6 +65,7 @@ export function render(scrollTop = false) {
   if (sp) try { master = html(views[sp.r.name].render(ctx, sp.r)); } catch (e) { console.error(e); master = ''; }
   try { out = html(v.render(ctx, r)); } catch (e) { console.error(e); out = '<div class="screen"><main class="body"><p class="note bad">Something went wrong showing this screen. Your records are safe. Go back and try again.</p><button class="btn secondary" data-act="back">Back</button></main></div>'; }
   const showNav = S.ph && !v.noNav;
+  const hadSheet = !!root.querySelector('.sheet'), opener = hadSheet ? '' : trigger();
   const ae = document.activeElement, focusName = ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName) && !['radio', 'checkbox', 'file'].includes(ae.type) ? ae.name : '', caret = focusName ? ae.selectionStart : 0;
   const mEl = root.querySelector('.pane-master'), keep = mEl && pane && sp && pane.r.name === sp.r.name && pane.depth === sp.depth ? mEl.scrollTop : 0;
   pane = sp && master ? sp : null;
@@ -79,7 +80,19 @@ export function render(scrollTop = false) {
   if (focusName && !scrollTop) { const el = root.querySelector(`[name="${focusName}"]`); if (el) { el.focus(); try { el.setSelectionRange(caret, caret); } catch {} } }
   showSave(store.saveStatus());
   v.after?.(ctx, r, pane ? root.querySelector('.pane-detail') : root);
+  sheetFocus(hadSheet, opener);
 }
+// Stage 3B: a bottom sheet takes focus when it opens (its primary button); when it closes, focus goes back to the button
+// that opened it (or the screen title if that button is gone, e.g. after adopting).
+let sheetFrom = '';
+function sheetFocus(hadSheet, opener) { const sh = root.querySelector('.sheet');
+  if (sh && !hadSheet) { sheetFrom = opener; (sh.querySelector('.btn.primary:not([disabled])') || sh.querySelector('button,[href],input,textarea,select'))?.focus({ preventScroll: true }); }
+  else if (!sh && hadSheet) { const from = sheetFrom; sheetFrom = ''; if (!refocus(from)) focusTitle(); } }
+function sheetKeys(e) { const sh = root.querySelector('.sheet'); if (!sh) return;
+  if (e.key === 'Escape') { e.preventDefault(); sh.querySelector('.sheet-cancel')?.click(); return; }
+  if (e.key !== 'Tab') return; const f = [...sh.querySelectorAll('button:not([disabled]),[href],input:not([disabled]),textarea,select,[tabindex]:not([tabindex="-1"])')].filter(x => x.offsetParent !== null);
+  if (!f.length) return; const i = f.indexOf(document.activeElement);
+  if (e.shiftKey && i <= 0) { e.preventDefault(); f.at(-1).focus(); } else if (!e.shiftKey && (i === -1 || i === f.length - 1)) { e.preventDefault(); f[0].focus(); } }
 // H-07: folding or unfolding the phone redraws the screen (one pane or two). Anything typed or picked but not yet saved
 // is read off the form fields first and put back afterwards, with the cursor where it was, so a fold never wipes a form.
 function fieldKeys() { const seen = {}; return [...root.querySelectorAll('input,textarea,select')].filter(el => el.name && el.type !== 'file').map(el => {
@@ -124,6 +137,7 @@ export async function start(el) {
   setInterval(dayCheck, 30000); document.addEventListener('visibilitychange', () => { if (!document.hidden) dayCheck(); });
   document.addEventListener('click', e => { lastTap = e.target.closest?.('[data-act]') || null; handle(e, 'click'); });
   document.addEventListener('submit', e => handle(e, 'submit'));
+  document.addEventListener('keydown', sheetKeys);
   document.addEventListener('input', e => { const el = e.target.closest('[data-input]'); if (!el) return; const { r, v } = routeFor(el); v.inputs?.[el.dataset.input]?.(ctx, el, r, e); });
   document.addEventListener('change', e => { const el = e.target.closest('[data-change]'); if (!el) return; const { r, v } = routeFor(el); v.changes?.[el.dataset.change]?.(ctx, el, r, e); });
   WIDE.addEventListener?.('change', () => { const keep = typed(); render(); retype(keep); });

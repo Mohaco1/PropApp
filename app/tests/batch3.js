@@ -103,7 +103,9 @@ const chevron = (p, sel) => p.evaluate(sel => { const s = document.querySelector
   // M-08: “shown above” only when the Quarter Balancer is on screen
   await more(p, 'Calendar'); await p.getByRole('button', { name: 'Year plan' }).tap(); await p.waitForTimeout(250);
   let cal = await p.evaluate(() => ({ bal: !!document.querySelector('.qbal'), t: document.querySelector('.card.align')?.innerText || '' }));
-  ok(!cal.bal && cal.t && !/shown above/.test(cal.t) && /the quarter each is due/.test(cal.t), 'M-08 the example’s Year plan has no Quarter Balancer, so the Align card says “the quarter each is due”, not “shown above”');
+  // Stage 3B: the OTP daily-volume review is now Annual, so the example (OTP at 80+ a day) has 2 service annuals and shows
+  // the Quarter Balancer; the check is that the Align card's wording matches whichever is on screen.
+  ok(cal.t && (cal.bal ? /shown above/.test(cal.t) : !/shown above/.test(cal.t) && /the quarter each is due/.test(cal.t)), 'M-08 the Align card says “shown above” only when the Quarter Balancer is on screen (balancer ' + (cal.bal ? 'shown' : 'not shown') + ')');
   const all = await saved(p), id = all['propapp:dir'].active, K = 'propapp:ph:' + id;
   // ── H-07: a second pharmacy on this device (a copy under another fictional name); the open one keeps its services
   const ph2 = JSON.parse(JSON.stringify(all[K])); ph2.id = id + 'b'; ph2.name = 'Banksia Bay Pharmacy';

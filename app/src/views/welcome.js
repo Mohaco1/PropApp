@@ -22,7 +22,7 @@ register('welcome', {
       <p class="calm-line">For the owner’s side of the counter.</p>
       ${btn('Set up your pharmacy', 'start-setup', { kind: 'primary', cls: 'big' })}
       <div class="calm-links">
-        <label class="linkbtn">Restore backup<input type="file" accept="application/json,.json" data-change="restore" hidden></label>
+        <label class="linkbtn">Restore backup<input type="file" accept="application/json,.json" data-change="restore" class="vh-file"></label>
         ${window.PROPAPP_EXAMPLE ? h`<span aria-hidden="true">·</span>${btn('Try example', 'example', { kind: 'link' })}` : ''}
       </div>${!c.ph && c.store.activeIds().some(id => c.store.pharmacy(id)) ? (() => { const p = c.store.pharmacy(c.store.activeIds().find(id => c.store.pharmacy(id))); return h`<div class="calm-links">${btn('Back to ' + p.name, 'backto', { kind: 'link', data: { id: p.id } })}</div>`; })() : ''}</div></div>`;
     const d = c.ui.setup || (c.ui.setup = { name: '', address: '', owners: [''], services: [] });

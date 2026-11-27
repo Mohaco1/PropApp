@@ -689,3 +689,11 @@ Checked and already passing:
 - Evidence pack: "Completed with issues" for S8 checks with issues; My log, Other documents, local amendments and who adopted; adopted version kept apart from a pending draft; full dates with the year in the pack and the History print (`fullDate`).
 - Calendar file: staff events are "PharmLedger staff check due · pharmacy", no names or credentials.
 - New `tests/stage3a.js` (31 checks). Full test-all once: 36/37 (pretrial expected the old pack sections and calendar line; updated, re-run green) plus Check later; procgen identical for all 17. docs/ refreshed.
+
+## Stage 3B · final main polish · 27 Nov 2026 · build b30f398081
+- Fold cover 344 px: the single-pharmacy header switch is cut with an ellipsis (max-width 100%, overflow hidden), so no page is wider than the screen.
+- Keyboard and ARIA: backup file inputs are visually hidden (not `hidden`) so Tab reaches Restore backup / Choose a backup file, with a focus ring; chips show a ring via `:has(:focus-visible)`; the bottom sheet takes focus, traps Tab, closes on Escape, returns focus to Adopt, and its backdrop is no longer a second "Cancel".
+- Orphaned `sq.REC` keys removed (cannabis scopeEvidence/records, vaping records, nsp records); "Pharmacist in charge" → "Pharmacist on duty" in the lead question, role options, draft default (old answers still read the same) and the displayed-names rule.
+- otp-amenity Annual; vaccine cold chain "at least two staff who manage vaccines"; sharps link → NSW Health Community sharps management page; adherence description aligned; certificates cite Fair Work Act s 97 and s 107. health.nsw.gov.au was blocked here, so the sharps page and the OTP interval weren't re-read today.
+- New `tests/stage3b.js`. Full test-all once: 38/39 (batch3 M-08 expected no Quarter Balancer in the example; updated, re-run green) plus Check later; procgen identical for all 17. docs/ refreshed.
+

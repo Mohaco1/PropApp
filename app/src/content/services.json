@@ -743,7 +743,7 @@
     "key": "escalation",
     "label": "Who receives delivery incidents?",
     "options": [
-     "Pharmacist in charge",
+     "Pharmacist on duty",
      "Designated pharmacist",
      "Needs verification"
     ],
@@ -877,7 +877,7 @@
     "key": "exceptions",
     "label": "Who reviews missed collections?",
     "options": [
-     "Pharmacist in charge",
+     "Pharmacist on duty",
      "Designated pharmacist",
      "Needs verification"
     ],
@@ -1120,7 +1120,7 @@
     "key": "interruption",
     "label": "Who handles interrupted support?",
     "options": [
-     "Pharmacist in charge",
+     "Pharmacist on duty",
      "Designated pharmacist",
      "Needs verification"
     ],
@@ -1329,10 +1329,6 @@
     "qc",
     "records"
    ],
-   "cannabis": [
-    "scopeEvidence",
-    "records"
-   ],
    "prescribing": [
     "authority",
     "records"
@@ -1343,13 +1339,7 @@
    "adherence": [
     "records"
    ],
-   "nsp": [
-    "records"
-   ],
    "certificates": [
-    "records"
-   ],
-   "vaping": [
     "records"
    ],
    "funding": [

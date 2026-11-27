@@ -74,6 +74,11 @@ h2,h3{margin:0;line-height:1.25}
 .chip{min-height:44px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .chip.on,.chip:has(input:checked){background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
 .chip input{position:absolute;opacity:0;pointer-events:none}
+.chip:has(:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+/* Stage 3B: a file input stays in the Tab order (no `hidden`) but takes no space; its label shows the focus ring. */
+.vh-file{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;opacity:0}
+label:has(> .vh-file){position:relative}
+label:has(> .vh-file:focus-visible){outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
 .tabs{display:flex;flex-wrap:wrap;gap:6px}
 .tabs button{min-height:44px;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer}
 .tabs button.on{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
@@ -180,7 +185,7 @@ table.yearplan{border-collapse:collapse;font-size:13px;table-layout:fixed;width:
 /* 2. site selector: a pill on a soft track only when there is more than one pharmacy */
 .ph-switch.multi{display:flex;align-items:center;margin:0 0 -6px;padding:6px 4px 0;min-height:44px;max-width:100%}
 .sw-pill{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--primary);font-weight:600;box-shadow:0 0 0 4px var(--track),0 1px 3px rgba(16,29,38,.12)}
-.ph-switch.single{pointer-events:auto}
+.ph-switch.single{pointer-events:auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* 3. editorial date and tinted filter chips */
 .status .date{display:block;font-size:24px;font-weight:600;letter-spacing:-.02em;color:var(--fg);margin-bottom:2px}
 .filters button{border-color:var(--line);background:var(--surface);box-shadow:var(--shadow)}
