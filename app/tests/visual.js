@@ -9,10 +9,10 @@ const weights = p => p.evaluate(() => [...new Set([...document.querySelectorAll(
   await tap(p, 'Set up your pharmacy'); await p.fill('input[name=name]', 'Polish Pharmacy (fictional)'); await tap(p, 'Continue'); await p.fill('input[name=owner0]', 'Sam Owner'); await tap(p, 'Continue');
   for (const x of ['Home delivery', 'Staged supply']) await p.locator('label.tick', { hasText: x }).first().tap();
   await tap(p, 'Finish setup'); await p.waitForTimeout(400);
-  ok(await p.evaluate(() => getComputedStyle(document.body).backgroundColor) === 'rgb(242, 246, 248)', 'Light only: a phone in dark mode still gets the light page (#F2F6F8)');
+  ok(await p.evaluate(() => getComputedStyle(document.body).backgroundColor) === 'rgb(255, 255, 255)', 'Light only: a phone in dark mode still gets the light page (Stage 3F: crisp #FFFFFF canvas)');
   ok((await weights(p)).every(w => w === '400' || w === '600'), 'Type: only 400 and 600 on Today (' + (await weights(p)).join(', ') + ')');
   const card = await p.evaluate(() => { const c = document.querySelector('main .card, main .list'); const cs = getComputedStyle(c); return { b: cs.borderTopColor, s: cs.boxShadow, r: cs.borderTopLeftRadius }; });
-  ok(card.b === 'rgba(15, 23, 42, 0.06)' && /0px 6px 20px/.test(card.s) && card.r === '14px', 'Cards: hairline border, soft two-layer shadow, 14 px radius');
+  ok(card.b === 'rgb(228, 232, 236)' && (card.s === 'none' || /^rgb\(15, 118, 110\) 3px 0px 0px 0px inset$/.test(card.s)), 'Stage 3F Swiss Clinical: hairline (1 px #E4E8EC) surfaces, no soft shadow (a 3 px teal bar on the next-up card) (' + card.b + ', ' + card.s + ', ' + card.r + ')');
   // service icons
   await tap(p, 'Set up services'); await p.waitForTimeout(250);
   if (await p.getByRole('button', { name: /^Answer$/ }).count()) { await p.getByRole('button', { name: /^Answer$/ }).tap(); await p.locator('label.choice').nth(2).tap(); await tap(p, 'Save'); await p.waitForTimeout(200); }

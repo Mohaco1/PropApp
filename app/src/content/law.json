@@ -6,7 +6,7 @@
    "s 108–110",
    "S8 drug register",
    "A drug register for S8 substances: a bound book with numbered pages (or an approved electronic register), a separate page for each substance, brand, strength and form, with every transaction entered on the day it happens, kept on the premises where the S8 is stored (NSW Health).",
-   "The responsible person for a pharmacy is the holder of a financial interest in it: the proprietor (s 108(1)(i))",
+   "You, as proprietor (the holder of a financial interest in the pharmacy, s 108(1)(i))",
    []
   ],
   [
@@ -14,7 +14,7 @@
    "s 111",
    "S8 inventory every 3 months",
    "An accurate inventory of all S8 substances every 3 months (unless NSW Health approved other times), entered in the drug register under the last entry for each substance with the quantity held and the date, and signed.",
-   "You, as proprietor, must ensure it is made",
+   "You, as proprietor, must ensure it is made (s 111(1))",
    []
   ],
   [
@@ -160,7 +160,7 @@
    "Storage Standards",
    "Medicine Storage Standards (S8 safe and fridge)",
    "S8 in a safe built to the Standards (9 mm steel, welded, flush door, locking bar, five-lever lock) or a Grade VII strongroom, fixed with robust fastening; S8 fridge locked, fixed and holding only scheduled medicines; codes changed regularly and removed for leavers.",
-   "You, as proprietor, overall; day to day, the pharmacist on duty (s 122)",
+   "You, as proprietor, overall; day to day, the pharmacist on duty (s 122(2))",
    []
   ],
   [
@@ -168,7 +168,7 @@
    "s 112",
    "Drug register lost or destroyed",
    "Written notice to the Health Secretary immediately (including missing pages or an electronic register that can’t be opened), an accurate S8 inventory, and a new register.",
-   "You, as proprietor",
+   "You, as proprietor (s 112)",
    []
   ],
   [
@@ -286,9 +286,9 @@
    "Stock and supply (NSW Health, Cannabis medicines): no stock of an unregistered cannabis medicine unless the TGA approved it for a particular patient; no substitution of product or strength; no emergency supply of unregistered S8 cannabis; no exclusive supply arrangements."
   ],
   "CO-P": [
-   "Premises equipment (Health Practitioner Regulation (NSW) 2025 Sch 5; Council Guide): purpose-built vaccine fridge, dispensing balance, scales to 1 kg, 200/100/10/5 mL measures, funnel, 2 mortars and pestles (1 glass), stirring rod, 2 spatulas, ointment slab, counting tray; scales and measures stamped.",
-   "References (Council routine inspections): current Therapeutic Guidelines (digital) and Australian Medicines Handbook readily accessible, plus the Pharmacy Board’s list of reference texts and the NSW Medicines and Poisons Schedules guide. These are the most common inspection failures.",
-   "Dispensary (Regulation cl 12(2); Council Guide): lit and ventilated; impervious sink with hot and cold running water; bench at least 40 cm wide with 1 m² of clear working space; a barcode scanner at every dispensing station.",
+   "Premises equipment (Health Practitioner Regulation (New South Wales) Regulation 2025 s 11(1)(e), Sch 4 s 1; Council Guide): purpose-built vaccine fridge, dispensing balance, scales to 1 kg, 200/100/10/5 mL measures, funnel, 2 mortars and pestles (1 glass), stirring rod, 2 spatulas, ointment slab, counting tray; scales and measures stamped.",
+   "References (Council routine inspections): current Therapeutic Guidelines (digital) and Australian Medicines Handbook readily accessible, plus the references the Pharmacy Board’s Guidelines on the safe provision of pharmacy services including medicines and advice (1 Oct 2026) expect for each service, and the NSW Medicines and Poisons Schedules guide. These are the most common inspection failures.",
+   "Dispensary (Health Practitioner Regulation (New South Wales) Regulation 2025 s 11(2); Council Guide): lit and ventilated; impervious sink with hot and cold running water; bench at least 40 cm wide with 1 m² of clear working space; a barcode scanner at every dispensing station.",
    "Displayed names (Council Guide Note 24): owner names at or near the main entrance; the name of the pharmacist on duty next to the dispensing area (it can change day to day). Prices follow the Price Information Code of Practice.",
    "Council kept up to date (Council): renovations to the dispensary or surrounds, name changes, partners added or removed, and interests acquired or disposed of were all notified."
   ],
@@ -355,7 +355,7 @@
   ],
   [
    "2028-11-05",
-   "Instruments made under the old 2008 Regulation lapse (if not replaced earlier)",
+   "Instruments made under the repealed Poisons and Therapeutic Goods Regulation 2008 lapse (if not replaced earlier)",
    "NSW Health, Orders and exemptions",
    []
   ]
@@ -418,7 +418,7 @@
     "Vaccination: the new owner applies for a new AIR provider number and a new VAN; never use the previous owner’s (NSW Health).",
     "Collection unit: the Pharmacy Council of NSW is told before one is installed (exemption conditions).",
     "Pharmacy Council of NSW: the right ownership application (sole pharmacist, partnership or body corporate) or notice of acquisition or disposal of a financial interest; all owners must be registered pharmacists and no one may hold interests in more than 5 NSW pharmacies (Council Guide).",
-    "Agreements: a franchise or banner group agreement, licence or management services agreement, and finance arrangements (loan, vendor finance, security agreement) are lodged with the Pharmacy Council with the ownership application; the Council can require any document it needs (Council change of ownership form). Every financial-interest holder, from 1% to 100%, must know how the business is run and step in where needed; this can’t be delegated to a franchise group or lender (Pharmacy Board proprietor guidelines, quoted by the Council).",
+    "Agreements: a franchise or banner group agreement, licence or management services agreement, and finance arrangements (loan, vendor finance, security agreement) are lodged with the Pharmacy Council with the ownership application; the Council can require any document it needs (Council change of ownership form). Every financial-interest holder, from 1% to 100%, must know how the business is run and step in where needed; this can’t be delegated to a franchise group or lender (Pharmacy Board, Guidelines on the safe provision of pharmacy services including medicines and advice (1 Oct 2026), quoted by the Council).",
     "PBS: the new owner applies for their own PBS approval number through the PBS Approved Suppliers Portal; you can’t claim under the seller’s approval number. Set up PRODA, HPOS and the HPI-O for the new business (Department of Health, Change of pharmacy ownership).",
     "Watch for an unlawful financial interest: franchise, service, licence, loan or lease terms that give someone who isn’t an owner influence over, or a share in, the pharmacy’s profitability or value can be one, even without any ownership (Blooms the Chemist Management Services Ltd v Pharmacy Council of NSW [2025] NSWSC 1211, as summarised by King & Wood Mallesons). Have a lawyer check them before you sign."
    ]

@@ -1284,7 +1284,7 @@
    "questions": [
     {
      "n": 0,
-     "text": "Check consent, procedures and responsible staff",
+     "text": "Check consent, procedures and pharmacist-on-duty escalation",
      "options": [
       {
        "value": "Checked",
@@ -5142,7 +5142,7 @@
     },
     {
      "n": 7,
-     "text": "People (NSW Pharmacist Vaccination Standards; NSW Health): a named vaccine coordinator and a backup; every staff member handling vaccine storage has completed the NSW Health cold-chain module, with certificates kept; each immuniser’s NSW Pharmacist Immuniser Declaration Form is kept on the premises.",
+     "text": "People (NSW Pharmacist Vaccination Standards; NSW Health): a named vaccine coordinator and a backup; at least two staff who manage vaccines have completed the NSW Health Vaccine Storage and Cold Chain Management module (all who handle vaccines are strongly encouraged to), with certificates kept; each immuniser’s NSW Pharmacist Immuniser Declaration Form is kept on the premises.",
      "options": [
       {
        "value": "Checked",
@@ -5917,7 +5917,7 @@
     },
     {
      "n": 1,
-     "text": "Premises equipment (Health Practitioner Regulation (NSW) 2025 Sch 5; Council Guide): purpose-built vaccine fridge, dispensing balance, scales to 1 kg, 200/100/10/5 mL measures, funnel, 2 mortars and pestles (1 glass), stirring rod, 2 spatulas, ointment slab, counting tray; scales and measures stamped.",
+     "text": "Premises equipment (Health Practitioner Regulation (New South Wales) Regulation 2025 s 11(1)(e), Sch 4 s 1; Council Guide): purpose-built vaccine fridge, dispensing balance, scales to 1 kg, 200/100/10/5 mL measures, funnel, 2 mortars and pestles (1 glass), stirring rod, 2 spatulas, ointment slab, counting tray; scales and measures stamped.",
      "options": [
       {
        "value": "Checked",
@@ -5939,7 +5939,7 @@
     },
     {
      "n": 2,
-     "text": "References (Council routine inspections): current Therapeutic Guidelines (digital) and Australian Medicines Handbook readily accessible, plus the Pharmacy Board’s list of reference texts and the NSW Medicines and Poisons Schedules guide. These are the most common inspection failures.",
+     "text": "References (Council routine inspections): current Therapeutic Guidelines (digital) and Australian Medicines Handbook readily accessible, plus the references the Pharmacy Board’s Guidelines on the safe provision of pharmacy services including medicines and advice (1 Oct 2026) expect for each service, and the NSW Medicines and Poisons Schedules guide. These are the most common inspection failures.",
      "options": [
       {
        "value": "Checked",
@@ -5961,7 +5961,7 @@
     },
     {
      "n": 3,
-     "text": "Dispensary (Regulation cl 12(2); Council Guide): lit and ventilated; impervious sink with hot and cold running water; bench at least 40 cm wide with 1 m² of clear working space; a barcode scanner at every dispensing station.",
+     "text": "Dispensary (Health Practitioner Regulation (New South Wales) Regulation 2025 s 11(2); Council Guide): lit and ventilated; impervious sink with hot and cold running water; bench at least 40 cm wide with 1 m² of clear working space; a barcode scanner at every dispensing station.",
      "options": [
       {
        "value": "Checked",

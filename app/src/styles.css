@@ -446,3 +446,34 @@ details>summary{list-style:none}details>summary::-webkit-details-marker{display:
 .s8-ans li{display:grid;gap:2px}.s8-ans li span{color:var(--muted);font-size:14px}
 .rowwrap>.doclink{flex:0 0 auto;justify-content:center;padding:0 14px;color:var(--primary);text-decoration:none;border-left:1px solid var(--line)}
 .lasttime .doclink{padding:0;color:var(--primary)}
+
+/* Stage 3F Swiss Clinical (27 Nov, owner brief). Tokens and surfaces only: every layout contract, 44 px+ tap target,
+   #526575 muted grey, Navy #0f2942, Teal #0f766e, the foldable split and @media print rules above stay as they are.
+   A crisp white canvas; bold, tight headings; tabular dates and due badges; open 1 px hairline row dividers instead of
+   boxed, shadowed cards; 3 px left bars (Teal for the next/active/focused row, Navy for section heads). The top bar
+   keeps its navy-to-teal strip and gains a 2 px bottom rule. Overdue and due-soon rows keep their urgency rails. */
+:root{--bg:#ffffff;--line:#e4e8ec;--hair:#e4e8ec;--rule:#0f2942;--focus:#0f766e;--shadow:none;--r:8px}
+html,body,#app{background:var(--bg)}
+.bar{border-bottom:2px solid var(--rule)}
+h1,h2,h3,.bar-title,.status .date,.calm-name,.plan-name,.upd .upd-title{letter-spacing:-.025em}
+.status .date{font-size:26px;line-height:1.15}
+.row-title{letter-spacing:-.01em}
+.meta,.row-right,.row-right.bad,.row-right.warn,.pill,.badge,.status .date,time,.filters button b,.steps,.saved,.qhead,.plan-row dd{font-variant-numeric:tabular-nums lining-nums}
+/* open lists: a hairline above and below, hairline dividers between rows, no box, no shadow */
+.list{border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;box-shadow:none;background:var(--surface)}
+.row:not(:last-child)::after{left:0}
+.row:focus-visible{outline:none;box-shadow:inset 3px 0 0 var(--focus);background:var(--tint)}
+.pane-master .row.active{box-shadow:inset 3px 0 0 var(--focus)}
+/* cards become flat panels with one hairline and a small radius */
+.card,.why,.doc,.facts,.empty-card,.qcol{border:1px solid var(--line);border-radius:var(--r);box-shadow:none}
+.card.hero{box-shadow:inset 3px 0 0 var(--focus)}.card.hero.warm{box-shadow:none}
+.filters button{box-shadow:none;border-radius:var(--r)}
+.filters button.on{box-shadow:inset 0 0 0 1.5px var(--primary)}
+.row-right.bad,.row-right.warn{border-radius:4px;padding:2px 8px}
+/* section heads: a 3 px Navy bar */
+.sec-title{border-left:3px solid var(--navy);padding-left:9px;color:var(--navy);line-height:1.2}
+.lasttime{border-left-color:var(--navy)}
+.whyask{border-left-color:var(--focus)}
+.nav{border-top:1px solid var(--line);backdrop-filter:none;background:var(--surface)}
+/* the welcome screen keeps Centered Calm on the white canvas */
+.welcome.calm{background:var(--bg)}

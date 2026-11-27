@@ -951,7 +951,7 @@
   "prescribing": [
    {
     "key": "responsibility",
-    "label": "Who is responsible for this service?",
+    "label": "Who runs this service day to day?",
     "options": null,
     "section": "Responsibilities",
     "extra": null
@@ -988,7 +988,7 @@
   "simple": [
    {
     "key": "responsibility",
-    "label": "Who is responsible for this service?",
+    "label": "Who runs this service day to day?",
     "options": null,
     "section": "Responsibilities",
     "extra": null
@@ -1011,7 +1011,7 @@
   "complex": [
    {
     "key": "responsibility",
-    "label": "Who is responsible for this service?",
+    "label": "Who runs this service day to day?",
     "options": null,
     "section": "Responsibilities",
     "extra": null
@@ -1041,7 +1041,7 @@
   "aged": [
    {
     "key": "responsibility",
-    "label": "Who is responsible for this service?",
+    "label": "Who runs this service day to day?",
     "options": null,
     "section": "Responsibilities",
     "extra": null
@@ -1074,7 +1074,7 @@
   "screening": [
    {
     "key": "responsibility",
-    "label": "Who is responsible for this service?",
+    "label": "Who runs this service day to day?",
     "options": null,
     "section": "Responsibilities",
     "extra": null
@@ -1104,7 +1104,7 @@
   "adherence": [
    {
     "key": "responsibility",
-    "label": "Who is responsible for this service?",
+    "label": "Who runs this service day to day?",
     "options": null,
     "section": "Responsibilities",
     "extra": null
@@ -1131,7 +1131,7 @@
   "nsp": [
    {
     "key": "responsibility",
-    "label": "Who is responsible for this service?",
+    "label": "Who runs this service day to day?",
     "options": null,
     "section": "Responsibilities",
     "extra": null
@@ -1150,7 +1150,7 @@
   "certificates": [
    {
     "key": "responsibility",
-    "label": "Who is responsible for this service?",
+    "label": "Who runs this service day to day?",
     "options": null,
     "section": "Responsibilities",
     "extra": null
@@ -1176,7 +1176,7 @@
   "vaping": [
    {
     "key": "responsibility",
-    "label": "Who is responsible for this service?",
+    "label": "Who runs this service day to day?",
     "options": null,
     "section": "Responsibilities",
     "extra": null
@@ -1195,7 +1195,7 @@
   "cannabis": [
    {
     "key": "responsibility",
-    "label": "Who is responsible for this service?",
+    "label": "Who runs this service day to day?",
     "options": null,
     "section": "Responsibilities",
     "extra": null
@@ -1215,7 +1215,7 @@
   "funding": [
    {
     "key": "responsibility",
-    "label": "Who is responsible for this service?",
+    "label": "Who runs this service day to day?",
     "options": null,
     "section": "Responsibilities",
     "extra": null

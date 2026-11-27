@@ -15,7 +15,7 @@ const rgb = hex => 'rgb(' + hex.match(/\w\w/g).map(x => parseInt(x, 16)).join(',
   // 1. tokens, header strip, monogram badge
   const look = await p.evaluate(() => { const cs = e => getComputedStyle(e); const bar = document.querySelector('.bar'), strip = getComputedStyle(bar, '::before'), mark = document.querySelector('.mark').getBoundingClientRect();
     return { bg: cs(document.body).backgroundColor, bar: cs(bar).backgroundColor, strip: strip.height, grad: strip.backgroundImage, mark: [Math.round(mark.width), Math.round(mark.height)], markText: !!document.querySelector('.mark svg.logo path'), font: cs(document.body).fontFamily }; });
-  ok(look.bg === rgb('F2F6F8') && look.bar === rgb('FFFFFF'), 'P-06 canvas #F2F6F8 and white header');
+  ok(look.bg === rgb('FFFFFF') && look.bar === rgb('FFFFFF'), 'Stage 3F crisp #FFFFFF canvas and white header');
   ok(look.strip === '3.5px' && /^linear-gradient\(90deg, rgb\(15, 41, 66\), rgb\(15, 118, 110\)\)$/.test(look.grad), '3.5px navy-to-teal strip on the header');
   ok(look.mark[0] === 22 && look.mark[1] === 22 && look.markText === true, 'P-06 + PharmLedger 22×22 logo badge');
   ok(/^"?Public Sans"?, "?Inter"?/.test(look.font), 'P-06 font stack starts Public Sans, Inter');
@@ -41,7 +41,7 @@ const rgb = hex => 'rgb(' + hex.match(/\w\w/g).map(x => parseInt(x, 16)).join(',
   await p.emulateMedia({ colorScheme: 'dark' }); await p.waitForTimeout(150);
   const dk = await p.evaluate(() => { const r = getComputedStyle(document.documentElement), v = n => r.getPropertyValue(n).trim().toUpperCase();
     return { bg: v('--bg'), surface: v('--surface'), primary: v('--primary'), fg: v('--fg'), body: getComputedStyle(document.body).backgroundColor, rules: [...document.styleSheets].flatMap(s => { try { return [...s.cssRules]; } catch { return []; } }).filter(r => /prefers-color-scheme|data-theme/.test(r.cssText)).length }; });
-  ok(dk.bg === '#F2F6F8' && dk.surface === '#FFFFFF' && dk.primary === '#0F2942' && dk.fg === '#0F172A' && dk.body === rgb('F2F6F8') && dk.rules === 0, 'Light only: with the phone in dark mode the app keeps --bg #F2F6F8, --surface #FFFFFF, --primary #0F2942, --fg #0F172A; no dark-mode rules');
+  ok(dk.bg === '#FFFFFF' && dk.surface === '#FFFFFF' && dk.primary === '#0F2942' && dk.fg === '#0F172A' && dk.body === rgb('FFFFFF') && dk.rules === 0, 'Light only: with the phone in dark mode the app keeps --bg #FFFFFF, --surface #FFFFFF, --primary #0F2942, --fg #0F172A; no dark-mode rules');
   await p.emulateMedia({ colorScheme: 'light' }); await p.waitForTimeout(100);
   // F-P06-01 on a real Copy button: review "Copy as text"
   await tap(p, 'Reviews'); await p.locator('.chip', { hasText: /^Completed/ }).click(); await p.locator('.row', { hasText: 'Proprietor site visit' }).first().click();
