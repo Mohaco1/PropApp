@@ -23,6 +23,9 @@ export function openItem(c, it) {
   if (it.kind === 'procedure') return c.go('procedure', { id: it.ref });
 }
 // Track A2: ONE notice above the filters, the most important first; the rest wait their turn.
+// M-05: the Home Screen line sits above every setup and date card, because on iPhone records entered in Safari stay
+// in Safari (the Home Screen app keeps its own). It is not shown once opened from the Home Screen.
+const installLine = c => isPWA() && !standalone() && !c.ph.flags?.installHintDone ? h`<div class="installline"><button class="quietline" data-act="go" data-to="backup">Add PharmLedger to your Home Screen before you enter records · how</button><button class="iconbtn" data-act="hideinstall" aria-label="Hide this">✕</button></div>` : '';
 function notice(c, list) {
   const ph = c.ph;
   const legalOver = list.some(i => i.legal && i.bucket === 'overdue');
@@ -52,7 +55,6 @@ function notice(c, list) {
   const ids = c.store.activeIds();
   if (ids.length > 1) { const tot = ids.reduce((t, id) => { const p = c.store.pharmacy(id); return t + (p ? counts(items(p, c.store.drafts(id))).overdue : 0); }, 0);
     return h`<button class="siteline" data-act="go" data-to="allsites">${tot === 1 ? '1 overdue' : tot + ' overdue'} across your ${ids.length} pharmacies · see all</button>`; }
-  if (isPWA() && !standalone() && !ph.flags?.installHintDone) return h`<div class="installline"><button class="quietline" data-act="go" data-to="backup">Add PharmLedger to your Home Screen before you enter records · how</button><button class="iconbtn" data-act="hideinstall" aria-label="Hide this">✕</button></div>`;
   return '';
 }
 export function switcher(c) {
@@ -70,7 +72,7 @@ register('today', {
     return screen({ title: 'Today', sub: c.ph.name, right: switcher(c), body: h`
       <p class="status"><span class="date">${fmt(today(), { weekday: true })}</span><span class="${s.tone}">${s.text}</span>${s.start && s.tone !== 'ok' ? h` Start with <button class="inline-link" data-act="open" data-key="${s.start.key}">${s.start.title}</button>.` : ''}</p>
       ${s8first ? h`<p class="s8first"><button class="inline-link" data-act="open" data-key="${s8first.key}">Add your last S8 stocktake date</button></p>` : ''}
-      ${notice(c, all)}
+      ${installLine(c)}${notice(c, all)}
       <div class="filters" role="tablist">${FILTERS.map(([k, l]) => h`<button role="tab" aria-selected="${String(k === f)}" class="${k === f ? 'on' : ''}" data-act="filter" data-f="${k}"><b>${cnt[k]}</b><span>${l}</span></button>`)}</div>
       ${!c.ph.records.length ? h`<p class="hint">Dates set themselves after your first review. Start with your last S8 stock check, or tap any item to set a due date.</p>` : ''}
       ${n.nodate && f !== 'nodate' && f !== 'all' ? h`<button class="quietline" data-act="filter" data-f="nodate">${n.nodate === 1 ? '1 review has' : n.nodate + ' reviews have'} no date yet · show</button>` : ''}

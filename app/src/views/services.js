@@ -195,6 +195,8 @@ const SETUP = {
     finish: (c, d, el, r) => finishService(c, r.id),
     ret: (c, d, el, r) => { const fix = c.ui.fixFind?.id === r.id ? c.ui.fixFind.find : ''; const fsr = fieldsFor(c.ph, r.id), fq = fsr[c.ui['ss:' + r.id] ?? -1], ans = fq ? String(c.ph.services[r.id].answers?.[fq.key] || '') : '';
       c.ui.returnTo = null; c.ui['ss:' + r.id] = undefined; c.ui.fixFind = null; c.ui['pm:' + r.id] = ''; c.ui['pmfind:' + r.id] = '';
+      // C-04: an adopted procedure is never redrafted behind the owner's back: its screen offers "Update the draft" instead.
+      const adopted = c.ph.procedures.find(x => x.service === r.id)?.status === 'adopted';
       c.change(ph => { const p = ph.procedures.find(x => x.service === r.id); if (!p || p.status === 'adopted') return; const v = p.versions.at(-1), t = draftText(ph, r.id);
         // Owner trial: a hand-edited draft isn't regenerated, so "We have our own procedure" replaces just that placeholder.
         if (v.edited && fix && v.body.includes(fix) && ans.startsWith('We have our own')) { const where = ans.split(':').slice(1).join(':').trim(), m = String(v.v).match(/^(\d+)\.(\d+)/);
@@ -203,7 +205,7 @@ const SETUP = {
         // old wording there), so answering a question still clears its item without overwriting the owner's edits.
         if (v.edited && t && t !== v.generated) { const nb = patchEdited(v.generated, t, v.body); if (nb !== null && nb !== v.body) { const m = String(v.v).match(/^(\d+)\.(\d+)/);
           p.versions.push({ ...v, v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body: nb, generated: t, at: new Date().toISOString(), status: 'Draft', edited: true }); log(ph, 'Procedure updated from a setup answer (your edits kept) · ' + serviceName(r.id)); return; } }
-        if (!v.edited && t && t !== v.generated) { const m = String(v.v).match(/^(\d+)\.(\d+)/); p.versions.push({ v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }); log(ph, 'Procedure redrafted from a setup answer · ' + serviceName(r.id)); } }, 'Saved. The draft is updated.');
+        if (!v.edited && t && t !== v.generated) { const m = String(v.v).match(/^(\d+)\.(\d+)/); p.versions.push({ v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }); log(ph, 'Procedure redrafted from a setup answer · ' + serviceName(r.id)); } }, adopted ? 'Saved. Your adopted procedure stays in use: open it to update the draft.' : 'Saved. The draft is updated.');
       c.back(); } },
 };
 register('service-setup', SETUP);
@@ -234,11 +236,12 @@ export function setupActions(ph, id) {
   }
 }
 function finishService(c, id, f = {}) {
+  const adopted = c.ph.procedures.find(p => p.service === id)?.status === 'adopted';
   c.change(ph => { const s = ph.services[id]; s.answers = tidyAnswers(ph, id, { ...s.answers }); s.setup = 'done'; setupActions(ph, id);
     for (const a of catalog().filter(x => x.service === id && !x.event)) { if (!applies(ph, a).applies) continue; const v = f['d:' + a.id]; if (v) ph.schedule[a.id] = v; else if (!ph.schedule[a.id]) ph.schedule[a.id] = suggestedNext(ph, a.id, today()); }
     if (f['d:Q1']) ph.schedule.Q1 = f['d:Q1'];
     if (!ph.procedures.some(p => p.service === id)) { const t = draftText(ph, id); if (t) ph.procedures.push({ id: uid(), service: id, title: serviceName(id) + ' procedure', status: 'draft', versions: [{ v: '0.1', body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }] }); }
-    log(ph, 'Setup finished · ' + serviceName(id)); }, serviceName(id) + ' set up. Its draft procedure is in Procedures.');
+    log(ph, 'Setup finished · ' + serviceName(id)); }, serviceName(id) + (adopted ? ' set up. Your adopted procedure stays in use: open it in Procedures to update the draft.' : ' set up. Its draft procedure is in Procedures.'));
   c.ui['ss:' + id] = undefined; c.ui.justDone = id; c.replace('services');
 }
 register('service', {

@@ -69,7 +69,7 @@ register('visit-start', {
       if (await copyText(t)) { c.toast('Copied. Paste it into a message.'); } else { c.toast('Copy didn’t work here. Long-press to select the list instead.'); } },
   },
 });
-register('visit', {
+const VISIT = {
   tab: 'today',
   render(c, r) {
     const k = key(r.extra), d = c.draft(k); if (!d) return screen({ title: 'Site visit', back: true, body: empty('This visit has finished.') });
@@ -84,7 +84,7 @@ register('visit', {
       ${why('What to check', it.guide)}
       ${last ? note(h`Last time (${fmt(last.date)}): ${last.text}${last.closed ? ' · fixed ' + fmt(last.closed) : ''}`, last.closed ? 'ok' : 'warn') : ''}
       ${stillOpen.map(x => h`<div class="card wait"><p class="eyebrow">Still open from an earlier visit</p><p>${x.title}</p>${btn('Seen the fix? Close it', 'ws', { data: { id: x.id } })}</div>`)}
-      <form data-form="ans" class="form" data-change="ans">${choice('status', ANS.map(([v, l]) => ({ value: v, label: l })), a.status || '', { issueValues: ['issue'] })}
+      <form data-form="ans" class="form" data-change="ans" data-input="ans">${choice('status', ANS.map(([v, l]) => ({ value: v, label: l })), a.status || '', { issueValues: ['issue'] })}
         ${a.status === 'issue' ? h`${field('What did you find?', textArea('text', a.text || '', { rows: 2 }))}${field('Fix by', textInput('due', a.due || addDays(today(), 30), { type: 'date' }))}
           ${(() => { const open = Object.values(c.ph.actions).filter(x => x.status === 'open'); return open.length ? field('Already an open action for this?', select('link', [['', 'No, raise a new action'], ...open.map(x => [x.id, 'Link to: ' + x.title.slice(0, 70)])], a.link || '')) : ''; })()}` : ''}
         ${it.block ? h`<div class="card"><p class="eyebrow">${it.block[0]}</p><ul class="plain">${it.block[1].map(x => h`<li>${x}</li>`)}</ul></div>` : ''}
@@ -103,7 +103,12 @@ register('visit', {
       d.step = its.indexOf(it);
       const redraw = (f.ev || '') !== (c.draft(k).items[it.key]?.ev || '') || (f.status || '') !== (c.draft(k).items[it.key]?.status || '') || ('vaccSighted' in f && f.vaccSighted !== c.draft(k).vacc?.sighted);
       c.saveDraft(k, d); if (redraw) c.rerender(); },
+    // M-01: the visit note and next date are kept in the visit draft as they change.
+    fin: (c, el, r) => finDraft(c, el, r),
   },
+  // M-01: typed text is kept as it's typed (not only when the box loses focus), so a reload or a tap away loses nothing.
+  inputs: { ans: (c, el, r, e) => { if (e.target.matches('textarea, input[type=text], input:not([type])')) VISIT.changes.ans(c, el, r); },
+    fin: (c, el, r) => finDraft(c, el, r) },
   acts: {
     pdsum: async (c, d, el, r) => { const t = visitSummary(c.ph, c.draft(key(r.extra)), visitItems(c.ph));
       if (await copyText(t)) c.toast('Copied. Check it has no patient details, then paste it into a message.'); else c.toast('Copy didn’t work here.'); },
@@ -113,7 +118,10 @@ register('visit', {
     discard: (c, d, el, r) => { if (c.ui.discardArmed !== r.extra) { c.ui.discardArmed = r.extra; c.toast('Tap “Discard this visit” again to delete its answers.'); return; } c.ui.discardArmed = undefined; c.saveDraft(key(r.extra), null); c.back(); c.toast('Visit discarded'); },
   },
   forms: { fin: () => {} },
-});
+};
+register('visit', VISIT);
+function finDraft(c, el, r) { const form = el.closest('form'), k = key(r.extra), cur = c.draft(k); if (!form || !cur) return; const f = Object.fromEntries(new FormData(form));
+  const d = { ...structuredClone(cur), notes: f.notes ?? cur.notes ?? '', next: 'next' in f ? f.next : cur.next ?? '' }; if (d.notes === cur.notes && d.next === cur.next) return; c.saveDraft(k, d); }
 function vacc(v) {
   return h`<div class="card"><p class="field-label">Since the last visit, was there a cold-chain breach or fridge failure?</p>${choice('vaccEvent', [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }], v.event || '', { inline: true })}
     <p class="field-label">Did you see this year’s vaccine storage self-audit?</p>${choice('vaccSighted', [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'Not yet' }], v.sighted || '', { inline: true })}
@@ -126,7 +134,7 @@ function finish(c, r, d, items, prog, title) {
   return screen({ title, back: true, saved: 'Saved', body: h`${prog}<h2 class="big-title">Finish the visit</h2>
     ${missing.length ? h`<section class="sec"><h2 class="sec-title">Still to answer · ${missing.length}</h2><div class="list">${missing.map(x => row({ title: x.it.title, sub: x.a.status === 'issue' ? 'Say what you found' : 'Not answered yet', act: 'step', data: { s: x.i } }))}</div></section>`
       : note(issues ? issues + (issues === 1 ? ' issue becomes an action.' : ' issues become actions.') + ' You close each one once you’ve seen it fixed.' : 'Every check answered. No issues.', issues ? 'warn' : 'ok')}
-    <form class="form" data-form="fin" data-change="fin">${field('Visit note (optional)', textArea('notes', d.notes || '', { rows: 3 }))}
+    <form class="form" data-form="fin" data-change="fin" data-input="fin">${field('Visit note (optional)', textArea('notes', d.notes || '', { rows: 3 }))}
       ${r.extra ? note('Your quarterly visit date stays ' + (q1 ? fmt(q1) : 'unset') + '.') : field('Next quarterly visit', textInput('next', next, { type: 'date', min: today() }))}</form>
     ${btn('Save visit', 'save', { kind: 'primary', cls: 'block', disabled: missing.length > 0 })}
     ${missing.length ? '' : btn('Copy summary for the pharmacist on duty', 'pdsum', { kind: 'link' })}

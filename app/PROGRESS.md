@@ -641,3 +641,10 @@ Checked and already passing:
 - C-03: "Set up another pharmacy" keeps the open pharmacy until Step 3; Back from Step 1 returns; welcome offers "Back to [Pharmacy]".
 - C-05: UAT "Reset test data" is blocked while a real pharmacy is on the device.
 - New `tests/batch1a.js`. Full run: 29 of 31 first time; wave1 and sprint5 fixed and re-run green. procgen identical for all 17.
+
+## Batch 1B (C-04, C-06, M-01, M-05) · 27 Nov 2026 · build 4f64f0558c
+- C-04: an adopted procedure offers "Update the draft" when setup answers change; the new Draft keeps the adopted version in `versions`, in use until the owner adopts the draft.
+- C-06: a second local edit queued mid-save keeps its merge base, so another tab's concurrent save is merged, not overwritten (pharmacy and drafts).
+- M-01: visit issue text, visit note and next date, and meeting minutes persist as drafts while typing.
+- M-05: the Home Screen line is first on Today; claude.ai preview hints hidden in the installable app.
+- New `tests/batch1b.js`. Full run once: 31 of 32 suites passed plus Check later; core crashed once mid-run and passed 3 times alone. procgen identical for all 17.

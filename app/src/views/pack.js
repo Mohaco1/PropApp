@@ -12,6 +12,7 @@ import { items, counts } from '../summary.js';
 import { requirements, credentialState } from '../model.js';
 import { issueCount } from '../issues.js';
 import { ARCHIVES } from './law.js';
+import { isPWA } from '../pwa.js';
 const L = C.law;
 // Bug 3: one reading of a record's next due date (reviews keep it in fields.next, visits on the record itself).
 const nextOf = r => { const n = r.fields?.next || r.next || ''; return isDate(n) ? fmt(n) : ''; };
@@ -75,7 +76,7 @@ function packScreen(c, inspect) {
       <div class="chips no-print" role="group" aria-label="Period">${RANGES.map(([k, l]) => h`<button class="chip ${k === range ? 'on' : ''}" data-act="range" data-r="${k}">${l}</button>`)}</div>
       <fieldset class="field no-print"><legend class="field-label">Include</legend><div class="ticks pticks">${SECS.map(([k, l]) => h`<label class="tick"><input type="checkbox" data-change="sec" data-k="${k}" ${on(k) ? h`checked` : ''}><span>${l}${hasData[k] ? '' : h` <span class="meta">· nothing yet</span>`}</span></label>`)}</div></fieldset>
       <div class="dock-inline no-print">${btn('Print or save as PDF', 'print', { kind: 'primary', cls: 'block' })}${btn('Show on screen (read-only)', 'inspect', { kind: 'link' })}</div>
-      <p class="hint no-print">Printing isn’t available inside the claude.ai preview: open the app file in your phone’s browser.</p>`;
+      ${isPWA() ? '' : h`<p class="hint no-print">Printing isn’t available inside the claude.ai preview: open the app file in your phone’s browser.</p>`}`;
     return screen({ title: inspect ? 'Inspector view' : 'Evidence pack', back: true, body: h`${controls}
       <div class="pack print-only${inspect ? ' inspect' : ''}">
         <header class="phead"><h1><span class="plogo">${logo(28)}</span> ${ph.name} · evidence pack</h1>

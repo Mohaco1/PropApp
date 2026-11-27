@@ -21,7 +21,7 @@ const server = http.createServer((q, r) => { let f = decodeURIComponent(q.url.sp
   ok(sw.state === 'activated' && /worker-src 'self'/.test(sw.csp) && /connect-src 'self'/.test(sw.csp), 'V3-01 the offline worker registers and activates under the CSP (worker-src and connect-src self only)');
   // records, then offline reload
   await tap(p, 'Try example'); await p.waitForTimeout(3400);
-  ok(await p.evaluate(() => document.querySelectorAll('.installline, .siteline, main > .card').length <= 1 + document.querySelectorAll('main .list .card').length), 'V3-01 the Home Screen hint waits its turn in Today’s single notice slot');
+  ok(await p.evaluate(() => { const il = document.querySelector('.installline'); return !!il && [...document.querySelectorAll('main .card, main .siteline, main .filters')].every(x => il.compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING); }), 'M-05 the Home Screen hint sits above Today’s setup and date cards (owner, Batch 1B)');
   await p.reload(); await p.waitForTimeout(800); await ctx.setOffline(true); await p.reload(); await p.waitForTimeout(1200);
   ok(/Wattle Grove Pharmacy/.test(await p.evaluate(() => document.body.innerText)) && /overdue/.test(await p.evaluate(() => document.body.innerText)), 'V3-01 offline: the app reloads from the worker’s cache with its records');
   await ctx.setOffline(false);

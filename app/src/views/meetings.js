@@ -26,24 +26,31 @@ register('meeting', {
     const prev = Object.fromEntries((last?.fields?.sections || []).map(s => [s.heading, s.text]));
     const openActs = Object.values(c.ph.actions).filter(x => x.status === 'open' && x.source?.recordId && x.source.recordId === last?.id);
     const staff = c.ph.staff.filter(p => p.active !== false);
+    // M-01: what's typed so far is kept as a draft, so opening an open item or reloading loses nothing.
+    const dr = c.draft(mkey(r.id)), val = (n, d0) => dr && n in dr ? dr[n] : d0, who = dr ? dr.who || [] : last?.fields?.attendees || [];
     // Bug 5: say "filled in" only when something really was (an attendee still on staff, or some discussion text).
     const filled = !!last && (staff.some(p => (last.fields?.attendees || []).includes(p.name)) || Object.values(prev).some(t => String(t || '').trim()));
     return screen({ title: a.name, back: true, body: h`<p class="muted">${a.frequency}${reviewDue(c.ph, r.id) ? ' · ' + dueText(reviewDue(c.ph, r.id)) : ''}${last ? ' · last ' + fmt(last.date) : ''}</p>
       ${filled ? note('Filled in from your last meeting (' + fmt(last.date) + '). Change anything that’s different.', 'ok') : ''}
       ${openActs.length ? h`<section class="sec"><h2 class="sec-title">Still open from last time</h2><div class="list">${openActs.map(x => row({ title: x.title, right: dueText(x.due), act: 'go', data: { to: 'action', id: x.id } }))}</div></section>` : ''}
-      <form class="form" data-form="save">${field('Date', textInput('date', today(), { type: 'date', max: today() }))}
-        ${staff.length ? h`<fieldset class="field"><legend class="field-label">Who was there</legend><div class="ticks">${staff.map(p => h`<label class="tick"><input type="checkbox" name="who" value="${p.name}" ${(last?.fields?.attendees || []).includes(p.name) ? h`checked` : ''}><span>${p.name}</span></label>`)}</div></fieldset>` : ''}
-        ${field('Others there (optional)', textInput('others', ''))}
-        ${sectionsFor(r.id).map((s, i) => field(s, textArea('s' + i, prev[s] || '', { rows: 3, noPatient: i === 0 || i === 3 })))}
-        ${field('New action from this meeting (optional)', textInput('action', ''))}
-        ${field('Next meeting', textInput('next', suggestedNext(c.ph, r.id, today()), { type: 'date' }))}
+      <form class="form" data-form="save" data-input="draft" data-change="draft">${field('Date', textInput('date', val('date', today()), { type: 'date', max: today() }))}
+        ${staff.length ? h`<fieldset class="field"><legend class="field-label">Who was there</legend><div class="ticks">${staff.map(p => h`<label class="tick"><input type="checkbox" name="who" value="${p.name}" ${who.includes(p.name) ? h`checked` : ''}><span>${p.name}</span></label>`)}</div></fieldset>` : ''}
+        ${field('Others there (optional)', textInput('others', val('others', '')))}
+        ${sectionsFor(r.id).map((s, i) => field(s, textArea('s' + i, val('s' + i, prev[s] || ''), { rows: 3, noPatient: i === 0 || i === 3 })))}
+        ${field('New action from this meeting (optional)', textInput('action', val('action', '')))}
+        ${field('Next meeting', textInput('next', val('next', suggestedNext(c.ph, r.id, today())), { type: 'date' }))}
         <div class="dock-inline">${btn('Save meeting', null, { kind: 'primary', type: 'submit' })}</div></form>` });
   },
   forms: { save: (c, f, el, r) => { const who = [...el.querySelectorAll('input[name=who]:checked')].map(i => i.value).concat(f.others ? [f.others.trim()] : []);
     c.change(ph => { const rec = addRecord(ph, { type: r.id, kind: 'meeting', title: reviewById(r.id).name, date: f.date, next: f.next, fields: { attendees: who, sections: sectionsFor(r.id).map((s, i) => ({ heading: s, text: f['s' + i] || '' })) }, answers: [] });
       if (f.action?.trim()) rec.actionIds.push(newAction(ph, { title: f.action.trim(), due: addDays(today(), 30), source: { type: 'meeting', recordId: rec.id, label: rec.title + ' · ' + f.date } }).id);
-      if (isDate(f.next)) ph.schedule[r.id] = f.next; }, 'Meeting saved'); c.back(); } },
+      if (isDate(f.next)) ph.schedule[r.id] = f.next; }, 'Meeting saved'); c.saveDraft(mkey(r.id), null); c.back(); } },
+  inputs: { draft: (c, el, r) => saveMeetingDraft(c, el, r) }, changes: { draft: (c, el, r) => saveMeetingDraft(c, el, r) },
 });
+const mkey = id => 'meeting/' + id;
+function saveMeetingDraft(c, el, r) { const form = el.closest('form'); if (!form) return; const f = Object.fromEntries(new FormData(form)); delete f.who;
+  const d = { ...f, who: [...form.querySelectorAll('input[name=who]:checked')].map(i => i.value) }, cur = c.draft(mkey(r.id));
+  if (cur) { const { rev, ...rest } = cur; if (JSON.stringify(rest) === JSON.stringify(d)) return; } c.saveDraft(mkey(r.id), d); }
 register('meeting-rec', {
   tab: 'more',
   render(c, r) { const rec = c.ph.records.find(x => x.id === r.id); if (!rec) return screen({ title: 'Meeting', back: true, body: empty('Not found.') });

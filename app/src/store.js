@@ -92,6 +92,12 @@ function mergeDrafts(k, v, stored) {
     if (sv && sv.rev && sv.rev !== b0 && (!mine || mine.rev !== sv.rev)) { if (mine && mine.rev !== b0) { merged[dk + '/conflict-' + Date.now()] = { ...mine }; kept = true; } merged[dk] = sv; } }
   return merged;
 }
+// C-06: drafts the queued edit left alone take what was just written (another tab's newer copy included) and use it as
+// their base; drafts it changed again keep the old base, so the next save still keeps the other tab's copy.
+function rebaseDrafts(k, v, orig) { const later = pending.get(k), b = bases.get(k) || {}, nb = {};
+  for (const dk of new Set([...Object.keys(b), ...Object.keys(v), ...Object.keys(later)])) { if (dk.includes('/conflict-')) continue;
+    if (later[dk] === orig[dk]) { if (v[dk] === undefined) delete later[dk]; else later[dk] = v[dk]; nb[dk] = v[dk]?.rev; } else nb[dk] = b[dk]; }
+  bases.set(k, nb); }
 function mergeOne(k, v, stored) {
   if (!v) return v;
   if (k.startsWith('propapp:ph:') || k === 'propapp:dir') { if (replacing.has(k) || !seen.has(k) || !stored || same(stored, seen.get(k))) return v; merged3 = true; return merge3(seen.get(k), v, stored); } // C-01: the directory (ids, archived) merges the same way
@@ -115,7 +121,12 @@ async function flushNow() {
       for (const item of batch) { const [k, v] = item; if (!needsRead(k, v)) { write(item); continue; }
         const g = s.get(k); g.onsuccess = () => { item[1] = mergeOne(k, v, g.result); write(item); }; }
       tx.oncomplete = res; tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); });
-    for (const [k, v, orig] of batch) { if (k.startsWith('propapp:ph:') || k === 'propapp:dir') v === undefined ? seen.delete(k) : seen.set(k, clone(v)); replacing.delete(k); bases.delete(k);
+    for (const [k, v, orig] of batch) { const isPh = k.startsWith('propapp:ph:') || k === 'propapp:dir', queued = pending.has(k) && mem.get(k) !== orig;
+      // C-06: a later edit of this window (queued while this save was merging another tab's change in) was made from
+      // `orig`, not from what was written. Keep `orig` as its merge base so the next save merges it against what was
+      // written, instead of finding storage "unchanged" and writing it over the other tab's save.
+      if (isPh) v === undefined ? seen.delete(k) : seen.set(k, clone(queued && v !== orig ? orig : v)); replacing.delete(k);
+      if (queued && k.startsWith('propapp:drafts:') && v && orig) rebaseDrafts(k, v, orig); else bases.delete(k);
       if (v !== orig) { if (mem.get(k) === orig) mem.set(k, v); else if (pending.has(k) && k.startsWith('propapp:drafts:')) { const later = pending.get(k); for (const [dk, x] of Object.entries(v)) if (dk.includes('/conflict-') && !later[dk]) later[dk] = x; } } }
     for (const [k] of batch) { inflight.delete(k); loadedAt.set(k, Date.now()); if (!pending.has(k)) try { localStorage.removeItem(JOURNAL + TAB + ':' + k); } catch {} }
     chan?.postMessage({ keys: batch.map(b => b[0]) });

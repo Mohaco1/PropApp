@@ -46,7 +46,7 @@ register('procedures', {
     const act = Object.keys(c.ph.services).filter(k => c.ph.services[k].active);
     return screen({ title: 'Procedures', back: true, body: h`<p class="muted">Drafts are written from your setup answers and cite their sources. You adopt each one when it matches how you work.</p>
       <div class="list">${act.map(id => { const p = c.ph.procedures.find(x => x.service === id), v = current(p), b = v ? blockers(v.body) : [];
-        return row({ title: serviceName(id), sub: !p ? (c.ph.services[id].setup === 'done' ? 'Ready to draft' : 'Finish its setup first') : p.status === 'adopted' ? 'Adopted · version ' + v.v : 'Draft ' + v.v + (b.length ? ' · ' + b.length + ' to confirm' : ''), ic: svcIcon(id), right: p?.status === 'adopted' ? 'Adopted' : p ? 'Draft' : '', tone: p?.status === 'adopted' ? 'ok' : b.length ? 'warn' : '', act: 'go', data: { to: 'procedure', id } }); })}</div>
+        return row({ title: serviceName(id), sub: !p ? (c.ph.services[id].setup === 'done' ? 'Ready to draft' : 'Finish its setup first') : p.status === 'adopted' ? 'Adopted · version ' + v.v : 'Draft ' + v.v + (p.versions.some(x => x.status === 'Adopted') ? ' · version ' + p.versions.filter(x => x.status === 'Adopted').at(-1).v + ' in use' : '') + (b.length ? ' · ' + b.length + ' to confirm' : ''), ic: svcIcon(id), right: p?.status === 'adopted' ? 'Adopted' : p ? 'Draft' : '', tone: p?.status === 'adopted' ? 'ok' : b.length ? 'warn' : '', act: 'go', data: { to: 'procedure', id } }); })}</div>
       <section class="sec"><h2 class="sec-title">Other documents · ${c.ph.documents.length}</h2><p class="muted">Where your other policies and templates are kept: a link or a reference, never the document itself.</p>
         ${c.ph.documents.length ? h`<div class="list">${c.ph.documents.map(d => row({ title: d.title, sub: [d.ref, d.version && 'version ' + d.version, d.reviewDate && 'review ' + fmt(d.reviewDate)].filter(Boolean).join(' · '), act: 'go', data: { to: 'docref', id: d.id } }))}</div>` : ''}
         ${btn('+ Add a document reference', 'go', { kind: 'link', data: { to: 'docref', id: '' } })}</section>` });
@@ -58,7 +58,9 @@ const VIEW = {
     const id = r.id, p = c.ph.procedures.find(x => x.service === id), v = current(p), fresh = c.ph.services[id]?.setup === 'done' ? draftText(c.ph, id) : '';
     const mode = c.ui['pm:' + id] || '';
     if (!p) return screen({ title: serviceName(id), back: true, body: fresh ? h`<p class="muted">Here is the draft written from your answers. Save it to keep it as version 0.1.</p>${btn('Save this draft', 'save', { kind: 'primary', cls: 'block' })}<div class="doc">${fresh}</div>` : note('Finish this service’s setup questions first.', 'warn') });
-    const b = blockers(v.body), changed = fresh && fresh !== v.generated && p.status !== 'adopted';
+    const b = blockers(v.body), changed = fresh && fresh !== v.generated;
+    // C-04: the adopted version a newer draft would replace. It stays in use (and in the history) until the owner adopts the draft.
+    const inUse = p.status !== 'adopted' ? p.versions.filter(x => x.status === 'Adopted').at(-1) : null;
     // Owner trial: a "Write the steps …" item can't be answered by a setup question (the clinical steps are the
     // pharmacy's to write), so it opens here with the placeholder selected, or points to "We have our own procedure".
     const finding = c.ui['pmfind:' + id];
@@ -66,6 +68,7 @@ const VIEW = {
       : h`<div class="note warn"><p><b>To check: ${finding.replace(/^\[Confirm: |\]$/g, '')}.</b> Read the highlighted step against its source (listed at the end of the procedure). Change the wording here if anything differs. When you’re satisfied, remove the marker.</p>${btn('I’ve checked it — remove this marker', 'checked', { cls: 'block' })}${btn('Change my setup answer instead', 'fixq', { kind: 'link', data: { q: finding.replace(/^\[Confirm: |\]$/g, '') } })}</div>`) : ''}<form class="form" data-form="edit">${field('Procedure text', textArea('body', v.body, { rows: 18, noPatient: true }))}<div class="dock-inline">${btn('Save as new version', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'mode', { data: { m: '' } })}</div></form>` });
     return screen({ title: serviceName(id) + ' procedure', back: true, body: h`
       <p>${pill(p.status === 'adopted' ? 'Adopted · version ' + v.v : 'Draft ' + v.v, p.status === 'adopted' ? 'ok' : 'warn')} <span class="muted">${fmt(day(v.at))}</span></p>
+      ${inUse ? note('Version ' + inUse.v + ', adopted ' + fmt(day(inUse.adoptedAt || inUse.at)) + ', stays in use until you adopt this draft.', 'ok') : ''}
       ${changed ? note(h`Your setup answers changed since this draft. ${btn('Update the draft', 'regen', { kind: 'link' })}`, 'warn') : ''}
       ${b.length && p.status !== 'adopted' ? h`<section class="sec"><h2 class="sec-title">To confirm before adopting · ${b.length}</h2><div class="list">${b.map(x => /^write the steps/i.test(x) ? row({ title: x.charAt(0).toUpperCase() + x.slice(1), sub: 'Write the steps yourself in Edit (PharmLedger doesn’t write clinical steps), or say you have your own procedure', act: 'fixwrite', data: { q: x } })
           : row({ title: x.charAt(0).toUpperCase() + x.slice(1), sub: 'Check it in the text, then confirm', act: 'fixwrite', data: { q: x } }))}</div></section>` : ''}
