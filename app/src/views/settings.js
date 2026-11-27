@@ -10,6 +10,7 @@ import { pharmacyBackup, importBackup, openExample, backupNow, conflictTime } fr
 import { saveFile } from '../ics.js';
 import { items, counts } from '../summary.js';
 import { copyText } from '../clip.js';
+import * as sync from '../sync.js';
 register('details', {
   tab: 'more',
   render(c) { const ph = c.ph;
@@ -32,6 +33,7 @@ register('backup', {
       ${isPWA() ? h`<div class="card" id="device"><h2>This device</h2><p class="muted">${standalone() ? 'Opened from your Home Screen.' : 'Opened in the browser. Add it to your Home Screen so your phone keeps your records: on iPhone, tap Share, then Add to Home Screen; on Android, tap the three-dot menu (⋮), then Install app.'}</p>
         ${standalone() ? '' : h`<p class="note warn">On iPhone, the Home Screen app keeps its own records, separate from Safari. If you’ve already entered records here, download a backup first, then restore it in the Home Screen app.</p>`}
 </div>` : ''}
+      ${sync.canNetwork() ? syncCard() : ''}
       <div class="card"><h2>Restore</h2><p class="muted">Open a PharmLedger backup (from this app, or the earlier Sigil, PropApp or R.Pharmacy). If the pharmacy is already here you’re asked before anything is replaced.</p>
         <label class="btn secondary block" style="display:grid;place-items:center">Choose a backup file<input type="file" accept="application/json,.json" data-change="restore" class="vh-file"></label></div>
       ${(() => { const cf = Object.entries(c.drafts).filter(([k]) => k.includes('/conflict-')); return h`<section class="sec"><h2 class="sec-title">Conflict copies · ${cf.length}</h2><p class="muted">If the same draft was changed in two places (for example two tabs), the newer one is kept and the other is saved here instead of being lost.</p>
@@ -43,11 +45,25 @@ register('backup', {
     const el = document.getElementById('storage'); if (!el) return; let txt = 'This browser doesn’t report storage details.';
     try { const e = await navigator.storage?.estimate?.(), pers = await navigator.storage?.persisted?.(); if (e) txt = 'Using ' + (e.usage / 1048576).toFixed(1) + ' MB of about ' + Math.round(e.quota / 1048576) + ' MB available. ' + (pers ? 'The browser has agreed to keep this data.' : 'The browser may clear it if the device runs short of space: keep backups.'); } catch {}
     el.innerHTML = ''; const p = document.createElement('p'); p.textContent = txt; el.append(p); },
-  acts: { cfdel: (c, d) => { c.saveDraft(d.k, null); c.rerender(); c.toast('Conflict copy dismissed'); },
+  forms: { synclink: async (c, f) => { const email = String(f.email || '').trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { const inp = document.querySelector('form[data-form=synclink] input[name=email]'); if (inp && !inp.parentNode.querySelector('.err')) inp.insertAdjacentHTML('afterend', '<span class="err" role="alert">Enter your email address.</span>'); inp?.setAttribute('aria-invalid', 'true'); inp?.focus(); return; }
+    await sync.requestMagicLink(email); c.rerender(); } },
+  acts: { syncnow: async c => { c.rerender(); await sync.syncAll(() => c.rerender()); c.rerender(); },
+    syncoff: c => { sync.disconnect(); c.rerender(); c.toast('Disconnected. Your records stay on this phone.'); },
+    cfdel: (c, d) => { c.saveDraft(d.k, null); c.rerender(); c.toast('Conflict copy dismissed'); },
     cfcopy: async (c, d) => { if (await copyText(JSON.stringify(c.drafts[d.k], null, 1))) { c.toast('Copied'); } else { c.toast('Copy didn’t work here.'); } },
     dl: c => backupNow(c) },
   changes: { restore: (c, el) => importBackup(c, el.files[0], el) },
 });
+// D3-C: sync across devices, in the installable app only. Calm and short: what it does, then one way to start.
+const SYNC_ERR = { offline: 'You’re offline. Try again when you’re back online.', busy: 'Too many links asked for just now. Wait a few minutes, then try again.', email: 'That email address wasn’t accepted. Check it and try again.', server: 'Couldn’t reach the sync service just now. Try again later.', 'too-big': 'A pharmacy is too large to sync. Your records are safe on this phone.' };
+function syncCard() { const st = sync.status();
+  if (st.signedIn) { const line = st.state === 'syncing' ? 'Syncing…' : st.state === 'offline' ? 'Offline. It syncs when you’re back online.' : st.state === 'error' ? 'Couldn’t sync just now. ' + (SYNC_ERR[st.error] || '') : st.lastSyncAt ? 'Up to date · last synced ' + fmt(day(st.lastSyncAt)) + '.' : 'Signed in. Not synced yet.';
+    return h`<div class="card" id="sync"><h2>Sync across devices</h2><p class="muted" role="status">${line}</p><p class="muted">Your other devices signed in with the same email see the same records.</p>
+      <span class="btnrow">${btn('Sync now', 'syncnow')}${btn('Disconnect', 'syncoff', { kind: 'link' })}</span></div>`; }
+  const msg = st.pending ? note(st.state === 'signing-in' ? 'Signing you in…' : 'Signing you in when you’re back online.', 'ok') : st.state === 'link-sent' ? note('Check your email on this phone and tap the link. It works once, for 15 minutes.', 'ok') : st.state === 'link-failed' ? note('That sign-in link was already used or has expired. Ask for a new one.', 'warn') : st.state === 'link-error' ? note(SYNC_ERR[st.error] || SYNC_ERR.server, 'warn') : st.state === 'signed-out' ? note('You were signed out. Your records are still here; ask for a new link to keep syncing.', 'warn') : '';
+  return h`<div class="card" id="sync"><h2>Sync across devices</h2><p class="muted">Keep your other phone or tablet up to date. Your records stay on this device too. Only pharmacy records are synced, never patient details.</p>${msg}
+    ${st.pending ? '' : h`<form class="form" data-form="synclink">${field('Your email', textInput('email', '', { type: 'email', placeholder: 'name@example.com' }))}${btn('Email me a sign-in link', null, { type: 'submit', cls: 'block' })}</form>`}</div>`; }
 register('pharmacies', {
   tab: 'more',
   render(c) { const d = c.store.dir(), act = c.store.activeIds(), arch = d.ids.filter(id => !act.includes(id));
@@ -76,7 +92,7 @@ register('phmanage', {
         ${c.ui.delArmed === p.id ? h`<span class="note warn">This can’t be undone. Download a backup of it first if you might want it back.${btn('Download its backup', 'delbk', { kind: 'link', data: { id: p.id } })}</span>` : ''}</span></div>`)}</div>` : empty('No other pharmacies to archive or delete.')}` }); },
   acts: {
     arch: (c, d) => { c.store.setArchived(d.id, true); c.rerender(); c.toast('Archived. Records kept; unarchive it from Pharmacies.'); },
-    del: async (c, d) => { if (c.ui.delArmed !== d.id) { c.ui.delArmed = d.id; c.rerender(); return; } c.ui.delArmed = ''; const name = c.store.pharmacy(d.id)?.name; c.store.removePharmacy(d.id); await c.store.flush(); c.rerender(); c.toast('Deleted ' + name + ' from this device'); },
+    del: async (c, d) => { if (c.ui.delArmed !== d.id) { c.ui.delArmed = d.id; c.rerender(); return; } c.ui.delArmed = ''; const name = c.store.pharmacy(d.id)?.name; c.store.removePharmacy(d.id); await c.store.flush(); c.sync.schedule(() => c.rerender(), 0); c.rerender(); c.toast('Deleted ' + name + ' from this device'); },
     delbk: async (c, d) => { const p = c.store.pharmacy(d.id); const ok = await saveFile(p.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify({ app: 'PropApp', format: 1, exportedAt: new Date().toISOString(), pharmacy: p, drafts: c.store.drafts(d.id) }), 'application/json'); c.toast(ok ? 'Backup download requested' : 'The backup wasn’t saved. Try again before deleting.'); },
   },
 });

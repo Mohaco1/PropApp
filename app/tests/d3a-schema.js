@@ -13,7 +13,7 @@ const { chromium } = require('playwright');
 const { phone, ok, done, tap, text, saved } = require('./helpers.js');
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'd3a-'));
 const SRC = path.resolve(__dirname, '../src');
-const bundle = async (format, globalName) => (await esbuild.build({ stdin: { contents: "export * from './model.js'; export * as store from './store.js';", resolveDir: SRC, loader: 'js' }, bundle: true, write: false, format, globalName, loader: { '.css': 'text', '.json': 'json' }, target: 'es2020', logLevel: 'silent' })).outputFiles[0].text;
+const bundle = async (format, globalName) => (await esbuild.build({ stdin: { contents: "export * from './model.js'; export * as store from './store.js'; export { importLegacy } from './legacy.js';", resolveDir: SRC, loader: 'js' }, bundle: true, write: false, format, globalName, loader: { '.css': 'text', '.json': 'json' }, target: 'es2020', logLevel: 'silent' })).outputFiles[0].text;
 const J = x => JSON.stringify(x);
 
 // A schema 1 record as an earlier build saved it: no ids on history, action logs, procedure versions or reviews,
@@ -87,6 +87,26 @@ const legacyPh = () => ({
   const hb = { history: [{ id: 'h1', what: 'x' }] };
   r = S.merge3(hb, { history: [...hb.history, { id: 'h2', what: 'mine' }] }, { history: [...hb.history, { id: 'h3', what: 'theirs' }] });
   ok(J(r.history.map(x => x.id)) === J(['h1', 'h2', 'h3']), '2. new history lines from both sides are kept, by id');
+  // D3-C edge cases (pure)
+  const tA = S.merge3(live, { ...live, name: 'B' }, { ...live, name: 'C' }), tB = S.merge3(live, { ...live, name: 'C' }, { ...live, name: 'B' });
+  ok(tA.name === tB.name && tA.name === 'C', '2. D3-C an equal-updatedAt scalar conflict resolves the same way on both devices');
+  const pv = (id, v, at, status) => ({ id, v, at, status, body: v });
+  const pb = { procedures: [{ id: 'proc:daa', service: 'daa', status: 'draft', versions: [pv('v1', '0.1', T0, 'Draft')] }] };
+  const pm = { procedures: [{ ...pb.procedures[0], status: 'adopted', versions: [...pb.procedures[0].versions, pv('v2', '1.0', T1, 'Adopted')] }] };
+  const pt = { procedures: [{ ...pb.procedures[0], status: 'draft', versions: [...pb.procedures[0].versions, pv('v3', '0.2', T2, 'Draft')] }] };
+  const pmt = S.merge3(pb, pm, pt).procedures[0], ptm = S.merge3(pb, pt, pm).procedures[0];
+  ok(J(pmt) === J(ptm) && J(pmt.versions.map(v => v.id)) === J(['v1', 'v2', 'v3']) && pmt.status === 'draft', '2. D3-C adopt on one device + edit on another: same version order both ways, status follows the latest version (draft)');
+  const pt2 = { procedures: [{ ...pb.procedures[0], versions: [...pb.procedures[0].versions, pv('v3', '0.2', '2026-11-01T12:00:00.000Z', 'Draft')] }] };
+  ok(S.merge3(pb, pm, pt2).procedures[0].status === 'adopted', '2. D3-C …and adopted when the adopted version is the latest');
+  const D1 = '2026-11-01T00:00:00.000Z', R1 = '2026-11-02T00:00:00.000Z', D2 = '2026-11-03T00:00:00.000Z';
+  const db0 = { active: 'y', ids: ['y'], tombstones: { x: D1 } }, dm = { active: 'x', ids: ['y', 'x'], restored: { x: R1 } };
+  let dr = S.mergeDir(db0, dm, { ...db0, tombstones: { x: D2 } });
+  ok(dr.tombstones?.x === D2 && !dr.ids.includes('x'), '2. D3-C an older restore never erases a newer deletion (directory tombstone kept, not listed)');
+  dr = S.mergeDir(db0, dm, { ...db0 });
+  ok(!dr.tombstones && dr.ids.includes('x'), '2. D3-C a restore later than the deletion it removes stands');
+  const lb = { version: 2, exportedAt: '2026-11-20T00:00:00.000Z', data: { pharmacyName: 'Legacy Test Pharmacy (fictional)', reviews: [], staff: [], active: [] } };
+  const li1 = M.importLegacy(JSON.parse(J(lb))).pharmacy.id, li2 = M.importLegacy(JSON.parse(J(lb))).pharmacy.id, li3 = M.importLegacy({ ...lb, exportedAt: '2026-11-21T00:00:00.000Z' }).pharmacy.id;
+  ok(li1 === li2 && li1 !== li3 && /^ph:[0-9a-f]{16}$/.test(li1), '2. D3-C an R.Pharmacy backup without its own id gets the same pharmacy id on every device (' + li1 + ')');
 
   // ── 3. Storage in a real browser (IndexedDB), two tabs
   const harness = path.join(TMP, 'store.html');
@@ -153,6 +173,19 @@ const legacyPh = () => ({
   const gone = await C.evaluate(async r => { const out = D3.store.applyRemoteSync('ph-two', { ...r, deletedAt: '2027-01-02T00:00:00.000Z', updatedAt: '2027-01-02T00:00:00.000Z' }, 10); await D3.store.flush(); return out; }, remote);
   all = await idb(C);
   ok(gone.deletedAt && !all['propapp:ph:ph-two'] && all['propapp:tomb:ph-two']?.rev === 10 && phKeys(all).length === 1, '3. a remote deletion becomes a local tombstone (propapp:tomb:<id>), the record is removed');
+  // D3-C: revisions only move forward
+  const stale = await C.evaluate(async r => { const a = D3.store.applyRemoteSync('ph-two', { ...r, name: 'Older' }, 5), b = D3.store.commitSyncAck('ph-two', { rev: 4, base: r }); await D3.store.flush(); return { a, b, rev: D3.store.syncState('ph-two').rev }; }, remote);
+  ok(stale.a === null && stale.b === null && stale.rev === 10, '3. D3-C an older remote rev or ack is a no-op (applyRemoteSync and commitSyncAck)');
+  // D3-C: the server undeletes it after this device's deletion was acked: the server copy is taken whole
+  const und = await C.evaluate(async r => { const out = D3.store.applyRemoteSync('ph-two', { ...r, name: 'Undeleted (fictional)', deletedAt: null, updatedAt: '2027-01-03T00:00:00.000Z' }, 11); await D3.store.flush(); return out; }, remote);
+  all = await idb(C);
+  ok(und && und.deletedAt === null && und.name === 'Undeleted (fictional)' && und.history.length === M.migratePharmacy(remote).history.length && all['propapp:ph:ph-two'] && !all['propapp:tomb:ph-two'] && all['propapp:dir'].ids.includes('ph-two'), '3. D3-C an explicit remote undelete takes the server copy whole and clears the tombstone');
+  // D3-C: an interrupted delete left both the record and a newer tombstone; the next start purges the record
+  const oldPh = { ...M.migratePharmacy({ ...legacyPh(), id: 'ph-int' }), updatedAt: '2026-11-20T00:00:00.000Z' };
+  await putIdb(C, 'propapp:ph:ph-int', oldPh); await putIdb(C, 'propapp:tomb:ph-int', { id: 'ph-int', schema: 2, rev: 0, updatedAt: '2026-11-21T00:00:00.000Z', deletedAt: '2026-11-21T00:00:00.000Z' });
+  const dirNow = (await idb(C))['propapp:dir']; await putIdb(C, 'propapp:dir', { ...dirNow, ids: [...dirNow.ids, 'ph-int'] });
+  const C3 = await tab(); await C3.evaluate(() => D3.store.flush()); await C3.waitForTimeout(200); all = await idb(C3);
+  ok(!all['propapp:ph:ph-int'] && all['propapp:tomb:ph-int'] && !all['propapp:dir'].ids.includes('ph-int') && all['propapp:dir'].tombstones?.['ph-int'] === '2026-11-21T00:00:00.000Z' && await C3.evaluate(() => D3.store.pharmacy('ph-int') === null), '3. D3-C an interrupted delete is finished at start: the tombstone wins, the record is purged and unlisted');
   ok(errs.length === 0, '3. no console errors in the storage tabs' + (errs.length ? ': ' + errs.slice(0, 2).join(' | ') : ''));
   await br.close();
 

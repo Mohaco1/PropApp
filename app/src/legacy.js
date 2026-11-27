@@ -1,13 +1,15 @@
 // Brings a backup from the current app (R.Pharmacy UAT, format version 2) into the new model.
 // Nothing is dropped: every original record is also kept under `legacy` so History and exports can show it exactly.
-import { emptyPharmacy, migratePharmacy } from './model.js';
+import { emptyPharmacy, migratePharmacy, detId } from './model.js';
 import { isDate } from './dates.js';
 const RESULT = { Verified: 'ok', 'Needs Review': 'issue', 'Not Applicable': 'na' };
 const day = s => String(s || '').slice(0, 10);
 export function isLegacyBackup(b) { return !!(b && b.version === 2 && b.data && Array.isArray(b.data.reviews)); }
 export function importLegacy(backup) {
   const d = backup.data, ph = emptyPharmacy(d.pharmacyName || 'Pharmacy');
-  ph.id = d.taskPharmacyId || ph.id;
+  // D3-C: a backup without its own pharmacy id gets one derived from its name and export time, so restoring the same
+  // file on two devices gives the same pharmacy (and they sync as one), never two random ids.
+  ph.id = d.taskPharmacyId || detId('ph', [d.pharmacyName || 'Pharmacy', backup.exportedAt || '']);
   const sp = d.siteProfile || {};
   Object.assign(ph, { address: sp.address || '', region: sp.region || '', identifier: sp.identifier || '' });
   ph.proprietors = (d.proprietors || []).map(p => ({ id: p.id, name: p.name, primary: !!p.primary }));

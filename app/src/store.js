@@ -23,7 +23,7 @@ function open() {
 async function getAll() {
   // Stage 3D: storage that is switched off or blocked (SecurityError on localStorage itself, even reading .length) starts
   // the app with nothing loaded instead of rejecting startup.
-  if (useLS || !db) { try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k?.startsWith('propapp:') && !pending.has(k) && !inflight.has(k)) try { const v = mig(k, JSON.parse(localStorage.getItem(k))); mem.set(k, v); if (k.startsWith('propapp:ph:') || k === 'propapp:dir') seen.set(k, clone(v)); } catch {} } } catch {} return; }
+  if (useLS || !db) { try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k?.startsWith('propapp:') && !pending.has(k) && !inflight.has(k)) try { const v = mig(k, JSON.parse(localStorage.getItem(k))); mem.set(k, v); if (k.startsWith('propapp:ph:') || k === 'propapp:dir') seen.set(k, clone(v)); } catch {} } } catch {} purgeResurrected(); return; }
   await new Promise(res => {
     const tx = db.transaction(ST), s = tx.objectStore(ST), r = s.openCursor();
     // A value this window hasn't saved yet, or is saving right now, stays as it is (and keeps its merge base), so the save
@@ -32,6 +32,7 @@ async function getAll() {
     r.onsuccess = () => { const c = r.result; if (c) { if (!pending.has(c.key) && !inflight.has(c.key)) { const v = mig(c.key, c.value); mem.set(c.key, v); loadedAt.set(c.key, Date.now()); if (String(c.key).startsWith('propapp:ph:') || c.key === 'propapp:dir') seen.set(c.key, clone(v)); } c.continue(); } else res(); };
     r.onerror = () => res();
   });
+  purgeResurrected();
 }
 const pending = new Map(); let timer = null;
 // R06: what this window last read or wrote for each pharmacy. If storage has moved on since (another tab saved), the
@@ -55,9 +56,20 @@ export function merge3(b, m, t, at = {}) {
   if (plain(m) && plain(t)) { const nat = { m: m.updatedAt ?? at.m, t: t.updatedAt ?? at.t }, pb = plain(b) ? b : undefined;
     const out = {}; for (const k of new Set([...Object.keys(m), ...Object.keys(t)])) { const r = merge3(pb ? pb[k] : undefined, m[k], t[k], nat); if (r !== undefined) out[k] = r; }
     if ('deletedAt' in m || 'deletedAt' in t) out.deletedAt = tombWinner(pb?.deletedAt || null, m, t);
+    if (Array.isArray(out.versions) && typeof out.service === 'string') settleProcedure(out, m, t);
     return out; }
-  if (m !== undefined && t !== undefined && later(at.t, at.m)) return t;
+  // D3-C: both devices must pick the same side, so a tie (equal parent updatedAt, or neither has one) goes to the larger
+  // JSON value rather than to "mine".
+  if (m !== undefined && t !== undefined) { if (String(at.m ?? '') === String(at.t ?? '')) return JSON.stringify(m) >= JSON.stringify(t) ? m : t; if (later(at.t, at.m)) return t; }
   return m;
+}
+// D3-C: a procedure adopted on one device and edited on another. When both sides added versions, the merged list is put
+// in time order (then id), so both devices hold the same order, and the status follows the latest version: adopted only
+// if that version is the adopted one.
+const vOrder = (a, b) => String(a?.at || '').localeCompare(String(b?.at || '')) || String(a?.id || '').localeCompare(String(b?.id || ''));
+function settleProcedure(p, m, t) {
+  if (!same(p.versions, m.versions) && !same(p.versions, t.versions)) p.versions = [...p.versions].sort(vOrder);
+  if (p.versions.length) p.status = p.versions.at(-1)?.status === 'Adopted' ? 'adopted' : 'draft';
 }
 function tombWinner(db, m, t) {
   const dm = m.deletedAt || null, dt = t.deletedAt || null;
@@ -70,8 +82,15 @@ function tombWinner(db, m, t) {
 // restore does, stays removed), and a tombstoned id is never listed or archived.
 function stripTombs(d) { if (!plain(d)) return d; const tb = plain(d.tombstones) ? d.tombstones : null; if (!tb || !Object.keys(tb).length) return d;
   return { ...d, ids: (d.ids || []).filter(x => !tb[x]), archived: (d.archived || []).filter(x => !tb[x]) }; }
-function mergeDir(b, m, t) { const out = merge3(b, m, t); const bt = plain(b?.tombstones) ? b.tombstones : {}, mt = plain(m?.tombstones) ? m.tombstones : {}, tt = plain(t?.tombstones) ? t.tombstones : {};
-  const tomb = {}; for (const [id, at] of [...Object.entries(mt), ...Object.entries(tt)]) { const gone = (id in bt) && (!(id in mt) || !(id in tt)); if (gone) continue; if (!tomb[id] || later(at, tomb[id])) tomb[id] = at; }
+// D3-C: a side that removed a tombstone the base held (a restore) only takes it away when that restore is later than the
+// tombstone the other side holds now, so an older restore never erases a newer deletion. A restore is stamped in
+// `restored` (id → time); without a stamp (older data) the removal stands only if the other side's tombstone is the base's.
+export function mergeDir(b, m, t) { const out = merge3(b, m, t); const tb = x => (plain(x?.tombstones) ? x.tombstones : {}), rs = x => (plain(x?.restored) ? x.restored : {});
+  const bt = tb(b), mt = tb(m), tt = tb(t), rm = rs(m), rt = rs(t);
+  const tomb = {}; for (const [id, at, side] of [...Object.entries(mt).map(e => [...e, 'm']), ...Object.entries(tt).map(e => [...e, 't'])]) {
+    const other = side === 'm' ? tt : mt, ra = side === 'm' ? rt[id] : rm[id];
+    if ((id in bt) && !(id in other) && (ra ? later(ra, at) : at === bt[id])) continue;
+    if (!tomb[id] || later(at, tomb[id])) tomb[id] = at; }
   if (Object.keys(tomb).length) out.tombstones = tomb; else delete out.tombstones; return stripTombs(out); }
 // Real save state for the header: saving, saved, or failed (then retried with a growing wait).
 let status = 'saved', onStatus = null, tries = 0;
@@ -104,11 +123,14 @@ async function replayJournal() { const keys = []; try { for (let i = 0; i < loca
   // committed the replayed copy (flushNow), so a failed or interrupted replay is tried again on the next start.
   for (const e of entries) {
     if ((e.replace ? e.at : (e.baseAt || e.at)) < restoredAt(e.k)) { try { localStorage.removeItem(e.jk); } catch {} continue; }
+    // D3-C: a live copy no newer than this pharmacy's tombstone is what an interrupted delete left behind: not replayed.
+    if (isPh(e.k) && e.v && !e.replace && tombWins(e.v, tombFor(e.k.slice(PH.length)))) { try { localStorage.removeItem(e.jk); } catch {} continue; }
     const cur = mem.get(e.k); let v = mig(e.k, e.v);
     if (e.replace) replacing.add(e.k); else if (e.base && cur && merges(e.k)) v = e.k === 'propapp:dir' ? mergeDir(e.base, v, cur) : merge3(mig(e.k, e.base), v, cur);
     (replayed.get(e.k) || replayed.set(e.k, []).get(e.k)).push(e.jk);
     mem.set(e.k, v); put(e.k, v); }
-  if (entries.length) await flush(); }
+  purgeResurrected();
+  if (entries.length || pending.size) await flush(); }
 const replayed = new Map();
 function put(k, v) {
   mem.set(k, v); pending.set(k, v); setStatus('saving');
@@ -239,7 +261,7 @@ export async function restorePharmacy(ph, all, { replace = true } = {}) {
   const before = keys.map(k => ({ k, mem: mem.has(k) ? mem.get(k) : NONE, pend: pending.has(k) ? pending.get(k) : NONE, rep: replacing.has(k), base: bases.get(k) }));
   if (replace && ph.deletedAt) ph = { ...ph, deletedAt: null };
   savePharmacy(ph, { replace }); setDrafts(ph.id, all, { replace });
-  const d = clone(dir()); if (replace && d.tombstones?.[ph.id]) { d.tombstones = { ...d.tombstones }; delete d.tombstones[ph.id]; if (!Object.keys(d.tombstones).length) delete d.tombstones; } if (!d.ids.includes(ph.id)) d.ids.push(ph.id); d.archived = (d.archived || []).filter(x => x !== ph.id); d.active = ph.id; setDir(d);
+  const d = clone(dir()); if (replace && d.tombstones?.[ph.id]) { d.tombstones = { ...d.tombstones }; delete d.tombstones[ph.id]; if (!Object.keys(d.tombstones).length) delete d.tombstones; d.restored = { ...(d.restored || {}), [ph.id]: new Date().toISOString() }; } if (!d.ids.includes(ph.id)) d.ids.push(ph.id); d.archived = (d.archived || []).filter(x => x !== ph.id); d.active = ph.id; setDir(d);
   if (await flush()) return true;
   for (const b of before) { b.mem === NONE ? mem.delete(b.k) : mem.set(b.k, b.mem); b.pend === NONE ? pending.delete(b.k) : pending.set(b.k, b.pend);
     b.rep ? replacing.add(b.k) : replacing.delete(b.k); b.base === undefined ? bases.delete(b.k) : bases.set(b.k, b.base);
@@ -252,23 +274,56 @@ export async function restorePharmacy(ph, all, { replace = true } = {}) {
 export function removePharmacy(id) { const ph = pharmacy(id), now = new Date().toISOString(), s0 = syncState(id);
   const rev = Math.max(Number.isInteger(ph?.rev) ? ph.rev : 0, Number.isInteger(s0?.rev) ? s0.rev : 0);
   writeTomb({ id, schema: 2, rev, updatedAt: now, deletedAt: now }); put(PH + id, undefined); put('propapp:drafts:' + id, undefined); }
-function writeTomb(t) { const id = t.id, K = TOMB + id; put(K, t); journal(K, t);
-  const d = clone(dir()); d.tombstones = { ...(d.tombstones || {}), [id]: t.deletedAt }; d.ids = d.ids.filter(x => x !== id); d.archived = (d.archived || []).filter(x => x !== id);
+function writeTomb(t) { const id = t.id, K = TOMB + id; put(K, t); journal(K, t); tombDir(id, t.deletedAt); }
+function tombDir(id, deletedAt) { const d0 = dir(); if (!d0.ids.includes(id) && !(d0.archived || []).includes(id) && d0.tombstones?.[id] === deletedAt) return;
+  const d = clone(d0); d.tombstones = { ...(d.tombstones || {}), [id]: deletedAt }; d.ids = d.ids.filter(x => x !== id); d.archived = (d.archived || []).filter(x => x !== id);
   if (d.active === id) d.active = d.ids.find(x => !d.archived.includes(x)) || ''; setDir(d); } // Stage 3E: never an archived one
 const hasTomb = id => !!mem.get(TOMB + id) || !!dir().tombstones?.[id];
-function clearTomb(id) { if (mem.get(TOMB + id)) put(TOMB + id, undefined); const d = dir(); if (d.tombstones?.[id]) { const n = clone(d); delete n.tombstones[id]; if (!Object.keys(n.tombstones).length) delete n.tombstones; setDir(n); } }
+// D3-C: the tombstone for a pharmacy (its propapp:tomb:<id> record, else the directory's entry), and whether it wins over
+// a live copy: it does when the live copy is no newer than the deletion.
+const tombFor = id => { const t = mem.get(TOMB + id); if (t?.deletedAt) return t; const at = dir().tombstones?.[id]; return at ? { id, schema: 2, rev: 0, updatedAt: at, deletedAt: at } : null; };
+const tombWins = (live, tomb) => !!(live && tomb?.deletedAt) && !later(live.updatedAt, tomb.deletedAt);
+// An interrupted delete (tab closed after the tombstone was journaled, before the record was removed) can leave both a
+// tombstone and a live record no newer than it. The tombstone wins: the record and its drafts are purged and the
+// directory stops listing it. Run after every load and replay, and before a remote copy is merged.
+function purgeOne(id) { const K = PH + id, live = mem.get(K), tomb = tombFor(id); if (!tombWins(live, tomb) || pending.has(K) || inflight.has(K)) return null;
+  // A confirmed restore later than the deletion (stamped in the directory) is the owner bringing it back: the leftover
+  // tombstone record goes instead.
+  const ra = dir().restored?.[id]; if (ra && later(ra, tomb.deletedAt)) { if (mem.get(TOMB + id)) put(TOMB + id, undefined); return null; }
+  put(K, undefined); if (mem.get('propapp:drafts:' + id)) put('propapp:drafts:' + id, undefined);
+  if (!mem.get(TOMB + id)) put(TOMB + id, { id, schema: 2, rev: Number.isInteger(live.rev) ? live.rev : 0, updatedAt: tomb.deletedAt, deletedAt: tomb.deletedAt });
+  tombDir(id, tomb.deletedAt); return mem.get(TOMB + id); }
+function purgeResurrected() { const ids = new Set(Object.keys(dir().tombstones || {})); for (const [k, v] of mem) if (k.startsWith(TOMB) && v) ids.add(k.slice(TOMB.length)); for (const id of ids) purgeOne(id); }
+function clearTomb(id) { if (mem.get(TOMB + id)) put(TOMB + id, undefined); const d = dir(); if (d.tombstones?.[id]) { const n = clone(d); delete n.tombstones[id]; if (!Object.keys(n.tombstones).length) delete n.tombstones; n.restored = { ...(n.restored || {}), [id]: new Date().toISOString() }; setDir(n); } }
 export const pharmacyTombstone = id => mem.get(TOMB + id) || null;
 export const tombstoneIds = () => { const out = new Set(Object.keys(dir().tombstones || {})); for (const [k, v] of mem) if (k.startsWith(TOMB) && v) out.add(k.slice(TOMB.length)); return [...out].sort(); };
 // Server-acked sync state, kept apart from `seen` (which is only ever this window's last local read or write, for
 // merging with other tabs). `base` is the copy the server last acknowledged, the base for merging the next remote copy.
 export const syncState = id => mem.get(SYNC + id) || null;
-export function commitSyncAck(id, { rev, base, ackedAt } = {}) { const s = { id, rev: Number.isInteger(rev) && rev >= 0 ? rev : 0, base: base ? migratePharmacy(base) : null, ackedAt: ackedAt || null }; put(SYNC + id, s); return s; }
+const revOf = id => syncState(id)?.rev || 0;
+const noRev = x => { if (!plain(x)) return x; const { rev, ...rest } = x; return rest; };
+// D3-C: an ack older than the one already kept (a late reply to an earlier push) changes nothing and returns null. When
+// this device's copy is still exactly what was acked, it takes the server's rev too.
+export function commitSyncAck(id, { rev, base, ackedAt } = {}) { const r = Number.isInteger(rev) && rev >= 0 ? rev : 0; if (r < revOf(id)) return null;
+  const s = { id, rev: r, base: base ? migratePharmacy(base) : null, ackedAt: ackedAt || null }; put(SYNC + id, s);
+  const live = pharmacy(id); if (live && s.base && !s.base.deletedAt && live.rev !== r && same(noRev(live), noRev(s.base))) put(PH + id, { ...live, rev: r });
+  return s; }
+// Forget what the server acked for a pharmacy (signing in to a different account starts its revisions again from 0).
+export function forgetSync(id) { if (mem.get(SYNC + id)) put(SYNC + id, undefined); }
+export const syncIds = () => [...new Set([...dir().ids, ...tombstoneIds()])];
 // A copy arriving from the server: migrated, merged three ways with the acked base and this device's copy (or its
-// tombstone), and saved. `rev` is the server's. A tombstone on either side wins as merge3 says. Returns the result.
+// tombstone), and saved. `rev` is the server's. A tombstone on either side wins as merge3 says. Returns the result, or
+// null when the copy is older than the revision already acked (D3-C: revisions only move forward).
 export function applyRemoteSync(id, remoteDoc, remoteRev) {
   const remote = migratePharmacy(remoteDoc); if (!remote || typeof remote !== 'object') return null;
-  const s0 = syncState(id), base = s0?.base || undefined, local = pharmacy(id) || pharmacyTombstone(id), rev = Number.isInteger(remoteRev) && remoteRev >= 0 ? remoteRev : (s0?.rev || 0);
-  const merged = { ...(local ? merge3(base, local, remote) : remote), id, schema: 2, rev };
+  const s0 = syncState(id); if (Number.isInteger(remoteRev) && remoteRev < (s0?.rev || 0)) return null;
+  const rev = Number.isInteger(remoteRev) && remoteRev >= 0 ? remoteRev : (s0?.rev || 0), base = s0?.base || undefined;
+  // D3-C: a live copy left behind by an interrupted delete gives way to its tombstone before anything is merged.
+  const local = purgeOne(id) || pharmacy(id) || pharmacyTombstone(id);
+  // D3-C: the server undeleted a pharmacy this device holds only as a tombstone (the deletion was acked, then another
+  // device restored it later): the server's copy is taken whole, not field-merged against the compact tombstone.
+  const explicitUndelete = !!local && !!local.deletedAt && !pharmacy(id) && !remote.deletedAt && later(remote.updatedAt, local.deletedAt) && base?.deletedAt === local.deletedAt;
+  const merged = { ...(explicitUndelete ? migratePharmacy(clone(remote)) : local ? merge3(base, local, remote) : remote), id, schema: 2, rev };
   put(SYNC + id, { id, rev, base: remote, ackedAt: s0?.ackedAt || null });
   if (merged.deletedAt) { writeTomb({ id, schema: 2, rev, updatedAt: merged.updatedAt || merged.deletedAt, deletedAt: merged.deletedAt }); if (pharmacy(id)) { put(PH + id, undefined); put('propapp:drafts:' + id, undefined); } }
   else { if (hasTomb(id)) clearTomb(id); put(PH + id, merged); const d = clone(dir()); if (!d.ids.includes(id)) { d.ids.push(id); setDir(d); } }

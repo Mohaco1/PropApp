@@ -5,6 +5,7 @@ import { nav, env } from './ui.js';
 import { startPWA, askToKeep } from './pwa.js';
 import { today } from './dates.js';
 import { settleLeavers } from './model.js';
+import * as sync from './sync.js';
 const views = {};
 // Visual Polish spec: a finished item's toast gets a check that settles in 150 ms.
 const DONE = /\b(closed|saved|adopted|recorded|done|set up|checked|added|updated|confirmed)\b/i;
@@ -27,7 +28,13 @@ export const register = (name, v) => { views[name] = v; };
 // included, and by any successful save, so an old first tap can never confirm a later, different act.
 const ARMED = /^(delArmed|discardArmed|armed|stopArmed|ad:.*)$/;
 const disarm = () => { for (const k of Object.keys(S.ui)) if (ARMED.test(k)) delete S.ui[k]; };
-const navigated = () => { disarm(); try { window.dispatchEvent(new Event('pl:navigate')); } catch {} };
+const navigated = () => { nextScreen(); disarm(); try { window.dispatchEvent(new Event('pl:navigate')); } catch {} };
+// D3-C: every navigation, pharmacy switch and outside reload is a new screen. Anything a screen asked the network for
+// (a law topic) is aborted when the screen changes, and a late answer is never shown on the next screen.
+let screenSeq = 0, screenAbort = null;
+function nextScreen() { screenSeq++; screenAbort?.abort(); screenAbort = null; }
+function screenSignal() { if (!screenAbort) screenAbort = new AbortController(); return screenAbort.signal; }
+async function topic(id) { const seq = screenSeq, got = await sync.fetchTopic(id, { signal: screenSignal() }); return seq === screenSeq ? got : null; }
 export const SAVE_FAILED = 'Couldn’t save on this device just now (storage may be full). Nothing was changed; free some space or download a backup, then try again.';
 const S = { ph: null, drafts: {}, stack: [], tab: 'today', toast: '', ui: {} };
 export const ctx = {
@@ -42,7 +49,7 @@ export const ctx = {
   change(fn, message, opts = {}) {
     const next = clone(S.ph); const r = fn(next); if (r === false) return false;
     next.updatedAt = new Date().toISOString(); // D3-A: every saved change stamps the pharmacy
-    S.ph = next; store.savePharmacy(next); disarm(); askToKeep(); if (message) ctx.toast(message); if (opts.redraw !== false) render(); return true;
+    S.ph = next; store.savePharmacy(next); disarm(); askToKeep(); sync.schedule(reload); if (message) ctx.toast(message); if (opts.redraw !== false) render(); return true;
   },
   draft(key) { return S.drafts[key] || null; },
   saveDraft(key, value) { const rev = S.drafts[key]?.rev; store.saveDraft(S.ph.id, key, value, rev); S.drafts = store.drafts(S.ph.id); },
@@ -53,8 +60,8 @@ export const ctx = {
   // says so, and open returns false (a restore then shows an error, not a receipt).
   async open(id) { const d = clone(store.dir()), was = d.active; d.active = id; store.setDir(d);
     if (await store.flush() === false) { if (was !== id) store.setDir({ ...clone(store.dir()), active: was }); ctx.toast(SAVE_FAILED); render(); return false; }
-    load(); S.stack = []; S.tab = 'today'; for (const k of Object.keys(S.ui)) delete S.ui[k]; render(true); },
-  load, store, rerender: () => render(), SAVE_FAILED,
+    nextScreen(); load(); S.stack = []; S.tab = 'today'; for (const k of Object.keys(S.ui)) delete S.ui[k]; render(true); sync.restart(reload); },
+  load, store, sync, topic, get screenSeq() { return screenSeq; }, rerender: () => render(), SAVE_FAILED,
 };
 function load() {
   const d = store.dir(); S.ph = d.active ? store.pharmacy(d.active) : null; S.drafts = S.ph ? store.drafts(S.ph.id) : {};
@@ -63,7 +70,7 @@ function load() {
 // Stage 3E: another tab saved. If it switched the open pharmacy, this tab starts again on Today with no screen state or
 // confirmation left over from the other pharmacy. Otherwise the screen redraws and anything typed but not yet saved here
 // (a procedure being edited, a note) is put back as it was, with the cursor.
-function reload() { const was = S.ph?.id || '', keep = typed(el => el.tagName === 'TEXTAREA' || /^(text|search|)$/.test(el.type || '')); load();
+function reload() { nextScreen(); const was = S.ph?.id || '', keep = typed(el => el.tagName === 'TEXTAREA' || /^(text|search|)$/.test(el.type || '')); load();
   if ((S.ph?.id || '') !== was) { S.stack = []; S.tab = 'today'; for (const k of Object.keys(S.ui)) delete S.ui[k]; render(true); return; }
   render(); retype(keep); }
 let root;
@@ -144,6 +151,7 @@ const common = { acts: {
   seg: (c, d) => { c.ui[d.name] = d.value; render(); },
 }, forms: {} };
 export async function start(el) {
+  sync.captureMagicHash(); // D3-C: first, before anything is awaited, so a sign-in link never stays in the address bar
   root = el;
   await store.init(() => reload());
   store.watchStatus(s => { showSave(s); if (s === 'failed') ctx.toast('Couldn’t save just now. Trying again; keep this page open.'); if (s === 'full') ctx.toast('Storage full: download a backup now (More → Backup and devices). Keep this page open.'); });
@@ -164,4 +172,11 @@ export async function start(el) {
   document.addEventListener('change', e => { const el = e.target.closest('[data-change]'); if (!el) return; const { r, v } = routeFor(el); v.changes?.[el.dataset.change]?.(ctx, el, r, e); });
   WIDE.addEventListener?.('change', () => { const keep = typed(); render(); retype(keep); });
   render();
+  // D3-C: sign in with a pending link, and sync, at start and whenever the phone comes back online (installable app only).
+  // The sync section of Backup and devices redraws when the sign-in or sync state changes.
+  sync.watch(() => { if (S.ph && ctx.route.name === 'backup') { const keep = typed(); render(); retype(keep); } });
+  sync.verifyPendingMagic(reload); sync.syncAll(reload);
+  addEventListener('online', () => { sync.verifyPendingMagic(reload); sync.syncAll(reload); });
+  addEventListener('hashchange', () => { if (sync.captureMagicHash()) sync.verifyPendingMagic(reload); }); // a link opened in this same tab
+  if (window.PROPAPP_UAT && sync.canNetwork()) window.pharmledgerTest = { topic }; // UAT build only: lets tests ask for a topic
 }
