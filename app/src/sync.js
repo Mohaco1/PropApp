@@ -59,8 +59,11 @@ export async function verifyPendingMagic(onChange) {
     if (seq !== requestSeq || ac.signal.aborted) return false;
     if (r.status === 200) { const j = await r.json(); if (seq !== requestSeq || ac.signal.aborted) return false;
       if (typeof j?.sessionToken !== 'string') { retry(onChange); return false; }
-      // Another account than the one these pharmacies last synced with: its revisions start again from 0.
-      if (ls.get(ACCOUNT) && ls.get(ACCOUNT) !== j.accountId) for (const id of store.syncIds()) store.forgetSync(id);
+      // D3-D: signing in to another account than the one this device last synced with: everything already on this
+      // device (pharmacies, tombstones, changes not yet synced) stays bound to that earlier account and is never
+      // uploaded to this one. Attaching it is an explicit step (attachOtherAccount).
+      const prev = ls.get(ACCOUNT);
+      if (prev && prev !== j.accountId) for (const id of store.syncIds()) if (!store.boundTo(id)) store.bindAccount(id, prev);
       ls.set(SESSION, JSON.stringify({ sessionToken: j.sessionToken, accountId: j.accountId, expiresAt: j.expiresAt })); ls.set(ACCOUNT, j.accountId);
       clearPending(); setState('idle'); verifying = false; onChange?.(); syncAll(onChange); return true; }
     if (r.status === 400 || r.status === 401) { clearPending(); setState('link-failed'); return false; }
@@ -94,25 +97,35 @@ const localDoc = id => { const live = store.pharmacy(id); if (live) return { liv
 
 // Syncs every pharmacy on this device, live and deleted, one at a time. A newer sync (or a disconnect) makes this one
 // stop: the sequence number and the abort signal are checked after every await. A 401 forgets the sign-in only.
+// D3-D: first asks the server which pharmacies this account has (GET /v1/vault), so a fresh or empty device finds
+// them, and one created later on another device turns up here too. Pharmacies bound to another account are skipped.
 export async function syncAll(onChange) {
   const s = canNetwork() ? session() : null; if (!s) return { ok: false, skipped: true };
   if (!online()) { setState('offline'); return { ok: false, offline: true }; }
-  const seq = ++requestSeq, ac = fresh(), { signal } = ac, stale = () => seq !== requestSeq || signal.aborted;
+  const seq = ++requestSeq, ac = fresh(), { signal } = ac, stale = () => seq !== requestSeq || signal.aborted, acct = s.accountId;
   let applied = false; setState('syncing');
   try {
-    for (const id of store.syncIds()) {
+    const lr = await api('GET', '/v1/vault', { token: s.sessionToken, signal });
+    if (stale()) return { ok: false, aborted: true };
+    if (lr.status === 401) return unauthorised();
+    let remote = [];
+    if (lr.status === 200) { const j = await lr.json().catch(() => ({})); if (stale()) return { ok: false, aborted: true };
+      remote = (Array.isArray(j?.vaults) ? j.vaults : []).filter(v => v && typeof v.pharmacyId === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(v.pharmacyId) && !v.deletedAt).map(v => v.pharmacyId); }
+    const found = remote.filter(id => !store.boundTo(id) || store.boundTo(id) === acct);
+    for (const id of [...new Set([...store.syncIds(acct), ...found])]) {
       if (stale()) return { ok: false, aborted: true };
-      let mine = localDoc(id); if (!mine) continue;
+      if (store.boundTo(id) && store.boundTo(id) !== acct) continue;
+      let mine = localDoc(id); if (!mine && !found.includes(id)) continue;
       let ss = store.syncState(id);
       const unchanged = () => { const b = ss?.base; return !!b && (mine.live ? !b.deletedAt && sameDoc(mine.live, b) : !!b.deletedAt && b.deletedAt === mine.tomb.deletedAt); };
       // Nothing known from the server yet (rev 0): pull first, so a device restored from the same backup merges in
       // rather than overwriting. Nothing changed here since the last ack: just ask whether the server moved on.
-      if (!ss || ss.rev === 0 || unchanged()) {
+      if (!mine || !ss || ss.rev === 0 || unchanged()) {
         const r = await api('GET', '/v1/sync/' + encodeURIComponent(id), { token: s.sessionToken, signal, headers: ss?.rev ? { 'If-None-Match': '"rev-' + ss.rev + '"' } : {} });
         if (stale()) return { ok: false, aborted: true };
         if (r.status === 401) return unauthorised();
         if (r.status === 200) { const j = await r.json(); if (stale()) return { ok: false, aborted: true };
-          if (j.rev > (ss?.rev || 0)) { const out = store.applyRemoteSync(id, remoteDoc(id, j), j.rev); if (out) applied = true; } }
+          if (j.rev > (ss?.rev || 0)) { const out = store.applyRemoteSync(id, remoteDoc(id, j), j.rev, acct); if (out) applied = true; } }
         else if (r.status !== 304) { setState('error', 'server'); return { ok: false, status: r.status }; }
         mine = localDoc(id); ss = store.syncState(id); if (!mine || unchanged()) continue;
       }
@@ -123,11 +136,11 @@ export async function syncAll(onChange) {
         if (stale()) return { ok: false, aborted: true };
         if (r.status === 401) return unauthorised();
         const j = await r.json().catch(() => ({})); if (stale()) return { ok: false, aborted: true };
-        if (r.status === 200) { store.commitSyncAck(id, { rev: j.rev, base: mine.live || mine.tomb, ackedAt: j.updatedAt }); break; }
-        if (r.status === 409) { const remote = remoteDoc(id, j), out = store.applyRemoteSync(id, remote, j.rev); if (out) applied = true;
+        if (r.status === 200) { store.commitSyncAck(id, { rev: j.rev, base: mine.live || mine.tomb, ackedAt: j.updatedAt, account: acct }); break; }
+        if (r.status === 409) { const remote = remoteDoc(id, j), out = store.applyRemoteSync(id, remote, j.rev, acct); if (out) applied = true;
           // Merged copy is what the server already has: done. Otherwise push the merge on top of the server's head.
           if (!out || (out.deletedAt ? !!remote.deletedAt && remote.deletedAt === out.deletedAt : !remote.deletedAt && sameDoc(out, remote))) break; continue; }
-        setState('error', r.status === 413 ? 'too-big' : 'server'); return { ok: false, status: r.status };
+        setState('error', r.status === 413 ? 'too-big' : r.status === 403 && j?.error === 'vault_limit' ? 'limit' : 'server'); return { ok: false, status: r.status };
       }
     }
     await store.flush(); if (stale()) return { ok: false, aborted: true };
@@ -136,6 +149,11 @@ export async function syncAll(onChange) {
   } catch (e) { if (aborted(e) || stale()) return { ok: false, aborted: true }; setState('offline'); return { ok: false, error: true }; }
   finally { if (activeController === ac && !stale()) activeController = null; }
 }
+// D3-D: pharmacies on this device that are bound to another account (signed in with a different email before). They
+// stay on this device and are not synced until the owner taps to add them to this account.
+export const otherAccountCount = () => { const s = session(); return s ? store.otherAccountIds(s.accountId).length : 0; };
+export async function attachOtherAccount(onChange) { const s = canNetwork() ? session() : null; if (!s) return 0;
+  const ids = store.attachOtherAccount(s.accountId); if (ids.length) { await store.flush(); await syncAll(onChange); } return ids.length; }
 function unauthorised() { clearSession(); setState('signed-out'); return { ok: false, status: 401 }; }
 // After a saved change: sync a moment later (changes in quick succession go in one sync).
 export function schedule(onChange, wait = 1500) { if (!canNetwork() || !session()) return; clearTimeout(later); later = setTimeout(async () => { if ((await store.flush()) !== false) syncAll(onChange); }, wait); }

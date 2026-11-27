@@ -169,6 +169,10 @@ const acHeaders = h => Object.keys(h).filter(k => k.startsWith('access-control-'
   now += 60000;
   r = await req('POST', '/v1/sync/ph-1', { body: { baseRev: 1, pharmacy: PHB, deletedAt: null }, headers: auth(S1) });
   ok(r.status === 200 && r.json.rev === 2 && r.headers.etag === '"rev-2"', '6. POST on the current head → rev 2 with ETag');
+  r = await req('POST', '/v1/sync/ph-1', { body: { baseRev: 0, pharmacy: PH, deletedAt: null }, headers: { ...auth(S1), 'Idempotency-Key': 'idem-key-0001' } });
+  ok(r.status === 409 && r.json.rev === 2 && J(r.json.pharmacy) === J(PHB), '6. D3-D a late retry of the rev 1 write (same key) after rev 2 landed → 409 with the head, not 200 with rev 2');
+  r = await req('POST', '/v1/sync/ph-1', { body: { baseRev: 1, pharmacy: PH, deletedAt: null }, headers: { ...auth(S1), 'Idempotency-Key': 'idem-key-0001' } });
+  ok(r.status === 422, '6. D3-D the same key and payload on a different baseRev → 422');
   r = await req('GET', '/v1/sync/ph-1', { headers: auth(S1) });
   ok(r.status === 200 && r.json.rev === 2 && J(r.json.pharmacy) === J(PHB) && r.headers.etag === '"rev-2"', '6. GET → 200 { pharmacyId, rev 2, updatedAt, deletedAt, pharmacy }');
   r = await req('GET', '/v1/sync/ph-1', { headers: { ...auth(S1), 'If-None-Match': '"rev-2"' } });
@@ -205,6 +209,29 @@ const acHeaders = h => Object.keys(h).filter(k => k.startsWith('access-control-'
   r = await req('GET', '/v1/sync/ph-1', { headers: auth(S1) });
   ok(r.status === 200 && r.json.rev === 5 && r.json.deletedAt === DEL && r.json.pharmacy === null, '6. after a restart the tombstone persists (rev 5, deletedAt kept)');
   ok(r.status === 200, '6. the session survives a restart (it lives in SQLite)');
+  // D3-D: the account-scoped vault list
+  r = await req('GET', '/v1/vault');
+  ok(r.status === 401, '6. D3-D GET /v1/vault without a bearer token → 401');
+  r = await req('GET', '/v1/vault', { headers: { ...auth(S1), Origin: GH } });
+  ok(r.status === 200 && r.headers['access-control-allow-origin'] === GH && r.json.vaults.length === 1 && r.json.vaults[0].pharmacyId === 'ph-1' && r.json.vaults[0].rev === 5 && r.json.vaults[0].deletedAt === DEL && !('pharmacy' in r.json.vaults[0]) && r.json.maxVaults === A.DEFAULT_STORE_LIMITS.maxVaults, '6. D3-D GET /v1/vault lists this account’s vaults (id, rev, deletedAt; no payload)');
+  r = await req('GET', '/v1/vault', { headers: auth(S2) });
+  ok(r.status === 200 && r.json.vaults.length === 1 && r.json.vaults[0].rev === 1 && r.json.vaults[0].deletedAt === null, '6. D3-D another account sees only its own vault');
+  // D3-D: bounded retention (a separate instance with small limits)
+  {
+    const lapp = A.createServerApp({ dbPath: path.join(TMP, 'limits.db'), emailIndexKey: EMAIL_KEY, logHmacKey: LOG_KEY, clock, mailer: A.memoryMailer(), logWrite: () => {}, limits: { maxVaults: 2, maxRevsPerVault: 3 } });
+    const st = lapp.store, code = st.createMagicCode('f'.repeat(64), 900, now), { accountId: LA } = st.consumeMagicCode(code, 3600, now);
+    const put = (id, base, n) => st.putVault(LA, id, base, { id, n }, null, null, now);
+    const a1 = put('v-1', 0, 1), a2 = put('v-2', 0, 1), a3 = put('v-3', 0, 1);
+    ok(a1.kind === 'ok' && a2.kind === 'ok' && a3.kind === 'vault_limit' && a3.limit === 2, '6. D3-D a third vault past maxVaults 2 is refused (vault_limit)');
+    for (let i = 1; i < 8; i++) put('v-1', i, i + 1);
+    const revs = st.db.prepare('SELECT rev FROM sync_revs WHERE account_id = ? AND pharmacy_id = ? ORDER BY rev').all(LA, 'v-1').map(x => x.rev);
+    ok(st.getVault(LA, 'v-1').rev === 8 && J(revs) === J([6, 7, 8]), '6. D3-D only the newest maxRevsPerVault (3) revision rows are kept (' + revs.join(',') + ')');
+    const lp = await lapp.listen(0, '127.0.0.1'), keep = PORT; PORT = lp.port;
+    const ls = st.consumeMagicCode(st.createMagicCode('f'.repeat(64), 900, now), 3600, now).sessionToken;
+    r = await req('POST', '/v1/sync/v-9', { body: { baseRev: 0, pharmacy: { id: 'v-9' }, deletedAt: null }, headers: auth(ls) });
+    ok(r.status === 403 && r.json.error === 'vault_limit' && r.json.maxVaults === 2, '6. D3-D over HTTP a new vault past the limit → 403 vault_limit');
+    PORT = keep; await lapp.close();
+  }
 
   // ── 7. topics
   const IDS = ['s8-storage-register', 'otp-standards-2026', 'vaccination-standards-2026', 'pharmacist-prescribing-2026', 'daa-supply-qspp', 'vaping-therapeutic-goods', 'medicinal-cannabis-scheduling', 'aged-care-enrmc', 'pba-safe-services-governance', 'mhr-privacy-breach-2026'];
@@ -217,12 +244,20 @@ const acHeaders = h => Object.keys(h).filter(k => k.startsWith('access-control-'
     ok(good, '7. GET /v1/topics/' + id + ' → 200 with a SHA-256 ETag of its body');
     const r304 = await req('GET', '/v1/topics/' + id, { headers: { 'If-None-Match': r.headers.etag } });
     ok(r304.status === 304 && r304.text === '' && r304.headers.etag === r.headers.etag, '7. ' + id + ' If-None-Match → 304');
-    const unlisted = r.json.sources.map(s => s.url).filter(u => !appContent.includes(u) && !u.includes('sl-2025-0430'));
+    const unlisted = r.json.sources.map(s => s.url).filter(u => !appContent.includes(u) && !u.includes('sl-2025-0430') && !u.endsWith('/oral-contraceptive-pill-initiation.aspx')); // D3-D: the OCP page is a topic source only (owner's brief); the app itself links the protocol PDF (stage3f)
     ok(unlisted.length === 0, '7. ' + id + ': every source link is one the app already cites' + (unlisted.length ? ' (not: ' + unlisted.join(', ') + ')' : ''));
     all += r.text + '\n';
   }
   ok(!/\bPIC\b/.test(all) && !/pharmacist in charge/i.test(all) && !/responsible person/i.test(all), '7. no "PIC", "pharmacist in charge" or "responsible person" in any topic');
-  ok(!/\b2008\b|\b2016\b/.test(all), '7. no repealed 2008 or 2016 instruments in any topic');
+  ok(!/\b2008\b/.test(all) && !/\b2016\b/.test(all.replace(/replaced the My Health Records Rule 2016 on 1 April 2026/g, '')), '7. no repealed 2008 or 2016 instruments in any topic (2016 only as the Rule that was replaced)');
+  const T = id => JSON.stringify(A.getTopic(id).topic);
+  ok(!all.includes('otp-standards.aspx') && T('otp-standards-2026').includes('opioid-treatment-pharmacist-info.aspx') && T('otp-standards-2026').includes(' s 81') && !T('otp-standards-2026').includes('every pharmacist has read the OTP Standards'), '7. D3-D OTP: the registration page link, s 81, no repeated reading clause');
+  ok(T('pharmacist-prescribing-2026').includes('oral-contraceptive-pill-initiation.aspx') && T('pharmacist-prescribing-2026').includes('MPTG Reg 2026 s 37A and NSW OCP Protocol'), '7. D3-D prescribing: OCP information page and s 37A in the law line');
+  ok(/s 194/.test(A.getTopic('s8-storage-register').topic.lawLine) && T('s8-storage-register').includes('written notice of receipt (electronic or paper) within 24 hours'), '7. D3-D S8: s 194 in the law line; written notice of receipt within 24 hours');
+  ok(T('vaccination-standards-2026').includes('(mpox: unless the patient opts out)') && A.getTopic('daa-supply-qspp').topic.lawLine.includes('s 136–137'), '7. D3-D vaccination mpox AIR rule; DAA s 136–137');
+  ok(T('vaping-therapeutic-goods').includes('over 20 mg/mL, or for patients under 18') && T('vaping-therapeutic-goods').includes('not to vaping devices on their own'), '7. D3-D vaping: prescription over 20 mg/mL or under 18; AP/SAS applies to vaping substances');
+  ok(A.getTopic('pba-safe-services-governance').topic.lawLine.includes('Health Practitioner Regulation (New South Wales) Regulation 2025 s 11(1)(e)') && T('pba-safe-services-governance').includes('(Pharmacy Board compounding guidelines)') && T('pba-safe-services-governance').includes('(Council Guide; Ten tips for quality compounding)'), '7. D3-D premises: s 11(1)(e), full title, compounding attributions');
+  ok(T('mhr-privacy-breach-2026').includes('on 1 April 2026') && T('mhr-privacy-breach-2026').includes('from 1 October 2026 (r 72(3))'), '7. D3-D My Health Record: replaced on 1 April 2026; r 21 from 1 October 2026 (r 72(3))');
   ok(['sl-2025-0430', 'Sch 4 s 1', 's 11(2)', 'ten-tips-quality-compounding', 'protocol-initiation-oral-contraceptive-pill.pdf', 'sl-2026-0330'].every(s => all.includes(s)), '7. topics cite sl-2025-0430 Sch 4 s 1 / s 11(2), ten-tips-quality-compounding and the OCP protocol PDF');
   r = await req('GET', '/v1/topics/not-a-topic');
   ok(r.status === 404, '7. an unknown topic → 404');

@@ -104,6 +104,10 @@ const legacyPh = () => ({
   ok(dr.tombstones?.x === D2 && !dr.ids.includes('x'), '2. D3-C an older restore never erases a newer deletion (directory tombstone kept, not listed)');
   dr = S.mergeDir(db0, dm, { ...db0 });
   ok(!dr.tombstones && dr.ids.includes('x'), '2. D3-C a restore later than the deletion it removes stands');
+  { const DEL = '2026-11-20T00:00:00.000Z', LATER = '2026-11-22T00:00:00.000Z', tombX = { id: 'x', schema: 2, updatedAt: DEL, deletedAt: DEL };
+    const live = { id: 'x', schema: 2, name: 'Restored (fictional)', updatedAt: '2026-11-01T00:00:00.000Z', deletedAt: null, restoredAt: '2026-11-21T00:00:00.000Z', restoredOver: { deletedAt: DEL, rev: 3 } };
+    ok(S.merge3(undefined, tombX, live).deletedAt === null && S.merge3(undefined, live, tombX).deletedAt === null && S.restoreBeats(live, DEL), '2. D3-D a restore stamped over a deletion (backup updatedAt older than it) beats that tombstone, on either side');
+    ok(S.merge3(undefined, { ...tombX, updatedAt: LATER, deletedAt: LATER }, live).deletedAt === LATER && !S.restoreBeats(live, LATER) && !S.restoreBeats({ ...live, restoredAt: undefined, restoredOver: undefined }, DEL), '2. D3-D a deletion made after the restore still wins; an unstamped old copy never beats a tombstone'); }
   const lb = { version: 2, exportedAt: '2026-11-20T00:00:00.000Z', data: { pharmacyName: 'Legacy Test Pharmacy (fictional)', reviews: [], staff: [], active: [] } };
   const li1 = M.importLegacy(JSON.parse(J(lb))).pharmacy.id, li2 = M.importLegacy(JSON.parse(J(lb))).pharmacy.id, li3 = M.importLegacy({ ...lb, exportedAt: '2026-11-21T00:00:00.000Z' }).pharmacy.id;
   ok(li1 === li2 && li1 !== li3 && /^ph:[0-9a-f]{16}$/.test(li1), '2. D3-C an R.Pharmacy backup without its own id gets the same pharmacy id on every device (' + li1 + ')');
@@ -186,6 +190,20 @@ const legacyPh = () => ({
   const dirNow = (await idb(C))['propapp:dir']; await putIdb(C, 'propapp:dir', { ...dirNow, ids: [...dirNow.ids, 'ph-int'] });
   const C3 = await tab(); await C3.evaluate(() => D3.store.flush()); await C3.waitForTimeout(200); all = await idb(C3);
   ok(!all['propapp:ph:ph-int'] && all['propapp:tomb:ph-int'] && !all['propapp:dir'].ids.includes('ph-int') && all['propapp:dir'].tombstones?.['ph-int'] === '2026-11-21T00:00:00.000Z' && await C3.evaluate(() => D3.store.pharmacy('ph-int') === null), '3. D3-C an interrupted delete is finished at start: the tombstone wins, the record is purged and unlisted');
+  // D3-D: a restore is checked against the stored tombstone inside the write: a newer deletion this tab never saw (another
+  // tab or a sync, no broadcast) rejects the pharmacy, drafts, tombstone and directory together; once seen, it restores.
+  await C3.evaluate(async () => { const p = D3.emptyPharmacy('Atomic (fictional)'); p.id = 'ph-at'; D3.store.savePharmacy(p); await D3.store.flush(); D3.store.removePharmacy('ph-at'); await D3.store.flush(); });
+  const at0 = await idb(C3), NEWER = '2099-01-01T00:00:00.000Z';
+  await putIdb(C3, 'propapp:tomb:ph-at', { id: 'ph-at', schema: 2, rev: 7, updatedAt: NEWER, deletedAt: NEWER });
+  await putIdb(C3, 'propapp:dir', { ...at0['propapp:dir'], tombstones: { ...at0['propapp:dir'].tombstones, 'ph-at': NEWER } });
+  const rej = await C3.evaluate(async () => { const p = D3.emptyPharmacy('Atomic restored (fictional)'); p.id = 'ph-at'; const res = await D3.store.restorePharmacy(p, { 'b1': { rev: 1, answers: {} } });
+    return { res, rejected: D3.store.restoreRejected(), mem: D3.store.pharmacy('ph-at'), tomb: D3.store.pharmacyTombstone('ph-at')?.deletedAt, listed: D3.store.dir().ids.includes('ph-at') }; });
+  all = await idb(C3);
+  ok(rej.res === false && rej.rejected && !rej.mem && rej.tomb === NEWER && !rej.listed, '3. D3-D a restore over a newer deletion this tab never saw is refused (restoreRejected) and the tab takes the stored tombstone');
+  ok(!all['propapp:ph:ph-at'] && !all['propapp:drafts:ph-at'] && all['propapp:tomb:ph-at']?.deletedAt === NEWER && all['propapp:dir'].tombstones?.['ph-at'] === NEWER && !all['propapp:dir'].ids.includes('ph-at') && !all['propapp:dir'].restored?.['ph-at'], '3. D3-D …nothing of it was written: no record, no drafts, tombstone and directory as stored');
+  const acc = await C3.evaluate(async () => { const p = D3.emptyPharmacy('Atomic restored (fictional)'); p.id = 'ph-at'; return await D3.store.restorePharmacy(p, {}); });
+  all = await idb(C3); const atPh = all['propapp:ph:ph-at'];
+  ok(acc === true && atPh && atPh.deletedAt === null && atPh.restoredOver?.deletedAt === NEWER && atPh.restoredOver?.rev === 7 && typeof atPh.restoredAt === 'string' && !all['propapp:tomb:ph-at'] && all['propapp:dir'].ids.includes('ph-at') && !all['propapp:dir'].tombstones?.['ph-at'], '3. D3-D restoring again over the tombstone it now holds writes all four together, stamped restoredAt and restoredOver { deletedAt, rev }');
   ok(errs.length === 0, '3. no console errors in the storage tabs' + (errs.length ? ': ' + errs.slice(0, 2).join(' | ') : ''));
   await br.close();
 

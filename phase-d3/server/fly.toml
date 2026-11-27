@@ -3,6 +3,9 @@ app = "pharmledger-sync"
 primary_region = "syd"
 kill_signal = "SIGTERM"
 kill_timeout = "10s"
+# One machine, one SQLite file. 2 MiB sync bodies are parsed in memory, so concurrency is capped well below what
+# 512 MB holds (about 40 bodies in flight at once), with swap and a Node heap cap as headroom.
+swap_size_mb = 512
 
 [build]
   dockerfile = "Dockerfile"
@@ -13,6 +16,7 @@ kill_timeout = "10s"
   APP_URL = "https://mohaco1.github.io/PropApp/"
   SES_REGION = "ap-southeast-2"
   TRUST_PROXY = "1"
+  NODE_OPTIONS = "--max-old-space-size=384"
 
 [mounts]
   source = "pharmledger_data"
@@ -27,8 +31,8 @@ kill_timeout = "10s"
 
   [http_service.concurrency]
     type = "requests"
-    soft_limit = 100
-    hard_limit = 200
+    soft_limit = 20
+    hard_limit = 40
 
   [[http_service.checks]]
     grace_period = "10s"
@@ -39,4 +43,4 @@ kill_timeout = "10s"
 
 [[vm]]
   size = "shared-cpu-1x"
-  memory = "256mb"
+  memory = "512mb"

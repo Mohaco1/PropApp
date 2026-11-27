@@ -9,7 +9,7 @@ export const SOURCES = [
   ['nswfaq', 'NSW Health: pharmacists, frequently asked questions', '2026-11-20', /NSW Health FAQ/i, 'https://www.health.nsw.gov.au/pharmaceutical/pharmacists/Pages/faq-pharmacists.aspx'],
   ['mss', 'NSW Medicine Storage Standards', '2026-11-20', /Storage Standards/, 'https://www.health.nsw.gov.au/pharmaceutical/Pages/medicine-storage-standards.aspx'],
   ['edr', 'NSW Electronic Drug Register Standards', '2026-11-20', /Electronic Drug Register/, 'https://www.health.nsw.gov.au/pharmaceutical/Pages/electronic-register-standards.aspx'],
-  ['otp', 'NSW OTP Standards and OTP registration', '2026-11-20', /OTP Standards|OTP registration/, 'https://www.health.nsw.gov.au/pharmaceutical/Pages/otp-standards.aspx'],
+  ['otp', 'NSW Health: OTP information for pharmacists (registration)', '2026-11-27', /OTP Standards|OTP registration/, 'https://www.health.nsw.gov.au/pharmaceutical/pharmacists/Pages/opioid-treatment-pharmacist-info.aspx'],
   ['vacc', 'NSW Pharmacist Vaccination Standards and authorities', '2026-11-20', /Vaccination Standards|Immuniser|immuniser/, 'https://www.health.nsw.gov.au/immunisation/professionals/pharmacist-immunisers/Pages/default.aspx'],
   ['s45', 'Strive for 5 (national vaccine storage guidelines)', '2026-11-22', /Strive for 5/, 'https://www.health.gov.au/resources/publications/national-vaccine-storage-guidelines-strive-for-5'],
   ['ca', 'NSW pharmacist prescribing Class Authorities (expanded scope)', '2026-11-20', /Class Authorit|prescribing authorit/i, 'https://www.health.nsw.gov.au/pharmaceutical/Pages/expanded-scope-pharmacists-information.aspx'],

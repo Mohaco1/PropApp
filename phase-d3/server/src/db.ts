@@ -62,10 +62,16 @@ CREATE UNIQUE INDEX IF NOT EXISTS sync_revs_idem ON sync_revs(account_id, pharma
 `;
 
 export interface Head { pharmacyId: string; rev: number; updatedAt: string | null; deletedAt: string | null; pharmacy: unknown }
+export interface VaultEntry { pharmacyId: string; rev: number; updatedAt: string | null; deletedAt: string | null }
 export type PutResult =
   | { kind: 'ok'; head: Head; replayed: boolean }
   | { kind: 'conflict'; head: Head }
-  | { kind: 'idem_mismatch' };
+  | { kind: 'idem_mismatch' }
+  | { kind: 'vault_limit'; limit: number };
+// D3-D: bounded storage per account. A new vault past maxVaults is refused (tombstones count, so a deleted pharmacy
+// can't be brought back by an old copy); each vault keeps only its newest maxRevsPerVault revision rows.
+export interface StoreLimits { maxVaults: number; maxRevsPerVault: number }
+export const DEFAULT_STORE_LIMITS: StoreLimits = Object.freeze({ maxVaults: 50, maxRevsPerVault: 200 });
 
 export interface Store {
   db: DatabaseSync;
@@ -74,11 +80,14 @@ export interface Store {
   sessionAccount(token: string, now: number): string | null;
   revokeSession(token: string, now: number): boolean;
   getVault(accountId: string, pharmacyId: string): Head;
+  listVaults(accountId: string): VaultEntry[];
+  limits: StoreLimits;
   putVault(accountId: string, pharmacyId: string, baseRev: number, pharmacy: unknown, deletedAt: string | null, idempotencyKey: string | null, now: number): PutResult;
   close(): void;
 }
 
-export function openStore(file: string): Store {
+export function openStore(file: string, limitsIn: Partial<StoreLimits> = {}): Store {
+  const limits: StoreLimits = { ...DEFAULT_STORE_LIMITS, ...limitsIn };
   const db = new DatabaseSync(file);
   db.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000; PRAGMA synchronous = NORMAL;');
   db.exec(SCHEMA);
@@ -104,6 +113,9 @@ export function openStore(file: string): Store {
     updVault: db.prepare('UPDATE vaults SET rev = ?, payload = ?, payload_sha256 = ?, deleted_at = ?, updated_at = ? WHERE account_id = ? AND pharmacy_id = ? AND rev = ?'),
     insRev: db.prepare('INSERT INTO sync_revs (account_id, pharmacy_id, rev, payload_sha256, idempotency_key, created_at) VALUES (?, ?, ?, ?, ?, ?)'),
     getIdem: db.prepare('SELECT rev, payload_sha256 FROM sync_revs WHERE account_id = ? AND pharmacy_id = ? AND idempotency_key = ?'),
+    listVaults: db.prepare('SELECT pharmacy_id, rev, deleted_at, updated_at FROM vaults WHERE account_id = ? ORDER BY pharmacy_id LIMIT ?'),
+    countVaults: db.prepare('SELECT COUNT(*) AS n FROM vaults WHERE account_id = ?'),
+    pruneRevs: db.prepare('DELETE FROM sync_revs WHERE account_id = ? AND pharmacy_id = ? AND rev <= ?'),
   };
 
   const head = (accountId: string, pharmacyId: string): Head => {
@@ -143,9 +155,15 @@ export function openStore(file: string): Store {
     },
     revokeSession(token, now) { return Number(q.revSess.run(now, sha256(token)).changes) === 1; },
     getVault: head,
+    limits,
+    // D3-D: the account's vault ids (live and deleted, no payloads), so a fresh device finds every pharmacy.
+    listVaults(accountId) {
+      return (q.listVaults.all(accountId, limits.maxVaults) as any[]).map(r => ({ pharmacyId: String(r.pharmacy_id), rev: Number(r.rev), updatedAt: iso(Number(r.updated_at)), deletedAt: r.deleted_at ?? null }));
+    },
     // Optimistic concurrency: baseRev must equal the stored rev, and the write becomes rev + 1. A retry of a write
     // that already landed (same Idempotency-Key, or the same payload on top of its own base) gets the head back
-    // with 200, not a conflict.
+    // with 200, not a conflict. D3-D: only while that write is still the head; once a newer revision has landed on top
+    // of it, the retry gets 409 with the head, never a 200 carrying a rev it didn't make.
     putVault(accountId, pharmacyId, baseRev, pharmacy, deletedAt, idempotencyKey, now) {
       const payload = pharmacy == null ? null : JSON.stringify(pharmacy);
       const digest = sha256(canonical({ pharmacy: pharmacy ?? null, deletedAt }));
@@ -153,16 +171,22 @@ export function openStore(file: string): Store {
       return tx((): PutResult => {
         if (idem) {
           const prior = q.getIdem.get(accountId, pharmacyId, idem) as any;
-          if (prior) return prior.payload_sha256 === digest ? { kind: 'ok', head: head(accountId, pharmacyId), replayed: true } : { kind: 'idem_mismatch' };
+          if (prior) {
+            if (prior.payload_sha256 !== digest || baseRev !== Number(prior.rev) - 1) return { kind: 'idem_mismatch' };
+            const h = head(accountId, pharmacyId);
+            return h.rev === Number(prior.rev) ? { kind: 'ok', head: h, replayed: true } : { kind: 'conflict', head: h };
+          }
         }
         const cur = q.getVault.get(accountId, pharmacyId) as any;
         const curRev = cur ? Number(cur.rev) : 0;
+        if (!cur && Number((q.countVaults.get(accountId) as any).n) >= limits.maxVaults) return { kind: 'vault_limit', limit: limits.maxVaults };
         if (cur && baseRev === curRev - 1 && cur.payload_sha256 === digest) return { kind: 'ok', head: head(accountId, pharmacyId), replayed: true };
         if (baseRev !== curRev) return { kind: 'conflict', head: head(accountId, pharmacyId) };
         const rev = curRev + 1;
         if (cur) q.updVault.run(rev, payload, digest, deletedAt, now, accountId, pharmacyId, curRev);
         else q.insVault.run(accountId, pharmacyId, rev, payload, digest, deletedAt, now);
         q.insRev.run(accountId, pharmacyId, rev, digest, idem, now);
+        if (rev > limits.maxRevsPerVault) q.pruneRevs.run(accountId, pharmacyId, rev - limits.maxRevsPerVault);
         return { kind: 'ok', head: head(accountId, pharmacyId), replayed: false };
       });
     },

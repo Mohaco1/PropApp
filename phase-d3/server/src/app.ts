@@ -1,8 +1,8 @@
 // PharmLedger D3 sync back end: emailed-link sign-in and one vault per pharmacy (HTTPS only), hosted in Sydney.
-// Six endpoints (healthz, magic-link, verify, logout, sync GET/POST, topics). Node 22 built-ins only.
+// Endpoints: healthz, magic-link, verify, logout, vault list, sync GET/POST, topics. Node 22 built-ins only.
 import { createServer, type IncomingMessage, type ServerResponse, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { openStore, hmac, normaliseEmail, type Store } from './db.ts';
+import { openStore, hmac, normaliseEmail, DEFAULT_STORE_LIMITS, type Store, type StoreLimits } from './db.ts';
 import { createLimiter, type Limiter } from './ratelimit.ts';
 import { createLogger, type Logger } from './logger.ts';
 import { applyCors, DEFAULT_ORIGINS } from './cors.ts';
@@ -10,6 +10,7 @@ import { getTopic, TOPICS } from './topics.ts';
 import { memoryMailer, type Mailer } from './mailer.ts';
 
 export { memoryMailer, sesMailer, signV4 } from './mailer.ts';
+export { DEFAULT_STORE_LIMITS } from './db.ts';
 export { TOPICS, getTopic } from './topics.ts';
 
 export const REGION = 'ap-southeast-2';
@@ -30,6 +31,7 @@ export interface ServerConfig {
   logWrite?: (line: string) => void;
   trustProxy?: boolean;            // true on Fly: take the client IP from Fly-Client-IP
   mailFrom?: string;
+  limits?: Partial<StoreLimits>;   // per-account vault and revision retention (defaults: DEFAULT_STORE_LIMITS)
 }
 
 export interface ServerApp { server: Server; store: Store; limiter: Limiter; log: Logger; listen(port: number, host?: string): Promise<AddressInfo>; close(): Promise<void> }
@@ -77,7 +79,7 @@ export function createServerApp(cfg: ServerConfig): ServerApp {
   if (!cfg.logHmacKey || cfg.logHmacKey.length < 32) throw new Error('LOG_HMAC_KEY must be at least 32 characters');
   if (cfg.emailIndexKey === cfg.logHmacKey) throw new Error('EMAIL_INDEX_HMAC_KEY and LOG_HMAC_KEY must differ');
   const clock = cfg.clock || Date.now;
-  const store = openStore(cfg.dbPath);
+  const store = openStore(cfg.dbPath, cfg.limits || DEFAULT_STORE_LIMITS);
   const limiter = createLimiter();
   const log = createLogger({ hmacKey: cfg.logHmacKey, write: cfg.logWrite, now: clock });
   const mailer = cfg.mailer || memoryMailer();
@@ -161,6 +163,13 @@ export function createServerApp(cfg: ServerConfig): ServerApp {
     return id;
   };
 
+  // D3-D: the signed-in account's vaults (ids, revs and tombstones; no payloads), so a fresh device can find them.
+  on('GET', '/v1/vault', ({ req, res, meta }) => {
+    const { accountId } = bearer(req);
+    meta.accountRef = log.ref('acct', accountId);
+    send(res, 200, { vaults: store.listVaults(accountId), maxVaults: store.limits.maxVaults });
+  });
+
   on('GET', '/v1/sync/:pharmacyId', ({ req, res, params, meta }) => {
     const { accountId } = bearer(req);
     const pharmacyId = pharmacyParam(params.pharmacyId);
@@ -188,6 +197,7 @@ export function createServerApp(cfg: ServerConfig): ServerApp {
     const r = store.putVault(accountId, pharmacyId, baseRev, pharmacy ?? null, deletedAt, idem, clock());
     Object.assign(meta, { accountRef: log.ref('acct', accountId), pharmacyRef: log.ref('ph', accountId + '/' + pharmacyId), baseRev });
     if (r.kind === 'idem_mismatch') throw new HttpError(422, 'idempotency_key_reused');
+    if (r.kind === 'vault_limit') { meta.reason = 'vault_limit'; return send(res, 403, { error: 'vault_limit', maxVaults: r.limit }); }
     if (r.kind === 'conflict') {
       meta.rev = r.head.rev; meta.reason = 'conflict';
       return send(res, 409, { error: 'conflict', pharmacyId, rev: r.head.rev, currentRev: r.head.rev, updatedAt: r.head.updatedAt, deletedAt: r.head.deletedAt, pharmacy: r.head.pharmacy }, { ETag: `"rev-${r.head.rev}"` });

@@ -183,7 +183,7 @@
    "otpreg",
    "OTP registration",
    "Pharmacy OTP registration",
-   "Registered before supplying; a new application for any change of owner, address or trading name; every pharmacist has read the OTP Standards.",
+   "Registered before supplying; a new application for any change of owner, address or trading name.",
    "The proprietor",
    [
     "otp"
@@ -304,7 +304,7 @@
   "Products (NSW Health vaping self-assessment): every vaping good sold is on the TGA list of notified vapes.",
   "Storage (self-assessment): all vaping goods are behind the counter; no self-selection.",
   "Advertising (self-assessment): no advertisements for vaping goods inside or outside the pharmacy.",
-  "Pathway (self-assessment): products over 20 mg/mL only on prescription; every supply is through the TGA Authorised Prescriber scheme or a SAS pathway.",
+  "Pathway (self-assessment): a prescription is needed for vaping substances over 20 mg/mL, or for patients under 18; every supply of a vaping substance is through the TGA Authorised Prescriber scheme or a SAS pathway (this applies to vaping substances, not to vaping devices on their own).",
   "Schedule 3 supply (self-assessment): purpose is quitting or nicotine dependence; patient 18 or over with identity and age sighted; informed consent; SAS Category C notification within 28 days; no more than one month at a time and one supply per patient per month.",
   "Information to patients (self-assessment): alternatives, dose and frequency, titration and duration, interactions, quit-support contacts, and that vaping goods are not TGA-assessed.",
   "Reporting (self-assessment): adverse effects and faulty goods are reported to the TGA and the sponsor (within 15 calendar days, NSW Health)."

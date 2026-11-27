@@ -50,16 +50,20 @@ register('backup', {
     await sync.requestMagicLink(email); c.rerender(); } },
   acts: { syncnow: async c => { c.rerender(); await sync.syncAll(() => c.rerender()); c.rerender(); },
     syncoff: c => { sync.disconnect(); c.rerender(); c.toast('Disconnected. Your records stay on this phone.'); },
+    // D3-D: the explicit step that attaches pharmacies synced under another email to the account signed in now.
+    syncattach: async c => { const n = await sync.attachOtherAccount(() => c.rerender()); c.rerender(); if (n) c.toast(n === 1 ? '1 pharmacy added to this account' : n + ' pharmacies added to this account'); },
     cfdel: (c, d) => { c.saveDraft(d.k, null); c.rerender(); c.toast('Conflict copy dismissed'); },
     cfcopy: async (c, d) => { if (await copyText(JSON.stringify(c.drafts[d.k], null, 1))) { c.toast('Copied'); } else { c.toast('Copy didn’t work here.'); } },
     dl: c => backupNow(c) },
   changes: { restore: (c, el) => importBackup(c, el.files[0], el) },
 });
 // D3-C: sync across devices, in the installable app only. Calm and short: what it does, then one way to start.
-const SYNC_ERR = { offline: 'You’re offline. Try again when you’re back online.', busy: 'Too many links asked for just now. Wait a few minutes, then try again.', email: 'That email address wasn’t accepted. Check it and try again.', server: 'Couldn’t reach the sync service just now. Try again later.', 'too-big': 'A pharmacy is too large to sync. Your records are safe on this phone.' };
+const SYNC_ERR = { offline: 'You’re offline. Try again when you’re back online.', busy: 'Too many links asked for just now. Wait a few minutes, then try again.', email: 'That email address wasn’t accepted. Check it and try again.', server: 'Couldn’t reach the sync service just now. Try again later.', 'too-big': 'A pharmacy is too large to sync. Your records are safe on this phone.', limit: 'This account has reached its limit of pharmacies. Your records are safe on this phone.' };
 function syncCard() { const st = sync.status();
   if (st.signedIn) { const line = st.state === 'syncing' ? 'Syncing…' : st.state === 'offline' ? 'Offline. It syncs when you’re back online.' : st.state === 'error' ? 'Couldn’t sync just now. ' + (SYNC_ERR[st.error] || '') : st.lastSyncAt ? 'Up to date · last synced ' + fmt(day(st.lastSyncAt)) + '.' : 'Signed in. Not synced yet.';
-    return h`<div class="card" id="sync"><h2>Sync across devices</h2><p class="muted" role="status">${line}</p><p class="muted">Your other devices signed in with the same email see the same records.</p>
+    const other = sync.otherAccountCount();
+    const otherNote = other ? h`${note((other === 1 ? '1 pharmacy on this phone was' : other + ' pharmacies on this phone were') + ' synced with a different email. ' + (other === 1 ? 'It stays here and isn’t synced' : 'They stay here and aren’t synced') + ' unless you add ' + (other === 1 ? 'it' : 'them') + ' to this account.', 'warn')}${btn(other === 1 ? 'Add it to this account' : 'Add them to this account', 'syncattach', { kind: 'link' })}` : '';
+    return h`<div class="card" id="sync"><h2>Sync across devices</h2><p class="muted" role="status">${line}</p><p class="muted">Your other devices signed in with the same email see the same records.</p>${otherNote}
       <span class="btnrow">${btn('Sync now', 'syncnow')}${btn('Disconnect', 'syncoff', { kind: 'link' })}</span></div>`; }
   const msg = st.pending ? note(st.state === 'signing-in' ? 'Signing you in…' : 'Signing you in when you’re back online.', 'ok') : st.state === 'link-sent' ? note('Check your email on this phone and tap the link. It works once, for 15 minutes.', 'ok') : st.state === 'link-failed' ? note('That sign-in link was already used or has expired. Ask for a new one.', 'warn') : st.state === 'link-error' ? note(SYNC_ERR[st.error] || SYNC_ERR.server, 'warn') : st.state === 'signed-out' ? note('You were signed out. Your records are still here; ask for a new link to keep syncing.', 'warn') : '';
   return h`<div class="card" id="sync"><h2>Sync across devices</h2><p class="muted">Keep your other phone or tablet up to date. Your records stay on this device too. Only pharmacy records are synced, never patient details.</p>${msg}

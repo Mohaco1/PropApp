@@ -9,6 +9,11 @@
 // C. A deletedAt tombstone wins over the other device's stale offline edit: propapp:ph:<id> removed, propapp:tomb:<id> kept.
 // D. Held /v1/sync and /v1/topics requests abort cleanly on a pharmacy switch and on Disconnect; the single-file app has
 //    connect-src 'none' and makes no network request at all.
+// E. (D3-D) Signing in to a different account never uploads the earlier account's pharmacies or tombstones; the owner
+//    attaches a live one with an explicit tap, and the tombstone never goes.
+// F. (D3-D) A backup restored over a synced deletion (its updatedAt older than the deletion) is not deleted again by the
+//    other device that holds the older tombstone; the restore carries restoredAt and restoredOver.
+// G. (D3-D) An empty device signs in and finds the account's pharmacies (GET /v1/vault), and one created later elsewhere.
 const esbuild = require('esbuild'); const path = require('path'); const fs = require('fs'); const os = require('os');
 const http = require('http'); const { execFileSync } = require('child_process');
 const { chromium } = require('playwright');
@@ -23,6 +28,7 @@ const J = x => JSON.stringify(x);
 const canon = x => JSON.stringify(x, (k, v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.keys(v).sort().map(key => [key, v[key]])) : v));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const until = async (fn, ms = 10000, step = 50) => { const end = Date.now() + ms; while (Date.now() < end) { try { const v = await fn(); if (v) return v; } catch {} await sleep(step); } return null; };
+let noRev;
 const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(srv.address().port)));
 
 (async () => {
@@ -157,7 +163,7 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
   await b1.p.waitForTimeout(300);
   const d1 = (await saved(b1.p))['propapp:ph:' + PH1], d2 = (await saved(b2.p))['propapp:ph:' + PH1], head = vault(s1.accountId, PH1);
   ok(canon(d1) === canon(d2), 'B. both devices hold identical copies');
-  const noRev = x => { const { rev, ...r } = x; return r; };
+  noRev = x => { const { rev, ...r } = x; return r; };
   ok(canon(noRev(d1)) === canon(noRev(head.pharmacy)) && d1.rev === 3 && d2.rev === 3, 'B. …the same as the server head, at rev 3');
   ok(d1.address === '1 Test Street, Testville (fictional)' && d1.identifier === 'TEST-42', 'B. both offline edits survived the merge');
   const uniq = xs => new Set(xs).size === xs.length;
@@ -234,6 +240,82 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
   const small = await d.p.evaluate(() => [...document.querySelectorAll('#sync button, #sync input')].filter(el => el.getBoundingClientRect().height < 44 || el.getBoundingClientRect().right > innerWidth + 0.5).length);
   ok(small === 0 && await d.p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'D. the sync section’s controls are 44 px or taller and nothing scrolls sideways');
   await d.ctx.close();
+
+  const signInFresh = async (d, email) => { const before = mailer.outbox.length;
+    await fetch(API_ORIGIN + '/v1/auth/magic-link', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: SITE }, body: J({ email }) });
+    await until(() => mailer.outbox.length > before); await d.p.goto('about:blank'); await d.p.goto(URL + '#magic=' + linkFor(email)); return until(() => session(d.p)); };
+  const idle = () => until(async () => !log.some(x => !x.status && !x.aborted && (x.path.startsWith('/v1/sync/') || x.path === '/v1/vault')), 6000);
+  const delOther = async (p, name) => { await openMore(p, /^Pharmacies on this device/); await tapB(p, 'Archive or delete a pharmacy'); await p.waitForTimeout(200);
+    const rowEl = p.locator('.row.static', { hasText: name }); await rowEl.getByRole('button', { name: 'Delete', exact: true }).click(); await p.waitForTimeout(150);
+    await rowEl.getByRole('button', { name: 'Tap again to delete for good' }).click(); await p.waitForTimeout(400); };
+
+  // ══ Test E: another account never gets the earlier account's records without an explicit step
+  const e = await device('E'); const EE1 = 'owner.e1@example.com', EE2 = 'owner.e2@example.com';
+  await restore(e.p, F1, true); await restore(e.p, F2, false);
+  const sE1 = await signIn(e, EE1);
+  ok(!!sE1 && await until(() => vault(sE1.accountId, PH1).rev === 1 && vault(sE1.accountId, PH2).rev === 1), 'E. account 1 signs in and syncs both pharmacies');
+  await idle(); await openMore(e.p, /^Backup and devices/); await tapB(e.p, 'Disconnect'); await e.p.waitForTimeout(300);
+  await switchTo(e.p, 'Banksia Test Pharmacy'); await delOther(e.p, 'Second Test Pharmacy');
+  const eAll0 = await saved(e.p);
+  ok(!eAll0['propapp:ph:' + PH2] && eAll0['propapp:tomb:' + PH2] && vault(sE1.accountId, PH2).deletedAt === null, 'E. signed out, the second pharmacy is deleted on this phone (a tombstone not yet synced)');
+  const vBeforeE = log.length;
+  const sE2 = await signIn(e, EE2);
+  ok(!!sE2 && sE2.accountId !== sE1.accountId, 'E. signed in to a different account (account 2)');
+  await openMore(e.p, /^Backup and devices/); await until(() => e.p.evaluate(() => /Up to date/.test(document.getElementById('sync')?.innerText || '')), 6000); await idle();
+  ok(app.store.listVaults(sE2.accountId).length === 0 && !log.slice(vBeforeE).some(x => x.method === 'POST' && x.path.startsWith('/v1/sync/')), 'E. nothing from this phone was uploaded to account 2: no vault, no POST (pharmacy or tombstone)');
+  const eAll1 = await saved(e.p);
+  ok(eAll1['propapp:sync:' + PH1]?.account === sE1.accountId && eAll1['propapp:sync:' + PH2]?.account === sE1.accountId && vault(sE1.accountId, PH2).deletedAt === null, 'E. the pharmacy and the tombstone stay bound to account 1 (and account 1 was not touched while signed out)');
+  const eText = await e.p.evaluate(() => document.getElementById('sync')?.innerText || '');
+  ok(/1 pharmacy on this phone was synced with a different email/.test(eText) && await e.p.getByRole('button', { name: 'Add it to this account' }).count() === 1, 'E. Backup and devices says so and offers “Add it to this account”');
+  await shot(e.p, 'd3d_sync_other_account_390px.png');
+  await tapB(e.p, 'Add it to this account');
+  ok(await until(() => vault(sE2.accountId, PH1).rev === 1, 8000) && (await saved(e.p))['propapp:sync:' + PH1]?.account === sE2.accountId, 'E. after the tap, the live pharmacy is uploaded to account 2 (rev 1) and bound to it');
+  await e.p.waitForTimeout(600);
+  ok(app.store.listVaults(sE2.accountId).length === 1 && vault(sE2.accountId, PH2).rev === 0 && (await saved(e.p))['propapp:sync:' + PH2]?.account === sE1.accountId, 'E. account 1’s tombstone is never attached or uploaded to account 2');
+  ok(await e.p.getByRole('button', { name: /^Add (it|them) to this account$/ }).count() === 0, 'E. the note goes once nothing is left to add');
+  await e.ctx.close();
+
+  // ══ Test F: a restore over a synced deletion isn't deleted again by the other device
+  const EF = 'owner.f@example.com';
+  const f1 = await device('F1'), f2 = await device('F2');
+  await restore(f1.p, F1, true); await restore(f1.p, F2, false);
+  const sF = await signIn(f1, EF);
+  ok(!!sF && await until(() => vault(sF.accountId, PH1).rev === 1 && vault(sF.accountId, PH2).rev === 1), 'F. device 1 syncs both pharmacies');
+  const sF2 = await signInFresh(f2, EF);
+  ok(!!sF2 && await until(async () => { const a = await saved(f2.p); return a['propapp:ph:' + PH1] && a['propapp:ph:' + PH2] && a['propapp:sync:' + PH2]?.rev === 1; }, 8000), 'F. device 2 (empty) signs in and finds both pharmacies');
+  await idle(); await switchTo(f1.p, 'Banksia Test Pharmacy'); await delOther(f1.p, 'Second Test Pharmacy');
+  const delF = await until(() => vault(sF.accountId, PH2).deletedAt, 8000);
+  ok(!!delF && vault(sF.accountId, PH2).rev === 2, 'F. device 1 deletes it; the tombstone reaches the server (rev 2)');
+  await openMore(f2.p, /^Backup and devices/); await tapB(f2.p, 'Sync now');
+  ok(await until(async () => { const a = await saved(f2.p); return !a['propapp:ph:' + PH2] && a['propapp:tomb:' + PH2]?.deletedAt === delF; }, 8000), 'F. device 2 takes the deletion and holds the tombstone');
+  const bkUpdated = JSON.parse(fs.readFileSync(F2, 'utf8')).pharmacy.updatedAt;
+  ok(bkUpdated && bkUpdated < delF, 'F. the backup’s own updatedAt (' + bkUpdated + ') is older than the deletion (' + delF + ')');
+  await idle(); await restore(f1.p, F2, false);
+  const hF = await until(() => { const h = vault(sF.accountId, PH2); return h.rev === 3 && !h.deletedAt && h.pharmacy ? h : null; }, 8000);
+  ok(!!hF && hF.pharmacy.restoredOver?.deletedAt === delF && hF.pharmacy.restoredOver?.rev === 2 && hF.pharmacy.restoredAt > delF && hF.pharmacy.updatedAt === bkUpdated, 'F. device 1 restores the backup: the server copy is live (rev 3) and carries restoredAt and restoredOver { deletedAt, rev 2 }');
+  await openMore(f2.p, /^Backup and devices/); await tapB(f2.p, 'Sync now');
+  ok(await until(async () => { const a = await saved(f2.p); return a['propapp:ph:' + PH2] && !a['propapp:tomb:' + PH2] && a['propapp:dir'].ids.includes(PH2) && a['propapp:sync:' + PH2]?.rev === 3; }, 8000), 'F. device 2 (holding the older tombstone) takes the restored pharmacy back');
+  await f2.p.waitForTimeout(800); await idle();
+  ok(vault(sF.accountId, PH2).rev === 3 && !vault(sF.accountId, PH2).deletedAt, 'F. device 2 did not delete it again on the server (still rev 3, live)');
+  await f2.p.reload(); await f2.p.waitForTimeout(900); await idle();
+  ok((await saved(f2.p))['propapp:ph:' + PH2] && vault(sF.accountId, PH2).rev === 3 && !vault(sF.accountId, PH2).deletedAt, 'F. after a reload and another sync it stays restored on both');
+  await f1.ctx.close(); await f2.ctx.close();
+
+  // ══ Test G: an empty device finds the account's pharmacies, and one created later on another device
+  const g = await device('G');
+  ok(await g.p.getByRole('button', { name: 'Try example' }).count() === 1 && !Object.keys(await saved(g.p)).some(k => k.startsWith('propapp:ph:')), 'G. a fresh device starts empty, on the welcome screen');
+  const sG = await signInFresh(g, EB);
+  ok(sG && sG.accountId === s1.accountId, 'G. it signs in to the account from test B');
+  const gAll = await until(async () => { const a = await saved(g.p); return a['propapp:ph:' + PH1] && a['propapp:dir']?.active === PH1 ? a : null; }, 8000);
+  ok(!!gAll && canon(noRev(gAll['propapp:ph:' + PH1])) === canon(noRev(vault(s1.accountId, PH1).pharmacy)) && gAll['propapp:sync:' + PH1]?.rev === vault(s1.accountId, PH1).rev && gAll['propapp:sync:' + PH1]?.account === s1.accountId, 'G. GET /v1/vault found the pharmacy: the device holds the server copy, at its rev, bound to this account');
+  ok(gAll && !gAll['propapp:ph:' + PH2] && !(gAll['propapp:dir'].ids || []).includes(PH2), 'G. the account’s deleted pharmacy is not brought onto the fresh device');
+  ok(await until(() => g.p.evaluate(() => /Banksia Test Pharmacy/.test(document.body.innerText)), 4000) && await g.p.getByRole('button', { name: 'Try example' }).count() === 0, 'G. the app opens the pharmacy it found');
+  await shot(g.p, 'd3d_fresh_device_found_390px.png');
+  const PH3 = 'ph-accept-3', ph3 = { ...JSON.parse(fs.readFileSync(F1, 'utf8')).pharmacy, id: PH3, name: 'Third Test Pharmacy (fictional)', updatedAt: new Date().toISOString() };
+  ok(app.store.putVault(s1.accountId, PH3, 0, ph3, null, null, Date.now()).kind === 'ok', 'G. another device creates a third pharmacy on the account');
+  await openMore(g.p, /^Backup and devices/); await tapB(g.p, 'Sync now');
+  ok(await until(async () => { const a = await saved(g.p); return a['propapp:ph:' + PH3]?.name === 'Third Test Pharmacy (fictional)' && a['propapp:dir'].ids.includes(PH3) && a['propapp:dir'].active === PH1; }, 8000), 'G. the next sync finds it too (listed; the open pharmacy stays open)');
+  await g.ctx.close();
 
   // ── the single-file app: connect-src 'none' and no network at all
   const sf = await br.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, locale: 'en-AU', timezoneId: 'Australia/Sydney' });

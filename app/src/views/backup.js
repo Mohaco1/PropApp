@@ -79,11 +79,14 @@ export async function importBackup(c, file, el) {
     // open) are then written in one storage transaction. Stage 3D: if that write fails, nothing is changed and the
     // screen says so instead of showing a receipt.
     const receipt = { name: got.pharmacy.name, from: b2from(got), want: tally(got.pharmacy, got.drafts) };
-    if (!(await c.store.restorePharmacy(got.pharmacy, got.drafts))) throw Error(SAVE_FAILED);
+    if (!(await c.store.restorePharmacy(got.pharmacy, got.drafts))) throw Error(c.store.restoreRejected?.() ? RESTORE_STALE : SAVE_FAILED);
     if ((await c.open(got.pharmacy.id)) === false) throw Error(SAVE_FAILED);
     receipt.got = tally(c.ph, c.drafts); c.ui.receipt = receipt; c.go('receipt');
   } catch (e) { armed = ''; reset(); c.toast(e.message); c.rerender(); }
 }
+// D3-D: the restore was checked against storage as it was written, and the pharmacy had been deleted again meanwhile
+// (in another tab, or by a sync). Nothing was changed.
+const RESTORE_STALE = 'This pharmacy was deleted again on another screen or device just now, so nothing was restored. Choose the file again to restore it.';
 // Replacing a pharmacy that is already here is the one destructive restore; it needs a second tap (no browser dialogs).
 let armed = '';
 // Any navigation away (another screen, or Back) disarms the replace: it only counts on the same screen.
