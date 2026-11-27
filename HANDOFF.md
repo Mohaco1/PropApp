@@ -11,8 +11,8 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Repo | `Mohaco1/PropApp`, branch `main` |
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
-| App build id | **`2dec2b5fd2`** |
-| Code commit | `7a52a18` (code and docs/ for build 2dec2b5fd2); this file is in the commit after it |
+| App build id | **`5be6df0d29`** (Batch 1A) |
+| Code commit | Batch 1A commit on `main` (code, docs/ and this file for build 5be6df0d29) |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -88,6 +88,12 @@ After deploying, an installed phone app picks up the new version when it's reope
 - Note: `tests/upgrade.js` opens a saved old build (07775c5947) from a fixture, so it still taps the old "Look around an example pharmacy (fictional)" label. Leave that label as it is.
 
 ## 7. What was done this week (newest first)
+0. **Batch 1A (27 Nov, build `5be6df0d29`): done.**
+   - **C-01 S8 limit (s 111):** one window, `s8Max(ph)` in `rules.js`: 3 months after the last completed stock check, or 3 months from today with none on record; if that has passed, today to +14 days (`S8_GRACE_DAYS`). Used by first dates, Change due date (input `max` and save check), the finish screen and `alignPlan`. Today keeps "Add your last S8 stocktake date" until a real stock-check date exists (`sentence(list, ph)`). An overdue S8 row still shows overdue at the legal date; the planned date is saved but never hides that. Note: the UAT layer uses 7 grace days; the brief asked for 14.
+   - **C-02 restore:** the file input is cleared after every pick, so the same file chosen again confirms the replace; any navigation disarms it (`pl:navigate`).
+   - **C-03 another pharmacy:** the open pharmacy stays active until Step 3 creates the new one; Back from Step 1 returns to it; the welcome screen offers "Back to [Pharmacy]" if pharmacies exist but none is open.
+   - **C-05 Reset test data:** blocked in the UAT dialog while any real pharmacy is on the device (not test/fictional, not the example, with records); the dialog says to back up and delete test pharmacies one by one in More › Pharmacies.
+   - Tests: `tests/batch1a.js` (in `test-all.sh`).
 1. **Final colour spec:**
    - The logo keeps its geometry, now a navy ledger and a teal plus on a Warm Ivory tile; theme-color `#0f2942`.
    - Navy primary buttons and active nav; a navy→teal stripe.
@@ -115,6 +121,9 @@ After deploying, an installed phone app picks up the new version when it's reope
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
+**Batch 1A, build `5be6df0d29`:** full `test-all.sh` run once: 29 of 31 suites passed (batch1a included). wave1 (R02 incomplete-check wording) and sprint5 (Reset used on the example pharmacy) failed; both fixed (legal date kept in the wording; the example counts as fictional) and re-run green with batch1a, gates, hardening and pretrial. `check-procgen-all`: all 17 identical. `docs/` refreshed from `dist/pwa/`.
+
+Previous build (2dec2b5fd2):
 | Check (build `2dec2b5fd2`) | Result |
 |---|---|
 | `node tools/make-icons.js` | Pass (180/192/512 PNGs, navy/teal on ivory) |

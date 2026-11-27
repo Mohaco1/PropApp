@@ -45,7 +45,7 @@ register('backup', {
   acts: { cfdel: (c, d) => { c.saveDraft(d.k, null); c.rerender(); c.toast('Conflict copy dismissed'); },
     cfcopy: async (c, d) => { if (await copyText(JSON.stringify(c.drafts[d.k], null, 1))) { c.toast('Copied'); } else { c.toast('Copy didn’t work here.'); } },
     dl: c => backupNow(c) },
-  changes: { restore: (c, el) => importBackup(c, el.files[0]) },
+  changes: { restore: (c, el) => importBackup(c, el.files[0], el) },
 });
 register('pharmacies', {
   tab: 'more',
@@ -55,12 +55,13 @@ register('pharmacies', {
       ${btn('Set up another pharmacy', 'add')}${window.PROPAPP_EXAMPLE ? btn('Open the example pharmacy (fictional)', 'ex', { kind: 'link' }) : ''}
       ${d.ids.length > 1 ? btn('Archive or delete a pharmacy', 'go', { kind: 'link', data: { to: 'phmanage' } }) : ''}
       ${arch.length ? section('Archived · ' + arch.length, h`<div class="list">${arch.map(id => { const p = c.store.pharmacy(id); return p ? row({ title: p.name, sub: 'Records kept · hidden from switching and counts', right: 'Unarchive', act: 'unarch', data: { id } }) : ''; })}</div>`) : ''}` }); },
-  acts: { sw: (c, d) => c.open(d.id), ex: c => openExample(c), add: async c => { const dd = c.store.dir(); dd.active = ''; c.store.setDir(dd); await c.store.flush(); c.ui.setupStep = 1; c.ui.setup = null; c.load(); c.rerender(); },
+  acts: { sw: (c, d) => c.open(d.id), ex: c => openExample(c), // C-03: the open pharmacy stays open until Step 3 creates the new one, so Back always has somewhere to go.
+    add: c => { c.ui.setupStep = 1; c.ui.setup = null; c.store.setPref('setup-draft', undefined); c.go('welcome'); },
     unarch: (c, d) => { c.store.setArchived(d.id, false); c.rerender(); c.toast('Unarchived'); } },
 });
 // F-LIVE-07 (owner approved): archive a real pharmacy (records kept, can be undone); delete only a test or fictional
 // pharmacy, or one with nothing recorded, after a backup prompt and a second tap. The open pharmacy is never offered.
-const deletable = p => /\(fictional\)|\btest\b|UAT/i.test(p.name) || (!p.records.length && !Object.keys(p.actions).length && !p.staff.length);
+export const deletable = p => /\(fictional\)|\btest\b|UAT/i.test(p.name) || (!p.records.length && !Object.keys(p.actions).length && !p.staff.length);
 register('phmanage', {
   tab: 'more',
   render(c) { const d = c.store.dir(), others = d.ids.filter(id => id !== c.ph.id && !(d.archived || []).includes(id)).map(id => c.store.pharmacy(id)).filter(Boolean);

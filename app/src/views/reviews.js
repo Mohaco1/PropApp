@@ -4,7 +4,8 @@ import { register } from '../app.js';
 import { h } from '../util.js';
 import { screen, btn, row, field, textInput, textArea, choice, note, why, empty, select, icon } from '../ui.js';
 import { C } from '../content.js';
-import { catalog, reviewById, applies, suggestedNext, s8Limit, LEGAL, serviceName, stockIncomplete, latestStockCheck } from '../rules.js';
+import { catalog, reviewById, applies, suggestedNext, s8Limit, s8Max, S8_GRACE_DAYS, LEGAL, serviceName, stockIncomplete, latestStockCheck } from '../rules.js';
+import { s8Hint } from './services.js';
 import { addMonths } from '../dates.js';
 import { reviewDue, bucket } from '../summary.js';
 import { fmt, today, addDays, dueText, isDate } from '../dates.js';
@@ -144,6 +145,8 @@ register('review', {
     discard: (c, d, el, r) => { if (c.ui.armed !== r.id) { c.ui.armed = r.id; c.toast('Tap “Discard” again to delete this review’s answers.'); return; } c.ui.armed = ''; c.saveDraft(dkey(r.id), null); c.rerender(); c.toast('Discarded'); },
   },
 });
+// C-01: a 3-month limit that has already passed becomes a short planning window (today to +14 days), never a max in the past.
+const s8Window = l => l && l < today() ? addDays(today(), S8_GRACE_DAYS) : l;
 function finishReview(c, a, d, qs, prog) {
   const fields = d.fields || {}, missing = qs.map((q, i) => i).filter(i => !d.answers[i] || (qs[i].options.find(o => o.value === d.answers[i])?.issue && !d.issues?.[i]?.text?.trim()));
   const issues = qs.filter((q, i) => q.options.find(o => o.value === d.answers[i])?.issue).length;
@@ -151,7 +154,8 @@ function finishReview(c, a, d, qs, prog) {
   // here uses the one calendar-month helper (addMonths), so screens agree across month ends and daylight saving.
   const inc = a.id === 'B1' && d.answers[0] === 'Incomplete', future = a.id === 'B1' && isDate(fields.stockDate) && fields.stockDate > today();
   const lim = a.id !== 'B1' ? '' : inc ? s8Limit(c.ph) : isDate(fields.stockDate) && !future ? addMonths(fields.stockDate, 3) : '';
-  const sug = a.months ? (a.id === 'B1' ? lim : suggestedNext(c.ph, a.id, d.date)) : '';
+  const max = a.id !== 'B1' ? '' : inc ? s8Max(c.ph) : s8Window(lim), past = !!lim && lim < today();
+  const sug = a.months ? (a.id === 'B1' ? (past ? max : lim) : suggestedNext(c.ph, a.id, d.date)) : '';
   const ex = (EXTRA[a.id] || []).filter(([k]) => !(inc && (k === 'stockDate' || k === 'stockBy'))), needs = ex.filter(([k, , , req]) => req && !String(fields[k] || '').trim());
   return screen({ title: a.name, back: true, site: c.ph.name, saved: 'Saved', body: h`${prog}<h2 class="big-title">Finish the review</h2>
     ${missing.length ? h`<div class="list">${missing.map(i => row({ title: qs[i].text, sub: d.answers[i] ? 'Say what needs fixing' : 'Not answered yet', act: 'step', data: { s: i } }))}</div>` : note(issues ? issues + (issues === 1 ? ' issue becomes an action.' : ' issues become actions.') : 'Every question answered.', issues ? 'warn' : 'ok')}
@@ -159,7 +163,7 @@ function finishReview(c, a, d, qs, prog) {
       ${field('Review date', textInput('date', fields.date || d.date, { type: 'date', max: today() }))}
       ${ex.map(([k, l, t, req]) => field(l + (req ? '' : ''), Array.isArray(t) ? select(k, t.map(o => [o, o || 'Choose…']), fields[k] || '') : textInput(k, fields[k] || '', { type: t, max: t === 'date' ? today() : '' })))}
       ${field('Note (optional)', textArea('notes', fields.notes || '', { rows: 2 }))}
-      ${a.months ? field('Next due', textInput('next', fields.next || sug, { type: 'date', max: lim || '' }), a.id === 'B1' ? (inc ? (lim ? 'The stock check wasn’t finished, so the deadline stays 3 months after the last completed one (' + fmt(lim) + ').' : 'The stock check wasn’t finished and there’s no completed one on record: arrange it as soon as you can.') : lim ? 'The law sets the latest date: 3 months after the stock check (' + fmt(lim) + ').' : 'Enter the stock-check date first. The next date can’t be more than 3 months after it.') : '') : ''}
+      ${a.months ? field('Next due', textInput('next', fields.next || (sug && max && sug > max ? max : sug), { type: 'date', max: max || '' }), a.id === 'B1' ? (inc ? (lim ? 'The stock check wasn’t finished, so the deadline stays 3 months after the last completed one (' + fmt(lim) + ').' : 'The stock check wasn’t finished and there’s no completed one on record: arrange it as soon as you can.') + (past ? ' That date has passed: plan it on or before ' + fmt(max) + '.' : '') : lim ? 'The law sets the latest date: 3 months after the stock check (' + fmt(lim) + ').' + (past ? ' That date has passed: plan it on or before ' + fmt(max) + '.' : '') : 'Enter the stock-check date first. The next date can’t be more than 3 months after it.') : '') : ''}
     </form>
     ${future ? note('The stock-check date can’t be in the future.', 'warn') : ''}
     ${needs.length ? note('Still needed: ' + needs.map(x => x[1]).join(', ') + '.', 'warn') : ''}
@@ -171,7 +175,7 @@ function saveReview(c, id) {
   if (id === 'B1') { const inc = d.answers[0] === 'Incomplete';
     if (!inc && isDate(f.stockDate) && f.stockDate > today()) { c.toast('The stock-check date can’t be in the future.'); return; }
     if (inc) { f.stockIncomplete = true; delete f.stockDate; delete f.stockBy; }
-    const lim = inc ? s8Limit(c.ph) : isDate(f.stockDate) ? addMonths(f.stockDate, 3) : ''; if (lim && f.next > lim) f.next = lim; }
+    const lim = inc ? s8Max(c.ph) : isDate(f.stockDate) ? s8Window(addMonths(f.stockDate, 3)) : ''; if (lim && f.next > lim) f.next = lim; }
   c.change(ph => {
     const date = f.date || d.date;
     const rec = addRecord(ph, { type: id, kind: 'review', title: a.name, date, notes: (f.notes || '').trim(), next: f.next || '',
@@ -212,13 +216,13 @@ const label = (type, k) => (EXTRA[type] || []).find(x => x[0] === k)?.[1] || { o
 register('due-date', {
   tab: 'reviews',
   render(c, r) {
-    const a = reviewById(r.id), cur = c.ph.schedule[r.id] || '', lim = r.id === 'B1' ? s8Limit(c.ph) : '';
+    const a = reviewById(r.id), cur = c.ph.schedule[r.id] || '', lim = r.id === 'B1' ? s8Max(c.ph) : '';
     return screen({ title: 'Change due date', back: true, body: h`<h2 class="big-title">${a.name}</h2><form class="form" data-form="due">
-      ${field('Due date', textInput('date', cur, { type: 'date', max: lim }), lim ? 'Latest allowed by law: ' + fmt(lim) + ' (3 months after the last stock check).' : '')}
+      ${field('Due date', textInput('date', cur, { type: 'date', max: lim }), lim ? s8Hint(c.ph) : '')}
       ${cur ? field('Why are you moving it?', textInput('why', '', { required: true })) : ''}
       <div class="dock-inline">${btn('Save date', null, { kind: 'primary', type: 'submit' })}</div></form>` });
   },
-  forms: { due: (c, f, el, r) => { const lim = r.id === 'B1' ? s8Limit(c.ph) : ''; if (lim && f.date > lim) { c.toast('The law doesn’t allow a date after ' + fmt(lim) + '.'); return; }
+  forms: { due: (c, f, el, r) => { const lim = r.id === 'B1' ? s8Max(c.ph) : ''; if (lim && f.date > lim) { c.toast(s8Hint(c.ph)); return; }
     c.change(ph => { const old = ph.schedule[r.id]; ph.schedule[r.id] = f.date; log(ph, 'Due date · ' + reviewById(r.id).name + ' · ' + (old || 'none') + ' → ' + f.date + (f.why ? ' · ' + f.why : '')); }, 'Date saved'); c.back(); } },
 });
 

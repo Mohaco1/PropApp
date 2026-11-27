@@ -7,7 +7,7 @@ import { C } from '../content.js';
 import { hasGuide, serviceNotices } from './onboard.js';
 import { QLD_OPTS, RPH, visibleFields, tidyAnswers, draftText } from '../procgen.js';
 import { uid } from '../util.js';
-import { catalog, applies, serviceName, suggestedNext, reviewById } from '../rules.js';
+import { catalog, applies, serviceName, suggestedNext, reviewById, s8Max, s8Overdue } from '../rules.js';
 import { today, addDays, fmt } from '../dates.js';
 import { note as log, newAction } from '../model.js';
 const NV = 'Needs verification';
@@ -258,14 +258,18 @@ register('service', {
 
 // First review dates (current app's "Review due dates" step): suggested, changed if you like, saved by you.
 const FIRST = { B1: 14, Q1: 30 };
+// C-01: the S8 first date can't be later than s 111 allows (see s8Max in rules.js).
+const firstDate = (ph, id) => { const d = FIRST[id] ? addDays(today(), FIRST[id]) : suggestedNext(ph, id, today()); return id === 'B1' && d > s8Max(ph) ? s8Max(ph) : d; };
+export const s8Hint = ph => s8Overdue(ph) ? 'The S8 inventory is overdue. Plan it on or before ' + fmt(s8Max(ph)) + '.' : 'Every 3 months (Regulation s 111): on or before ' + fmt(s8Max(ph)) + '.';
 export function undated(ph) { return catalog().filter(a => !a.event && a.id !== 'A1' && applies(ph, a).applies && !ph.schedule[a.id]); }
 register('first-dates', {
   tab: 'today',
   render(c) { const list = undated(c.ph);
     return screen({ title: 'Plan your first dates', back: true, body: h`<p class="muted">Suggested dates for each review's first time. Change any of them, then save. You can move a date later, with a reason.</p>
-      <form class="form" data-form="save">${list.length ? list.map(a => field(a.name + (a.legal ? ' · required by law' : '') + ' · ' + a.frequency.toLowerCase(), textInput(a.id, FIRST[a.id] ? addDays(today(), FIRST[a.id]) : suggestedNext(c.ph, a.id, today()), { type: 'date', min: today() }))) : empty('Every review has a date.')}
+      <form class="form" data-form="save">${list.length ? list.map(a => field(a.name + (a.legal ? ' · required by law' : '') + ' · ' + a.frequency.toLowerCase(), textInput(a.id, firstDate(c.ph, a.id), { type: 'date', min: today(), max: a.id === 'B1' ? s8Max(c.ph) : '' }), a.id === 'B1' ? s8Hint(c.ph) : '')) : empty('Every review has a date.')}
       ${list.length ? h`<div class="dock-inline">${btn('Save these dates', null, { kind: 'primary', type: 'submit' })}</div>` : ''}</form>` }); },
-  forms: { save: (c, f) => { c.change(ph => { let n = 0; for (const [k, v] of Object.entries(f)) if (v && !ph.schedule[k]) { ph.schedule[k] = v; n++; } log(ph, 'Review due dates saved · ' + n); }, 'Dates saved'); c.back(); } },
+  forms: { save: (c, f) => { if (f.B1 && f.B1 > s8Max(c.ph)) { c.toast(s8Hint(c.ph)); return; }
+    c.change(ph => { let n = 0; for (const [k, v] of Object.entries(f)) if (v && !ph.schedule[k]) { ph.schedule[k] = v; n++; } log(ph, 'Review due dates saved · ' + n); }, 'Dates saved'); c.back(); } },
 });
 
 // "Your OTP procedure": one screen for the OTP Standards item 1 parts (current app's otp-parts layer).

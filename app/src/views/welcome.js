@@ -20,7 +20,7 @@ register('welcome', {
       <div class="calm-links">
         <label class="linkbtn">Restore backup<input type="file" accept="application/json,.json" data-change="restore" hidden></label>
         ${window.PROPAPP_EXAMPLE ? h`<span aria-hidden="true">·</span>${btn('Try example', 'example', { kind: 'link' })}` : ''}
-      </div></div></div>`;
+      </div>${!c.ph && c.store.activeIds().some(id => c.store.pharmacy(id)) ? (() => { const p = c.store.pharmacy(c.store.activeIds().find(id => c.store.pharmacy(id))); return h`<div class="calm-links">${btn('Back to ' + p.name, 'backto', { kind: 'link', data: { id: p.id } })}</div>`; })() : ''}</div></div>`;
     const d = c.ui.setup || (c.ui.setup = { name: '', address: '', owners: [''], services: [] });
     const head = h`<p class="steps">Step ${step} of 3</p>`;
     if (step === 1) return screen({ title: 'Your pharmacy', back: true, body: h`${head}
@@ -41,11 +41,14 @@ register('welcome', {
     copyfrom: (c, d) => { const s = c.ui.setup, src = d.id ? c.store.pharmacy(d.id) : null; s.copyFrom = src ? src.id : '';
       if (src) s.services = Object.entries(src.services).filter(([, v]) => v.active).map(([k]) => k); c.rerender(); },
     'start-setup': c => { c.ui.setupStep = 1; c.rerender(); },
-    back: c => { c.ui.setupStep = Math.max(0, (c.ui.setupStep || 1) - 1); c.rerender(); },
+    // C-03: Back from Step 1 while a pharmacy is open (Set up another pharmacy) returns to it, with the setup cleared.
+    back: c => { if (c.ph && (c.ui.setupStep || 1) <= 1) { c.ui.setupStep = undefined; c.ui.setup = null; c.store.setPref('setup-draft', undefined); c.store.flush(); if (c.route.name === 'welcome') c.back(); else c.rerender(); return; }
+      c.ui.setupStep = Math.max(0, (c.ui.setupStep || 1) - 1); c.rerender(); },
+    backto: (c, d) => { c.ui.setupStep = undefined; c.ui.setup = null; c.store.setPref('setup-draft', undefined); c.open(d.id); },
     'add-owner': c => { const d = c.ui.setup; collect(d); d.owners.push(''); c.rerender(); },
     example: async c => { const { openExample } = await import('./backup.js'); openExample(c); },
   },
-  changes: { restore: (c, el) => importBackup(c, el.files[0]) },
+  changes: { restore: (c, el) => importBackup(c, el.files[0], el) },
   forms: {
     // Chaos test fix 3: a name of only spaces is rejected with a message (it used to crash Finish setup).
     s1: (c, f) => { if (!f.name.trim()) { c.ui.setupErr = 'name'; c.rerender(); return; } c.ui.setupErr = ''; Object.assign(c.ui.setup, { name: f.name.trim(), address: f.address.trim() }); c.ui.setupStep = 2; keep(c); c.rerender(); },

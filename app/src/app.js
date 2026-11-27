@@ -21,15 +21,17 @@ function splitFor(r, v) { if (!WIDE.matches || !S.ph || !S.stack.length || v.noN
   const pr = S.stack.length > 1 ? S.stack.at(-2) : { name: S.tab }; return MASTER.has(pr.name) && views[pr.name] && pr.name !== r.name ? { r: pr, depth: S.stack.length - 1 } : null; }
 function routeFor(el) { const r = S.ph ? ctx.route : { name: 'welcome' }; if (pane && el?.closest?.('.pane-master')) return { r: pane.r, v: views[pane.r.name] || {}, depth: pane.depth }; return { r, v: views[r.name] || {}, depth: null }; }
 export const register = (name, v) => { views[name] = v; };
+// C-02: screens can listen for navigation (a pending "choose the file again" restore is disarmed by it).
+const navigated = () => { try { window.dispatchEvent(new Event('pl:navigate')); } catch {} };
 const S = { ph: null, drafts: {}, stack: [], tab: 'today', toast: '', ui: {} };
 export const ctx = {
   get ph() { return S.ph; }, get drafts() { return S.drafts; }, get route() { return S.stack.at(-1) || { name: S.tab }; }, ui: S.ui,
   // R09: remember which row opened a screen (its data-* attributes), focus the new screen's heading, and on Back
   // put focus back on that row, so keyboard and screen-reader users keep their place.
-  go(name, params = {}) { S.toast = ''; fromMasterCut(); const cur = S.stack.at(-1) || { name: S.tab, tabRoot: true }; cur.from = trigger(); if (cur.tabRoot) S.tabFrom = cur.from; S.stack.push({ name, ...params }); render(true); focusTitle(); },
-  replace(name, params = {}) { S.stack.pop(); S.stack.push({ name, ...params }); render(true); },
-  back() { S.toast = ''; fromMasterCut(); S.stack.pop(); render(true); const from = (S.stack.at(-1) || {}).from ?? (S.stack.length ? '' : S.tabFrom); if (!refocus(from)) focusTitle(); },
-  tab(name) { S.toast = ''; S.tab = name; S.stack = []; render(true); },
+  go(name, params = {}) { navigated(); S.toast = ''; fromMasterCut(); const cur = S.stack.at(-1) || { name: S.tab, tabRoot: true }; cur.from = trigger(); if (cur.tabRoot) S.tabFrom = cur.from; S.stack.push({ name, ...params }); render(true); focusTitle(); },
+  replace(name, params = {}) { navigated(); S.stack.pop(); S.stack.push({ name, ...params }); render(true); },
+  back() { navigated(); S.toast = ''; fromMasterCut(); S.stack.pop(); render(true); const from = (S.stack.at(-1) || {}).from ?? (S.stack.length ? '' : S.tabFrom); if (!refocus(from)) focusTitle(); },
+  tab(name) { navigated(); S.toast = ''; S.tab = name; S.stack = []; render(true); },
   // opts.redraw false: save without redrawing (a typed answer, so the button the owner is tapping isn't replaced mid-tap).
   change(fn, message, opts = {}) {
     const next = clone(S.ph); const r = fn(next); if (r === false) return false;

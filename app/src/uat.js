@@ -2,6 +2,10 @@
 // same "uatnotes" collection and shape as the current app, so Claude can read them. Falls back to this browser.
 import { esc } from './util.js';
 import { copyText } from './clip.js';
+import * as store from './store.js';
+import { deletable } from './views/settings.js';
+// C-05: Reset is for test copies only. It's blocked while any real pharmacy (not test or fictional, with records) is here.
+export const realPharmacies = () => { try { return store.dir().ids.map(id => store.pharmacy(id)).filter(p => p && !deletable(p) && !p.flags?.example && !/\bFictional\b/i.test(p.address || '')); } catch { return []; } };
 let db = null, notes = [], live = false, marks = {};
 const KEY = 'propapp-uat-notes';
 const local = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
@@ -12,12 +16,12 @@ export async function initUat(pageName) {
   new MutationObserver(place).observe(document.getElementById('app') || document.body, { childList: true, subtree: true }); place();
   const dlg = document.createElement('dialog'); dlg.id = 'uat-dlg'; document.body.append(dlg);
   const paint = () => { const open = notes.filter(n => n.status !== 'Closed' && n.status !== 'Parked').length; btn.textContent = 'UAT' + (open ? ' · ' + open : ''); };
-  const draw = () => {
+  const draw = () => { const real = realPharmacies();
     dlg.innerHTML = `<div class="uat-h"><b>UAT notes</b><span class="hint">Build ${esc(window.PROPAPP_BUILD || '')} · ${live ? 'saved to your UAT page' : 'this browser only'}</span><button type="button" class="btn" data-x>Close</button></div>
       <label class="field"><span class="field-label">Note about: ${esc(pageName())}</span><textarea class="input" rows="4" maxlength="2000" placeholder="What did you expect, and what happened?"></textarea></label>
       <button type="button" class="btn primary" data-add>Add note</button>
-      <div class="btnrow"><button type="button" class="btn" data-copy>Copy all</button><button type="button" class="btn" data-clear>${dlg.dataset.armClear ? 'Tap again to clear all notes' : 'Clear all'}</button><button type="button" class="btn" data-reset>${dlg.dataset.armReset ? 'Tap again: delete all test data' : 'Reset test data'}</button></div>
-      <p class="hint">Reset deletes every pharmacy and record in this browser for this test copy and returns to the welcome screen. Your UAT notes are kept.</p>
+      <div class="btnrow"><button type="button" class="btn" data-copy>Copy all</button><button type="button" class="btn" data-clear>${dlg.dataset.armClear ? 'Tap again to clear all notes' : 'Clear all'}</button>${real.length ? '' : `<button type="button" class="btn" data-reset>${dlg.dataset.armReset ? 'Tap again: delete all test data' : 'Reset test data'}</button>`}</div>
+      ${real.length ? `<p class="note warn" data-resetblocked>Reset test data is off because ${real.length === 1 ? esc(real[0].name) + ' has' : real.length + ' pharmacies have'} real records here. Download a backup first, then delete test pharmacies one at a time in More › Pharmacies › Archive or delete a pharmacy.</p>` : '<p class="hint">Reset deletes every pharmacy and record in this browser for this test copy and returns to the welcome screen. Your UAT notes are kept.</p>'}
       <div class="uat-list">${notes.slice().reverse().map(n => `<p class="note"><b>${esc(n.status || 'Open')}</b> [${esc(n.page)}] ${esc(n.text)}${n.fix ? '<br><span class="hint">Fix: ' + esc(n.fix) + '</span>' : ''}</p>`).join('')}</div>`;
     dlg.querySelector('[data-x]').onclick = () => dlg.close();
     dlg.querySelector('[data-add]').onclick = async () => { const ta = dlg.querySelector('textarea'), text = ta.value.trim(); if (!text) return;
@@ -27,7 +31,7 @@ export async function initUat(pageName) {
       if (await copyText(t)) { dlg.querySelector('[data-copy]').textContent = 'Copied'; } else { const ta = dlg.querySelector('textarea'); ta.value = t; ta.select(); } };
     dlg.querySelector('[data-clear]').onclick = async () => { if (!dlg.dataset.armClear) { dlg.dataset.armClear = '1'; draw(); return; } delete dlg.dataset.armClear;
       if (db) { for (const n of notes) if (n.id) { try { await db.collection('uatnotes').doc(n.id).delete(); } catch {} } } else { localStorage.removeItem(KEY); notes = []; } notes = db ? notes.filter(n => !n.id) : []; draw(); paint(); };
-    dlg.querySelector('[data-reset]').onclick = async () => { if (!dlg.dataset.armReset) { dlg.dataset.armReset = '1'; draw(); return; }
+    const rb = dlg.querySelector('[data-reset]'); if (rb) rb.onclick = async () => { if (realPharmacies().length) { delete dlg.dataset.armReset; draw(); return; } if (!dlg.dataset.armReset) { dlg.dataset.armReset = '1'; draw(); return; }
       await new Promise(res => { try { const r = indexedDB.deleteDatabase('propapp'); r.onsuccess = r.onerror = r.onblocked = () => res(); } catch { res(); } });
       for (const k of Object.keys(localStorage)) if (k.startsWith('propapp:') || k.startsWith('propapp-journal:') || k.startsWith('propapp-restored:')) localStorage.removeItem(k); location.reload(); };
   };

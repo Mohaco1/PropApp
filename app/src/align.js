@@ -3,7 +3,7 @@
 // financial-interest declaration) are never touched, and the S8 review (B1) is never moved past its s 111 limit.
 // It only changes due dates (nothing is marked done) and keeps the previous dates so the owner can undo it.
 import { today, addDays, isDate, daysBetween } from './dates.js';
-import { plan, monthsFor, s8Limit } from './rules.js';
+import { plan, monthsFor, s8Limit, s8Max } from './rules.js';
 import { reviewDue } from './summary.js';
 export const QUARTER_MONTHS = [2, 5, 8, 11];
 // First Monday of a month (the "first week" anchor).
@@ -42,7 +42,7 @@ export function alignPlan(ph, t = today()) {
   for (const a of plan(ph).filter(a => !a.event)) {
     const months = target(a, ph), from = reviewDue(ph, a.id); if (!months || !isDate(from) || from < t) continue;
     let cands = anchors(t, months).filter(x => x >= t);
-    if (a.id === 'B1') { const lim = s8Limit(ph); if (lim) cands = cands.filter(x => x <= lim); }
+    if (a.id === 'B1') { const lim = s8Max(ph, t); cands = cands.filter(x => x <= lim); }
     const to = nearest(cands, from); if (to && to !== from) out.push({ kind: 'review', id: a.id, name: a.name, from, to });
   }
   for (const p of ph.staff.filter(p => p.active !== false && isDate(p.annualDue) && p.annualDue >= t)) {

@@ -1,6 +1,6 @@
 // What each review is, how often it falls due, whether it applies to this pharmacy, and the S8 limit (s 111).
 import { C } from './content.js';
-import { addMonths, isDate } from './dates.js';
+import { addMonths, addDays, isDate, today } from './dates.js';
 const MONTHS = { Monthly: 1, Quarterly: 3, 'Six-monthly': 6, Annual: 12 };
 export const LEGAL = {
   B1: { line: 'Every 3 months · required by law (Regulation 2026, s 111)', short: 'Required by law' },
@@ -46,11 +46,17 @@ export function latestStockCheck(ph) {
 }
 // s 111: the next S8 inventory can't be later than 3 months after the latest stock-check date.
 export function s8Limit(ph) { const d = latestStockCheck(ph); return d ? addMonths(d, 3) : ''; }
+// C-01: the latest date the next S8 inventory can be planned for. 3 months after the last completed stock check, or
+// 3 months from today when none is recorded yet. If that has already passed (overdue), a short planning window of
+// today to +14 days instead, so the date can still be set ("a helper, not a policeman").
+export const S8_GRACE_DAYS = 14;
+export function s8Max(ph, t = today()) { const lim = s8Limit(ph) || addMonths(t, 3); return lim < t ? addDays(t, S8_GRACE_DAYS) : lim; }
+export const s8Overdue = (ph, t = today()) => { const l = s8Limit(ph); return !!l && l < t; };
 export const INTERVALS = MONTHS;
 export const monthsFor = (ph, a) => MONTHS[ph.intervals?.[a.id]] || a.months;
 export function suggestedNext(ph, id, from) {
   const a = reviewById(id); if (!a || !a.months) return '';
   const d = addMonths(from, monthsFor(ph, a));
-  if (id === 'B1') { const lim = s8Limit(ph); if (lim && lim < d) return lim; }
+  if (id === 'B1') { const lim = s8Max(ph); if (lim && lim < d) return lim; }
   return d;
 }

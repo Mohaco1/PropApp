@@ -39,21 +39,28 @@ export function backupNow(c) {
 // Counts used to check a restore against its own file (A1: drafts and staff checks included).
 export const tally = (ph, drafts) => ({ records: ph.records.length, actions: Object.keys(ph.actions).length, staff: ph.staff.length, checks: ph.staff.reduce((t, p) => t + Object.keys(p.checks || {}).length, 0), procedures: ph.procedures.length, drafts: Object.keys(drafts || {}).filter(k => !k.includes('/conflict-')).length });
 const b2from = got => got.pharmacy.legacy ? 'a backup from the earlier R.Pharmacy app' : 'a PharmLedger backup';
-export async function importBackup(c, file) {
+// C-02: the file input (el) is cleared after every pick (armed, restored or failed), so choosing the same file again
+// still fires "change" and the second pick confirms the replace.
+export async function importBackup(c, file, el) {
   if (!file) return;
+  const reset = () => { if (el) el.value = ''; };
   try {
     const got = validate(JSON.parse(await file.text()));
     const exists = c.store.pharmacy(got.pharmacy.id);
-    if (exists && !confirmReplace(exists.name)) return;
+    if (exists && !confirmReplace(exists.name)) { reset(); return; }
+    reset();
     // The receipt is built from the checked backup first; the pharmacy, its drafts and the directory are then queued
     // together and written in one storage transaction (store.flush), so nothing is half-restored.
     const receipt = { name: got.pharmacy.name, from: b2from(got), want: tally(got.pharmacy, got.drafts) };
     c.store.savePharmacy(got.pharmacy, { replace: true }); c.store.setDrafts(got.pharmacy.id, got.drafts, { replace: true });
     await c.open(got.pharmacy.id); receipt.got = tally(c.ph, c.drafts); c.ui.receipt = receipt; c.go('receipt');
-  } catch (e) { c.toast(e.message); c.rerender(); }
+  } catch (e) { armed = ''; reset(); c.toast(e.message); c.rerender(); }
 }
 // Replacing a pharmacy that is already here is the one destructive restore; it needs a second tap (no browser dialogs).
 let armed = '';
+// Any navigation away (another screen, or Back) disarms the replace: it only counts on the same screen.
+export const disarmReplace = () => { armed = ''; };
+if (typeof window !== 'undefined') window.addEventListener('pl:navigate', disarmReplace);
 function confirmReplace(name) { if (armed === name) { armed = ''; return true; } armed = name; alertInline('“' + name + '” is already on this device. Choose the file again to replace it with the backup.'); return false; }
 function alertInline(t) { const n = document.createElement('p'); n.className = 'note warn'; n.textContent = t; document.querySelector('main, .welcome')?.prepend(n); }
 // The fictional example: dates move so the day it was made becomes today. It opens as its own pharmacy.
@@ -61,6 +68,7 @@ export function shiftDates(obj, days) { return JSON.parse(JSON.stringify(obj).re
 export async function openExample(c) {
   const E = window.PROPAPP_EXAMPLE; if (!E) return;
   const got = importLegacy(shiftDates(E.backup, daysBetween(E.generated, today())));
+  (got.pharmacy.flags ??= {}).example = true; // C-05: the example is fictional, so it never blocks Reset test data
   if (!c.store.pharmacy(got.pharmacy.id)) { c.store.savePharmacy(got.pharmacy); c.store.setDrafts(got.pharmacy.id, got.drafts); }
   await c.open(got.pharmacy.id); c.toast('Opened Wattle Grove Pharmacy (fictional)');
 }

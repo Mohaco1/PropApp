@@ -1,6 +1,6 @@
 // THE one place that decides what is due, overdue, started or undated. Every count on every screen comes from here
 // (design rule 8), so Today, Reviews, Actions, Calendar and Staff always agree.
-import { plan, reviewById, s8Limit } from './rules.js';
+import { plan, reviewById, s8Limit, latestStockCheck } from './rules.js';
 import { today, addDays, addMonths, isDate, daysBetween, day } from './dates.js';
 import { requirements, credentialState } from './model.js';
 import { plural } from './util.js';
@@ -85,13 +85,15 @@ export function actionCounts(ph, t = today()) {
   const open = Object.values(ph.actions).filter(a => a.status === 'open');
   return { open: open.length, overdue: open.filter(a => isDate(a.due) && a.due < t).length, closed: Object.values(ph.actions).length - open.length, all: Object.values(ph.actions).length };
 }
-export function sentence(list) {
+// C-01: pass ph and the S8 prompt (s8) stays until a real stock-check date is recorded, even once a due date is set.
+export function sentence(list, ph) {
   const r = ranked(list), over = r.filter(i => i.bucket === 'overdue'), due = r.filter(i => i.bucket === 'today');
-  if (over.length) return { tone: 'bad', text: (over.length === 1 ? '1 thing is overdue.' : over.length + ' things are overdue.'), start: over[0] };
-  if (due.length) return { tone: 'warn', text: 'Nothing overdue. ' + due.length + ' due today.', start: due[0] };
-  const next = r.find(i => isDate(i.date)), s8 = r.find(i => i.key === 'review/B1');
+  const s8i = r.find(i => i.key === 'review/B1'), s8 = s8i && (!isDate(s8i.date) || (ph && !latestStockCheck(ph))) ? s8i : undefined;
+  if (over.length) return { tone: 'bad', text: (over.length === 1 ? '1 thing is overdue.' : over.length + ' things are overdue.'), start: over[0], s8 };
+  if (due.length) return { tone: 'warn', text: 'Nothing overdue. ' + due.length + ' due today.', start: due[0], s8 };
+  const next = r.find(i => isDate(i.date));
   // Hardening brief: with no S8 stocktake date yet, "Nothing overdue" overstates it.
-  if (s8 && !isDate(s8.date)) return { tone: 'ok', text: 'No overdue items with known dates.', start: next || null, s8 };
+  if (s8) return { tone: 'ok', text: 'No overdue items with known dates.', start: next || null, s8 };
   return { tone: 'ok', text: 'Nothing overdue.', start: next || null };
 }
 export { reviewById };

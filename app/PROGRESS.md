@@ -634,3 +634,10 @@ Checked and already passing:
 - **Colours:** primary buttons and active nav are navy `#0f2942`; the top stripe and nav indicator run navy→teal. Secondary grey stays `#526575` and "Save review" stays one tap, as the spec says.
 - **Welcome, "Centered Calm":** a 340 px stack centred both ways on phones and unfolded screens: logo(56), PharmLedger (26 px, 600, tight tracking), the tagline (15 px, muted), a full-width 48 px "Set up your pharmacy", then "Restore backup · Try example". The longer `.wm-sub` line is gone. Tests now tap "Try example", except upgrade.js, which opens a saved old build that still says "Look around an example pharmacy (fictional)".
 - Full run: 29 of 30 passed first time; upgrade failed only on that label and passes after the fix. procgen is identical for all 17 services.
+
+## Batch 1A (C-01, C-02, C-03, C-05) · 27 Nov 2026 · build 5be6df0d29
+- C-01: S8 dates capped by `s8Max` (3 months after the last completed stock check, or from today with none; an overdue limit becomes today to +14 days) in first dates, Change due date, the finish screen and Align. Today keeps the S8 stocktake prompt until a stock-check date exists.
+- C-02: restoring the same backup file twice works (input cleared after each pick; navigation disarms).
+- C-03: "Set up another pharmacy" keeps the open pharmacy until Step 3; Back from Step 1 returns; welcome offers "Back to [Pharmacy]".
+- C-05: UAT "Reset test data" is blocked while a real pharmacy is on the device.
+- New `tests/batch1a.js`. Full run: 29 of 31 first time; wave1 and sprint5 fixed and re-run green. procgen identical for all 17.

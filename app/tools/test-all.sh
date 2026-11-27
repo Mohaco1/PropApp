@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Runs every Playwright suite at 390×844 and the procedure parity check. Prints one line per suite.
 cd "$(dirname "$0")/.."
-for t in core sprint1 sprint2 sprint3 sprint4 sprint5 screens setup-questions extras polish theme content2 v3 pwa wave1 wave2 gates wave3 pretrial sigil batch1 chaos hardening upgrade procedures-all onboard pharmledger foldable visual; do
+for t in core sprint1 sprint2 sprint3 sprint4 sprint5 screens setup-questions extras polish theme content2 v3 pwa wave1 wave2 gates wave3 pretrial sigil batch1 batch1a chaos hardening upgrade procedures-all onboard pharmledger foldable visual; do
   out=$(timeout 900 node tests/$t.js 2>&1); f=$(echo "$out" | grep -c '^FAIL')
   if echo "$out" | grep -q 'ALL PASS'; then echo "=== $t: ALL PASS"; else echo "=== $t: $f FAILED"; echo "$out" | grep '^FAIL' | cut -c1-160; [ "$f" = 0 ] && echo "$out" | tail -3 | cut -c1-200; fi
 done
