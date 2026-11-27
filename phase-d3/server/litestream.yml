@@ -1,0 +1,11 @@
+# Continuous SQLite replication to S3 in Sydney. Credentials come from Fly secrets
+# (LITESTREAM_ACCESS_KEY_ID, LITESTREAM_SECRET_ACCESS_KEY); the bucket name from LITESTREAM_S3_BUCKET.
+dbs:
+  - path: /data/pharmledger.db
+    replicas:
+      - type: s3
+        bucket: $LITESTREAM_S3_BUCKET
+        path: pharmledger
+        region: ap-southeast-2
+        sync-interval: 10s
+        retention: 168h

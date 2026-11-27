@@ -1,0 +1,17 @@
+{
+  "name": "pharmledger-sync-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PharmLedger D3 sync back end (Sydney, ap-southeast-2). Node 22 built-ins only: node:sqlite, node:crypto, node:http.",
+  "type": "module",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/server.mjs",
+    "start": "node dist/server.mjs",
+    "test": "node ../../app/tests/d3-server.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}
