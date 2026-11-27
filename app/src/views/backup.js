@@ -13,8 +13,18 @@ export function checkPharmacy(p, drafts) {
     if (typeof p.id !== 'string' || !p.id) bad.push('id'); if (typeof p.name !== 'string' || !p.name.trim()) bad.push('name');
     for (const k of ['records', 'staff', 'procedures', 'history']) if (!Array.isArray(p[k])) bad.push(k);
     for (const k of ['actions', 'services']) if (!obj(p[k])) bad.push(k);
-    if (p.proprietors !== undefined && !Array.isArray(p.proprietors)) bad.push('proprietors');
-    if (Array.isArray(p.records) && p.records.some(r => !obj(r) || typeof r.date !== 'string' || !Array.isArray(r.answers ?? []))) bad.push('records (an entry is damaged)');
+    // M-07: the other parts every screen reads. Each may be missing in an older backup (it is filled in empty), but if
+    // it is there it must have the right shape, so nothing half-damaged gets in.
+    for (const k of ['settings', 'schedule', 'obligations', 'flags', 'archives']) if (p[k] !== undefined && p[k] !== null && !obj(p[k])) bad.push(k);
+    if (obj(p.schedule) && Object.values(p.schedule).some(v => v !== '' && v !== null && typeof v !== 'string')) bad.push('schedule (a date is damaged)');
+    for (const k of ['proprietors', 'documents', 'log']) if (p[k] !== undefined && !Array.isArray(p[k])) bad.push(k);
+    if (Array.isArray(p.proprietors) && p.proprietors.some(x => !obj(x) || typeof (x.name ?? '') !== 'string')) bad.push('proprietors (an entry is damaged)');
+    if (Array.isArray(p.documents) && p.documents.some(x => !obj(x) || typeof (x.title ?? '') !== 'string')) bad.push('documents (an entry is damaged)');
+    if (Array.isArray(p.log) && p.log.some(x => !obj(x) || typeof (x.what ?? '') !== 'string')) bad.push('log (an entry is damaged)');
+    if (Array.isArray(p.history) && p.history.some(x => !obj(x) || typeof (x.what ?? '') !== 'string')) bad.push('history (an entry is damaged)');
+    if (Array.isArray(p.procedures) && p.procedures.some(x => !obj(x) || !Array.isArray(x.versions) || x.versions.some(v => !obj(v) || typeof (v.body ?? '') !== 'string'))) bad.push('procedures (versions are damaged)');
+    if (obj(p.services) && Object.values(p.services).some(x => !obj(x) || (x.answers !== undefined && !obj(x.answers)))) bad.push('services (an entry is damaged)');
+    if (Array.isArray(p.records) && p.records.some(r => !obj(r) || typeof r.date !== 'string' || !Array.isArray(r.answers ?? []) || (r.answers || []).some(a => !obj(a)))) bad.push('records (an entry is damaged)');
     if (obj(p.actions) && Object.values(p.actions).some(a => !obj(a) || typeof a.title !== 'string')) bad.push('actions (an entry is damaged)');
     if (Array.isArray(p.staff) && p.staff.some(x => !obj(x) || typeof x.name !== 'string')) bad.push('staff (an entry is damaged)');
   }
@@ -27,6 +37,8 @@ export function validate(b) {
   else if (isLegacyBackup(b)) got = importLegacy(b);
   else throw Error('This file is not a PharmLedger backup (or one from Sigil, PropApp or R.Pharmacy).');
   checkPharmacy(got.pharmacy, got.drafts);
+  // Parts an older backup may not have are added empty (the backup format itself is unchanged).
+  const ph = got.pharmacy; for (const k of ['proprietors', 'documents', 'log']) ph[k] ??= []; for (const k of ['schedule', 'obligations', 'flags']) ph[k] ??= {}; ph.settings ??= { setupDone: true };
   return got;
 }
 // A1: one backup action (Backup screen and the Today nudge). On phones that can, it opens the share sheet so the file

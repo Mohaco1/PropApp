@@ -424,3 +424,13 @@ details>summary{list-style:none}details>summary::-webkit-details-marker{display:
 .plan-row dt{font-size:13px;font-weight:600;color:var(--muted)}.plan-row dd{margin:0;font-weight:400}
 .form .input,main .input{scroll-margin-top:72px;scroll-margin-bottom:96px}
 .screen:has(.input:focus) .body{padding-bottom:max(24px,env(keyboard-inset-height,0px))}
+/* M-06: Staff status chips stay on one line at 344 px (cover screen) and 390 px. */
+.staff-chips{flex-wrap:nowrap;margin:8px 0}
+.staff-chips .chip{flex:1 1 auto;justify-content:center;white-space:nowrap;padding:8px 10px;min-width:0}
+.staff-chips .chip b{font-variant-numeric:tabular-nums}
+/* L-02: a saved document link opens in a new tab, as a 44 px target. */
+.doclink{display:inline-flex;align-items:center;min-height:44px;padding:0 4px;font-weight:600}
+.s8-ans{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.s8-ans li{display:grid;gap:2px}.s8-ans li span{color:var(--muted);font-size:14px}
+.rowwrap>.doclink{flex:0 0 auto;justify-content:center;padding:0 14px;color:var(--primary);text-decoration:none;border-left:1px solid var(--line)}
+.lasttime .doclink{padding:0;color:var(--primary)}

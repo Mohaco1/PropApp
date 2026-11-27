@@ -48,7 +48,8 @@ register('procedures', {
       <div class="list">${act.map(id => { const p = c.ph.procedures.find(x => x.service === id), v = current(p), b = v ? blockers(v.body) : [];
         return row({ title: serviceName(id), sub: !p ? (c.ph.services[id].setup === 'done' ? 'Ready to draft' : 'Finish its setup first') : p.status === 'adopted' ? 'Adopted · version ' + v.v : 'Draft ' + v.v + (p.versions.some(x => x.status === 'Adopted') ? ' · version ' + p.versions.filter(x => x.status === 'Adopted').at(-1).v + ' in use' : '') + (b.length ? ' · ' + b.length + ' to confirm' : ''), ic: svcIcon(id), right: p?.status === 'adopted' ? 'Adopted' : p ? 'Draft' : '', tone: p?.status === 'adopted' ? 'ok' : b.length ? 'warn' : '', act: 'go', data: { to: 'procedure', id } }); })}</div>
       <section class="sec"><h2 class="sec-title">Other documents · ${c.ph.documents.length}</h2><p class="muted">Where your other policies and templates are kept: a link or a reference, never the document itself.</p>
-        ${c.ph.documents.length ? h`<div class="list">${c.ph.documents.map(d => row({ title: d.title, sub: [d.ref, d.version && 'version ' + d.version, d.reviewDate && 'review ' + fmt(d.reviewDate)].filter(Boolean).join(' · '), act: 'go', data: { to: 'docref', id: d.id } }))}</div>` : ''}
+        ${c.ph.documents.length ? h`<div class="list">${c.ph.documents.map(d => { const r0 = row({ title: d.title, sub: [d.ref, d.owner && 'kept by ' + d.owner, d.version && 'version ' + d.version, d.reviewDate && 'review ' + fmt(d.reviewDate)].filter(Boolean).join(' · '), act: 'go', data: { to: 'docref', id: d.id } });
+          return safeUrl(d.url) ? h`<div class="rowwrap">${r0}${docLink(d)}</div>` : r0; })}</div>` : ''}
         ${btn('+ Add a document reference', 'go', { kind: 'link', data: { to: 'docref', id: '' } })}</section>` });
   },
 });
@@ -118,14 +119,17 @@ register('procedure', VIEW);
 const adoptVersion = p => (Math.max(0, ...p.versions.filter(x => x.status === 'Adopted').map(x => parseInt(x.v, 10) || 0)) + 1) + '.0';
 const next = v => { const m = String(v).match(/^(\d+)\.(\d+)/); return m ? m[1] + '.' + (+m[2] + 1) : '0.1'; };
 
+// L-02: a saved link opens in a new tab, only when it is https (a typed http:// or other scheme is never made a link).
+const safeUrl = u => /^https:\/\/[^\s"'<>]+$/i.test(String(u || '').trim());
+const docLink = d => h`<a class="doclink" href="${String(d.url).trim()}" target="_blank" rel="noopener noreferrer" aria-label="Open link: ${d.title}">Open link</a>`;
 register('docref', {
   tab: 'more',
   render(c, r) { const d = c.ph.documents.find(x => x.id === r.id) || {};
-    return screen({ title: r.id ? 'Document reference' : 'Add a document reference', back: true, body: h`<form class="form" data-form="save">
+    return screen({ title: r.id ? 'Document reference' : 'Add a document reference', back: true, body: h`${safeUrl(d.url) ? h`<p class="lasttime"><span class="eyebrow">Saved link${d.owner ? ' · kept by ' + d.owner : ''}</span> ${docLink(d)}</p>` : ''}<form class="form" data-form="save">
       ${field('Title', textInput('title', d.title || '', { required: true }))}${field('Link (optional)', textInput('url', d.url || '', { type: 'url', placeholder: 'https://' }))}
       ${field('Where it is kept or its reference', textInput('ref', d.ref || ''))}${field('Version (optional)', textInput('version', d.version || ''))}
       ${field('Kept by (optional)', textInput('owner', d.owner || ''))}${field('Review date (optional)', textInput('reviewDate', d.reviewDate || '', { type: 'date' }))}
       <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` }); },
-  forms: { save: (c, f, el, r) => { if (f.url && !/^https?:\/\//.test(f.url)) { c.toast('Use a web link starting with https://'); return; }
+  forms: { save: (c, f, el, r) => { if (f.url?.trim() && !safeUrl(f.url)) { c.toast('Use a web link starting with https://'); return; }
     c.change(ph => { let d = ph.documents.find(x => x.id === r.id); if (!d) { d = { id: uid() }; ph.documents.push(d); } Object.assign(d, { title: f.title.trim(), url: f.url.trim(), ref: f.ref.trim(), version: f.version.trim(), owner: f.owner.trim(), reviewDate: f.reviewDate }); log(ph, 'Document reference saved · ' + d.title); }, 'Saved'); c.back(); } },
 });

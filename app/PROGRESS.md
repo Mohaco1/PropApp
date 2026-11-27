@@ -676,3 +676,9 @@ Checked and already passing:
 - Finish setup shows "Here's your pharmacy plan" (services, procedures to draft, S8 stocktake) with one primary button, Open Today; graceful with 0 services.
 - A focused box on a short screen keeps Continue / Next in view without hiding its label.
 - New `tests/onboarding-polish.js` (28 checks). Full test-all once: 30/35, then 5 suites fixed (tests adapted to auto-advance, plus 2 app refinements) and re-run green with batch1b, setup-questions and onboarding-polish. procgen identical for all 17. docs/ refreshed.
+
+## Stage 2 · safe v41 parity (M-06, M-07, L-02) · 27 Nov 2026 · build 9b350249d1
+- M-06: tap one credential on a person's page to verify or update it alone (records a one-item check, raises an action for an issue, annual date unchanged); Staff list chips All / Needs review / Coming up and search.
+- M-07: History CSV exports every history event with a category, starts with a UTF-8 BOM, and guards formula cells even after leading spaces; `checkPharmacy` checks settings, schedule, proprietors, documents, log, history, procedure versions, service answers and record answers (older backups fill missing parts empty).
+- L-02: document references show who keeps them and an https-only "Open link" (new tab, noopener, 44 px); S8 at a glance lists the S8 setup answers.
+- New `tests/parity.js` (44 checks). Full test-all once: 36/36 suites plus Check later; procgen identical for all 17. docs/ refreshed.

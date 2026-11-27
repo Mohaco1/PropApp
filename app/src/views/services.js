@@ -315,3 +315,11 @@ register('otp-parts', {
       const next = { ...a, otpGovernance: g.length ? g.join(',') : 'None confirmed yet' }; for (const k of ['incidents', 'incidentProcess', 'films']) if ('l:' + k in sel) next[k] = sel['l:' + k] ? (String(a[k] || '').startsWith('We have our own') ? a[k] : 'We have our own procedure: In our OTP procedure') : 'Draft it for me';
       s.answers = tidyAnswers(ph, 'otp', next); log(ph, 'Updated OTP procedure parts'); }, Object.values(sel).every(Boolean) ? 'Saved. Every part is written: close the action when you’re happy with it.' : 'Saved'); c.ui.otpSel = null; c.back(); } },
 });
+// L-02: the S8 setup answers across the services you run (the current app's "S8 in your services (from setup)"): any
+// question about Schedule 8, the drug register or controlled drugs that has an answer. Shown on S8 at a glance.
+const S8RX = /\bS8\b|Schedule 8|drug register|controlled/i;
+export function s8Answers(ph) { const out = [];
+  for (const [sid, s] of Object.entries(ph.services || {})) { if (!s.active) continue;
+    for (const f of fieldsFor(ph, sid)) { const lab = questionLabel(ph, sid, f.key), v = s.answers?.[f.key];
+      if (v && (S8RX.test(lab) || S8RX.test(String(f.label)))) out.push({ sid, key: f.key, service: serviceName(sid), label: lab, value: v === NV ? 'To check later' : String(v).replace(/,(?=\S)/g, ', ') }); } }
+  return out; }

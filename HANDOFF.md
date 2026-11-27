@@ -11,8 +11,8 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Repo | `Mohaco1/PropApp`, branch `main` |
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
-| App build id | **`f341207867`** (Onboarding polish, on top of Batch 3) |
-| Code commit | Onboarding polish commit on `main` (code, docs/ and this file for build f341207867) |
+| App build id | **`9b350249d1`** (Stage 2 v41 parity, on top of Onboarding polish) |
+| Code commit | Stage 2 parity commit on `main` (code, docs/ and this file for build 9b350249d1) |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -88,6 +88,11 @@ After deploying, an installed phone app picks up the new version when it's reope
 - Note: `tests/upgrade.js` opens a saved old build (07775c5947) from a fixture, so it still taps the old "Look around an example pharmacy (fictional)" label. Leave that label as it is.
 
 ## 7. What was done this week (newest first)
+0. **Stage 2 · safe v41 parity (27 Nov, build `9b350249d1`): done. Batch 3's Fold-trial readiness still stands.**
+   - **M-06 Staff** (`views/staff.js`): each credential row on a person's page opens route `cred` (id `personId~reqId`): last time's check, then Seen it · update / Issue / N/A, one Save. It saves that one check, records a one-item "Credential check" in History, raises one action for an issue, and never moves the annual check date. The Staff list has All / Needs review / Coming up chips (one line at 344 and 390 px, 44 px) and a search box. "Needs review" = expired, issue or checks not done; "Coming up" = due within 30 days (from `personStatus`).
+   - **M-07 History CSV** (`export.js`): every `ph.history` event is exported as a "Change" row with a category (Procedure, Service, Evidence, DAA packing, Calendar, Staff, Setup, Action, Review, Document, Law update, Meeting, Other), except the four already exported from their own records (Recorded, Action raised/closed, My log). UTF-8 BOM first; a cell starting with = + - @ (after any spaces) or a tab/return gets a leading apostrophe. **Restore** (`views/backup.js` `checkPharmacy`): settings, schedule, obligations, flags, proprietors, documents, log, history, procedure versions, services' answers and each record answer are shape-checked; missing parts in older backups are added empty, so PropApp, Sigil and R.Pharmacy backups still restore.
+   - **L-02** (`views/procedures.js`, `views/law.js`, `views/services.js` `s8Answers`): a document reference with an https link shows "kept by …" and a 44 px "Open link" (new tab, `rel="noopener noreferrer"`); non-https links are refused on save. S8 at a glance adds "Your S8 setup · n": every answered S8, drug register or controlled-medicine setup question, each opening its service.
+   - Tests: `tests/parity.js` (44 checks, in `test-all.sh`). Screenshots `app/handoff/parity_*.png`.
 0. **Onboarding polish (27 Nov, build `f341207867`): done. Batch 3's Fold-trial readiness still stands.**
    - **Single-choice auto-advance** (`views/services.js`, `autoAdvances`/`autoNext`): a single-choice setup answer that opens no box to type in (not "Different local arrangement", "Someone else" or "We have our own procedure") is highlighted (`.choice.picked`) and moves to the next question after 140 ms. The last question waits for Finish; "Save and back to the procedure" mode never moves on. Next and Previous stay; one Next tap within 900 ms of an automatic move, with no new answer, is ignored so a habitual tap never skips a question. Ticks and typed boxes still wait for Next. Nothing is answered for the owner.
    - **Plan card after Finish setup** (`views/welcome.js`, route `plan-ready`): the pharmacy name in the header, then "Here's your pharmacy plan": services (count and names, or "None yet. Add them any time from More → Services."), procedures to draft (or copied drafts to adopt), and the S8 stocktake (next due date, or "Every 3 months. Add your last stocktake date on Today."). One primary button, Open Today. It replaces the old Finish setup toast.
@@ -151,6 +156,8 @@ After deploying, an installed phone app picks up the new version when it's reope
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
+**Stage 2 parity, build `9b350249d1`:** `test-all.sh` run once in full on the final build: all 36 suites pass (parity included, and the 5 suites fixed after Onboarding polish: batch1, pharmledger, procedures-all, batch2a, batch3) plus Check later; `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`.
+
 **Onboarding polish, build `f341207867`:** `test-all.sh` run once in full: 30 of 35 suites passed plus procgen; batch1, pharmledger, procedures-all (both variants), batch2a and batch3 failed because their tap-then-Next loops met auto-advance (a move onto the "Where you keep records" or done screen, a second Next swallowed, the old toast). Fixed in the app (last question waits for Finish; only one Next is swallowed) and in those tests; on the final build all of them plus batch1b (a one-off crash in the full run), setup-questions and onboarding-polish pass, and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`. Screenshots `95`–`99` in `app/handoff/`.
 
 **Batch 3, build `a78881bc7c`:** `test-all.sh` run once in full on the final build, no time limit hit: all 34 suites pass (batch3 included) plus Check later, and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`. Ready for the 2-week Fold trial.

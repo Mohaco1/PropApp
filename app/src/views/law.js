@@ -7,7 +7,7 @@ import { C } from '../content.js';
 import { fmt, today, dueText, isDate, day } from '../dates.js';
 import { s8Limit, latestStockCheck, activeServices, serviceName } from '../rules.js';
 import { RPH } from '../procgen.js';
-import { questionLabel } from './services.js';
+import { questionLabel, s8Answers } from './services.js';
 import { reviewDue } from '../summary.js';
 import { note as log, me } from '../model.js';
 const L = C.law;
@@ -29,9 +29,14 @@ register('s8', {
         ${lim ? h`<p class="muted">The law’s latest date is ${fmt(lim)}: 3 months after the last stock check.</p>` : ''}${btn('S8 stock check', 'go', { kind: 'primary', data: { to: 'review', id: 'B1' } })}</div>
       ${s8acts.length ? section('Open S8 actions · ' + s8acts.length, h`<div class="list">${s8acts.map(a => row({ title: a.title, right: dueText(a.due), act: 'go', data: { to: 'action', id: a.id } }))}</div>`) : ''}
       ${section('The rules, and where your records are', h`<div class="list">${rows.map(o => obRow(c.ph, o))}</div>`)}
+      ${s8Setup(c.ph)}
       ${why('Safe and storage standard', (L.ADD.B1 || []).join('\n\n'))}` });
   },
 });
+// L-02: how this pharmacy set up S8, from its service setup answers (where things are kept, who holds the keys, which
+// register). Tapping one opens that question to change it. Nothing here is ticked for the owner.
+function s8Setup(ph) { const a = s8Answers(ph); if (!a.length) return '';
+  return section('Your S8 setup · ' + a.length, h`<div class="list">${a.map(x => row({ title: x.label, sub: x.service + ' · ' + x.value, act: 'go', data: { to: 'service', id: x.sid } }))}</div>`); }
 function obRow(ph, o) { const ev = ph.obligations?.[o[0]] || {};
   const s8 = /S8|drug register|s 1(0[89]|1[0-9]|2[0-2])\b/.test(o[1] + ' ' + o[2]), lastB1 = s8 ? ph.records.filter(r => r.type === 'B1').map(r => r.date).sort().at(-1) : '';
   return row({ title: o[2], sub: o[1] + (ev.where ? ' · kept: ' + ev.where : '') + (lastB1 ? ' · last S8 review ' + fmt(lastB1) : ''), right: ev.date ? 'Seen ' + fmt(ev.date) : 'Not seen yet', tone: ev.date ? '' : 'warn', act: 'go', data: { to: 'obligation', id: o[0] } }); }

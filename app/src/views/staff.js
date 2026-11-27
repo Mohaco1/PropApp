@@ -16,18 +16,27 @@ function personStatus(p) {
   if (soon.length || (isDate(p.annualDue) && daysBetween(today(), p.annualDue) <= 30)) return ['Coming up', 'warn'];
   return ['Current', 'ok'];
 }
+// M-06: Staff list filters. "Needs review" is anyone with an expired credential, an issue, or checks not done yet;
+// "Coming up" is a credential or the annual check due in the next 30 days. Counts come from personStatus (one source).
+const STATUS_F = [['all', 'All'], ['review', 'Needs review'], ['soon', 'Coming up']];
+const statusGroup = p => { if (p.active === false) return ''; const t = personStatus(p)[0]; return t === 'Needs review' || t === 'Checks to do' ? 'review' : t === 'Coming up' ? 'soon' : ''; };
 register('staff', {
   tab: 'staff',
   render(c) {
-    const f = c.ui.staffF || 'active', all = c.ph.staff;
-    const list = all.filter(p => f === 'former' ? p.active === false : f === 'locum' ? p.active !== false && p.engagement === 'Locum' : p.active !== false);
+    const f = c.ui.staffF || 'active', all = c.ph.staff, sf = f === 'former' ? 'all' : c.ui.staffS || 'all', q = (c.ui.staffQ || '').trim().toLowerCase();
+    const inTab = all.filter(p => f === 'former' ? p.active === false : f === 'locum' ? p.active !== false && p.engagement === 'Locum' : p.active !== false);
+    const stCount = Object.fromEntries(STATUS_F.map(([k]) => [k, inTab.filter(p => statusGroup(p) === k || k === 'all').length]));
+    const list = inTab.filter(p => (sf === 'all' || statusGroup(p) === sf) && (!q || (p.name + ' ' + p.role + ' ' + (p.engagement || '')).toLowerCase().includes(q)));
     return screen({ title: 'Staff', site: c.ph.name, right: h`<button class="iconbtn" data-act="go" data-to="person-edit" aria-label="Add a staff member">${icon('plus')}</button>`, body: h`
       <div class="tabs">${[['active', 'Active'], ['locum', 'Locums'], ['former', 'Former']].map(([k, l]) => h`<button class="${k === f ? 'on' : ''}" data-act="f" data-f="${k}">${l} <b>${all.filter(p => k === 'former' ? p.active === false : k === 'locum' ? p.active !== false && p.engagement === 'Locum' : p.active !== false).length}</b></button>`)}</div>
-      <div class="list">${list.length ? list.map(p => { const [s, t] = p.active === false ? ['Left ' + fmt(p.end), ''] : personStatus(p); return row({ title: p.name, sub: p.role + (p.engagement && p.engagement !== 'Regular' ? ' · ' + p.engagement : ''), right: s, tone: t, act: 'go', data: { to: 'person', id: p.id } }); }) : (f === 'active' ? h`<div class="empty-card"><b>No staff yet</b><span class="muted">Add pharmacists and support staff to keep track of registrations, training and their annual check.</span>${btn('+ Add a staff member', 'go', { kind: 'primary', data: { to: 'person-edit' } })}</div>` : empty(f === 'locum' ? 'No locums recorded. Use the locum quick check below.' : 'Nobody here yet.'))}</div>
+      ${f !== 'former' && inTab.length ? h`<div class="chips staff-chips" role="group" aria-label="Show">${STATUS_F.map(([k, l]) => h`<button type="button" class="chip${k === sf ? ' on' : ''}" aria-pressed="${String(k === sf)}" data-act="sf" data-f="${k}">${l} <b>${stCount[k]}</b></button>`)}</div>` : ''}
+      ${inTab.length > 1 || q ? h`<label class="search">${icon('search')}<input class="input" name="q" type="search" placeholder="Search staff" aria-label="Search staff" value="${c.ui.staffQ || ''}" data-input="q" autocomplete="off"></label>` : ''}
+      <div class="list">${!list.length && inTab.length ? empty(q ? 'Nobody matches “' + c.ui.staffQ.trim() + '”.' : sf === 'review' ? 'Nobody needs review.' : 'Nothing coming up in the next 30 days.') : list.length ? list.map(p => { const [s, t] = p.active === false ? ['Left ' + fmt(p.end), ''] : personStatus(p); return row({ title: p.name, sub: p.role + (p.engagement && p.engagement !== 'Regular' ? ' · ' + p.engagement : ''), right: s, tone: t, act: 'go', data: { to: 'person', id: p.id } }); }) : (f === 'active' ? h`<div class="empty-card"><b>No staff yet</b><span class="muted">Add pharmacists and support staff to keep track of registrations, training and their annual check.</span>${btn('+ Add a staff member', 'go', { kind: 'primary', data: { to: 'person-edit' } })}</div>` : empty(f === 'locum' ? 'No locums recorded. Use the locum quick check below.' : 'Nobody here yet.'))}</div>
       ${f === 'locum' ? btn('Locum on duty · quick check', 'go', { kind: 'secondary', cls: 'block', data: { to: 'locum' } }) : ''}
       <p class="hint">Dates come from your records. Check registrations yourself on the public register.</p>` });
   },
-  acts: { f: (c, d) => { c.ui.staffF = d.f; c.rerender(); } },
+  acts: { f: (c, d) => { c.ui.staffF = d.f; c.rerender(); }, sf: (c, d) => { c.ui.staffS = d.f; c.rerender(); } },
+  inputs: { q: (c, el) => { c.ui.staffQ = el.value; c.rerender(); } },
 });
 register('person', {
   tab: 'staff',
@@ -39,7 +48,7 @@ register('person', {
       <p>${pill(st, tone)} ${p.active !== false && p.annualDue ? h`<span class="muted">Annual check: ${dueText(p.annualDue)}</span>` : ''}</p>
       ${p.active !== false ? btn('Annual check', 'go', { kind: 'primary', cls: 'block', data: { to: 'annual', id: p.id } }) : ''}
       ${acts.length ? h`<section class="sec"><h2 class="sec-title">Open actions · ${acts.length}</h2><div class="list">${acts.map(a => row({ title: a.title.replace(' · ' + p.name, ''), right: dueText(a.due), tone: a.due < today() ? 'bad' : '', act: 'go', data: { to: 'action', id: a.id } }))}</div></section>` : ''}
-      <section class="sec"><h2 class="sec-title">Checks · ${reqs.length}</h2><div class="list">${reqs.map(q => { const s = credentialState(p, q.id); return row({ title: q.label, sub: s.expiry ? (s.state === 'expired' ? 'Expired ' : 'Valid until ') + fmt(s.expiry) : '', right: s.state === 'ok' ? 'Verified' : s.label, tone: s.state === 'expired' || s.state === 'issue' ? 'bad' : s.state === 'none' ? 'warn' : '', chev: false }); })}</div></section>
+      <section class="sec"><h2 class="sec-title">Checks · ${reqs.length}</h2><div class="list">${reqs.map(q => { const s = credentialState(p, q.id); return row({ title: q.label, sub: s.expiry ? (s.state === 'expired' ? 'Expired ' : 'Valid until ') + fmt(s.expiry) : '', right: s.state === 'ok' ? 'Verified' : s.label, tone: s.state === 'expired' || s.state === 'issue' ? 'bad' : s.state === 'none' ? 'warn' : '', ...(p.active !== false ? { act: 'go', data: { to: 'cred', id: p.id + '~' + q.id } } : { chev: false }) }); })}</div></section>
       ${p.active !== false ? suggested(c, p) : ''}
       <p class="hint">${p.services?.length ? 'Services: ' + p.services.map(serviceName).join(', ') : 'No services ticked.'}</p>
       <div class="btnrow">${btn('Edit details', 'go', { data: { to: 'person-edit', id: p.id } })}${p.active !== false ? btn('Leaving', 'go', { data: { to: 'leaving', id: p.id } }) : btn('Restore to active staff', 'restore')}</div>` });
@@ -47,6 +56,39 @@ register('person', {
   // H-10: moving someone to Former staff can be undone (they came back, or it was a mistake). Their leaving record stays
   // in the history; nothing is marked done or checked for them.
   acts: { restore: (c, d, el, r) => c.change(ph => { const p = ph.staff.find(x => x.id === r.id); if (!p) return; p.active = true; p.end = ''; log(ph, 'Restored to active staff · ' + p.name); }, 'Restored to active staff') },
+});
+// M-06: one credential, checked on its own (an expired AHPRA registration, a new vaccination certificate) without
+// running the whole annual check. Saves that one check, records it in History, and raises an action for an issue.
+// It doesn't move the annual check date, and nothing is ticked for the owner.
+register('cred', {
+  tab: 'staff',
+  render(c, r) {
+    const [pid, qid] = String(r.id).split('~'), p = c.ph.staff.find(x => x.id === pid), q = p && requirements(p).find(x => x.id === qid);
+    if (!q) return screen({ title: 'Staff', back: true, body: empty('Not found.') });
+    const s = credentialState(p, q.id), last = p.checks?.[q.id], a = c.ui.cred?.[r.id] || {};
+    const lastTxt = last ? s.label + (last.date ? ' · checked ' + fmt(last.date) : '') + (last.method ? ' · ' + last.method : '') + (last.ref ? ' · ' + last.ref : '') : 'Not checked before';
+    return screen({ title: q.label, back: true, site: c.ph.name, body: h`<p class="muted">${p.name} · ${p.role}</p>
+      <p class="lasttime"><span class="eyebrow">Last time</span> ${lastTxt}</p>
+      <form class="form" data-form="save" data-change="ans">
+        ${choice('r', [{ value: 'ok', label: last ? 'Seen it · update' : 'Verified' }, { value: 'issue', label: 'Issue' }, { value: 'na', label: 'N/A' }], a.r || '', { issueValues: ['issue'] })}
+        ${a.r === 'ok' ? h`${field('How did you check?', select('m', [['', 'Choose…'], ...METHODS.map(m => [m, m])], a.m ?? last?.method ?? ''))}${field('Valid until (if it expires)', textInput('x', a.x ?? (s.state === 'expired' ? '' : last?.expiry ?? ''), { type: 'date' }))}${field('Reference (optional)', textInput('f', a.f ?? last?.ref ?? ''))}` : ''}
+        ${a.r === 'issue' || a.r === 'na' ? field(a.r === 'issue' ? 'What needs sorting?' : 'Why not applicable?', textInput('n', a.n || ''), 'No patient names.') : ''}
+        <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>
+      <p class="hint">This updates one check only. The annual check date doesn’t change${p.annualDue ? ' (' + dueText(p.annualDue).replace(/^\w/, x => x.toLowerCase()) + ')' : ''}.</p>` });
+  },
+  changes: { ans: (c, el, r) => { const f = Object.fromEntries(new FormData(el.closest('form'))), before = c.ui.cred?.[r.id]?.r; c.ui.cred = { ...(c.ui.cred || {}), [r.id]: f }; if (before !== f.r) c.rerender(); } },
+  forms: { save: (c, f, el, r) => {
+    const [pid, qid] = String(r.id).split('~'), p = c.ph.staff.find(x => x.id === pid), q = requirements(p).find(x => x.id === qid);
+    if (!f.r) { c.toast('Choose an answer.'); return; }
+    if (f.r === 'ok' && !f.m) { c.toast('Say how you checked it.'); return; }
+    if ((f.r === 'issue' || f.r === 'na') && !String(f.n || '').trim()) { c.toast(f.r === 'issue' ? 'Say what needs sorting.' : 'Say why it doesn’t apply.'); return; }
+    if (f.r === 'ok' && isDate(f.x) && f.x < today()) { c.toast('That date has already passed. Mark it as an issue instead.'); return; }
+    c.change(ph => { const x = ph.staff.find(y => y.id === pid); x.checks ??= {};
+      const it = { result: f.r, date: today(), method: f.r === 'ok' ? f.m : '', expiry: f.r === 'ok' ? f.x || '' : '', ref: f.r === 'ok' ? (f.f || '').trim() : '', note: f.r === 'ok' ? '' : f.n.trim() };
+      x.checks[q.id] = it;
+      const rec = addRecord(ph, { type: 'A1', kind: 'staff', title: 'Credential check · ' + q.label + ' · ' + x.name, date: today(), answers: [{ id: q.id, text: q.label, answer: f.r, isIssue: f.r === 'issue', note: it.note, expiry: it.expiry }], fields: { personId: x.id, single: q.id } });
+      if (f.r === 'issue') rec.actionIds.push(newAction(ph, { title: q.label + ' · ' + x.name + ': ' + it.note, due: addDays(today(), 30), source: { type: 'staff', staffId: x.id, req: q.id, label: 'Credential check' } }).id);
+    }, 'Saved'); if (c.ui.cred) c.ui.cred[r.id] = null; c.back(); } },
 });
 register('person-edit', {
   tab: 'staff',
