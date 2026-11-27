@@ -25,7 +25,7 @@ const weights = p => p.evaluate(() => [...new Set([...document.querySelectorAll(
       await p.waitForTimeout(200); const nx = p.getByRole('button', { name: /^(Next|Finish|Answer now)$/ }).first(); if (await nx.count()) await nx.tap(); await p.waitForTimeout(200); }
     await p.getByRole('button', { name: /^(Save dates and finish|Finish setup)$/ }).first().tap(); await p.waitForTimeout(400); };
   await finish('Home delivery');
-  ok(await p.locator('.toast.done').count() === 1 && await p.evaluate(() => getComputedStyle(document.querySelector('.toast')).borderTopLeftRadius === '999px'), 'Toast: a pill with a settling check when a service is set up');
+  ok(await p.locator('.toast.done').count() === 1 && await p.evaluate(() => { const r = document.querySelector('.toast').getBoundingClientRect(); return getComputedStyle(document.querySelector('.toast')).borderTopLeftRadius === '6px' && Math.abs(r.left - (innerWidth - r.right)) <= 1; }), 'Toast (Stage 3G-A): a centred, fit-content 6 px toast with a settling check when a service is set up');
   ok(await p.locator('.card.allset').count() === 1 && /Home delivery is set up/.test(await text(p)) && /1 of 2 services set up/.test(await text(p)) && await p.getByRole('button', { name: 'Set up Staged supply' }).count() === 1, 'Setup finish: the calm summary card says what happened and offers the next service');
   await p.screenshot({ path: path.join(OUT, '80_setup_summary_390px.png') });
   await tap(p, 'Set up Staged supply'); await p.waitForTimeout(250); await p.getByRole('button', { name: 'Back', exact: true }).first().tap().catch(() => {}); await p.waitForTimeout(200);

@@ -1,6 +1,6 @@
 // Today (mode 1, the weekly glance): the date and one sentence, one card on top, then the list. Counts come from summary.js.
 import { register } from '../app.js';
-import { h } from '../util.js';
+import { h, raw } from '../util.js';
 import { screen, row, btn, empty, icon } from '../ui.js';
 import { items, ranked, counts, sentence, inWeek } from '../summary.js';
 import { fmt, dueText, today, daysBetween, isDate, day } from '../dates.js';
@@ -12,7 +12,7 @@ import { saveFile, ics } from '../ics.js';
 import { isPWA, standalone } from '../pwa.js';
 import { canDefer, deferItem } from '../align.js';
 import { note as logNote } from '../model.js';
-const FILTERS = [['overdue', 'Overdue'], ['week', 'This week'], ['waiting', 'Waiting · to confirm'], ['all', 'All']];
+const FILTERS = [['overdue', 'Overdue'], ['week', 'This week'], ['waiting', 'Waiting', 'Waiting or to confirm'], ['all', 'All']];
 export function openItem(c, it) {
   if (it.kind === 'visit') return c.go('visit-start', { extra: it.ref === 'extra' });
   if (it.kind === 'meeting') return c.go('meeting', { id: it.ref });
@@ -73,10 +73,10 @@ register('today', {
       <p class="status"><span class="date">${fmt(today(), { weekday: true })}</span><span class="${s.tone}">${s.text}</span>${s.start && s.tone !== 'ok' ? h` Start with <button class="inline-link" data-act="open" data-key="${s.start.key}">${s.start.title}</button>.` : ''}</p>
       ${s8first ? h`<p class="s8first"><button class="inline-link" data-act="open" data-key="${s8first.key}">Add your last S8 stocktake date</button></p>` : ''}
       ${installLine(c)}${notice(c, all)}
-      <div class="filters" role="tablist">${FILTERS.map(([k, l]) => h`<button role="tab" aria-selected="${String(k === f)}" class="${k === f ? 'on' : ''}" data-act="filter" data-f="${k}"><b>${cnt[k]}</b><span>${l}</span></button>`)}</div>
+      <div class="filters today-index" role="tablist">${FILTERS.map(([k, l, aria]) => h`<button role="tab" aria-selected="${String(k === f)}" class="${k === f ? 'on' : ''}${k === 'overdue' && cnt[k] > 0 ? ' has' : ''}" data-act="filter" data-f="${k}"${aria ? raw(` aria-label="${cnt[k]} ${aria}"`) : ''}><b>${cnt[k]}</b><span>${l}</span></button>`)}</div>
       ${!c.ph.records.length ? h`<p class="hint">Dates set themselves after your first review. Start with your last S8 stock check, or tap any item to set a due date.</p>` : ''}
       ${n.nodate && f !== 'nodate' && f !== 'all' ? h`<button class="quietline" data-act="filter" data-f="nodate">${n.nodate === 1 ? '1 review has' : n.nodate + ' reviews have'} no date yet · show</button>` : ''}
-      <div class="list">${list.length ? list.map(i => { const r = row({ title: i.title, sub: i.sub, legal: i.legal, right: i.bucket === 'started' || (i.started && !i.date) ? 'In progress' : i.started ? 'Started · ' + dueText(i.date) : i.bucket === 'tocheck' ? 'When you can' : dueText(i.date), tone: i.bucket === 'overdue' ? 'bad' : i.bucket === 'today' ? 'warn' : '', act: 'open', data: { key: i.key } });
+      <div class="list">${list.length ? list.map(i => { const r = row({ title: i.title, sub: i.sub, legal: i.legal, right: i.bucket === 'started' || (i.started && !i.date) ? 'In progress' : i.started ? 'Started · ' + dueText(i.date) : i.bucket === 'tocheck' ? 'When you can' : dueText(i.date), tone: i.bucket === 'overdue' ? 'bad' : i.bucket === 'today' ? 'warn' : '', date: true, act: 'open', data: { key: i.key } });
         return canDefer(i) ? h`<div class="rowwrap">${r}<button class="defer" data-act="defer" data-key="${i.key}" aria-label="Defer ${i.title} 3 days"><b>+3</b><span>days</span></button></div>` : r; }) : empty(f === 'overdue' ? 'Nothing overdue.' : 'Nothing here.')}</div>` })
 
   },

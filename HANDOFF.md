@@ -11,8 +11,8 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Repo | `Mohaco1/PropApp`, branch `main` |
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
-| App build id | **`61a4df8cc0`** (Stage 3F final NSW 2026 wording, 2 URL fixes and Swiss Clinical polish, on top of Stage 3E) · **Stage 3F complete: `main` is frozen for the Galaxy Z Fold trial** |
-| Code commit | Stage 3F commit on `main` (code, docs/ and this file for build 61a4df8cc0) |
+| App build id | **`5e52df28b2`** (Stage 3G-A Swiss Clinical CSS fixes and UI craft polish, on top of Stage 3F) · **Stage 3G-A complete: `main` is frozen for the Galaxy Z Fold trial** |
+| Code commit | Stage 3G-A commit on `main` (code, docs/ and this file for build 5e52df28b2) |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -88,6 +88,10 @@ After deploying, an installed phone app picks up the new version when it's reope
 - Note: `tests/upgrade.js` opens a saved old build (07775c5947) from a fixture, so it still taps the old "Look around an example pharmacy (fictional)" label. Leave that label as it is.
 
 ## 7. What was done this week (newest first)
+0. **Stage 3G-A · Swiss Clinical CSS fixes and UI craft polish (27 Nov, build `5e52df28b2`): done.**
+   - Fixes: straight 3 px bars on `.lasttime`/`.whyask` (radius 0); `.ptable` headers and date cells (`td.pdate`) never wrap mid-word, only long URL/reference cells (`td.pref`) break anywhere; unfolded list and record bars share a 64 px height so the 2 px rule meets at the seam (840×900); `button.linkbtn` (Open all sections) has no browser chrome; no double divider under deferrable rows (`.list .rowwrap>.row::after` hidden).
+   - Craft: Today ruled index (`.filters.today-index`: 4 columns on one hairline, 19 px count over 13 px label, 3 px Navy underline on the open tab, Overdue numeral red only above 0, 2×2 in the unfolded list pane; visible "Waiting", accessible name "N Waiting or to confirm"); one right-aligned tabular date column (`row({ date: true })` → `.row-date`, min 6.4ch) on Today, Reviews and Actions; Reviews "Answer as a list" uses `<fieldset class="review-question">` with open hairlines; visit answers in a 2×2 grid of 96 px tiles (`choice(..., { grid: true })`); More uses `.directory-row` (32 px icon column, no chevrons); `#edf3f4` press surface; solid 24×3 Deep Teal nav marker (3×24 on the rail); fit-content 6 px toast; no sheet handle at 700 px+; unfolded list pane gets 12 px side padding, `row-main` min-width 0 and no chevrons (its date column wraps between words so title words never split).
+   - Tests: visual.js toast check and theme.js chip/nav checks updated to the new spec. Screenshots `app/handoff/stage3ga_*.png`.
 0. **Stage 3F · final NSW 2026 wording, 2 URL fixes and Swiss Clinical CSS polish (27 Nov, build `61a4df8cc0`): done. `main` is now frozen for the Galaxy Z Fold trial.**
 0. **Stage 3E · final pre-trial consolidation (27 Nov, build `2a07045bc2`): done.**
    - Cross-tab and arming: another tab switching pharmacy resets this tab to Today with no leftover screen state; a same-pharmacy reload keeps unsaved typing (procedure edits); Delete/Discard/Stop/Adopt arming clears on any navigation (Back included) and after a save.
@@ -185,13 +189,15 @@ After deploying, an installed phone app picks up the new version when it's reope
 8. **Procedures:** all 17 services can reach "nothing to confirm" through the screens (`tests/procedures-all.js`).
 
 ## 8. Open items and next work
-1. **2-week Galaxy Z Fold trial** (Stage 3F done; `main` complete and frozen for it): owner UAT of the current build on the phone, the cover screen and unfolded. Check the look, the welcome screen, the icon on the home screen, and the hinge spacing: real hinge segments can't be emulated in Playwright.
+1. **2-week Galaxy Z Fold trial** (Stage 3G-A done; `main` complete and frozen for it): owner UAT of the current build on the phone, the cover screen and unfolded. Check the look, the welcome screen, the icon on the home screen, and the hinge spacing: real hinge segments can't be emulated in Playwright.
 2. **Phase D3** (parked): a managed back end in Sydney with emailed-link sign-in, then the post-trial v4 in-app AI architecture.
 3. **Deferred by the owner:** push notifications, Monday plan.
 4. **Optional, ask the owner first:** rename the repo or Pages path from "PropApp". This changes the phone link and would need a reinstall.
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
+**Stage 3G-A, build `5e52df28b2`:** `test-all.sh` run once in full on the `--uat` build: 42 of 43 suites passed plus Check later, and `check-procgen-all` shows all 17 identical. theme failed 2 checks that asserted the replaced look (tinted Overdue/This week chips, 22×2.5 gradient nav pill); both updated to the Stage 3G-A spec and theme re-run alone: all pass. `docs/` refreshed from `dist/pwa/`.
+
 **Stage 3F, build `61a4df8cc0`:** `test-all.sh` run once in full on the `--uat` build: 42 of 43 suites passed (stage3f included) plus Check later, and `check-procgen-all` shows all 17 identical. stage3d failed 1 timing check (journal replay commit), unrelated to this stage's content and CSS; re-run alone: all pass. `docs/` refreshed from `dist/pwa/`. **Stage 3F complete: `main` frozen for the Z Fold trial.**
 
 **Stage 3E, build `2a07045bc2`:** `test-all.sh` run once in full: 39 of 42 suites passed (stage3e included) plus Check later, and `check-procgen-all` shows all 17 identical. setup-questions, onboarding-polish and batch1 failed on expectations of the old behaviour (Next skipping blank questions; the old Category 1 wording); those tests were updated and the 3 suites re-run green. `docs/` refreshed from `dist/pwa/`. **Stage 3E complete: `main` frozen for the Fold trial.**

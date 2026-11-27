@@ -2,7 +2,7 @@
 // proprietor's oversight for the last 12 months. What's on screen is what prints (A4, via the browser's print or
 // "Save as PDF"). Nothing is marked done or changed; it only reads what the owner recorded. No patient information.
 import { register } from '../app.js';
-import { h } from '../util.js';
+import { h, raw } from '../util.js';
 import { screen, btn, logo } from '../ui.js';
 import { C } from '../content.js';
 import { fmt, fullDate, today, addMonths, isDate, daysBetween, day } from '../dates.js';
@@ -21,7 +21,9 @@ const s8Count = rows => { const done = rows.filter(r => r[1] !== 'Incomplete rev
 const closedBy = a => a.closed?.by || [...(a.log || [])].reverse().find(e => e.kind === 'closed' && e.by)?.by || '';
 // F-V3-04: the pack's own dates always carry the year.
 const full = fullDate;
-const table = (head, rows, empty) => rows.length ? h`<div class="pscroll"><table class="ptable"><thead><tr>${head.map(x => h`<th>${x}</th>`)}</tr></thead><tbody>${rows.map(r => h`<tr>${r.map(x => h`<td>${x}</td>`)}</tr>`)}</tbody></table></div>` : h`<p class="meta">${empty}</p>`;
+// Stage 3G-A: dates never wrap mid-word; only long URL or reference cells may break anywhere.
+const cellCls = x => { const s = typeof x === 'string' ? x : String(x ?? ''); return /^\d{1,2} [A-Z][a-z]{2}( \d{4})?$/.test(s) ? ' class="pdate"' : /\S{24,}/.test(s) ? ' class="pref"' : ''; };
+const table = (head, rows, empty) => rows.length ? h`<div class="pscroll"><table class="ptable"><thead><tr>${head.map(x => h`<th>${x}</th>`)}</tr></thead><tbody>${rows.map(r => h`<tr>${r.map(x => h`<td${raw(cellCls(x))}>${x}</td>`)}</tr>`)}</tbody></table></div>` : h`<p class="meta">${empty}</p>`;
 export function packData(ph, drafts, from = addMonths(today(), -12)) {
   const recs = ph.records.filter(r => r.date >= from).sort((a, b) => b.date.localeCompare(a.date));
   const acts = Object.values(ph.actions);

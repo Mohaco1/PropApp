@@ -728,3 +728,8 @@ Checked and already passing:
 - URLs: compounding → hpca.nsw.gov.au Ten tips for quality compounding; OCP → NSW protocol PDF (duplicate link dropped from the OCP onboarding step).
 - Swiss Clinical layer at the end of `styles.css`: #FFFFFF canvas, 2 px navy rule under the top bar (strip kept), −0.025em headings, tabular due badges, open hairline lists with no shadow, flat hairline cards, 3 px navy bars on section heads and 3 px teal bars on the next-up card and focused/active rows. Urgency rails, 44 px targets, #526575, foldable and print rules unchanged.
 - New `tests/stage3f.js`; visual.js and theme.js updated for the white canvas and flat cards; stage3e's "responsible person" check updated. Full test-all once: 42/43 plus Check later, procgen identical; stage3d's journal-replay timing check failed once and passed re-run alone. docs/ refreshed.
+
+## Stage 3G-A · Swiss Clinical CSS fixes and UI craft polish · 27 Nov 2026 · build 5e52df28b2
+- Fixes: straight accent bars (`.lasttime`, `.whyask`), `.ptable` headers/dates never split mid-word (`td.pdate`, `td.pref`), unfolded bar seam (both panes 64 px), `button.linkbtn` without browser chrome, no double divider under deferrable rows.
+- Craft: Today ruled index (Overdue · This week · Waiting · All; accessible "Waiting or to confirm"), shared 6.4ch tabular date column (Today, Reviews, Actions), Reviews list as hairline fieldsets, visit 2×2 answer grid (96 px), More directory rows without chevrons, `#edf3f4` press surface, 24×3 teal nav marker, fit-content 6 px toast, no sheet handle at 700 px+, unfolded list-pane width recovery.
+- Full test-all once: 42/43 plus Check later, procgen identical; theme's 2 old-look checks updated and re-run green. docs/ refreshed.

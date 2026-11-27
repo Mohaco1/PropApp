@@ -88,7 +88,7 @@ const VISIT = {
       ${why('What to check', it.guide)}
       ${last ? note(h`Last time (${fmt(last.date)}): ${last.text}${last.closed ? ' · fixed ' + fmt(last.closed) : ''}`, last.closed ? 'ok' : 'warn') : ''}
       ${stillOpen.map(x => h`<div class="card wait"><p class="eyebrow">Still open from an earlier visit</p><p>${x.title}</p>${btn('Seen the fix? Close it', 'ws', { data: { id: x.id } })}</div>`)}
-      <form data-form="ans" class="form" data-change="ans" data-input="ans">${choice('status', ANS.map(([v, l]) => ({ value: v, label: l })), a.status || '', { issueValues: ['issue'] })}
+      <form data-form="ans" class="form" data-change="ans" data-input="ans">${choice('status', ANS.map(([v, l]) => ({ value: v, label: l })), a.status || '', { issueValues: ['issue'], grid: true })}
         ${a.status === 'issue' ? h`${field('What did you find?', textArea('text', a.text || '', { rows: 2 }))}${field('Fix by', textInput('due', a.due || addDays(today(), 30), { type: 'date' }))}
           ${(() => { const open = Object.values(c.ph.actions).filter(x => x.status === 'open'); return open.length ? field('Already an open action for this?', select('link', [['', 'No, raise a new action'], ...open.map(x => [x.id, 'Link to: ' + x.title.slice(0, 70)])], a.link || '')) : ''; })()}` : ''}
         ${it.block ? h`<div class="card"><p class="eyebrow">${it.block[0]}</p><ul class="plain">${it.block[1].map(x => h`<li>${x}</li>`)}</ul></div>` : ''}
