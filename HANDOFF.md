@@ -11,8 +11,8 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Repo | `Mohaco1/PropApp`, branch `main` |
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
-| App build id | **`cb75c2a7e7`** (Stage 3C final bug cleanups, on top of Stage 3B) · `main` is complete and frozen for the Fold trial |
-| Code commit | Stage 3C commit on `main` (code, docs/ and this file for build cb75c2a7e7) |
+| App build id | **`2a5fec8631`** (Stage 3D storage, backup and offline worker safety, on top of Stage 3C) · `main` is complete and frozen for the Fold trial |
+| Code commit | Stage 3D commit on `main` (code, docs/ and this file for build 2a5fec8631) |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -83,11 +83,17 @@ After deploying, an installed phone app picks up the new version when it's reope
 - Screenshots go to `app/handoff/`, which is git-ignored.
 - **Suites:**
   - Original and wave suites: core, sprint1–5, screens, setup-questions, extras, polish, theme, content2, v3, pwa, wave1, wave2, gates, wave3.
-  - Briefs from this week: pretrial, sigil, batch1, batch1a, batch1b, batch2a, batch2b, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual, stage3a, stage3b, stage3c.
+  - Briefs from this week: pretrial, sigil, batch1, batch1a, batch1b, batch2a, batch2b, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual, stage3a, stage3b, stage3c, stage3d.
 - **Latest full run on build `2dec2b5fd2`:** see section 9.
 - Note: `tests/upgrade.js` opens a saved old build (07775c5947) from a fixture, so it still taps the old "Look around an example pharmacy (fictional)" label. Leave that label as it is.
 
 ## 7. What was done this week (newest first)
+0. **Stage 3D · storage, backup and offline worker safety (27 Nov, build `2a5fec8631`): done, at the owner's request after the freeze. `main` stays complete and frozen for the Galaxy Z Fold trial.**
+   - Restore is all-or-nothing (`store.restorePharmacy`): a failed write (storage full) is taken back and shows an error, not a receipt; the replace confirmation is tied to the pharmacy id; restoring an archived pharmacy unarchives and opens it.
+   - Journal: storage denied (SecurityError) no longer stops startup; journal entries are cleared and restore stamps (pharmacy and drafts) written only after IndexedDB commits; older "replace" leftovers are discarded; `propapp:dir` is journaled with a new pharmacy's first save; the localStorage fallback writes under `navigator.locks`.
+   - Validation: blank (spaces-only) pharmacy names refused in Pharmacy details; restores refuse non-object drafts, staff without `services[]`, `__proto__`-style keys and bad conflict-copy times; a bad stored conflict-copy time can't crash Backup and devices.
+   - Offline worker: a 503 opens the cached app; only a page of the worker's own build is cached; a tab on an older build reloads once when a new worker takes over.
+   - Tests: `tests/stage3d.js` (in `test-all.sh`). Screenshots `app/handoff/stage3d_*.png`.
 0. **Stage 3C · final `main` bug cleanups (27 Nov, build `cb75c2a7e7`): done. `main` is complete and frozen for the Galaxy Z Fold trial.**
    - **Vaccination review, Reporting (part G)** (`reviews.json`, `service-vaccination` question 3): "Yes" is the good answer and "No" is the issue (they were the wrong way round), so History, the CSV and the Evidence pack count it correctly.
    - **"PIC" leftovers:** the staff role and its requirements key `Pharmacist in charge (PIC)` are now `Pharmacist on duty` (`staff.json`), still hidden from the role picker; `requirements()` in `model.js` maps an older PIC role to the same checks; `legacy.js` still maps an old PIC role to Pharmacist. The meeting field "Attendees or pharmacist in charge consulted" is now "Pharmacist on duty".
@@ -175,6 +181,8 @@ After deploying, an installed phone app picks up the new version when it's reope
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
+**Stage 3D, build `2a5fec8631`:** `test-all.sh` run in full: all 41 suites pass (stage3d included) plus Check later, and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`. `main` complete and frozen for the Fold trial.
+
 **Stage 3C, build `cb75c2a7e7`:** `test-all.sh` run once in full: all 40 suites pass (stage3c included, and batch3 with its Stage 3B update, which now also passes in the full run) plus Check later, and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`. `main` complete and frozen for the Fold trial.
 
 **Stage 3B, build `b30f398081`:** `test-all.sh` run once in full: 38 of 39 suites passed (stage3b included) plus Check later, and `check-procgen-all` shows all 17 identical. `batch3` failed 1 check (M-08) that expected the example's Year plan to have no Quarter Balancer: with `otp-amenity` now Annual the example has two service annuals, so the Balancer shows. The check now asserts the Align wording matches whichever is on screen; `batch3` re-run alone: all pass. `docs/` refreshed from `dist/pwa/`. `main` frozen for the Fold trial.

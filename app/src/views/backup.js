@@ -2,12 +2,21 @@
 import { isLegacyBackup, importLegacy } from '../legacy.js';
 import { addDays, daysBetween, today } from '../dates.js';
 import { saveFile } from '../ics.js';
+import { SAVE_FAILED } from '../app.js';
 // Rebrands (Sigil, then PharmLedger): the backup keeps its PropApp format marker so every earlier backup and every new one restore the same way.
 export function pharmacyBackup(c) { return { app: 'PropApp', product: 'PharmLedger', format: 1, exportedAt: new Date().toISOString(), pharmacy: c.ph, drafts: c.drafts }; }
 // R01: a restore is checked in full before anything is written, so a damaged file can never overwrite a pharmacy.
 const obj = x => !!x && typeof x === 'object' && !Array.isArray(x);
+// Stage 3D: a plain object only (what JSON makes), never a class instance or an array.
+const plainObj = x => obj(x) && [Object.prototype, null].includes(Object.getPrototypeOf(x));
+// Keys that could reach an object's prototype are never let in, at any depth.
+const UNSAFE = new Set(['__proto__', 'constructor', 'prototype']);
+const unsafeKey = (x, depth = 0) => { if (!x || typeof x !== 'object' || depth > 60) return false; for (const k of Object.keys(x)) if (UNSAFE.has(k) || unsafeKey(x[k], depth + 1)) return true; return false; };
+// A conflict copy is named "<draft>/conflict-<time in ms>". Its time must be a real date.
+export const conflictTime = k => { const m = /\/conflict-(\d{1,15})$/.exec(k); if (!m) return null; const d = new Date(Number(m[1])); return isNaN(d.getTime()) ? null : d; };
 export function checkPharmacy(p, drafts) {
   const bad = [];
+  if (unsafeKey(p) || unsafeKey(drafts)) bad.push('unsafe names inside');
   if (!obj(p)) bad.push('pharmacy');
   else {
     if (typeof p.id !== 'string' || !p.id) bad.push('id'); if (typeof p.name !== 'string' || !p.name.trim()) bad.push('name');
@@ -26,9 +35,10 @@ export function checkPharmacy(p, drafts) {
     if (obj(p.services) && Object.values(p.services).some(x => !obj(x) || (x.answers !== undefined && !obj(x.answers)))) bad.push('services (an entry is damaged)');
     if (Array.isArray(p.records) && p.records.some(r => !obj(r) || typeof r.date !== 'string' || !Array.isArray(r.answers ?? []) || (r.answers || []).some(a => !obj(a)))) bad.push('records (an entry is damaged)');
     if (obj(p.actions) && Object.values(p.actions).some(a => !obj(a) || typeof a.title !== 'string')) bad.push('actions (an entry is damaged)');
-    if (Array.isArray(p.staff) && p.staff.some(x => !obj(x) || typeof x.name !== 'string')) bad.push('staff (an entry is damaged)');
+    if (Array.isArray(p.staff) && p.staff.some(x => !obj(x) || typeof x.name !== 'string' || !Array.isArray(x.services))) bad.push('staff (an entry is damaged)');
   }
-  if (drafts !== undefined && !obj(drafts)) bad.push('drafts');
+  if (drafts !== undefined && !plainObj(drafts)) bad.push('drafts');
+  else if (drafts && Object.entries(drafts).some(([k, v]) => (v !== null && !plainObj(v)) || (k.includes('/conflict-') && !conflictTime(k)))) bad.push('drafts (an entry is damaged)');
   if (bad.length) throw Error('This backup is damaged (' + bad.join(', ') + '). Nothing was changed.');
 }
 export function validate(b) {
@@ -59,13 +69,15 @@ export async function importBackup(c, file, el) {
   try {
     const got = validate(JSON.parse(await file.text()));
     const exists = c.store.pharmacy(got.pharmacy.id);
-    if (exists && !confirmReplace(exists.name)) { reset(); return; }
+    if (exists && !confirmReplace(exists.id, exists.name)) { reset(); return; }
     reset();
-    // The receipt is built from the checked backup first; the pharmacy, its drafts and the directory are then queued
-    // together and written in one storage transaction (store.flush), so nothing is half-restored.
+    // The receipt is built from the checked backup first; the pharmacy, its drafts and the directory (unarchived and
+    // open) are then written in one storage transaction. Stage 3D: if that write fails, nothing is changed and the
+    // screen says so instead of showing a receipt.
     const receipt = { name: got.pharmacy.name, from: b2from(got), want: tally(got.pharmacy, got.drafts) };
-    c.store.savePharmacy(got.pharmacy, { replace: true }); c.store.setDrafts(got.pharmacy.id, got.drafts, { replace: true });
-    await c.open(got.pharmacy.id); receipt.got = tally(c.ph, c.drafts); c.ui.receipt = receipt; c.go('receipt');
+    if (!(await c.store.restorePharmacy(got.pharmacy, got.drafts))) throw Error(SAVE_FAILED);
+    if ((await c.open(got.pharmacy.id)) === false) throw Error(SAVE_FAILED);
+    receipt.got = tally(c.ph, c.drafts); c.ui.receipt = receipt; c.go('receipt');
   } catch (e) { armed = ''; reset(); c.toast(e.message); c.rerender(); }
 }
 // Replacing a pharmacy that is already here is the one destructive restore; it needs a second tap (no browser dialogs).
@@ -73,7 +85,8 @@ let armed = '';
 // Any navigation away (another screen, or Back) disarms the replace: it only counts on the same screen.
 export const disarmReplace = () => { armed = ''; };
 if (typeof window !== 'undefined') window.addEventListener('pl:navigate', disarmReplace);
-function confirmReplace(name) { if (armed === name) { armed = ''; return true; } armed = name; alertInline('“' + name + '” is already on this device. Choose the file again to replace it with the backup.'); return false; }
+// Stage 3D: the second pick must be the same pharmacy (by its id; two pharmacies can share a name).
+function confirmReplace(id, name) { if (armed === id) { armed = ''; return true; } armed = id; alertInline('“' + name + '” is already on this device. Choose the file again to replace it with the backup.'); return false; }
 function alertInline(t) { const n = document.createElement('p'); n.className = 'note warn'; n.textContent = t; document.querySelector('main, .welcome')?.prepend(n); }
 // The fictional example: dates move so the day it was made becomes today. It opens as its own pharmacy.
 export function shiftDates(obj, days) { return JSON.parse(JSON.stringify(obj).replace(/\b(\d{4})-(\d{2})-(\d{2})\b/g, (m, y, mo, d) => { const t = Date.UTC(+y, +mo - 1, +d); return isNaN(t) ? m : new Date(t + days * 864e5).toISOString().slice(0, 10); })); }

@@ -23,6 +23,7 @@ function routeFor(el) { const r = S.ph ? ctx.route : { name: 'welcome' }; if (pa
 export const register = (name, v) => { views[name] = v; };
 // C-02: screens can listen for navigation (a pending "choose the file again" restore is disarmed by it).
 const navigated = () => { try { window.dispatchEvent(new Event('pl:navigate')); } catch {} };
+export const SAVE_FAILED = 'Couldn’t save on this device just now (storage may be full). Nothing was changed; free some space or download a backup, then try again.';
 const S = { ph: null, drafts: {}, stack: [], tab: 'today', toast: '', ui: {} };
 export const ctx = {
   get ph() { return S.ph; }, get drafts() { return S.drafts; }, get route() { return S.stack.at(-1) || { name: S.tab }; }, ui: S.ui,
@@ -42,8 +43,12 @@ export const ctx = {
   toast(m) { S.toast = m; clearTimeout(S.tt);
     // Show it now, even when no re-render follows (Copy buttons); a later render re-creates it from S.toast.
     let el = document.querySelector('.toast'); if (!el) { el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role', 'status'); root.appendChild(el); } el.textContent = m; el.classList.toggle('done', DONE.test(m)); S.tt = setTimeout(() => { S.toast = ''; const t = document.querySelector('.toast'); if (t) t.remove(); }, 3000); },
-  async open(id) { const d = store.dir(); d.active = id; store.setDir(d); await store.flush(); load(); S.stack = []; S.tab = 'today'; for (const k of Object.keys(S.ui)) delete S.ui[k]; render(true); },
-  load, store, rerender: () => render(),
+  // Stage 3D: open only switches once the choice is saved; if storage refuses the write, the screen stays as it was,
+  // says so, and open returns false (a restore then shows an error, not a receipt).
+  async open(id) { const d = clone(store.dir()), was = d.active; d.active = id; store.setDir(d);
+    if (await store.flush() === false) { if (was !== id) store.setDir({ ...clone(store.dir()), active: was }); ctx.toast(SAVE_FAILED); render(); return false; }
+    load(); S.stack = []; S.tab = 'today'; for (const k of Object.keys(S.ui)) delete S.ui[k]; render(true); },
+  load, store, rerender: () => render(), SAVE_FAILED,
 };
 function load() {
   const d = store.dir(); S.ph = d.active ? store.pharmacy(d.active) : null; S.drafts = S.ph ? store.drafts(S.ph.id) : {};
