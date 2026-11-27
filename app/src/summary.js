@@ -1,7 +1,7 @@
 // THE one place that decides what is due, overdue, started or undated. Every count on every screen comes from here
 // (design rule 8), so Today, Reviews, Actions, Calendar and Staff always agree.
 import { plan, reviewById, s8Limit, latestStockCheck } from './rules.js';
-import { today, addDays, addMonths, isDate, daysBetween, day } from './dates.js';
+import { today, addDays, addMonths, isDate, daysBetween, day, fmt } from './dates.js';
 import { requirements, credentialState } from './model.js';
 import { plural } from './util.js';
 export function bucket(date, t = today()) {
@@ -38,7 +38,7 @@ export function items(ph, drafts = {}, t = today()) {
     if (pid) { (people.get(pid) || people.set(pid, []).get(pid)).push({ type: 'action', date: ac.due, title: ac.title, id: ac.id }); continue; }
     const cb = ac.waiting?.checkBack;
     out.push({ key: 'action/' + ac.id, kind: 'action', ref: ac.id, title: ac.title, date: ac.due, bucket: bucket(ac.due, t), legal: false,
-      sub: ac.waiting ? (cb && cb <= t ? 'Check back today' : 'Waiting · check back ' + cb) : 'Action', waiting: !!ac.waiting, checkBackDue: !!(cb && cb <= t) });
+      sub: ac.waiting ? (cb && cb <= t ? 'Check back today' : 'Waiting · check back ' + fmt(cb)) : 'Action', waiting: !!ac.waiting, checkBackDue: !!(cb && cb <= t) });
   }
   // staff: one row per person (design rule 10)
   for (const p of ph.staff.filter(x => x.active !== false)) {

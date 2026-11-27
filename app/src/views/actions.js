@@ -16,7 +16,7 @@ register('actions', {
     let list = Object.values(c.ph.actions).filter(a => f === 'all' || (f === 'closed' ? a.status === 'closed' : a.status === 'open' && (f === 'open' || (isDate(a.due) && a.due < t))));
     if (q) list = list.filter(a => (a.title + ' ' + (a.person || '')).toLowerCase().includes(q));
     list.sort((a, b) => f === 'closed' ? (b.closed?.date || '').localeCompare(a.closed?.date || '') : (a.due || '9').localeCompare(b.due || '9'));
-    return screen({ title: 'Actions', right: h`<button class="iconbtn" data-act="add" aria-label="Add an action">${icon('plus')}</button>`, body: h`
+    return screen({ title: 'Actions', site: c.ph.name, right: h`<button class="iconbtn" data-act="add" aria-label="Add an action">${icon('plus')}</button>`, body: h`
       <p class="status">${n.open === 1 ? '1 open' : n.open + ' open'}${n.overdue ? h` · <span class="bad">${n.overdue} overdue</span>` : ''}. Only you close an action, once you've seen the fix.</p>
       <div class="tabs">${F.map(([k, l]) => h`<button class="${k === f ? 'on' : ''}" data-act="f" data-f="${k}">${l} <b>${k === 'overdue' ? n.overdue : n[k]}</b></button>`)}</div>
       <label class="search">${icon('search')}<input class="input" name="q" type="search" placeholder="Search actions" value="${c.ui.actQ || ''}" data-input="q" autocomplete="off"></label>

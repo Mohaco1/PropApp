@@ -14,7 +14,7 @@ register('meetings', {
   render(c) {
     const ms = catalog().filter(a => a.kind === 'meeting');
     const past = c.ph.records.filter(r => r.kind === 'meeting').sort((a, b) => b.date.localeCompare(a.date));
-    return screen({ title: 'Meetings', back: true, body: h`
+    return screen({ title: 'Meetings', back: true, site: c.ph.name, body: h`
       <div class="list">${ms.map(a => { const d = reviewDue(c.ph, a.id); return row({ title: a.name, sub: a.frequency, right: d ? dueText(d) : 'No date', tone: d && d < today() ? 'bad' : '', act: 'go', data: { to: 'meeting', id: a.id } }); })}</div>
       <section class="sec"><h2 class="sec-title">Recorded · ${past.length}</h2><div class="list">${past.length ? past.slice(0, 30).map(r => row({ title: reviewById(r.type)?.name || r.title, sub: (r.fields.attendees || []).join(', '), right: fmt(r.date), act: 'go', data: { to: 'meeting-rec', id: r.id } })) : empty('No meetings recorded yet.')}</div></section>` });
   },
@@ -30,7 +30,7 @@ register('meeting', {
     const dr = c.draft(mkey(r.id)), val = (n, d0) => dr && n in dr ? dr[n] : d0, who = dr ? dr.who || [] : last?.fields?.attendees || [];
     // Bug 5: say "filled in" only when something really was (an attendee still on staff, or some discussion text).
     const filled = !!last && (staff.some(p => (last.fields?.attendees || []).includes(p.name)) || Object.values(prev).some(t => String(t || '').trim()));
-    return screen({ title: a.name, back: true, body: h`<p class="muted">${a.frequency}${reviewDue(c.ph, r.id) ? ' · ' + dueText(reviewDue(c.ph, r.id)) : ''}${last ? ' · last ' + fmt(last.date) : ''}</p>
+    return screen({ title: a.name, back: true, site: c.ph.name, body: h`<p class="muted">${a.frequency}${reviewDue(c.ph, r.id) ? ' · ' + dueText(reviewDue(c.ph, r.id)) : ''}${last ? ' · last ' + fmt(last.date) : ''}</p>
       ${filled ? note('Filled in from your last meeting (' + fmt(last.date) + '). Change anything that’s different.', 'ok') : ''}
       ${openActs.length ? h`<section class="sec"><h2 class="sec-title">Still open from last time</h2><div class="list">${openActs.map(x => row({ title: x.title, right: dueText(x.due), act: 'go', data: { to: 'action', id: x.id } }))}</div></section>` : ''}
       <form class="form" data-form="save" data-input="draft" data-change="draft">${field('Date', textInput('date', val('date', today()), { type: 'date', max: today() }))}

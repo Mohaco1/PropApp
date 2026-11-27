@@ -25,7 +25,7 @@ register('welcome', {
     const head = h`<p class="steps">Step ${step} of 3</p>`;
     if (step === 1) return screen({ title: 'Your pharmacy', back: true, body: h`${head}
       <form data-form="s1" class="form">${field('Pharmacy name', textInput('name', d.name, { required: true }), c.ui.setupErr === 'name' ? h`<span class="err">Enter the pharmacy’s name.</span>` : '')}${field('Address', textInput('address', d.address))}
-      <p class="hint">Fictional details only while testing.</p><div class="dock-inline">${btn('Continue', null, { kind: 'primary', type: 'submit' })}</div></form>` });
+      ${window.PROPAPP_UAT ? h`<p class="hint">Fictional details only while testing.</p>` : ''}<div class="dock-inline">${btn('Continue', null, { kind: 'primary', type: 'submit' })}</div></form>` });
     if (step === 2) return screen({ title: 'Owners', back: true, body: h`${head}
       <p class="lead">Everyone with a financial interest in the pharmacy. You can add more later.</p>
       <form data-form="s2" class="form">${d.owners.map((o, i) => field(i ? 'Another owner' : 'Your name', textInput('owner' + i, o, { required: i === 0 }), !i && c.ui.setupErr === 'owner' ? h`<span class="err">Enter your name.</span>` : ''))}
@@ -61,7 +61,7 @@ register('welcome', {
       const src = d.copyFrom ? c.store.pharmacy(d.copyFrom) : null;
       if (src) copySetup(src, ph);
       ph.settings.setupDone = true; log(ph, 'Pharmacy set up · ' + ph.name + (src ? ' · setup copied from ' + src.name : ''));
-      c.store.savePharmacy(ph); c.ui.setupStep = 0; c.ui.setup = null; c.store.setPref('setup-draft', undefined); await c.open(ph.id); c.toast('Set up. Next: your services, from Today.');
+      c.store.savePharmacy(ph); c.ui.setupStep = 0; c.ui.setup = null; c.store.setPref('setup-draft', undefined); await c.open(ph.id); c.toast(d.services.length ? 'Set up. Next: your services, from Today.' : 'Set up. Add services any time from More → Services.');
     },
   },
 });

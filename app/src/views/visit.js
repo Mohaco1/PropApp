@@ -49,7 +49,7 @@ register('visit-start', {
   tab: 'today',
   render(c, r) {
     const extra = c.ui.visitExtra ?? !!r.extra, d = c.draft(key(extra)), q1 = reviewDue(c.ph, 'Q1'), ws = worthSeeing(c.ph), all = c.ui.wsAll;
-    return screen({ title: 'Start a visit', back: true, body: h`
+    return screen({ title: 'Start a visit', back: true, site: c.ph.name, body: h`
       <div class="seg">${[[false, 'Quarterly visit'], [true, 'Extra visit']].map(([v, l]) => h`<button class="${v === extra ? 'on' : ''}" data-act="kind" data-v="${v ? 1 : ''}">${l}</button>`)}</div>
       <p class="muted">${extra ? 'An extra visit doesn’t change your quarterly date' + (q1 ? ' (' + fmt(q1) + ')' : '') + '.' : 'This counts as your quarterly visit' + (q1 ? ' (due ' + fmt(q1) + ')' : '') + '. You set the next one when you finish.'}</p>
       ${d ? note(h`You started this visit on ${fmt(d.date)}. Your answers are saved.`, 'ok') : ''}
@@ -79,7 +79,7 @@ const VISIT = {
     if (step >= items.length) return finish(c, r, d, items, prog, title);
     const it = items[step], a = d.items[it.key] || {}, last = lastVisitIssue(c.ph, it.key);
     const stillOpen = openFromVisits(c.ph).filter(x => x.source.item === it.title);
-    return screen({ title, back: true, saved: 'Saved', body: h`${prog}
+    return screen({ title, back: true, site: c.ph.name, saved: 'Saved', body: h`${prog}
       <p class="steps">Check ${step + 1} of ${items.length}</p><h2 class="big-title">${it.title}</h2>
       ${why('What to check', it.guide)}
       ${last ? note(h`Last time (${fmt(last.date)}): ${last.text}${last.closed ? ' · fixed ' + fmt(last.closed) : ''}`, last.closed ? 'ok' : 'warn') : ''}
@@ -131,7 +131,7 @@ function finish(c, r, d, items, prog, title) {
   const missing = items.map((it, i) => ({ it, i, a: d.items[it.key] || {} })).filter(x => !x.a.status || (x.a.status === 'issue' && !x.a.text?.trim()));
   const issues = items.filter(it => d.items[it.key]?.status === 'issue').length;
   const q1 = reviewDue(c.ph, 'Q1'), next = d.next || (r.extra ? '' : addMonths(today(), 3));
-  return screen({ title, back: true, saved: 'Saved', body: h`${prog}<h2 class="big-title">Finish the visit</h2>
+  return screen({ title, back: true, site: c.ph.name, saved: 'Saved', body: h`${prog}<h2 class="big-title">Finish the visit</h2>
     ${missing.length ? h`<section class="sec"><h2 class="sec-title">Still to answer · ${missing.length}</h2><div class="list">${missing.map(x => row({ title: x.it.title, sub: x.a.status === 'issue' ? 'Say what you found' : 'Not answered yet', act: 'step', data: { s: x.i } }))}</div></section>`
       : note(issues ? issues + (issues === 1 ? ' issue becomes an action.' : ' issues become actions.') + ' You close each one once you’ve seen it fixed.' : 'Every check answered. No issues.', issues ? 'warn' : 'ok')}
     <form class="form" data-form="fin" data-change="fin" data-input="fin">${field('Visit note (optional)', textArea('notes', d.notes || '', { rows: 3 }))}

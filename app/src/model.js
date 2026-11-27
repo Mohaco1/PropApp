@@ -1,6 +1,6 @@
 // The pharmacy record and the only functions that change it. Every change is logged in history with who and when.
 import { uid } from './util.js';
-import { today, addMonths, isDate } from './dates.js';
+import { today, addMonths, isDate, fmt } from './dates.js';
 import { C } from './content.js';
 export const SCHEMA = 1;
 export function emptyPharmacy(name = '') {
@@ -62,7 +62,7 @@ export function credentialState(person, reqId) {
   if (!c) return { state: 'none', label: 'Not checked yet' };
   if (c.result === 'issue') return { state: 'issue', label: 'Needs review' };
   if (c.result === 'na') return { state: 'na', label: 'Not applicable' };
-  if (isDate(c.expiry) && c.expiry < today()) return { state: 'expired', label: 'Expired ' + c.expiry, expiry: c.expiry };
+  if (isDate(c.expiry) && c.expiry < today()) return { state: 'expired', label: 'Expired ' + fmt(c.expiry), expiry: c.expiry };
   return { state: 'ok', label: 'Verified', expiry: c.expiry || '' };
 }
 export function annualCheck(ph, personId, date, items, next) {

@@ -73,11 +73,25 @@ export function render(scrollTop = false) {
   root.classList.toggle('has-nav', !!showNav);
   if (scrollTop) window.scrollTo(0, 0);
   if (pane) { const m = root.querySelector('.pane-master'), d = root.querySelector('.pane-detail'); m.scrollTop = keep; if (scrollTop) d.scrollTop = 0;
-    const id = r.id ?? r.key; if (id) for (const el of m.querySelectorAll('[data-id],[data-key]')) if ((el.dataset.id || el.dataset.key) === String(id)) { el.classList.add('active'); el.setAttribute('aria-current', 'true'); } }
+    // M-08: Today's rows carry a key such as review/S8 or person/<id>; the record opened from it is highlighted too.
+    const id = r.id ?? r.key; if (id) for (const el of m.querySelectorAll('[data-id],[data-key]')) { const k = el.dataset.id || el.dataset.key || '';
+      if (k === String(id) || (pane.r.name === 'today' && (k === r.name + '/' + id || k.split('/')[1] === String(id)))) { el.classList.add('active'); el.setAttribute('aria-current', 'true'); } } }
   if (focusName && !scrollTop) { const el = root.querySelector(`[name="${focusName}"]`); if (el) { el.focus(); try { el.setSelectionRange(caret, caret); } catch {} } }
   showSave(store.saveStatus());
   v.after?.(ctx, r, pane ? root.querySelector('.pane-detail') : root);
 }
+// H-07: folding or unfolding the phone redraws the screen (one pane or two). Anything typed or picked but not yet saved
+// is read off the form fields first and put back afterwards, with the cursor where it was, so a fold never wipes a form.
+function fieldKeys() { const seen = {}; return [...root.querySelectorAll('input,textarea,select')].filter(el => el.name && el.type !== 'file').map(el => {
+  const k = (el.closest('.pane-master') ? 'm' : 'd') + '|' + (el.form?.dataset.form || '') + '|' + el.name + '|' + (/^(radio|checkbox)$/.test(el.type) ? el.value : ''); seen[k] = (seen[k] || 0) + 1; return [k + '|' + seen[k], el]; }); }
+function typed() { const out = new Map(); let focus = null; for (const [k, el] of fieldKeys()) {
+    if (el === document.activeElement) focus = { k, s: el.selectionStart, e: el.selectionEnd };
+    if (/^(radio|checkbox)$/.test(el.type)) { if (el.checked !== el.defaultChecked) out.set(k, { checked: el.checked }); }
+    else if (el.tagName === 'SELECT') { if ([...el.options].some(o => o.selected !== o.defaultSelected)) out.set(k, { value: el.value }); }
+    else if (el.value !== el.defaultValue) out.set(k, { value: el.value }); }
+  return { out, focus }; }
+function retype({ out, focus }) { for (const [k, el] of fieldKeys()) { const v = out.get(k); if (v) { if ('checked' in v) el.checked = v.checked; else el.value = v.value; }
+    if (focus && focus.k === k) { el.focus({ preventScroll: true }); try { el.setSelectionRange(focus.s, focus.e); } catch {} } } }
 let lastFinal = { key: '', at: 0 };
 function handle(e, type) {
   const el = e.target.closest(type === 'submit' ? 'form[data-form]' : '[data-act]'); if (!el) return;
@@ -112,6 +126,6 @@ export async function start(el) {
   document.addEventListener('submit', e => handle(e, 'submit'));
   document.addEventListener('input', e => { const el = e.target.closest('[data-input]'); if (!el) return; const { r, v } = routeFor(el); v.inputs?.[el.dataset.input]?.(ctx, el, r, e); });
   document.addEventListener('change', e => { const el = e.target.closest('[data-change]'); if (!el) return; const { r, v } = routeFor(el); v.changes?.[el.dataset.change]?.(ctx, el, r, e); });
-  WIDE.addEventListener?.('change', () => render());
+  WIDE.addEventListener?.('change', () => { const keep = typed(); render(); retype(keep); });
   render();
 }

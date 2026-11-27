@@ -664,3 +664,9 @@ Checked and already passing:
 - M-02/M-04: vaccination cold-chain (at least two staff), prescribing 7-year records and 4 Nov 2027 expiry step (+ verified-steps pairs), PIC mapped on import, M2 wording, no-patient-names hints, blank titles/names refused.
 - Hardening S8 Finish stall root-caused in `rebaseDrafts` (own in-flight draft write treated as another tab's) and fixed.
 - New `tests/batch2b.js` (23 checks). Full test-all once: 32/33 (pretrial expected empty evidence section; updated). Final build: affected suites and procgen (17/17) pass.
+
+## Batch 3 (H-07, M-08, L-01) · 27 Nov 2026 · build a78881bc7c
+- H-07: unsaved form fields survive the fold/unfold redraw (values, selection, cursor); row titles wrap with `overflow-wrap: break-word` and list-pane rows get more room, so no mid-word breaks at ~300 px; hinge rules keep the Quarter Balancer at 2 columns and the welcome screen and bottom sheet in one segment; Reviews, Actions, Staff, Visit, Procedures and Meetings show the open pharmacy with 2+ pharmacies.
+- M-08: `--accent`/`--teal` Deep Teal #0f766e, `--ocean` navy, navy `--tint`; `a`/`a.btn` styled; Today filter labels wrap at 344 px and sit 2 by 2 in the list pane; Today highlights the open record in split view; "shown above" only with the Quarter Balancer; chevrons on `.docsec`, `.obsrc`, `.src-used`.
+- L-01: `.wm-mark` 56×56 centred; testing hint only in UAT builds; 0-service setup toast; ISO dates formatted in summary.js and model.js.
+- New `tests/batch3.js`. Full test-all once: 34/34 suites plus Check later; procgen identical for all 17. docs/ refreshed.

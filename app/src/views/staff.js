@@ -21,7 +21,7 @@ register('staff', {
   render(c) {
     const f = c.ui.staffF || 'active', all = c.ph.staff;
     const list = all.filter(p => f === 'former' ? p.active === false : f === 'locum' ? p.active !== false && p.engagement === 'Locum' : p.active !== false);
-    return screen({ title: 'Staff', right: h`<button class="iconbtn" data-act="go" data-to="person-edit" aria-label="Add a staff member">${icon('plus')}</button>`, body: h`
+    return screen({ title: 'Staff', site: c.ph.name, right: h`<button class="iconbtn" data-act="go" data-to="person-edit" aria-label="Add a staff member">${icon('plus')}</button>`, body: h`
       <div class="tabs">${[['active', 'Active'], ['locum', 'Locums'], ['former', 'Former']].map(([k, l]) => h`<button class="${k === f ? 'on' : ''}" data-act="f" data-f="${k}">${l} <b>${all.filter(p => k === 'former' ? p.active === false : k === 'locum' ? p.active !== false && p.engagement === 'Locum' : p.active !== false).length}</b></button>`)}</div>
       <div class="list">${list.length ? list.map(p => { const [s, t] = p.active === false ? ['Left ' + fmt(p.end), ''] : personStatus(p); return row({ title: p.name, sub: p.role + (p.engagement && p.engagement !== 'Regular' ? ' · ' + p.engagement : ''), right: s, tone: t, act: 'go', data: { to: 'person', id: p.id } }); }) : (f === 'active' ? h`<div class="empty-card"><b>No staff yet</b><span class="muted">Add pharmacists and support staff to keep track of registrations, training and their annual check.</span>${btn('+ Add a staff member', 'go', { kind: 'primary', data: { to: 'person-edit' } })}</div>` : empty(f === 'locum' ? 'No locums recorded. Use the locum quick check below.' : 'Nobody here yet.'))}</div>
       ${f === 'locum' ? btn('Locum on duty · quick check', 'go', { kind: 'secondary', cls: 'block', data: { to: 'locum' } }) : ''}
@@ -35,7 +35,7 @@ register('person', {
     const p = c.ph.staff.find(x => x.id === r.id); if (!p) return screen({ title: 'Staff', back: true, body: empty('Not found.') });
     const reqs = requirements(p), [st, tone] = p.active === false ? ['Former staff', ''] : personStatus(p);
     const acts = Object.values(c.ph.actions).filter(a => a.status === 'open' && a.source?.staffId === p.id);
-    return screen({ title: p.name, back: true, body: h`<p class="muted">${p.role}${p.engagement ? ' · ' + p.engagement : ''}${p.start ? ' · started ' + fmt(p.start) : ''}</p>
+    return screen({ title: p.name, back: true, site: c.ph.name, body: h`<p class="muted">${p.role}${p.engagement ? ' · ' + p.engagement : ''}${p.start ? ' · started ' + fmt(p.start) : ''}</p>
       <p>${pill(st, tone)} ${p.active !== false && p.annualDue ? h`<span class="muted">Annual check: ${dueText(p.annualDue)}</span>` : ''}</p>
       ${p.active !== false ? btn('Annual check', 'go', { kind: 'primary', cls: 'block', data: { to: 'annual', id: p.id } }) : ''}
       ${acts.length ? h`<section class="sec"><h2 class="sec-title">Open actions · ${acts.length}</h2><div class="list">${acts.map(a => row({ title: a.title.replace(' · ' + p.name, ''), right: dueText(a.due), tone: a.due < today() ? 'bad' : '', act: 'go', data: { to: 'action', id: a.id } }))}</div></section>` : ''}

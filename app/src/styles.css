@@ -385,3 +385,33 @@ table.yearplan{width:100%}.yearplan th,.yearplan td{width:auto;min-width:0;paddi
 .calm-stack .btn.primary{width:100%;min-height:48px}
 .calm-links{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;color:var(--muted)}
 .calm-links .linkbtn,.calm-links .btn.link{min-height:44px;padding:0 6px;font-size:15px}
+
+/* Batch 3 (27 Nov): foldable and final visual polish. Tokens and layout only. */
+/* M-08: the final colour tokens everywhere. Navy primary, Deep Teal accent for links and due dates, a navy tint for
+   chosen chips and the open row. No link falls back to the browser's blue or purple. */
+:root{--accent:#0f766e;--teal:#0f766e;--ocean:#0f2942;--tint:#eaf0f5}
+a,a:visited{color:var(--accent)}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:var(--fg)}a.btn.primary,a.btn.primary:visited{color:var(--on-primary)}
+/* M-08: every expandable section shows a chevron that turns when it opens */
+details>summary{list-style:none}details>summary::-webkit-details-marker{display:none}
+.docsec>summary,.obsrc>summary,.src-used>summary{justify-content:space-between;gap:12px}
+.docsec>summary::after,.obsrc>summary::after,.src-used>summary::after{content:'';flex:none;width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translate(-2px,-2px);transition:transform .15s;opacity:.7}
+.docsec[open]>summary::after,.obsrc[open]>summary::after,.src-used[open]>summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+.obsrc>summary,.src-used>summary{max-width:100%}
+/* M-08: on a 344 px fold cover screen the Today filter labels wrap onto two lines instead of being cut off */
+@media screen and (max-width:380px){.filters button span{white-space:normal;line-height:1.15}}
+/* H-07: long service names wrap between words, never mid-word, in the 300 px list pane */
+.row-main,.row-title,.row-sub{overflow-wrap:break-word;word-break:normal;hyphens:manual}
+/* L-01: the welcome logo box is the logo's own 56 px, so it sits centred */
+.wm-mark{width:56px;height:56px;line-height:0;display:block;margin:0 auto 4px}.wm-mark .logo{width:56px;height:56px}
+/* H-07: on a hinged screen the Quarter Balancer keeps 2 columns inside one segment, and the welcome screen and
+   the bottom sheet sit in the right segment instead of across the fold */
+@media screen and (min-width:700px) and (horizontal-viewport-segments:2){
+  .qgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .welcome.calm{width:env(viewport-segment-width 1 0);margin-left:env(viewport-segment-left 1 0)}
+  .sheet-wrap{padding-left:env(viewport-segment-left 1 0)}.sheet{max-width:min(440px,calc(env(viewport-segment-width 1 0) - 32px))}
+}
+/* H-07: in the unfolded list pane (about 300 px) rows give their words the room: a whole word never splits */
+@media screen and (min-width:700px){.pane-master .row{gap:8px;padding-right:8px}.pane-master .row-title{font-size:16px}.pane-master .row-main{min-width:min-content}}
+/* M-08: Today's filters in the ~300 px list pane sit 2 by 2 so no label is cut off */
+@media screen and (min-width:700px){.pane-master .filters{grid-template-columns:repeat(2,minmax(0,1fr))}.pane-master .filters button span{white-space:normal;line-height:1.15}}

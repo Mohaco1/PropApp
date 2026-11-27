@@ -1,4 +1,4 @@
-# PharmLedger: complete handoff (26 Nov 2026)
+# PharmLedger: complete handoff (27 Nov 2026)
 
 For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.md`** first: it holds the owner's standing rules and decisions, and they override anything here.
 
@@ -11,8 +11,8 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Repo | `Mohaco1/PropApp`, branch `main` |
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
-| App build id | **`166410f103`** (Batch 2A) |
-| Code commit | Batch 2A commit on `main` (code, docs/ and this file for build 166410f103) |
+| App build id | **`a78881bc7c`** (Batch 3) |
+| Code commit | Batch 3 commit on `main` (code, docs/ and this file for build a78881bc7c) |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -88,6 +88,11 @@ After deploying, an installed phone app picks up the new version when it's reope
 - Note: `tests/upgrade.js` opens a saved old build (07775c5947) from a fixture, so it still taps the old "Look around an example pharmacy (fictional)" label. Leave that label as it is.
 
 ## 7. What was done this week (newest first)
+0. **Batch 3 (27 Nov, build `a78881bc7c`): done. Ready for the 2-week Galaxy Z Fold trial.**
+   - **H-07 fold and unfold:** `app.js` reads every unsaved form field (text, date, select, radio, checkbox) before the fold/unfold redraw and puts it back afterwards with the cursor where it was (`typed`/`retype`), so folding never wipes a half-typed form. Row titles and subtitles use `overflow-wrap: break-word` (no mid-word breaks such as "administratio-n" in the ~300 px list pane; list-pane rows also get a little more room). On a hinged screen the Quarter Balancer stays 2 columns and the welcome screen and bottom sheet sit in the right segment. Reviews, Actions, Staff, Visit, Procedures and Meetings show the open pharmacy under the title when 2+ pharmacies are on the device.
+   - **M-08 final colour and polish:** `--accent` and `--teal` are Deep Teal `#0f766e`, `--ocean` navy and `--tint` a navy tint; `a`/`a.btn` links use the tokens, never browser blue. Today's "Waiting · to confirm" chip wraps instead of being cut off at 344 px, and in the unfolded list pane the four filters sit 2 by 2. The record opened from Today is highlighted in Today's list. The Year plan's Align card says "the quarter shown above" only when the Quarter Balancer shows. Procedure sections, "Official source" and "Where it's used" have the same turning chevron as "Why?".
+   - **L-01:** the welcome `.wm-mark` is exactly the 56 px logo and centred. "Fictional details only while testing." shows only in the UAT build. Finishing setup with no services says "Add services any time from More → Services." "Waiting · check back" and "Expired" dates use the app's date style.
+   - Tests: `tests/batch3.js` (in `test-all.sh`, 31 checks), including a 768 → 390 → 768 px fold with a half-typed action. The hinge rules are checked in the stylesheet, since Playwright can't emulate two segments.
 0. **Batch 2B (27 Nov, build `f43df8205e`): done.**
    - **H-05 evidence pack:** `packData` adds every active service's record locations (`locationRows` from `views/law.js`, the same rows as More → Evidence locations), so the section is filled on Wattle Grove. Pack tables sit in a `.pscroll` wrapper and wrap at word boundaries (tighter padding under 420 px); at 344 and 390 px nothing is clipped and the page never scrolls sideways. The foldable and sheet rules are now `@media screen and (min-width:700px)`, and print drops the split panes and 100vh heights, so A4 uses the full page width.
    - **H-08 calendar:** a staff action inside a person's row is redacted like any action ("PharmLedger action due · pharmacy") and keeps the action's own UID (`action/<id>`); other parts use `x.id`, not their position, so UIDs stay stable when checks come and go.
@@ -134,13 +139,15 @@ After deploying, an installed phone app picks up the new version when it's reope
 8. **Procedures:** all 17 services can reach "nothing to confirm" through the screens (`tests/procedures-all.js`).
 
 ## 8. Open items and next work
-1. **Owner UAT** of the current build on the phone and an unfolded Galaxy Z Fold. Check the look, the welcome screen, the icon on the home screen, and the hinge spacing: real hinge segments can't be emulated in Playwright.
+1. **2-week Galaxy Z Fold trial** (Batch 3 done): owner UAT of the current build on the phone, the cover screen and unfolded. Check the look, the welcome screen, the icon on the home screen, and the hinge spacing: real hinge segments can't be emulated in Playwright.
 2. **Phase D3** (parked): a managed back end in Sydney with emailed-link sign-in, then the post-trial v4 in-app AI architecture.
 3. **Deferred by the owner:** push notifications, Monday plan.
 4. **Optional, ask the owner first:** rename the repo or Pages path from "PropApp". This changes the phone link and would need a reinstall.
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
+**Batch 3, build `a78881bc7c`:** `test-all.sh` run once in full on the final build, no time limit hit: all 34 suites pass (batch3 included) plus Check later, and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`. Ready for the 2-week Fold trial.
+
 **Batch 2B, build `f43df8205e`:** `test-all.sh` run once in full (no time limit hit) on build `589458ee6a`: 32 of 33 suites passed, hardening included, plus Check later; pretrial failed 4 checks that expected an empty Evidence locations section (H-05 now fills it), and `check-procgen-all` showed vaccination and prescribing differing (the intended wording). Fixed with an updated pretrial check and verified-steps pairs; on the final build `f43df8205e` pretrial, batch2b, hardening, procedures-all (and Check later), batch2a and onboard all pass and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`.
 
 **Batch 2A, build `166410f103`:** `test-all.sh` run once; it hit the session's 10-minute limit after `procedures-all`, so the last four suites (onboard, pharmledger, foldable, visual), the Check later variant and `check-procgen-all` were run straight after with the same build. 32 of 33 suites passed (batch2a included) plus Check later; `check-procgen-all`: all 17 identical. `hardening` crashed (a Node timeout, not a failed check): at Item 3 the S8 review's "Finish" tap in list mode sometimes doesn't move on to the stock-check date. Alone on this build it passed 5 of 8 runs; on the Batch 1B build it passed 4 of 4. Nothing in Batch 2A touches that screen's code, but treat it as open: look at a list-mode draft save landing after the Finish tap (`acts.qa` then `step`). `docs/` refreshed from `dist/pwa/`.

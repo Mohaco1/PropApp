@@ -65,7 +65,7 @@ register('reviews', {
     const n = Object.fromEntries(F.map(([k]) => [k, k === 'done' ? done.length : rows.filter(pick[k]).length]));
     const list = f === 'done' ? [] : rows.filter(pick[f]).filter(x => !q || (x.a.name + ' ' + x.a.frequency).toLowerCase().includes(q)).sort((x, y) => (x.b === 'inactive') - (y.b === 'inactive') || (x.date || '9').localeCompare(y.date || '9'));
     const doneList = done.filter(r => !q || ((reviewById(r.type)?.name || r.title) + ' ' + r.by).toLowerCase().includes(q));
-    return screen({ title: 'Reviews', body: h`<p class="muted tabsub">Every check in your plan and when it’s next due. Today shows only what needs doing now.</p>
+    return screen({ title: 'Reviews', site: c.ph.name, body: h`<p class="muted tabsub">Every check in your plan and when it’s next due. Today shows only what needs doing now.</p>
       <label class="search">${icon('search')}<input class="input" name="q" type="search" placeholder="Search reviews" value="${c.ui.revQ || ''}" data-input="q" autocomplete="off"></label>
       <div class="chips">${F.map(([k, l]) => h`<button class="chip ${k === f ? 'on' : ''}" data-act="f" data-f="${k}">${l} · ${n[k]}</button>`)}</div>
       ${f === 'done' ? h`<div class="list">${doneList.length ? doneList.map(r => row({ title: r.extra ? 'Extra site visit' : reviewById(r.type)?.name || r.title, sub: r.by + (r.actionIds?.length ? ' · ' + r.actionIds.length + (r.actionIds.length === 1 ? ' action' : ' actions') : ''), right: fmt(r.date), act: 'rec', data: { id: r.id } })) : empty('Nothing recorded yet.')}</div>`
