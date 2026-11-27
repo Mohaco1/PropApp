@@ -1,6 +1,6 @@
 // Brings a backup from the current app (R.Pharmacy UAT, format version 2) into the new model.
 // Nothing is dropped: every original record is also kept under `legacy` so History and exports can show it exactly.
-import { emptyPharmacy } from './model.js';
+import { emptyPharmacy, migratePharmacy } from './model.js';
 import { isDate } from './dates.js';
 const RESULT = { Verified: 'ok', 'Needs Review': 'issue', 'Not Applicable': 'na' };
 const day = s => String(s || '').slice(0, 10);
@@ -86,5 +86,6 @@ export function importLegacy(backup) {
     }
   }
   ph.legacy = { importedAt: new Date().toISOString(), format: backup.format || '', exportedAt: backup.exportedAt || '' };
-  return { pharmacy: ph, drafts };
+  // D3-A: schema 2 (deterministic ids on history, action logs, procedure versions and reviews; one procedure per service).
+  return { pharmacy: migratePharmacy(ph), drafts };
 }

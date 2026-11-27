@@ -1,6 +1,13 @@
 // Saving on this device: IndexedDB (falls back to localStorage). One record per pharmacy, plus a directory and drafts.
 // Drafts never overwrite a newer copy saved by another tab: the older copy is kept as a conflict copy instead.
 import { clone } from './util.js';
+import { migratePharmacy } from './model.js';
+// D3-A: deleted pharmacies leave a tombstone under propapp:tomb:<id> and server-acked sync state lives under
+// propapp:sync:<id>. Neither is ever stored under propapp:ph:*, so counting pharmacies stays a count of propapp:ph:* keys.
+const PH = 'propapp:ph:', TOMB = 'propapp:tomb:', SYNC = 'propapp:sync:';
+const isPh = k => String(k).startsWith(PH);
+// Every pharmacy read from storage (or from a journal, a sync or another tab) is brought to schema 2 first.
+const mig = (k, v) => (isPh(k) && v ? migratePharmacy(v) : v);
 const DB = 'propapp', ST = 'kv';
 let db = null, mem = new Map(), useLS = false;
 function open() {
@@ -16,13 +23,13 @@ function open() {
 async function getAll() {
   // Stage 3D: storage that is switched off or blocked (SecurityError on localStorage itself, even reading .length) starts
   // the app with nothing loaded instead of rejecting startup.
-  if (useLS || !db) { try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k?.startsWith('propapp:') && !pending.has(k) && !inflight.has(k)) try { mem.set(k, JSON.parse(localStorage.getItem(k))); if (k.startsWith('propapp:ph:') || k === 'propapp:dir') seen.set(k, JSON.parse(localStorage.getItem(k))); } catch {} } } catch {} return; }
+  if (useLS || !db) { try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k?.startsWith('propapp:') && !pending.has(k) && !inflight.has(k)) try { const v = mig(k, JSON.parse(localStorage.getItem(k))); mem.set(k, v); if (k.startsWith('propapp:ph:') || k === 'propapp:dir') seen.set(k, clone(v)); } catch {} } } catch {} return; }
   await new Promise(res => {
     const tx = db.transaction(ST), s = tx.objectStore(ST), r = s.openCursor();
     // A value this window hasn't saved yet, or is saving right now, stays as it is (and keeps its merge base), so the save
     // can merge both sides. (Gates flake, 26 Nov: reloading a key mid-save replaced this tab's copy with one missing its own
     // change, and its next save then merged that change away.)
-    r.onsuccess = () => { const c = r.result; if (c) { if (!pending.has(c.key) && !inflight.has(c.key)) { mem.set(c.key, c.value); loadedAt.set(c.key, Date.now()); if (String(c.key).startsWith('propapp:ph:') || c.key === 'propapp:dir') seen.set(c.key, clone(c.value)); } c.continue(); } else res(); };
+    r.onsuccess = () => { const c = r.result; if (c) { if (!pending.has(c.key) && !inflight.has(c.key)) { const v = mig(c.key, c.value); mem.set(c.key, v); loadedAt.set(c.key, Date.now()); if (String(c.key).startsWith('propapp:ph:') || c.key === 'propapp:dir') seen.set(c.key, clone(v)); } c.continue(); } else res(); };
     r.onerror = () => res();
   });
 }
@@ -32,17 +39,40 @@ const pending = new Map(); let timer = null;
 const seen = new Map();
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const plain = x => !!x && typeof x === 'object' && !Array.isArray(x);
-export function merge3(b, m, t) {
+// D3-A: a scalar both sides changed goes to the side whose nearest parent has the later updatedAt (mine on a tie or
+// when neither has one); `rev` is a scalar like any other, so it is taken from one side, never blended. A deletedAt
+// tombstone wins over a concurrent or stale edit, unless the base already held that exact deletedAt and the live side
+// undeleted it explicitly, with an updatedAt later than the deletion.
+const later = (x, y) => String(x || '') > String(y || '');
+export function merge3(b, m, t, at = {}) {
   if (same(m, b)) return t; if (same(t, b) || same(m, t)) return m;
   if (Array.isArray(m) && Array.isArray(t)) {
     const ided = xs => xs.every(x => plain(x) && x.id);
     if (ided(m) && ided(t) && (!Array.isArray(b) || ided(b))) { const B = new Map((b || []).map(x => [x.id, x])), M = new Map(m.map(x => [x.id, x])), T = new Map(t.map(x => [x.id, x]));
-      const out = []; for (const id of new Set([...M.keys(), ...T.keys()])) { const r = merge3(B.get(id), M.get(id), T.get(id)); if (r !== undefined) out.push(r); } return out; }
+      const out = []; for (const id of new Set([...M.keys(), ...T.keys()])) { const r = merge3(B.get(id), M.get(id), T.get(id), at); if (r !== undefined) out.push(r); } return out; }
     const out = [...m]; for (const x of t) if (!out.some(y => same(x, y)) && !(b || []).some(y => same(x, y))) out.push(x); return out;
   }
-  if (plain(m) && plain(t)) { const out = {}; for (const k of new Set([...Object.keys(m), ...Object.keys(t)])) { const r = merge3(plain(b) ? b[k] : undefined, m[k], t[k]); if (r !== undefined) out[k] = r; } return out; }
+  if (plain(m) && plain(t)) { const nat = { m: m.updatedAt ?? at.m, t: t.updatedAt ?? at.t }, pb = plain(b) ? b : undefined;
+    const out = {}; for (const k of new Set([...Object.keys(m), ...Object.keys(t)])) { const r = merge3(pb ? pb[k] : undefined, m[k], t[k], nat); if (r !== undefined) out[k] = r; }
+    if ('deletedAt' in m || 'deletedAt' in t) out.deletedAt = tombWinner(pb?.deletedAt || null, m, t);
+    return out; }
+  if (m !== undefined && t !== undefined && later(at.t, at.m)) return t;
   return m;
 }
+function tombWinner(db, m, t) {
+  const dm = m.deletedAt || null, dt = t.deletedAt || null;
+  if (dm && dt) return later(dt, dm) ? dt : dm;
+  if (dt) return db === dt && later(m.updatedAt, dt) ? null : dt;
+  if (dm) return db === dm && later(t.updatedAt, dm) ? null : dm;
+  return null;
+}
+// The directory's tombstones (id → deletedAt) are a union of both sides (a removal one side made from the base, as a
+// restore does, stays removed), and a tombstoned id is never listed or archived.
+function stripTombs(d) { if (!plain(d)) return d; const tb = plain(d.tombstones) ? d.tombstones : null; if (!tb || !Object.keys(tb).length) return d;
+  return { ...d, ids: (d.ids || []).filter(x => !tb[x]), archived: (d.archived || []).filter(x => !tb[x]) }; }
+function mergeDir(b, m, t) { const out = merge3(b, m, t); const bt = plain(b?.tombstones) ? b.tombstones : {}, mt = plain(m?.tombstones) ? m.tombstones : {}, tt = plain(t?.tombstones) ? t.tombstones : {};
+  const tomb = {}; for (const [id, at] of [...Object.entries(mt), ...Object.entries(tt)]) { const gone = (id in bt) && (!(id in mt) || !(id in tt)); if (gone) continue; if (!tomb[id] || later(at, tomb[id])) tomb[id] = at; }
+  if (Object.keys(tomb).length) out.tombstones = tomb; else delete out.tombstones; return stripTombs(out); }
 // Real save state for the header: saving, saved, or failed (then retried with a growing wait).
 let status = 'saved', onStatus = null, tries = 0;
 const setStatus = s => { if (s !== status) { status = s; onStatus?.(s); } };
@@ -55,7 +85,7 @@ export function watchStatus(fn) { onStatus = fn; }
 // older leftover is discarded rather than bringing back records the restore replaced.
 const JOURNAL = 'propapp-journal:', RESTORED = 'propapp-restored:', TAB = Math.random().toString(36).slice(2, 10);
 // Stage 3D: the directory is journaled too, so a pharmacy whose first save was interrupted is still listed in the picker.
-const journaled = k => !useLS && (k.startsWith('propapp:ph:') || k.startsWith('propapp:drafts:') || k === 'propapp:dir');
+const journaled = k => !useLS && (k.startsWith('propapp:ph:') || k.startsWith('propapp:drafts:') || k.startsWith(TOMB) || k === 'propapp:dir');
 const merges = k => k.startsWith('propapp:ph:') || k === 'propapp:dir';
 // Written only when the page is being hidden or closed, and only for changes not yet saved, so normal use never leaves
 // journal entries for other tabs to trip over; a restore stamps its key at once.
@@ -74,8 +104,8 @@ async function replayJournal() { const keys = []; try { for (let i = 0; i < loca
   // committed the replayed copy (flushNow), so a failed or interrupted replay is tried again on the next start.
   for (const e of entries) {
     if ((e.replace ? e.at : (e.baseAt || e.at)) < restoredAt(e.k)) { try { localStorage.removeItem(e.jk); } catch {} continue; }
-    const cur = mem.get(e.k); let v = e.v;
-    if (e.replace) replacing.add(e.k); else if (e.base && cur && merges(e.k)) v = merge3(e.base, e.v, cur);
+    const cur = mem.get(e.k); let v = mig(e.k, e.v);
+    if (e.replace) replacing.add(e.k); else if (e.base && cur && merges(e.k)) v = e.k === 'propapp:dir' ? mergeDir(e.base, v, cur) : merge3(mig(e.k, e.base), v, cur);
     (replayed.get(e.k) || replayed.set(e.k, []).get(e.k)).push(e.jk);
     mem.set(e.k, v); put(e.k, v); }
   if (entries.length) await flush(); }
@@ -112,7 +142,8 @@ function rebaseDrafts(k, v, orig) { const later = pending.get(k), b = bases.get(
   bases.set(k, nb); }
 function mergeOne(k, v, stored) {
   if (!v) return v;
-  if (k.startsWith('propapp:ph:') || k === 'propapp:dir') { if (replacing.has(k) || !seen.has(k) || !stored || same(stored, seen.get(k))) return v; merged3 = true; return merge3(seen.get(k), v, stored); } // C-01: the directory (ids, archived) merges the same way
+  if (k === 'propapp:dir') { if (replacing.has(k) || !seen.has(k) || !stored || same(stored, seen.get(k))) return stripTombs(v); merged3 = true; return mergeDir(seen.get(k), v, stored); }
+  if (isPh(k)) { const st = mig(k, stored); if (replacing.has(k) || !seen.has(k) || !st || same(st, seen.get(k))) return v; merged3 = true; return merge3(seen.get(k), v, st); } // C-01: the directory (ids, archived) merges the same way
   if (k.startsWith('propapp:drafts:') && bases.has(k) && !replacing.has(k)) return mergeDrafts(k, v, stored);
   return v;
 }
@@ -120,21 +151,32 @@ const needsRead = (k, v) => !!v && (((k.startsWith('propapp:ph:') || k === 'prop
 // A restore the owner confirmed replaces the pharmacy outright: nothing from another tab is blended into it.
 const replacing = new Set();
 let running = null, quota = 0;
+// D3-A: a write of a pharmacy that has a tombstone (stored, or written in the same batch) is a stale write and is
+// dropped, unless it is a confirmed restore (replace) or the same batch clears the tombstone (the owner re-created it).
+// Stale: this window had the pharmacy loaded before it was deleted, or the copy is no newer than the deletion.
+const guarded = (k, v) => !!v && isPh(k) && !replacing.has(k);
+const staleWrite = (k, v, tomb) => !!(tomb && tomb.deletedAt) && (seen.has(k) || !later(v.updatedAt, tomb.deletedAt));
+let dropped = false;
 export function flush() { running = (running || Promise.resolve()).then(flushNow, flushNow); return running; }
 async function flushNow() {
   clearTimeout(timer); if (!pending.size) return true;
-  let batch = [...pending].map(([k, v]) => [k, v, v]); pending.clear(); kept = false; merged3 = false;
+  let batch = [...pending].map(([k, v]) => [k, v, v]); pending.clear(); kept = false; merged3 = false; dropped = false;
+  const inBatch = new Map(batch.map(b => [b[0], b[1]])), tombKey = k => TOMB + k.slice(PH.length);
+  const settle = (k, v, stored, tomb) => { let out = needsRead(k, v) ? mergeOne(k, v, stored) : v; if (guarded(k, v) && staleWrite(k, out, inBatch.has(tombKey(k)) ? inBatch.get(tombKey(k)) : tomb)) { out = undefined; dropped = true; } return out; };
   if (!batch.length) { setStatus('saved'); return true; }
   for (const [k, v] of batch) inflight.set(k, v);
   try {
-    if (useLS || !db) { const lsWrite = () => { for (const item of batch) { const [k, v] = item; let stored; try { stored = JSON.parse(localStorage.getItem(k)); } catch {} item[1] = needsRead(k, v) ? mergeOne(k, v, stored) : v; item[1] === undefined ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(item[1])); } };
+    if (useLS || !db) { const lsWrite = () => { for (const item of batch) { const [k, v] = item; let stored; try { stored = JSON.parse(localStorage.getItem(k)); } catch {} let tomb; if (guarded(k, v) && !inBatch.has(tombKey(k))) try { tomb = JSON.parse(localStorage.getItem(tombKey(k))); } catch {} item[1] = settle(k, v, stored, tomb); item[1] === undefined ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(item[1])); } };
       // Stage 3D: two tabs on the localStorage fallback read, merge and write one at a time (Web Locks), so neither
       // writes over the other's save between its read and its write.
       if (navigator.locks?.request) await navigator.locks.request('propapp-ls-write', async () => lsWrite()); else lsWrite(); }
     else await new Promise((res, rej) => { const tx = db.transaction(ST, 'readwrite'), s = tx.objectStore(ST);
       const write = item => item[1] === undefined ? s.delete(item[0]) : s.put(clone(item[1]), item[0]);
-      for (const item of batch) { const [k, v] = item; if (!needsRead(k, v)) { write(item); continue; }
-        const g = s.get(k); g.onsuccess = () => { item[1] = mergeOne(k, v, g.result); write(item); }; }
+      for (const item of batch) { const [k, v] = item, rd = needsRead(k, v), rt = guarded(k, v) && !inBatch.has(tombKey(k));
+        if (!rd && !rt) { item[1] = settle(k, v); write(item); continue; }
+        let stored, tomb, n = (rd ? 1 : 0) + (rt ? 1 : 0); const step = () => { if (--n === 0) { item[1] = settle(k, v, stored, tomb); write(item); } };
+        if (rd) { const g = s.get(k); g.onsuccess = () => { stored = g.result; step(); }; }
+        if (rt) { const g = s.get(tombKey(k)); g.onsuccess = () => { tomb = g.result; step(); }; } }
       tx.oncomplete = res; tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); });
     for (const [k, v, orig] of batch) { const isPh = k.startsWith('propapp:ph:') || k === 'propapp:dir', queued = pending.has(k) && mem.get(k) !== orig;
       // C-06: a later edit of this window (queued while this save was merging another tab's change in) was made from
@@ -150,7 +192,7 @@ async function flushNow() {
     chan?.postMessage({ keys: batch.map(b => b[0]) });
     tries = 0; quota = 0; if (!pending.size) setStatus('saved');
     // A conflict copy was kept, or another tab's changes were merged in: show the result without a reload.
-    if (kept || merged3) onChange?.();
+    if (kept || merged3 || dropped) onChange?.();
     return true;
   } catch (e) { console.error(e); for (const [k, , orig] of batch) { inflight.delete(k); if (!pending.has(k)) pending.set(k, orig); }
     // Storage full: stop retrying after 5 attempts and ask for a backup (the records stay in this window meanwhile).
@@ -172,7 +214,11 @@ export const activeIds = () => { const d = dir(); return d.ids.filter(id => !(d.
 export function setArchived(id, on) { const d = { ...dir() }; const a = new Set(d.archived || []); on ? a.add(id) : a.delete(id); d.archived = [...a]; setDir(d); }
 export function setDir(d) { put('propapp:dir', d); }
 export const pharmacy = id => mem.get('propapp:ph:' + id) || null;
-export function savePharmacy(ph, { replace = false } = {}) { const K = 'propapp:ph:' + ph.id; if (replace) replacing.add(K); put(K, ph); const d = clone(dir()); if (!d.ids.includes(ph.id)) { d.ids.push(ph.id); setDir(d);
+export function savePharmacy(ph, { replace = false } = {}) { const K = 'propapp:ph:' + ph.id;
+  // D3-A: saving a pharmacy this window doesn't have loaded, over a tombstone, is the owner creating it again (opening
+  // the example after deleting it, say): the tombstone goes in the same batch. An edit of a loaded copy never does.
+  const revive = (replace || (mem.get(K) == null && !seen.has(K))) && hasTomb(ph.id);
+  if (replace) replacing.add(K); put(K, ph); if (revive) clearTomb(ph.id); const d = clone(dir()); if (!d.ids.includes(ph.id)) { d.ids.push(ph.id); setDir(d);
   // Stage 3D: a new pharmacy's first save is journaled at once, with the directory that lists it, so a tab closed or
   // killed before IndexedDB commits still finds it (and the picker lists it) on the next start.
   journal(K, ph); journal('propapp:dir', d); } }
@@ -188,11 +234,12 @@ export function setDrafts(phId, all, { replace = false } = {}) { const K = 'prop
 // Stage 3D: a confirmed restore. The pharmacy, its drafts and the directory (listing it, unarchived, open) are written in
 // one transaction. If that write fails (storage full, for example) everything this restore queued is taken back, so
 // the device keeps exactly what it had, and false is returned for the screen to say so.
-export async function restorePharmacy(ph, all) {
-  const keys = ['propapp:ph:' + ph.id, 'propapp:drafts:' + ph.id, 'propapp:dir'], NONE = {};
+export async function restorePharmacy(ph, all, { replace = true } = {}) {
+  const keys = ['propapp:ph:' + ph.id, 'propapp:drafts:' + ph.id, 'propapp:dir', TOMB + ph.id], NONE = {};
   const before = keys.map(k => ({ k, mem: mem.has(k) ? mem.get(k) : NONE, pend: pending.has(k) ? pending.get(k) : NONE, rep: replacing.has(k), base: bases.get(k) }));
-  savePharmacy(ph, { replace: true }); setDrafts(ph.id, all, { replace: true });
-  const d = clone(dir()); if (!d.ids.includes(ph.id)) d.ids.push(ph.id); d.archived = (d.archived || []).filter(x => x !== ph.id); d.active = ph.id; setDir(d);
+  if (replace && ph.deletedAt) ph = { ...ph, deletedAt: null };
+  savePharmacy(ph, { replace }); setDrafts(ph.id, all, { replace });
+  const d = clone(dir()); if (replace && d.tombstones?.[ph.id]) { d.tombstones = { ...d.tombstones }; delete d.tombstones[ph.id]; if (!Object.keys(d.tombstones).length) delete d.tombstones; } if (!d.ids.includes(ph.id)) d.ids.push(ph.id); d.archived = (d.archived || []).filter(x => x !== ph.id); d.active = ph.id; setDir(d);
   if (await flush()) return true;
   for (const b of before) { b.mem === NONE ? mem.delete(b.k) : mem.set(b.k, b.mem); b.pend === NONE ? pending.delete(b.k) : pending.set(b.k, b.pend);
     b.rep ? replacing.add(b.k) : replacing.delete(b.k); b.base === undefined ? bases.delete(b.k) : bases.set(b.k, b.base);
@@ -200,6 +247,32 @@ export async function restorePharmacy(ph, all) {
   if (!pending.size) { clearTimeout(timer); tries = 0; quota = 0; setStatus('saved'); }
   return false;
 }
-export function removePharmacy(id) { put('propapp:ph:' + id, undefined); put('propapp:drafts:' + id, undefined); const d = clone(dir()); d.ids = d.ids.filter(x => x !== id); d.archived = (d.archived || []).filter(x => x !== id); if (d.active === id) d.active = d.ids.find(x => !d.archived.includes(x)) || ''; setDir(d); } // Stage 3E: never an archived one
+// D3-A: deleting leaves a tombstone (journaled), recorded in the directory too, so no stale copy from another tab, a
+// leftover journal entry or a later sync can bring the pharmacy back. Its record and drafts are deleted.
+export function removePharmacy(id) { const ph = pharmacy(id), now = new Date().toISOString(), s0 = syncState(id);
+  const rev = Math.max(Number.isInteger(ph?.rev) ? ph.rev : 0, Number.isInteger(s0?.rev) ? s0.rev : 0);
+  writeTomb({ id, schema: 2, rev, updatedAt: now, deletedAt: now }); put(PH + id, undefined); put('propapp:drafts:' + id, undefined); }
+function writeTomb(t) { const id = t.id, K = TOMB + id; put(K, t); journal(K, t);
+  const d = clone(dir()); d.tombstones = { ...(d.tombstones || {}), [id]: t.deletedAt }; d.ids = d.ids.filter(x => x !== id); d.archived = (d.archived || []).filter(x => x !== id);
+  if (d.active === id) d.active = d.ids.find(x => !d.archived.includes(x)) || ''; setDir(d); } // Stage 3E: never an archived one
+const hasTomb = id => !!mem.get(TOMB + id) || !!dir().tombstones?.[id];
+function clearTomb(id) { if (mem.get(TOMB + id)) put(TOMB + id, undefined); const d = dir(); if (d.tombstones?.[id]) { const n = clone(d); delete n.tombstones[id]; if (!Object.keys(n.tombstones).length) delete n.tombstones; setDir(n); } }
+export const pharmacyTombstone = id => mem.get(TOMB + id) || null;
+export const tombstoneIds = () => { const out = new Set(Object.keys(dir().tombstones || {})); for (const [k, v] of mem) if (k.startsWith(TOMB) && v) out.add(k.slice(TOMB.length)); return [...out].sort(); };
+// Server-acked sync state, kept apart from `seen` (which is only ever this window's last local read or write, for
+// merging with other tabs). `base` is the copy the server last acknowledged, the base for merging the next remote copy.
+export const syncState = id => mem.get(SYNC + id) || null;
+export function commitSyncAck(id, { rev, base, ackedAt } = {}) { const s = { id, rev: Number.isInteger(rev) && rev >= 0 ? rev : 0, base: base ? migratePharmacy(base) : null, ackedAt: ackedAt || null }; put(SYNC + id, s); return s; }
+// A copy arriving from the server: migrated, merged three ways with the acked base and this device's copy (or its
+// tombstone), and saved. `rev` is the server's. A tombstone on either side wins as merge3 says. Returns the result.
+export function applyRemoteSync(id, remoteDoc, remoteRev) {
+  const remote = migratePharmacy(remoteDoc); if (!remote || typeof remote !== 'object') return null;
+  const s0 = syncState(id), base = s0?.base || undefined, local = pharmacy(id) || pharmacyTombstone(id), rev = Number.isInteger(remoteRev) && remoteRev >= 0 ? remoteRev : (s0?.rev || 0);
+  const merged = { ...(local ? merge3(base, local, remote) : remote), id, schema: 2, rev };
+  put(SYNC + id, { id, rev, base: remote, ackedAt: s0?.ackedAt || null });
+  if (merged.deletedAt) { writeTomb({ id, schema: 2, rev, updatedAt: merged.updatedAt || merged.deletedAt, deletedAt: merged.deletedAt }); if (pharmacy(id)) { put(PH + id, undefined); put('propapp:drafts:' + id, undefined); } }
+  else { if (hasTomb(id)) clearTomb(id); put(PH + id, merged); const d = clone(dir()); if (!d.ids.includes(id)) { d.ids.push(id); setDir(d); } }
+  onChange?.(); return merged;
+}
 export const getPref = k => mem.get('propapp:pref:' + k);
 export const setPref = (k, v) => put('propapp:pref:' + k, v);

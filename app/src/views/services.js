@@ -223,12 +223,12 @@ const SETUP = {
       c.change(ph => { const p = ph.procedures.find(x => x.service === r.id); if (!p || p.status === 'adopted') return; const v = p.versions.at(-1), t = draftText(ph, r.id);
         // Owner trial: a hand-edited draft isn't regenerated, so "We have our own procedure" replaces just that placeholder.
         if (v.edited && fix && v.body.includes(fix) && ans.startsWith('We have our own')) { const where = ans.split(':').slice(1).join(':').trim(), m = String(v.v).match(/^(\d+)\.(\d+)/);
-          p.versions.push({ ...v, v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body: v.body.split(fix).join('Follow the pharmacy’s own written procedure for this' + (where ? ' (kept: ' + where + ')' : '') + '.'), generated: t || v.generated, at: new Date().toISOString(), status: 'Draft', edited: true }); log(ph, 'Procedure: placeholder replaced by own procedure · ' + serviceName(r.id)); return; }
+          p.versions.push({ ...v, id: uid(), v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body: v.body.split(fix).join('Follow the pharmacy’s own written procedure for this' + (where ? ' (kept: ' + where + ')' : '') + '.'), generated: t || v.generated, at: new Date().toISOString(), status: 'Draft', edited: true }); log(ph, 'Procedure: placeholder replaced by own procedure · ' + serviceName(r.id)); return; }
         // Owner trial: a hand-edited draft gets only the part this answer changed (when the owner's text still has the
         // old wording there), so answering a question still clears its item without overwriting the owner's edits.
         if (v.edited && t && t !== v.generated) { const nb = patchEdited(v.generated, t, v.body); if (nb !== null && nb !== v.body) { const m = String(v.v).match(/^(\d+)\.(\d+)/);
-          p.versions.push({ ...v, v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body: nb, generated: t, at: new Date().toISOString(), status: 'Draft', edited: true }); log(ph, 'Procedure updated from a setup answer (your edits kept) · ' + serviceName(r.id)); return; } }
-        if (!v.edited && t && t !== v.generated) { const m = String(v.v).match(/^(\d+)\.(\d+)/); p.versions.push({ v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }); log(ph, 'Procedure redrafted from a setup answer · ' + serviceName(r.id)); } }, adopted ? 'Saved. Your adopted procedure stays in use: open it to update the draft.' : 'Saved. The draft is updated.');
+          p.versions.push({ ...v, id: uid(), v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body: nb, generated: t, at: new Date().toISOString(), status: 'Draft', edited: true }); log(ph, 'Procedure updated from a setup answer (your edits kept) · ' + serviceName(r.id)); return; } }
+        if (!v.edited && t && t !== v.generated) { const m = String(v.v).match(/^(\d+)\.(\d+)/); p.versions.push({ id: uid(), v: m ? m[1] + '.' + (+m[2] + 1) : '0.1', body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }); log(ph, 'Procedure redrafted from a setup answer · ' + serviceName(r.id)); } }, adopted ? 'Saved. Your adopted procedure stays in use: open it to update the draft.' : 'Saved. The draft is updated.');
       c.back(); } },
 };
 register('service-setup', SETUP);
@@ -267,7 +267,7 @@ export function setupActions(ph, id) {
   const open = k => Object.values(ph.actions).some(t => t.status === 'open' && t.source?.type === 'service' && t.source.service === id && t.source.issue === k);
   for (const f of visibleFields(ph, id, a)) { const k = f[0], m = RPH.qm.metaFor(id, k);
     if (m.type === 'checklist' && m.checkTask) { const missing = RPH.qm.checkItems(id, k, a).filter(i => !split(a[k]).includes(i.v));
-      if (missing.length && !open(k)) { const t = newAction(ph, { title: m.checkTask + ' · ' + serviceName(id), due: addDays(today(), 30), source: { type: 'service', service: id, issue: k, label: serviceName(id) + ' setup' } }); t.log.push({ at: new Date().toISOString(), by: '', kind: 'updated', text: 'Not yet confirmed: ' + missing.map(i => i.t).join('; ') + (m.source ? ' · Source: ' + m.source : '') }); }
+      if (missing.length && !open(k)) { const t = newAction(ph, { title: m.checkTask + ' · ' + serviceName(id), due: addDays(today(), 30), source: { type: 'service', service: id, issue: k, label: serviceName(id) + ' setup' } }); t.log.push({ id: uid(), at: new Date().toISOString(), by: '', kind: 'updated', text: 'Not yet confirmed: ' + missing.map(i => i.t).join('; ') + (m.source ? ' · Source: ' + m.source : '') }); }
       continue; }
     for (const [value, text] of Object.entries(m.task || {})) if (RPH.qm.has(a[k], value) && !open(k)) newAction(ph, { title: text + ' · ' + serviceName(id), due: addDays(today(), 30), source: { type: 'service', service: id, issue: k, label: serviceName(id) + ' setup' } });
   }
@@ -279,7 +279,7 @@ function finishService(c, id, f = {}) {
   c.change(ph => { const s = ph.services[id]; s.answers = tidyAnswers(ph, id, { ...s.answers }); s.setup = 'done'; syncVolume(ph, id); setupActions(ph, id);
     for (const a of catalog().filter(x => x.service === id && !x.event)) { if (!applies(ph, a).applies) continue; const v = f['d:' + a.id]; if (v) ph.schedule[a.id] = v; else if (!ph.schedule[a.id]) ph.schedule[a.id] = suggestedNext(ph, a.id, today()); }
     if (f['d:Q1']) ph.schedule.Q1 = f['d:Q1'];
-    if (!ph.procedures.some(p => p.service === id)) { const t = draftText(ph, id); if (t) ph.procedures.push({ id: uid(), service: id, title: serviceName(id) + ' procedure', status: 'draft', versions: [{ v: '0.1', body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }] }); }
+    if (!ph.procedures.some(p => p.service === id)) { const t = draftText(ph, id); if (t) ph.procedures.push({ id: 'proc:' + id, service: id, title: serviceName(id) + ' procedure', status: 'draft', versions: [{ id: uid(), v: '0.1', body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }] }); }
     log(ph, 'Setup finished · ' + serviceName(id)); }, serviceName(id) + (adopted ? ' set up. Your adopted procedure stays in use: open it in Procedures to update the draft.' : ' set up. Its draft procedure is in Procedures.'));
   c.ui['ss:' + id] = undefined; c.ui.justDone = id; c.replace('services');
 }

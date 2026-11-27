@@ -1,4 +1,5 @@
 // Micro-patch 1 (owner brief, 25 Nov 2026): "Align to 4 quarters". Snaps UPCOMING recurring due dates onto the first
+import { uid } from './util.js';
 // Monday of Feb, May, Aug and Nov. Overdue and undated items are left alone, statutory fixed dates (premises renewal,
 // financial-interest declaration) are never touched, and the S8 review (B1) is never moved past its s 111 limit.
 // It only changes due dates (nothing is marked done) and keeps the previous dates so the owner can undo it.
@@ -67,7 +68,7 @@ export function undoAlign(ph) {
 export const canDefer = it => !it.legal && !it.started && ['action', 'review', 'meeting'].includes(it.kind) && (it.bucket === 'overdue' || it.bucket === 'today');
 export function deferItem(ph, it, t = today()) {
   const nd = addDays(isDate(it.date) && it.date > t ? it.date : t, 3);
-  if (it.kind === 'action') { const a = ph.actions[it.ref]; if (!a) return null; a.due = nd; a.log.push({ at: new Date().toISOString(), by: ph.proprietors.find(p => p.id === ph.recordingAs)?.name || '', kind: 'deferred', text: 'Deferred 3 days to ' + nd }); return nd; }
+  if (it.kind === 'action') { const a = ph.actions[it.ref]; if (!a) return null; a.due = nd; a.log.push({ id: uid(), at: new Date().toISOString(), by: ph.proprietors.find(p => p.id === ph.recordingAs)?.name || '', kind: 'deferred', text: 'Deferred 3 days to ' + nd }); return nd; }
   if (it.ref === 'B1') { const lim = s8Limit(ph); if (!lim || nd > lim) return null; }
   (ph.schedule ??= {})[it.ref] = nd; return nd;
 }

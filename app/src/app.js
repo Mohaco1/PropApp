@@ -41,6 +41,7 @@ export const ctx = {
   // opts.redraw false: save without redrawing (a typed answer, so the button the owner is tapping isn't replaced mid-tap).
   change(fn, message, opts = {}) {
     const next = clone(S.ph); const r = fn(next); if (r === false) return false;
+    next.updatedAt = new Date().toISOString(); // D3-A: every saved change stamps the pharmacy
     S.ph = next; store.savePharmacy(next); disarm(); askToKeep(); if (message) ctx.toast(message); if (opts.redraw !== false) render(); return true;
   },
   draft(key) { return S.drafts[key] || null; },
@@ -57,7 +58,7 @@ export const ctx = {
 };
 function load() {
   const d = store.dir(); S.ph = d.active ? store.pharmacy(d.active) : null; S.drafts = S.ph ? store.drafts(S.ph.id) : {};
-  if (S.ph?.staff?.some(p => p.leaving && p.leaving <= today() && p.active !== false)) { const n = clone(S.ph); settleLeavers(n); S.ph = n; store.savePharmacy(n); }
+  if (S.ph?.staff?.some(p => p.leaving && p.leaving <= today() && p.active !== false)) { const n = clone(S.ph); settleLeavers(n); n.updatedAt = new Date().toISOString(); S.ph = n; store.savePharmacy(n); }
 }
 // Stage 3E: another tab saved. If it switched the open pharmacy, this tab starts again on Today with no screen state or
 // confirmation left over from the other pharmacy. Otherwise the screen redraws and anything typed but not yet saved here

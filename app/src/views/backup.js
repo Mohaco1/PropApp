@@ -3,6 +3,7 @@ import { isLegacyBackup, importLegacy } from '../legacy.js';
 import { addDays, daysBetween, today } from '../dates.js';
 import { saveFile } from '../ics.js';
 import { SAVE_FAILED } from '../app.js';
+import { migratePharmacy } from '../model.js';
 // Rebrands (Sigil, then PharmLedger): the backup keeps its PropApp format marker so every earlier backup and every new one restore the same way.
 export function pharmacyBackup(c) { return { app: 'PropApp', product: 'PharmLedger', format: 1, exportedAt: new Date().toISOString(), pharmacy: c.ph, drafts: c.drafts }; }
 // R01: a restore is checked in full before anything is written, so a damaged file can never overwrite a pharmacy.
@@ -49,6 +50,8 @@ export function validate(b) {
   checkPharmacy(got.pharmacy, got.drafts);
   // Parts an older backup may not have are added empty (the backup format itself is unchanged).
   const ph = got.pharmacy; for (const k of ['proprietors', 'documents', 'log']) ph[k] ??= []; for (const k of ['schedule', 'obligations', 'flags']) ph[k] ??= {}; ph.settings ??= { setupDone: true };
+  // D3-A: every format 1 backup (PropApp, Sigil, PharmLedger) and every legacy R.Pharmacy one comes in as schema 2.
+  got.pharmacy = migratePharmacy(ph);
   return got;
 }
 // A1: one backup action (Backup screen and the Today nudge). On phones that can, it opens the share sheet so the file

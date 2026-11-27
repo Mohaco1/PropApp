@@ -2,6 +2,7 @@
 // One check per screen, big answers, "Last time" and "still open" from earlier visits, finish lists what's missing.
 import { register } from '../app.js';
 import { h } from '../util.js';
+import { uid } from '../util.js';
 import { screen, btn, field, textInput, textArea, choice, note, why, row, empty, select } from '../ui.js';
 import { C } from '../content.js';
 import { fmt, today, addDays, addMonths, dueText, isDate } from '../dates.js';
@@ -170,7 +171,7 @@ function save(c, r) {
       fields: { vacc: d.vacc || {}, serviceEvidence: Object.fromEntries(items.filter(it => !it.core && d.items[it.key]?.ev).map(it => [it.service, { status: d.items[it.key].ev, ref: d.items[it.key].ref || '' }])) } });
     for (const it of items) { const a = d.items[it.key]; if (a.status !== 'issue') continue;
       const ans = rec.answers.find(x => x.item === it.key);
-      if (a.link && ph.actions[a.link]?.status === 'open') { const la = ph.actions[a.link]; la.log.push({ at: new Date().toISOString(), by: rec.by, kind: 'updated', text: 'Seen again at the ' + (r.extra ? 'extra visit' : 'site visit') + ' on ' + d.date + ': ' + a.text.trim() }); rec.actionIds.push(la.id); if (ans) ans.actionId = la.id; continue; }
+      if (a.link && ph.actions[a.link]?.status === 'open') { const la = ph.actions[a.link]; la.log.push({ id: uid(), at: new Date().toISOString(), by: rec.by, kind: 'updated', text: 'Seen again at the ' + (r.extra ? 'extra visit' : 'site visit') + ' on ' + d.date + ': ' + a.text.trim() }); rec.actionIds.push(la.id); if (ans) ans.actionId = la.id; continue; }
       const ac = newAction(ph, { title: a.text.trim(), due: isDate(a.due) ? a.due : addDays(today(), 30), source: { type: 'visit', recordId: rec.id, label: (r.extra ? 'Extra visit' : 'Site visit') + ' · ' + d.date, item: it.title } }); rec.actionIds.push(ac.id); if (ans) ans.actionId = ac.id; }
     if (!r.extra && isDate(f.next)) ph.schedule.Q1 = f.next;
   }, 'Visit saved');
