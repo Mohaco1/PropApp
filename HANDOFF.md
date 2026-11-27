@@ -11,8 +11,8 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Repo | `Mohaco1/PropApp`, branch `main` |
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
-| App build id | **`4f64f0558c`** (Batch 1B) |
-| Code commit | Batch 1B commit on `main` (code, docs/ and this file for build 4f64f0558c) |
+| App build id | **`166410f103`** (Batch 2A) |
+| Code commit | Batch 2A commit on `main` (code, docs/ and this file for build 166410f103) |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -83,12 +83,19 @@ After deploying, an installed phone app picks up the new version when it's reope
 - Screenshots go to `app/handoff/`, which is git-ignored.
 - **Suites:**
   - Original and wave suites: core, sprint1–5, screens, setup-questions, extras, polish, theme, content2, v3, pwa, wave1, wave2, gates, wave3.
-  - Briefs from this week: pretrial, sigil, batch1, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual.
+  - Briefs from this week: pretrial, sigil, batch1, batch1a, batch1b, batch2a, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual.
 - **Latest full run on build `2dec2b5fd2`:** see section 9.
 - Note: `tests/upgrade.js` opens a saved old build (07775c5947) from a fixture, so it still taps the old "Look around an example pharmacy (fictional)" label. Leave that label as it is.
 
 ## 7. What was done this week (newest first)
-0. **Batch 1B (27 Nov, build `4f64f0558c`): done.**
+0. **Batch 2A (27 Nov, build `166410f103`): done.**
+   - **H-01 OTP LAIB storage:** the OTP secure-storage checklist item and the draft step no longer say "Schedule 8 cold chain for LAIB". They give each brand's storage, matching `content/onboard.js`: Buvidal below 25°C, never refrigerated or frozen; Sublocade refrigerated at 2°C–8°C in the S8 safe or fridge (or up to 7 days below 25°C). Changed in `legacy-procgen.js`, with the matching pairs added to `verified-steps.json` so `check-procgen-all` still compares like with like. Sources: Buvidal and Sublocade Australian product information. Note: NSW Health has published a Sublocade discontinuation notice (health.nsw.gov.au, "Changes to Sublocade availability in Australia"); the owner may want to drop the Sublocade line later.
+   - **H-02 OTP 80+ patients:** `syncVolume` in `views/services.js` sets `ph.flags.volume` from the OTP `volumeBand` answer (Yes → true, anything else → false) when the answer is saved and when setup finishes, the way DAA `routes` set their flags. The OTP daily-volume threshold review now appears in "What happens next", Today, Reviews and the Year plan. The OTP comprehensive review's threshold answer still sets the flag too.
+   - **H-03 OCP initiation:** the 5 Nov 2026 prescribing update names JCU, the University of Newcastle and UTS graduate certificates and the private (non-PBS) cost. The five `prescribing2026` items added in `procgen.js` are in `RPH.qm.displayMap`, so "Your answers" shows their wording, never "OCP initiation (JCU-trained)".
+   - **H-06 branding:** the record summary ends "From PharmLedger."; `legacyWords` in `procgen.js` (used by `applyVerified`, the Edit wording box and the display of edited bodies) turns "R.Pharmacy" into "PharmLedger" and "approve it in Policies" into "adopt it in Procedures".
+   - **M-03 reviews:** "Why?" drops the screen labels that came with the scraped Wattle Grove notes ("Annual · Recommended …", "Preview only …", the example's name); real sentences stay. The record view colours answers with `answerIsIssue` (`issues.js`), so a good "Yes" is no longer red.
+   - Tests: `tests/batch2a.js` (in `test-all.sh`, 25 checks).
+1. **Batch 1B (27 Nov, build `4f64f0558c`): done.**
    - **C-04 adopted procedures redraft:** the "Your setup answers changed" note and "Update the draft" now show on an adopted procedure too. The tap adds a new Draft version; the adopted version stays in `versions` and the draft says "Version X.0, adopted …, stays in use until you adopt this draft" (the Procedures list shows "· version X.0 in use"). Setup never redrafts an adopted procedure by itself (`SETUP.acts.ret`, `finishService` toasts say so). Nothing is adopted for the owner.
    - **C-06 store mid-flush:** in `flushNow`, when a later edit of this tab was queued while a save was merging another tab's change, the pharmacy's merge base stays at what that edit was made from, so the next save merges instead of overwriting; drafts the queued edit didn't touch take the merged copy and its base (`rebaseDrafts`).
    - **M-01 drafts:** the visit's issue text, visit note and next quarterly date save to the visit draft as they're typed (`inputs`/`changes` `ans` and `fin`). Meeting minutes keep a draft (`meeting/<id>`) that survives opening an open item or a reload, and is cleared on Save meeting.
@@ -127,6 +134,8 @@ After deploying, an installed phone app picks up the new version when it's reope
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
+**Batch 2A, build `166410f103`:** `test-all.sh` run once; it hit the session's 10-minute limit after `procedures-all`, so the last four suites (onboard, pharmledger, foldable, visual), the Check later variant and `check-procgen-all` were run straight after with the same build. 32 of 33 suites passed (batch2a included) plus Check later; `check-procgen-all`: all 17 identical. `hardening` crashed (a Node timeout, not a failed check): at Item 3 the S8 review's "Finish" tap in list mode sometimes doesn't move on to the stock-check date. Alone on this build it passed 5 of 8 runs; on the Batch 1B build it passed 4 of 4. Nothing in Batch 2A touches that screen's code, but treat it as open: look at a list-mode draft save landing after the Finish tap (`acts.qa` then `step`). `docs/` refreshed from `dist/pwa/`.
+
 **Batch 1B, build `4f64f0558c`:** full `test-all.sh` run once: 31 of 32 suites passed (batch1b included) plus the Check later variant; `core` crashed once with a Node exception mid-run, then passed 3 times on its own with no changes. `check-procgen-all`: all 17 identical. `docs/` refreshed from `dist/pwa/`.
 
 **Batch 1A, build `5be6df0d29`:** full `test-all.sh` run once: 29 of 31 suites passed (batch1a included). wave1 (R02 incomplete-check wording) and sprint5 (Reset used on the example pharmacy) failed; both fixed (legal date kept in the wording; the example counts as fictional) and re-run green with batch1a, gates, hardening and pretrial. `check-procgen-all`: all 17 identical. `docs/` refreshed from `dist/pwa/`.

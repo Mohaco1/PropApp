@@ -4,7 +4,7 @@
 import { register } from '../app.js';
 import { h, uid, raw } from '../util.js';
 import { screen, btn, row, field, textArea, textInput, note, empty, pill, why, sheet, svcIcon } from '../ui.js';
-import { draftText, blockers, procWording, visibleFields, RPH } from '../procgen.js';
+import { draftText, blockers, procWording, legacyWords, visibleFields, RPH } from '../procgen.js';
 import { serviceName } from '../rules.js';
 import { fmt, today, day } from '../dates.js';
 import { note as log, newAction } from '../model.js';
@@ -65,7 +65,7 @@ const VIEW = {
     // pharmacy's to write), so it opens here with the placeholder selected, or points to "We have our own procedure".
     const finding = c.ui['pmfind:' + id];
     if (mode === 'edit') return screen({ title: 'Edit wording', back: true, body: h`${finding ? (/^\[Confirm: write the steps/i.test(finding) ? h`<div class="note warn"><p><b>${finding.replace(/^\[Confirm: |\]$/g, '')}.</b> The highlighted line is a placeholder: replace it with your pharmacy’s steps, following current NSW OTP guidance, then tap Save as new version. Adopt unlocks when no “[Confirm: …]” lines are left.</p>${btn('We already have our own written procedure for this', 'fixq', { kind: 'link', data: { q: finding.replace(/^\[Confirm: |\]$/g, '') } })}</div>`
-      : h`<div class="note warn"><p><b>To check: ${finding.replace(/^\[Confirm: |\]$/g, '')}.</b> Read the highlighted step against its source (listed at the end of the procedure). Change the wording here if anything differs. When you’re satisfied, remove the marker.</p>${btn('I’ve checked it — remove this marker', 'checked', { cls: 'block' })}${btn('Change my setup answer instead', 'fixq', { kind: 'link', data: { q: finding.replace(/^\[Confirm: |\]$/g, '') } })}</div>`) : ''}<form class="form" data-form="edit">${field('Procedure text', textArea('body', v.body, { rows: 18, noPatient: true }))}<div class="dock-inline">${btn('Save as new version', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'mode', { data: { m: '' } })}</div></form>` });
+      : h`<div class="note warn"><p><b>To check: ${finding.replace(/^\[Confirm: |\]$/g, '')}.</b> Read the highlighted step against its source (listed at the end of the procedure). Change the wording here if anything differs. When you’re satisfied, remove the marker.</p>${btn('I’ve checked it — remove this marker', 'checked', { cls: 'block' })}${btn('Change my setup answer instead', 'fixq', { kind: 'link', data: { q: finding.replace(/^\[Confirm: |\]$/g, '') } })}</div>`) : ''}<form class="form" data-form="edit">${field('Procedure text', textArea('body', legacyWords(v.body), { rows: 18, noPatient: true }))}<div class="dock-inline">${btn('Save as new version', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'mode', { data: { m: '' } })}</div></form>` });
     return screen({ title: serviceName(id) + ' procedure', back: true, body: h`
       <p>${pill(p.status === 'adopted' ? 'Adopted · version ' + v.v : 'Draft ' + v.v, p.status === 'adopted' ? 'ok' : 'warn')} <span class="muted">${fmt(day(v.at))}</span></p>
       ${inUse ? note('Version ' + inUse.v + ', adopted ' + fmt(day(inUse.adoptedAt || inUse.at)) + ', stays in use until you adopt this draft.', 'ok') : ''}
@@ -82,7 +82,7 @@ const VIEW = {
         ${c.ui['am:' + id] ? h`<form class="form" data-form="amend">${field('Local amendment (how your pharmacy does this differently)', textArea('amendment', p.amendment || '', { rows: 3 }))}<div class="btnrow">${btn('Save amendment', null, { kind: 'primary', type: 'submit' })}${btn('Cancel', 'amno')}</div></form>` : btn(p.amendment ? 'Change the local amendment' : 'Add a local amendment', 'am', { kind: 'link' })}
         </div></section>` : ''}
       ${(() => { const acts = Object.values(c.ph.actions).filter(a => a.source?.type === 'procedure' && a.source.service === id); return h`<section class="sec"><h2 class="sec-title">Actions for this procedure · ${acts.length}</h2>${acts.length ? h`<div class="list">${acts.map(a => row({ title: a.title, right: a.status === 'closed' ? 'Closed' : 'Open', act: 'go', data: { to: 'action', id: a.id } }))}</div>` : ''}${btn('+ Add an action for this procedure', 'linkact', { kind: 'link' })}</section>`; })()}
-      ${docView(adoptedWording(v, v.edited ? v.body : procWording(v.body)))}
+      ${docView(adoptedWording(v, v.edited ? legacyWords(v.body) : procWording(v.body)))}
       ${p.versions.length > 1 ? why('Version history · ' + p.versions.length, h`<div class="list">${p.versions.slice().reverse().map((x, i) => row({ title: 'Version ' + x.v + (i === 0 ? ' (current)' : ''), sub: [x.status, fmt(day(x.at)), x.adoptedBy && 'adopted by ' + x.adoptedBy, x.edited && 'wording edited'].filter(Boolean).join(' · '), chev: false }))}</div>`) : ''}` });
   },
   after: (c, r) => { const f = c.ui['pmfind:' + r.id], ta = document.querySelector('textarea[name=body]'); if (!f || !ta || ta.dataset.sel) return; const i = ta.value.indexOf(f); if (i < 0) return; ta.dataset.sel = '1'; ta.focus({ preventScroll: true }); ta.setSelectionRange(i, i + f.length);

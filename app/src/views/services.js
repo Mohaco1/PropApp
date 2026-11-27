@@ -172,7 +172,8 @@ const SETUP = {
     // depends on it, and redrawing as the box loses focus swallowed the owner's tap on Next.
     const typed = ev?.target?.name === 'd' && (k === 'text' || k === 'location' || k === 'proc' || k === 'multi' || k === 'single');
     c.change(ph => { const s = ph.services[id]; s.answers = { ...s.answers, [f.key]: v }; if (s.setup === 'todo') s.setup = 'doing';
-      if (k === 'routes') { const r = split(v); ph.flags = { ...ph.flags, house: r.includes('house'), routeA: r.includes('routeA'), routeB: r.includes('routeB') }; } }, '', { redraw: !(typed || quiet) });
+      if (k === 'routes') { const r = split(v); ph.flags = { ...ph.flags, house: r.includes('house'), routeA: r.includes('routeA'), routeB: r.includes('routeB') }; }
+      syncVolume(ph, id); }, '', { redraw: !(typed || quiet) });
     c.ui['ss:' + id] = idx; if (before !== v && !quiet && !typed) c.rerender(); } },
   // Owner trial: Next or Previous saves whatever is typed in the box first, so a typed answer is never lost.
 
@@ -235,9 +236,11 @@ export function setupActions(ph, id) {
     for (const [value, text] of Object.entries(m.task || {})) if (RPH.qm.has(a[k], value) && !open(k)) newAction(ph, { title: text + ' · ' + serviceName(id), due: addDays(today(), 30), source: { type: 'service', service: id, issue: k, label: serviceName(id) + ' setup' } });
   }
 }
+// H-02: the OTP "80 or more patients on one day" answer drives the amenity review, the same way DAA routes drive theirs.
+function syncVolume(ph, id) { const v = id === 'otp' ? ph.services.otp?.answers?.volumeBand : undefined; if (v === undefined) return; ph.flags = { ...ph.flags, volume: v === 'Yes' }; }
 function finishService(c, id, f = {}) {
   const adopted = c.ph.procedures.find(p => p.service === id)?.status === 'adopted';
-  c.change(ph => { const s = ph.services[id]; s.answers = tidyAnswers(ph, id, { ...s.answers }); s.setup = 'done'; setupActions(ph, id);
+  c.change(ph => { const s = ph.services[id]; s.answers = tidyAnswers(ph, id, { ...s.answers }); s.setup = 'done'; syncVolume(ph, id); setupActions(ph, id);
     for (const a of catalog().filter(x => x.service === id && !x.event)) { if (!applies(ph, a).applies) continue; const v = f['d:' + a.id]; if (v) ph.schedule[a.id] = v; else if (!ph.schedule[a.id]) ph.schedule[a.id] = suggestedNext(ph, a.id, today()); }
     if (f['d:Q1']) ph.schedule.Q1 = f['d:Q1'];
     if (!ph.procedures.some(p => p.service === id)) { const t = draftText(ph, id); if (t) ph.procedures.push({ id: uid(), service: id, title: serviceName(id) + ' procedure', status: 'draft', versions: [{ v: '0.1', body: t, generated: t, at: new Date().toISOString(), status: 'Draft' }] }); }
@@ -276,7 +279,7 @@ register('first-dates', {
 });
 
 // "Your OTP procedure": one screen for the OTP Standards item 1 parts (current app's otp-parts layer).
-const SHORT = { 'Pharmacist responsibilities': 'Pharmacist responsibilities', 'Accounting and records': 'Accounting and records', 'Secure storage': 'Secure storage (incl. LAIB cold chain)', 'Clinical interventions': 'Clinical interventions and communication', 'Equipment maintenance': 'Dosing equipment maintenance', 'Takeaway doses': 'Takeaway doses', 'Staff training records': 'Staff training records' };
+const SHORT = { 'Pharmacist responsibilities': 'Pharmacist responsibilities', 'Accounting and records': 'Accounting and records', 'Secure storage': 'Secure storage (incl. LAIB by brand)', 'Clinical interventions': 'Clinical interventions and communication', 'Equipment maintenance': 'Dosing equipment maintenance', 'Takeaway doses': 'Takeaway doses', 'Staff training records': 'Staff training records' };
 function otpParts(ph) { const a = ph.services.otp?.answers || {}, items = RPH.qm.checkItems('otp', 'otpGovernance', a), have = split(a.otpGovernance);
   const local = [['incidents', 'Missed doses and intoxicated patients'], ['incidentProcess', 'Reporting and notifying OTP incidents'], ...(visibleFields(ph, 'otp', a).some(f => f[0] === 'films') ? [['films', 'Supervising film doses']] : [])];
   return [...items.map(it => ({ key: 'g:' + it.v, title: SHORT[it.v] || it.v, sub: it.t, on: have.includes(it.v) })), ...local.map(([k, l]) => ({ key: 'l:' + k, title: l, sub: 'Your own steps, following current NSW OTP guidance.', on: String(a[k] || '').startsWith('We have our own') }))]; }

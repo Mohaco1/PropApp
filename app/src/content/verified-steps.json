@@ -1,5 +1,5 @@
 {
- "note": "Pre-trial brief B7 (25 Nov 2026): each “— verify” step was checked against a reachable primary source and re-cited, or relabelled as the pharmacy’s own practice. Sources: uat/research/pretrial-b7-sources-2026-11-25.md. Applied to the old app’s text in tools/check-procgen*.js too.",
+ "note": "Pre-trial brief B7 (25 Nov 2026): each “— verify” step was checked against a reachable primary source and re-cited, or relabelled as the pharmacy’s own practice. Sources: uat/research/pretrial-b7-sources-2026-11-25.md. Applied to the old app’s text in tools/check-procgen*.js too. Batch 2A H-01 (27 Nov 2026): the OTP LAIB storage wording is product-specific (Buvidal and Sublocade product information), matching content/onboard.js.",
  "pairs": [
   [
    "Store vaccines only in a purpose-built vaccine fridge, never a domestic or bar fridge; keep the power outlet labelled “Do not switch off”; vaccines stay in original cartons in labelled baskets, funded and private apart, off the walls and vents; no food in the fridge (Strive for 5 / NSW Health — check against the current edition — verify).",
@@ -104,6 +104,14 @@
   [
    "CBD-only (Schedule 4) products.",
    "CBD-only products (TGA Category 1: 98% or more CBD; Schedule 4) only. CBD-dominant products with other cannabinoids (Category 2) are Schedule 8 (TGA, Medicinal cannabis product list; supplied by the owner’s review, 26 Nov 2026)."
+  ],
+  [
+   "Secure storage under the Medicine Storage Standards, including S8 cold chain for LAIB if used",
+   "Secure storage under the Medicine Storage Standards; if LAIB is used, each brand is stored as its product information says (Buvidal below 25°C, not refrigerated or frozen; Sublocade refrigerated at 2°C–8°C in the S8 safe or fridge, or up to 7 days below 25°C)"
+  ],
+  [
+   ", including the Schedule 8 cold chain for LAIB (",
+   "; store each LAIB brand as its product information says: Buvidal below 25°C and never refrigerated or frozen; Sublocade refrigerated at 2°C–8°C in the S8 safe or fridge (or up to 7 days below 25°C) ("
   ]
  ]
 }

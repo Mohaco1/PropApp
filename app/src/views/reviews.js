@@ -12,6 +12,7 @@ import { fmt, today, addDays, dueText, isDate } from '../dates.js';
 import { addRecord, newAction, note as log } from '../model.js';
 import { saveFile } from '../ics.js';
 import { copyText } from '../clip.js';
+import { answerIsIssue } from '../issues.js';
 // Review-specific fields, from the current app's forms.
 const EXTRA = {
   B1: [['stockDate', 'Date the pharmacist did the stock check', 'date', true], ['stockBy', 'Pharmacist who did the stock check', 'text']],
@@ -48,7 +49,10 @@ export function questionsFor(id) {
   return [...base.map((q, i) => FIX_Q[id]?.[i] ? { ...q, text: FIX_Q[id][i] } : q), ...(EXTRA_Q[id] || []).map(text => ({ text, options: base.at(-1).options }))].map(q => ({ text: q.text, options: q.options.map(o => ({ value: o.value, label: o.value === 'Needs verification' ? 'Check later' : o.value, issue: o.issue && o.value !== 'Needs verification' })) }));
 }
 export function legalLine(a) { return a.legal?.line || (a.event ? 'When you start or change this service' : a.frequency + (a.service ? ' · ' + serviceName(a.service) : '')); }
-const whyText = a => [a.check, ...(C.reviews.forms[a.id]?.notes || []).filter(n => n !== a.check && n.length > 40)].join('\n\n');
+// M-03: the review notes were read off the Wattle Grove example's screens, so screen labels ("Annual · Recommended …",
+// "Preview only …", the example pharmacy's name) came with them. Only real sentences are shown under "Why?".
+const scraped = n => /Wattle Grove|^Preview only|^Private proprietor notes|^Service scope · /.test(n) || (n.includes(' · ') && !/\.\s*$/.test(n));
+export const whyText = a => [a.check, ...(C.reviews.forms[a.id]?.notes || []).filter(n => n !== a.check && n.length > 40 && !scraped(n))].join('\n\n');
 const F = [['all', 'All'], ['overdue', 'Overdue'], ['soon', 'Due soon'], ['ontrack', 'On track'], ['nodate', 'No date'], ['law', 'Required by law'], ['done', 'Completed']];
 register('reviews', {
   tab: 'reviews',
@@ -192,7 +196,7 @@ export function recordText(ph, rec) { const a = reviewById(rec.type), acts = (re
   return [ph.name + (ph.address ? ' · ' + ph.address : ''), (rec.extra ? 'Extra site visit' : a?.name || rec.title), 'Date: ' + fmt(rec.date) + ' · recorded by ' + (rec.by || '—'), '',
     ...rec.answers.map(x => '• ' + x.text + ': ' + x.answer + (x.note ? ' (' + x.note + ')' : '')),
     ...Object.entries(rec.fields?.serviceEvidence || {}).map(([s, e]) => '• ' + serviceName(s) + ' evidence: ' + e.status + (e.ref ? ' (' + e.ref + ')' : '')),
-    rec.notes ? '\nNote: ' + rec.notes : '', acts.length ? '\nActions:\n' + acts.map(x => '• ' + x.title + ' · ' + (x.status === 'closed' ? 'closed ' + fmt(x.closed?.date) + (x.closed?.what ? ': ' + x.closed.what : '') : 'open, due ' + fmt(x.due))).join('\n') : '', '', 'From R.Pharmacy. Records stay in the pharmacy’s own systems; no patient details.'].join('\n'); }
+    rec.notes ? '\nNote: ' + rec.notes : '', acts.length ? '\nActions:\n' + acts.map(x => '• ' + x.title + ' · ' + (x.status === 'closed' ? 'closed ' + fmt(x.closed?.date) + (x.closed?.what ? ': ' + x.closed.what : '') : 'open, due ' + fmt(x.due))).join('\n') : '', '', 'From PharmLedger. Records stay in the pharmacy’s own systems; no patient details.'].join('\n'); }
 register('record', {
   tab: 'reviews',
   acts: { dlrec: (c, d) => { const rec = c.ph.records.find(x => x.id === d.id); const ok = saveFile((c.ph.name + ' ' + (reviewById(rec.type)?.name || rec.title) + ' ' + rec.date).replace(/[^\w]+/g, '-') + '.txt', recordText(c.ph, rec)); c.toast(ok ? 'Summary ready' : 'Downloads are blocked here. Use Copy as text.'); },
@@ -205,7 +209,7 @@ register('record', {
     return screen({ title: rec.extra ? 'Extra site visit' : a?.name || rec.title, back: true, body: h`
       <p class="meta">${fmt(rec.date)} · recorded by ${rec.by || '—'}</p>
       ${acts.length ? h`<section class="sec"><h2 class="sec-title">Actions from this</h2><div class="list">${acts.map(x => row({ title: x.title, right: x.status === 'closed' ? 'Closed' : dueText(x.due), tone: x.status === 'open' && x.due < today() ? 'bad' : '', act: 'go', data: { to: 'action', id: x.id } }))}</div></section>` : ''}
-      ${!rec.answers.length ? note('Recorded on ' + fmt(rec.date) + ' in the earlier app. Its details are kept with the record.', 'info') : ''}<section class="sec" ${rec.answers.length ? '' : h`hidden`}><h2 class="sec-title">Answers</h2><div class="list">${rec.answers.map(x => h`<div class="row static"><span class="row-main"><span class="row-title">${x.text}</span>${x.note ? h`<span class="row-sub">${x.note}</span>` : ''}</span><span class="row-right ${/Issue|Outstanding|Yes|Gap|Incomplete/.test(x.answer) && !/^No/.test(x.answer) ? 'bad' : ''}">${x.answer}</span></div>`)}</div></section>
+      ${!rec.answers.length ? note('Recorded on ' + fmt(rec.date) + ' in the earlier app. Its details are kept with the record.', 'info') : ''}<section class="sec" ${rec.answers.length ? '' : h`hidden`}><h2 class="sec-title">Answers</h2><div class="list">${rec.answers.map(x => h`<div class="row static"><span class="row-main"><span class="row-title">${x.text}</span>${x.note ? h`<span class="row-sub">${x.note}</span>` : ''}</span><span class="row-right ${answerIsIssue(rec, x) ? 'bad' : ''}">${x.answer}</span></div>`)}</div></section>
       ${Object.keys(rec.fields?.serviceEvidence || {}).length ? h`<section class="sec"><h2 class="sec-title">Service evidence</h2><div class="list">${Object.entries(rec.fields.serviceEvidence).map(([s, e]) => h`<div class="row static"><span class="row-main"><span class="row-title">${serviceName(s)}</span>${e.ref ? h`<span class="row-sub">${e.ref}</span>` : ''}</span><span class="row-right ${/Gap|Issue|Unable/.test(e.status) ? 'bad' : ''}">${e.status}</span></div>`)}</div></section>` : ''}
       ${rec.fields?.vacc?.sighted ? h`<p class="meta">Vaccine storage self-audit ${rec.fields.vacc.sighted === 'yes' ? 'seen' + (rec.fields.vacc.auditDate ? ' · dated ' + fmt(rec.fields.vacc.auditDate) : '') : 'not seen yet'} · cold-chain breach since last visit: ${rec.fields.vacc.event || '—'}</p>` : ''}
       ${rec.notes ? h`<div class="card"><p class="eyebrow">Note</p><p>${rec.notes}</p></div>` : ''}<div class="btnrow">${btn('Download summary', 'dlrec', { data: { id: rec.id } })}${btn('Copy as text', 'copyrec', { data: { id: rec.id } })}</div>

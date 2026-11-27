@@ -28,12 +28,16 @@ const { RPH, fsFields, normalise } = install(env);
     { v: 'Intention form (Queensland-trained)', showIf: a => RPH.qm.split(a.pathway).some(x => QLD.slice(0, 5).some(q => q[0] === x)), t: 'Queensland-trained pharmacists providing the extra conditions have submitted NSW Health’s “Intention to provide expanded community pharmacy services” form (again if their place of practice changes)' },
     { v: 'OCP initiation (JCU-trained)', showIf: a => RPH.qm.split(a.pathway).includes('OCP initiation'), t: 'OCP initiation: the pharmacist is an “approved pharmacist” under the NSW protocol (Graduate Certificate of Advanced Practice and Prescribing for Pharmacists, James Cook University; Graduate Certificate in Pharmacist Prescribing and Advanced Practice, University of Newcastle; or Graduate Certificate in Pharmacist Prescribing, UTS); patients are told all costs, including that the pill is at private (non-PBS) cost; each pharmacist submits the NSW Health “Intention to provide expanded community pharmacy services in NSW” form before providing the service, and resubmits it if details change' },
     { v: 'Authorities expire 4 Nov 2027', t: 'The Class Authorities expire on 4 November 2027: check NSW Health for their replacements before then' });
+  // H-03: show these items by their wording, never their stored value (e.g. "OCP initiation (JCU-trained)").
+  for (const it of M.prescribing2026.items.slice(-5)) RPH.qm.displayMap[it.v] = it.t;
 })();
 // The only wording change from the current app: drafts are adopted in Procedures (not "approved in Policies").
 // B7: steps checked against their sources are re-cited (or labelled as the pharmacy's own practice); the same list is
 // applied to the old app's text in tools/check-procgen*.js, so the parity checks still compare like with like.
 import VERIFIED from './content/verified-steps.json';
-export const applyVerified = t => { let s = String(t); for (const [a, b] of VERIFIED.pairs) s = s.split(a).join(b);
+// H-06: the earlier app's name and "approve it in Policies" never reach a draft, the editor or a printout.
+export const legacyWords = t => String(t).split('R.Pharmacy').join('PharmLedger').split('approve it in Policies').join('adopt it in Procedures');
+export const applyVerified = t => { let s = legacyWords(t); for (const [a, b] of VERIFIED.pairs) s = s.split(a).join(b);
   return /— verify/.test(s.replace('• Steps marked “— verify”: check each against the full official document before approving', '')) ? s : s.replace('• Steps marked “— verify”: check each against the full official document before approving\n', ''); };
 export const procWording = t => applyVerified(String(t).replace('and approve it in Policies.', 'and adopt it in Procedures.').replace(/\(Policies\)/g, '(Procedures)'));
 export function draftText(ph, id) {

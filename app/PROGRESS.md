@@ -648,3 +648,11 @@ Checked and already passing:
 - M-01: visit issue text, visit note and next date, and meeting minutes persist as drafts while typing.
 - M-05: the Home Screen line is first on Today; claude.ai preview hints hidden in the installable app.
 - New `tests/batch1b.js`. Full run once: 31 of 32 suites passed plus Check later; core crashed once mid-run and passed 3 times alone. procgen identical for all 17.
+
+## Batch 2A (H-01, H-02, H-03, H-06, M-03) · 27 Nov 2026 · build 166410f103
+- H-01: OTP LAIB storage is per brand (Buvidal below 25°C, not refrigerated or frozen; Sublocade 2°C–8°C in the S8 safe or fridge, or up to 7 days below 25°C), in the checklist item and the draft; verified-steps pairs keep procgen parity.
+- H-02: the OTP `volumeBand` answer sets `flags.volume` on save and on finish, so the OTP daily-volume threshold review is scheduled and shown.
+- H-03: the prescribing update names JCU, Newcastle and UTS and the non-PBS cost; the five prescribing2026 items show their wording in "Your answers".
+- H-06: "From PharmLedger." on record summaries; `legacyWords` replaces R.Pharmacy and "approve it in Policies" in drafts, Edit wording and edited bodies.
+- M-03: "Why?" drops scraped screen labels; record answers are coloured by `answerIsIssue`.
+- New `tests/batch2a.js` (25 checks). Full run once (finished in two parts after the time limit): 32 of 33 suites plus Check later; hardening crashed on the S8 list-mode Finish tap (5 of 8 alone). procgen identical for all 17.

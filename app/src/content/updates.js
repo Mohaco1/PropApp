@@ -32,7 +32,7 @@ export const UPDATES = [
     ['Class Authorities and Practice Standards apply from 5 November 2026; the authorities expire on 4 November 2027.',
       'Contraception continuation includes vaginal ring supply (supply only) and DMPA (give the injection only with the PSA injection course; check indemnity).',
       'Queensland-trained pharmacists may also treat 5 more conditions (musculoskeletal pain, reflux, rhinitis, acne, nausea and vomiting), after submitting NSW Health’s “Intention to provide expanded community pharmacy services” form.',
-      'OCP initiation: pharmacists with the James Cook University Graduate Certificate who have submitted the Intention form can start, change or resupply the pill for low-risk women aged 18–39. NSW Health’s pilot funds the first 5,000 eligible consultations. (NSW Health page current as at 24 Aug 2026, before the new laws: check it for the current authority.)',
+      'OCP initiation: approved pharmacists (a graduate certificate from James Cook University, the University of Newcastle or UTS) who have submitted the Intention form can start, change or resupply the pill for low-risk women aged 18–39. The pill itself is at private (non-PBS) cost: tell patients all costs first. NSW Health’s pilot funds the first 5,000 eligible consultations. (NSW Health page current as at 24 Aug 2026, before the new laws: check it for the current authority.)',
       'Every service: a private consulting room, the GP sent a record within a week (with consent), digital records kept 7 years (under 18: until 25), and the healthdirect listing kept current. A Working with Children Check may be needed.'],
     [],
     'Pharmacist prescribing setup and readiness review'],
