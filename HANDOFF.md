@@ -11,8 +11,8 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Repo | `Mohaco1/PropApp`, branch `main` |
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
-| App build id | **`9b350249d1`** (Stage 2 v41 parity, on top of Onboarding polish) |
-| Code commit | Stage 2 parity commit on `main` (code, docs/ and this file for build 9b350249d1) |
+| App build id | **`cb301740fb`** (Stage 3A inspector fixes, on top of Stage 2 v41 parity) |
+| Code commit | Stage 3A commit on `main` (code, docs/ and this file for build cb301740fb) |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -83,11 +83,17 @@ After deploying, an installed phone app picks up the new version when it's reope
 - Screenshots go to `app/handoff/`, which is git-ignored.
 - **Suites:**
   - Original and wave suites: core, sprint1–5, screens, setup-questions, extras, polish, theme, content2, v3, pwa, wave1, wave2, gates, wave3.
-  - Briefs from this week: pretrial, sigil, batch1, batch1a, batch1b, batch2a, batch2b, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual.
+  - Briefs from this week: pretrial, sigil, batch1, batch1a, batch1b, batch2a, batch2b, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual, stage3a.
 - **Latest full run on build `2dec2b5fd2`:** see section 9.
 - Note: `tests/upgrade.js` opens a saved old build (07775c5947) from a fixture, so it still taps the old "Look around an example pharmacy (fictional)" label. Leave that label as it is.
 
 ## 7. What was done this week (newest first)
+0. **Stage 3A · inspector red-team and walkthrough fixes (27 Nov, build `cb301740fb`): done. Batch 3's Fold-trial readiness still stands.**
+   - **Reviews** (`views/reviews.js` `changes.q`): a review question no longer moves on by itself after 600 ms. Every clean answer reveals "Note (optional)" (an issue reveals its fix box and date), so the owner stays on the question and taps Next. Onboarding's single-choice auto-advance is separate and unchanged.
+   - **Dead-ends** (`views/today.js`, `views/services.js`, `views/procedures.js`): on Today's Finish setting up card each service still to set up is a 44 px row (`.checkgo`, act `setupone`) straight to its `service-setup`; "Add due dates to your phone calendar" waits until a service is set up or Today has a dated item. "You’re all set" has a "Review procedures" link. "Change my setup answer instead" only shows when `bestQuestion()` finds a question; if a marker's fix still finds none, it opens the service with a toast hint.
+   - **Evidence pack** (`views/pack.js`): an S8 check with an issue answer reads "Completed with issues" (still counted as a completed stocktake). New sections My log (`ph.log`, in period) and Other documents (`ph.documents`, references only). Procedures show the version in use, "Adopted <date> by <name>" and any pending draft separately, plus a Local amendments table. Every pack date and the History print (`views/more.js`) use `fullDate()` (`dates.js`), so printed dates always carry the year.
+   - **Calendar file** (`ics.js`, R04): staff expiry and annual-check events are "PharmLedger staff check due · <pharmacy>", with no name or credential.
+   - Tests: `tests/stage3a.js` (31 checks, in `test-all.sh`); `pretrial.js` updated for 8 pack sections and the calendar line waiting for a date. Screenshots `app/handoff/stage3a_*.png`.
 0. **Stage 2 · safe v41 parity (27 Nov, build `9b350249d1`): done. Batch 3's Fold-trial readiness still stands.**
    - **M-06 Staff** (`views/staff.js`): each credential row on a person's page opens route `cred` (id `personId~reqId`): last time's check, then Seen it · update / Issue / N/A, one Save. It saves that one check, records a one-item "Credential check" in History, raises one action for an issue, and never moves the annual check date. The Staff list has All / Needs review / Coming up chips (one line at 344 and 390 px, 44 px) and a search box. "Needs review" = expired, issue or checks not done; "Coming up" = due within 30 days (from `personStatus`).
    - **M-07 History CSV** (`export.js`): every `ph.history` event is exported as a "Change" row with a category (Procedure, Service, Evidence, DAA packing, Calendar, Staff, Setup, Action, Review, Document, Law update, Meeting, Other), except the four already exported from their own records (Recorded, Action raised/closed, My log). UTF-8 BOM first; a cell starting with = + - @ (after any spaces) or a tab/return gets a leading apostrophe. **Restore** (`views/backup.js` `checkPharmacy`): settings, schedule, obligations, flags, proprietors, documents, log, history, procedure versions, services' answers and each record answer are shape-checked; missing parts in older backups are added empty, so PropApp, Sigil and R.Pharmacy backups still restore.
@@ -156,6 +162,8 @@ After deploying, an installed phone app picks up the new version when it's reope
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
+**Stage 3A, build `cb301740fb`:** `test-all.sh` run once in full: 36 of 37 suites passed (stage3a included) plus Check later, and `check-procgen-all` shows all 17 identical. `pretrial` failed 2 checks that expected the old behaviour (six pack sections; the calendar offer on a brand-new pharmacy with no dates); both updated and `pretrial` re-run alone: all pass. `docs/` refreshed from `dist/pwa/`.
+
 **Stage 2 parity, build `9b350249d1`:** `test-all.sh` run once in full on the final build: all 36 suites pass (parity included, and the 5 suites fixed after Onboarding polish: batch1, pharmledger, procedures-all, batch2a, batch3) plus Check later; `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`.
 
 **Onboarding polish, build `f341207867`:** `test-all.sh` run once in full: 30 of 35 suites passed plus procgen; batch1, pharmledger, procedures-all (both variants), batch2a and batch3 failed because their tap-then-Next loops met auto-advance (a move onto the "Where you keep records" or done screen, a second Next swallowed, the old toast). Fixed in the app (last question waits for Finish; only one Next is swallowed) and in those tests; on the final build all of them plus batch1b (a one-off crash in the full run), setup-questions and onboarding-polish pass, and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`. Screenshots `95`–`99` in `app/handoff/`.

@@ -682,3 +682,10 @@ Checked and already passing:
 - M-07: History CSV exports every history event with a category, starts with a UTF-8 BOM, and guards formula cells even after leading spaces; `checkPharmacy` checks settings, schedule, proprietors, documents, log, history, procedure versions, service answers and record answers (older backups fill missing parts empty).
 - L-02: document references show who keeps them and an https-only "Open link" (new tab, noopener, 44 px); S8 at a glance lists the S8 setup answers.
 - New `tests/parity.js` (44 checks). Full test-all once: 36/36 suites plus Check later; procgen identical for all 17. docs/ refreshed.
+
+## Stage 3A · inspector red-team and walkthrough fixes · 27 Nov 2026 · build cb301740fb
+- Reviews: no auto-advance after an answer that reveals Note (optional) or an issue's fix box; Next moves on.
+- Today's Finish setting up rows open each service's setup (44 px); the calendar line waits for a set-up service or a date; "You’re all set" links to Procedures; "Change my setup answer instead" hidden when no setup question covers the marker (fallback opens the service with a hint).
+- Evidence pack: "Completed with issues" for S8 checks with issues; My log, Other documents, local amendments and who adopted; adopted version kept apart from a pending draft; full dates with the year in the pack and the History print (`fullDate`).
+- Calendar file: staff events are "PharmLedger staff check due · pharmacy", no names or credentials.
+- New `tests/stage3a.js` (31 checks). Full test-all once: 36/37 (pretrial expected the old pack sections and calendar line; updated, re-run green) plus Check later; procgen identical for all 17. docs/ refreshed.

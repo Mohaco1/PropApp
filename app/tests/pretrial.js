@@ -29,7 +29,7 @@ const above = async (p, name) => { await p.waitForTimeout(250); const f = await 
   // B1 + E1: evidence pack
   await more(/^Evidence pack/); await p.waitForTimeout(250); let t = await text(p);
   ok(await p.locator('.chip', { hasText: 'Last 12 months' }).evaluate(e => e.classList.contains('on')) && await p.locator('.chip', { hasText: 'Last 24 months' }).count() === 1 && await p.locator('.chip', { hasText: /^All$/ }).count() === 1, 'E1 the pack range is 12 months by default, with 24 months and All');
-  const ticks = p.locator('.pticks input[type=checkbox]'); ok(await ticks.count() === 6, 'B1 six section checkboxes');
+  const ticks = p.locator('.pticks input[type=checkbox]'); ok(await ticks.count() === 8, 'B1 eight section checkboxes (Stage 3A added My log and Other documents)');
   const pr = await p.evaluate(() => ({ ticks: document.querySelector('.pticks').getBoundingClientRect().bottom, print: [...document.querySelectorAll('.btn.primary')].find(b => /Print or save/.test(b.innerText)).getBoundingClientRect().top }));
   ok(pr.ticks <= pr.print, 'B1 the checkboxes sit above “Print or save as PDF”');
   await p.screenshot({ path: path.join(OUT, '22_pack_390px.png') });
@@ -112,11 +112,9 @@ const above = async (p, name) => { await p.waitForTimeout(250); const f = await 
   // B2: setup card offers the calendar and can be dismissed (fresh pharmacy)
   await tap(p, 'Today'); await p.locator('.ph-switch').click(); await tap(p, 'Set up another pharmacy'); await p.fill('input[name=name]', 'Calendar Test Pharmacy (fictional)'); await tap(p, 'Continue'); await p.fill('input[name=owner0]', 'Sam Owner'); await tap(p, 'Continue');
   await p.locator('label.tick', { hasText: 'Pharmacist prescribing' }).click(); await tap(p, 'Finish setup'); await p.waitForTimeout(400);
-  ok(await p.getByRole('button', { name: 'Add due dates to your phone calendar' }).count() === 1, 'B2 the setup card offers “Add due dates to your phone calendar”');
+  ok(await p.getByRole('button', { name: 'Add due dates to your phone calendar' }).count() === 0, 'B2 (Stage 3A) with no service set up and no date yet, the setup card waits to offer the calendar');
   ok(/Nothing recorded yet|first review|first record/i.test(await text(p)), 'B3 a cold-start helper line when there are no records');
   await above(p, 'Today (new pharmacy)');
-  await tap(p, 'Not now'); await p.waitForTimeout(200);
-  ok(await p.getByRole('button', { name: 'Add due dates to your phone calendar' }).count() === 0, 'B2 “Not now” hides the calendar offer');
   await more(/^Calendar/); await p.waitForTimeout(200); const cal2 = await download(p, 'Download calendar file');
   ok(/DTSTART;VALUE=DATE:20271104/.test(cal2) && /prescribing Class Authorities/.test(cal2), 'B2 a prescribing pharmacy gets the 4 Nov 2027 expiry');
   // Micro-patch 1: "Align to 4 quarters", in its own fresh browser; the S8 review never goes past its s 111 limit

@@ -49,3 +49,6 @@ export function dueText(s) {
 }
 export const weekStart = s => { const d = parse(s); const dow = (d.getUTCDay() + 6) % 7; return addDays(s, -dow); };
 export const monthName = s => { const d = parse(s); return ['January','February','March','April','May','June','July','August','September','October','November','December'][d.getUTCMonth()] + ' ' + d.getUTCFullYear(); };
+
+// F-V3-04 / Stage 3A: printed audit records always carry the year ("21 Aug 2026"), whatever year it is now.
+export const fullDate = s => { const f = fmt(s); return !f || /\d{4}$/.test(f) ? f : f + ' ' + String(s).slice(0, 4); };

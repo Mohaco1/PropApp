@@ -2,7 +2,7 @@
 import { register } from '../app.js';
 import { h, html } from '../util.js';
 import { screen, row, icon, section, btn, empty, field, textInput, note, choice } from '../ui.js';
-import { fmt, today, dueText, weekStart, addDays, addMonths, monthName, isDate, day } from '../dates.js';
+import { fmt, fullDate, today, dueText, weekStart, addDays, addMonths, monthName, isDate, day } from '../dates.js';
 import { items, ranked, bucket, reviewDue } from '../summary.js';
 import { plan, monthsFor, reviewById } from '../rules.js';
 import { note as log } from '../model.js';
@@ -124,7 +124,7 @@ register('history', {
       <div class="daterange">${field('From', h`<input class="input" type="date" name="from" value="${from}" data-change="from">`)}${field('Through', h`<input class="input" type="date" name="thru" value="${thru}" data-change="thru">`)}</div>
       <p class="muted">${rows.length} ${rows.length === 1 ? 'entry' : 'entries'} · kept on this device</p>
       <div class="btnrow">${btn('Download CSV', 'csv')}${btn('Print or save as PDF', 'print')}${btn('Copy as text', 'copy')}</div>
-      <div class="print-only"><h1>${c.ph.name} · history${from || thru ? ' · ' + (from ? fmt(from) : 'start') + ' to ' + (thru ? fmt(thru) : 'today') : ''}</h1><table class="cal"><tr><th>Date</th><th>Type</th><th>What</th><th>Status</th><th>By</th><th>Details</th></tr>${rows.map(r => h`<tr><td>${fmt(r.date)}</td><td>${r.type}</td><td>${r.title}</td><td>${r.status}</td><td>${r.by}</td><td>${r.detail}</td></tr>`)}</table></div>
+      <div class="print-only"><h1>${c.ph.name} · history${from || thru ? ' · ' + (from ? fullDate(from) : 'start') + ' to ' + (thru ? fullDate(thru) : 'today') : ''}</h1><table class="cal"><tr><th>Date</th><th>Type</th><th>What</th><th>Status</th><th>By</th><th>Details</th></tr>${rows.map(r => h`<tr><td>${fullDate(r.date)}</td><td>${r.type}</td><td>${r.title}</td><td>${r.status}</td><td>${r.by}</td><td>${r.detail}</td></tr>`)}</table></div>
       <div class="list">${rows.slice(0, n).map(r => row({ title: r.title, sub: [r.type, r.status, r.detail].filter(Boolean).join(' · '), right: fmt(r.date), act: r.type === 'Action' ? 'act' : r.id ? 'rec' : '', data: { id: r.id }, chev: !!r.id }))}</div>
       ${rows.length > n ? btn('Show more', 'more', { kind: 'link' }) : ''}` });
   },

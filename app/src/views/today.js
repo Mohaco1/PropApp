@@ -39,10 +39,10 @@ function notice(c, list) {
   // what's due by law; setup carries on from that line (or More › Services) whenever the owner is ready.
   if (todo.length && ph.flags?.setupLater) return h`<button class="siteline" data-act="setupnext" data-id="${(todo.find(([, s]) => s.setup === 'doing') || todo[0])[0]}">Service setup · ${todo.length} to do · carry on when you’re ready</button>`;
   if (todo.length) return h`<div class="card hero"><p class="eyebrow">Finish setting up · ${todo.length} left</p>
-    <ul class="checklist">${act.map(([id, s]) => h`<li class="${s.setup === 'done' ? 'done' : ''}"><span aria-hidden="true">${s.setup === 'done' ? '✓' : '○'}</span>${serviceName(id)}<span class="muted">${s.setup === 'done' ? 'Done' : s.setup === 'doing' ? 'In progress' : 'To do'}</span></li>`)}</ul>
+    <ul class="checklist">${act.map(([id, s]) => h`${s.setup === 'done' ? h`<li class="done"><span aria-hidden="true">✓</span>${serviceName(id)}<span class="muted">Done</span></li>` : h`<li><button type="button" class="checkgo" data-act="setupone" data-id="${id}"><span aria-hidden="true">○</span>${serviceName(id)}<span class="muted">${s.setup === 'doing' ? 'In progress' : 'To do'}</span></button></li>`}`)}</ul>
     ${btn(todo.some(([, s]) => s.setup === 'doing') ? 'Carry on setting up' : 'Set up services', 'setupnext', { kind: 'primary', data: { id: (todo.find(([, s]) => s.setup === 'doing') || todo[0])[0] } })}
     ${todo.length > 1 ? btn('Legal items first · do the rest later', 'setuplater', { kind: 'link' }) : ''}
-    ${ph.flags?.icsHint ? '' : h`<div class="btnrow">${btn('Add due dates to your phone calendar', 'icsnow', { kind: 'link' })}${btn('Not now', 'icshide', { kind: 'link' })}</div>`}</div>`;
+    ${ph.flags?.icsHint || !(act.some(([, s]) => s.setup === 'done') || list.some(i => isDate(i.date))) ? '' : h`<div class="btnrow">${btn('Add due dates to your phone calendar', 'icsnow', { kind: 'link' })}${btn('Not now', 'icshide', { kind: 'link' })}</div>`}</div>`;
   if (act.length && !ph.settings.allSetSeen) return h`<div class="card hero warm"><p class="eyebrow">All set up</p><h2>${ph.name} is set up</h2><p class="muted">Every service has its questions answered and a draft procedure. Today now shows what's due.</p>${btn('Got it', 'allset', { kind: 'primary' })}</div>`;
   // A1: a calm backup nudge after 7 days and 10 or more changes since the last one (or since setup)
   const last = ph.settings.lastBackup, changes = ph.history.filter(x => !last || x.at > last).length, since = day(last || ph.settings.created || today()), snooze = ph.flags?.backupSnooze;
@@ -93,6 +93,8 @@ register('today', {
     open: (c, d) => { const it = items(c.ph, c.drafts).find(i => i.key === d.key); if (it) openItem(c, it); },
     'resume-visit': (c, d) => c.go('visit', { extra: !!d.extra }),
     setupnext: (c, d) => c.ph.services[d.id]?.setup === 'doing' ? c.go('service-setup', { id: d.id }) : c.go('services'),
+    // Stage 3A: each service still to set up on the Finish setting up card opens its own setup questions.
+    setupone: (c, d) => { if (c.ph.services[d.id]) c.go('service-setup', { id: d.id }); },
     allset: c => c.change(ph => { ph.settings.allSetSeen = true; }),
   },
 });

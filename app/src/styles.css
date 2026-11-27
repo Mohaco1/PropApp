@@ -146,6 +146,10 @@ table.cal{width:100%;border-collapse:collapse;font-size:14px} table.cal td,table
 .nav{backdrop-filter:saturate(1.4) blur(8px)}
 .empty-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:18px;background:var(--surface);border:1px dashed var(--line);border-radius:12px}
 .checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.checklist li{display:flex;gap:10px;align-items:baseline}.checklist li .muted{margin-left:auto;font-size:14px}.checklist li.done{color:var(--muted)}
+/* Stage 3A: a sub-heading inside an evidence pack section. */
+.pack .psub{font-size:15px;font-weight:600;margin:12px 0 6px}
+/* Stage 3A: a service still to set up on Today's Finish setting up card is a 44 px tap straight to its setup. */
+.checklist .checkgo{display:flex;gap:10px;align-items:center;width:100%;min-height:44px;margin:0;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}.checklist .checkgo .muted{margin-left:auto;font-size:14px}.checklist .checkgo .muted::after{content:' ›'}
 .facts{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}.facts dt{color:var(--muted);font-size:14px}.facts dd{margin:0}
 .findrow{flex-direction:row;align-items:flex-end;gap:8px}.findrow .field{flex:1;min-width:0}
 .monthnav{display:flex;align-items:center;justify-content:space-between;gap:8px}.monthnav h2{font-size:18px}

@@ -19,7 +19,9 @@ export function ics(ph, drafts) {
     const dates = it.kind === 'person' ? it.parts.filter(x => isDate(x.date)).map((x, i) => [x.date, it.title + ' · ' + x.title, '-' + (x.id || i), x.type === 'action']) : isDate(it.date) ? [[it.date, it.title, '', it.kind === 'action']] : [];
     for (const [d, rawTitle, part, isAction] of dates) {
       // R04: an action's own words can contain anything, so the calendar only says an action is due.
-      const title = isAction ? 'PharmLedger action due · ' + ph.name : rawTitle;
+      // Stage 3A (R04): a staff expiry or annual check leaves the phone without the person's name or which credential it
+      // is, because an external calendar may sync or share it. The app shows who and what when it's opened.
+      const title = isAction ? 'PharmLedger action due · ' + ph.name : it.kind === 'person' ? 'PharmLedger staff check due · ' + ph.name : rawTitle;
       const day = d.replace(/-/g, ''), next = addDays(d, 1).replace(/-/g, '');
       L.push('BEGIN:VEVENT', 'UID:' + esc(ph.id + '-' + (isAction && it.kind === 'person' ? 'action/' + part.slice(1) : it.key + part) + (isAction ? '' : '-' + d)) + '@propapp', 'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
         'DTSTART;VALUE=DATE:' + day, 'DTEND;VALUE=DATE:' + next, 'SUMMARY:' + esc((it.legal ? '[Required by law] ' : '') + title), 'DESCRIPTION:' + esc('Due at ' + ph.name + '. Open PharmLedger to record it.'),

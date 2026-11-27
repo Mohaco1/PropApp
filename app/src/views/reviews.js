@@ -129,11 +129,9 @@ register('review', {
     q: (c, el, r) => { const d = structuredClone(c.draft(dkey(r.id))); const f = Object.fromEntries(new FormData(el.closest('form'))); const s = d.step || 0; const before = d.answers[s];
       d.answers[s] = f.ans || ''; d.issues ??= {}; d.notesQ ??= {}; if ('issue' in f) d.issues[s] = { text: f.issue, due: f.due }; if ('note' in f) d.notesQ[s] = f.note;
       c.saveDraft(dkey(r.id), d); if (before !== d.answers[s]) c.rerender();
-      // B5: a clean answer moves on by itself after a moment; Issue or Incomplete waits for a note. Only if you're still
-      // on this question with this answer (a quick tap on Next never skips one).
-      const ans = d.answers[s], o = questionsFor(r.id)[s]?.options.find(x => x.value === ans);
-      if (before !== ans && o && !o.issue && !/^Incomplete$/.test(ans)) setTimeout(() => { const cur = c.draft(dkey(r.id)), rt = c.route;
-        if (rt?.name === 'review' && rt.id === r.id && cur && (cur.step || 0) === s && cur.answers?.[s] === ans) { const n = structuredClone(cur); n.step = s + 1; c.saveDraft(dkey(r.id), n); c.rerender(); window.scrollTo(0, 0); } }, 600); },
+      // Stage 3A: no auto-advance here. Every clean answer reveals "Note (optional)" (and an issue reveals its fix box and
+      // date), so moving on by itself after 600 ms yanked the owner away before they could read or tap the box. Next moves on.
+    },
     fin: (c, el, r, e) => { const d = structuredClone(c.draft(dkey(r.id))); d.fields = { ...(d.fields || {}), ...Object.fromEntries(new FormData(el.closest('form'))) }; c.saveDraft(dkey(r.id), d); if (r.id === 'B1' && e?.target?.name === 'stockDate') c.rerender(); }, // el is the form; the changed field is e.target
   },
   acts: {
