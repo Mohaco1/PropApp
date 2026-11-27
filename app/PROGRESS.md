@@ -670,3 +670,9 @@ Checked and already passing:
 - M-08: `--accent`/`--teal` Deep Teal #0f766e, `--ocean` navy, navy `--tint`; `a`/`a.btn` styled; Today filter labels wrap at 344 px and sit 2 by 2 in the list pane; Today highlights the open record in split view; "shown above" only with the Quarter Balancer; chevrons on `.docsec`, `.obsrc`, `.src-used`.
 - L-01: `.wm-mark` 56×56 centred; testing hint only in UAT builds; 0-service setup toast; ISO dates formatted in summary.js and model.js.
 - New `tests/batch3.js`. Full test-all once: 34/34 suites plus Check later; procgen identical for all 17. docs/ refreshed.
+
+## Onboarding polish (auto-advance, plan card, keyboard-safe buttons) · 27 Nov 2026 · build f341207867
+- Single-choice setup answers with nothing to type move on after a 140 ms highlight; the last question waits for Finish; Previous and Next stay; one stray Next within 900 ms is ignored.
+- Finish setup shows "Here's your pharmacy plan" (services, procedures to draft, S8 stocktake) with one primary button, Open Today; graceful with 0 services.
+- A focused box on a short screen keeps Continue / Next in view without hiding its label.
+- New `tests/onboarding-polish.js` (28 checks). Full test-all once: 30/35, then 5 suites fixed (tests adapted to auto-advance, plus 2 app refinements) and re-run green with batch1b, setup-questions and onboarding-polish. procgen identical for all 17. docs/ refreshed.

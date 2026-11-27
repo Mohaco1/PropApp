@@ -22,12 +22,12 @@ const next = p => p.getByRole('button', { name: /^(Next|Finish)$/ }).first();
       const t = await text(p); if (/What happens next/.test(t) || !(await next(p).count())) break;
       if (await p.getByRole('button', { name: 'Yes, show those conditions' }).count()) {}
       // LATER=1: answer "Check later" wherever it's offered, so the "to confirm" items go back to their setup questions
-      if (process.env.LATER && await p.locator('main form label', { hasText: /^Check later$/ }).count()) { if (!(await p.locator('main form input:checked').count())) await p.locator('main form label', { hasText: /^Check later$/ }).first().tap(); await p.waitForTimeout(150); await next(p).tap(); await p.waitForTimeout(250); continue; }
+      if (process.env.LATER && await p.locator('main form label', { hasText: /^Check later$/ }).count()) { if (!(await p.locator('main form input:checked').count())) await p.locator('main form label', { hasText: /^Check later$/ }).first().tap(); await p.waitForTimeout(150); if (await next(p).count()) if (await next(p).count()) await next(p).tap(); /* a single choice may already have moved on (onboarding polish) */ await p.waitForTimeout(250); continue; }
       const ch = p.locator('main form label.choice').filter({ hasNotText: /^Check later$/ }), tk = p.locator('main form label.tick').filter({ hasNotText: /^Check later$/ });
       if (await ch.count()) { if (!(await p.locator('main form input[name=v]:checked').count())) await ch.first().tap(); }
       else if (await tk.count()) { if (!(await p.locator('main form input[name=m]:checked').count())) await tk.first().tap(); }
       const d = p.locator('main form input[name=d]'); if (await d.count() && !(await d.inputValue())) { await d.tap(); await p.keyboard.type('Fictional', { delay: 5 }); }
-      await p.waitForTimeout(150); await next(p).tap(); await p.waitForTimeout(250); }
+      await p.waitForTimeout(150); if (await next(p).count()) await next(p).tap(); await p.waitForTimeout(250); }
     if (await p.getByRole('button', { name: /^(Save dates and finish|Finish setup)$/ }).count()) { await p.getByRole('button', { name: /^(Save dates and finish|Finish setup)$/ }).first().tap(); await p.waitForTimeout(250); }
   }
   // each procedure: save the draft, then clear every "to confirm" item through the screens

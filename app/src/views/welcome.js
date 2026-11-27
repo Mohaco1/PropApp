@@ -6,6 +6,10 @@ import { emptyPharmacy, note as log } from '../model.js';
 import { C } from '../content.js';
 import { uid } from '../util.js';
 import { importBackup } from './backup.js';
+import { activeServices, plan, serviceName } from '../rules.js';
+import { reviewDue } from '../summary.js';
+import { fmt } from '../dates.js';
+import { plural } from '../util.js';
 register('welcome', {
   noNav: true,
   render(c) {
@@ -61,10 +65,42 @@ register('welcome', {
       const src = d.copyFrom ? c.store.pharmacy(d.copyFrom) : null;
       if (src) copySetup(src, ph);
       ph.settings.setupDone = true; log(ph, 'Pharmacy set up · ' + ph.name + (src ? ' · setup copied from ' + src.name : ''));
-      c.store.savePharmacy(ph); c.ui.setupStep = 0; c.ui.setup = null; c.store.setPref('setup-draft', undefined); await c.open(ph.id); c.toast(d.services.length ? 'Set up. Next: your services, from Today.' : 'Set up. Add services any time from More → Services.');
+      c.store.savePharmacy(ph); c.ui.setupStep = 0; c.ui.setup = null; c.store.setPref('setup-draft', undefined); await c.open(ph.id); c.go('plan-ready');
     },
   },
 });
+// Onboarding polish: one calm card straight after Finish setup, then Today. Counts come from the pharmacy itself.
+register('plan-ready', {
+  noNav: true,
+  render(c) {
+    const ph = c.ph, svcs = activeServices(ph), drafts = (ph.procedures || []).filter(p => p.status === 'draft').length;
+    const s8 = plan(ph).some(a => a.id === 'B1') ? reviewDue(ph, 'B1') : null;
+    const rows = [
+      ['Services', svcs.length ? plural(svcs.length, 'service') + ' · ' + svcs.map(serviceName).join(', ') : 'None yet. Add them any time from More → Services.'],
+      ['Procedures', drafts ? plural(drafts, 'draft') + ' waiting in Procedures for you to adopt' : svcs.length ? plural(svcs.length, 'procedure') + ' to draft in Procedures, once each service’s questions are answered' : 'Drafted in Procedures once you add a service'],
+      ...(s8 !== null ? [['S8 stocktake', s8 ? 'Next due ' + fmt(s8) : 'Every 3 months. Add your last stocktake date on Today.']] : []),
+    ];
+    return screen({ title: ph.name, body: h`<div class="card plan-card"><h2 class="plan-name">Here’s your pharmacy plan</h2>
+      <dl class="plan-list">${rows.map(([k, v]) => h`<div class="plan-row"><dt>${k}</dt><dd>${v}</dd></div>`)}</dl></div>
+      ${svcs.length ? h`<p class="muted">Each service has a few setup questions. You’ll find them at the top of Today.</p>` : ''}
+      <div class="dock-inline">${btn('Open Today', 'plan-today', { kind: 'primary', cls: 'block' })}</div>` });
+  },
+  acts: { 'plan-today': c => c.tab('today') },
+});
+// Onboarding polish: on a short screen (or with the keyboard up) a focused box never hides the step's main button.
+// The page scrolls just enough to show the button, without pushing the box above the header.
+export function keepButtonInView() {
+  if (window.__plKeep) return; window.__plKeep = true;
+  document.addEventListener('focusin', e => {
+    const t = e.target; if (!t.matches?.('input.input, textarea.input')) return;
+    const fit = () => { if (document.activeElement !== t) return; const b = t.closest('form')?.querySelector('.dock-inline') || t.closest('main')?.querySelector('.btnrow'); if (!b) return;
+      const vv = window.visualViewport, bottom = (vv ? vv.offsetTop + vv.height : innerHeight) - 12, need = b.getBoundingClientRect().bottom - bottom;
+      const room = (t.closest('.field') || t).getBoundingClientRect().top - (document.querySelector('.bar')?.getBoundingClientRect().bottom || 0) - 12;
+      if (need > 0 && room > 0) window.scrollBy(0, Math.min(need, room)); };
+    setTimeout(fit, 60); window.visualViewport?.addEventListener('resize', fit, { once: true });
+  });
+}
+keepButtonInView();
 function copyFrom(c, d) {
   const others = c.store.activeIds().map(id => c.store.pharmacy(id)).filter(Boolean); if (!others.length) return '';
   return h`<div class="card"><p class="field-label">Copy setup from another pharmacy?</p><p class="muted">Copies its services, their setup answers, its procedures (as drafts for you to adopt here) and its quarter rhythm. Records, S8 dates, actions and staff start empty.</p>

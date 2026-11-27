@@ -11,8 +11,8 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Repo | `Mohaco1/PropApp`, branch `main` |
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
-| App build id | **`a78881bc7c`** (Batch 3) |
-| Code commit | Batch 3 commit on `main` (code, docs/ and this file for build a78881bc7c) |
+| App build id | **`f341207867`** (Onboarding polish, on top of Batch 3) |
+| Code commit | Onboarding polish commit on `main` (code, docs/ and this file for build f341207867) |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -69,7 +69,7 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 npm install                      # esbuild (Playwright + Chromium are pre-installed in the cloud box; elsewhere: npm i -D playwright && npx playwright install chromium)
 node tools/make-icons.js         # only when the logo changes -> pwa-assets/icon-180/192/512.png
 node tools/build.js --uat        # build -> dist/ (prints the build id)
-tools/test-all.sh                # all 30 suites + "Check later" variant + procgen parity; one line each
+tools/test-all.sh                # all 35 suites + "Check later" variant + procgen parity; one line each
 node tests/visual.js             # one suite
 node tools/check-procgen-all.js  # "All 17 services identical"
 cp dist/pwa/* ../docs/           # deploy to Pages: then commit and push main
@@ -88,6 +88,11 @@ After deploying, an installed phone app picks up the new version when it's reope
 - Note: `tests/upgrade.js` opens a saved old build (07775c5947) from a fixture, so it still taps the old "Look around an example pharmacy (fictional)" label. Leave that label as it is.
 
 ## 7. What was done this week (newest first)
+0. **Onboarding polish (27 Nov, build `f341207867`): done. Batch 3's Fold-trial readiness still stands.**
+   - **Single-choice auto-advance** (`views/services.js`, `autoAdvances`/`autoNext`): a single-choice setup answer that opens no box to type in (not "Different local arrangement", "Someone else" or "We have our own procedure") is highlighted (`.choice.picked`) and moves to the next question after 140 ms. The last question waits for Finish; "Save and back to the procedure" mode never moves on. Next and Previous stay; one Next tap within 900 ms of an automatic move, with no new answer, is ignored so a habitual tap never skips a question. Ticks and typed boxes still wait for Next. Nothing is answered for the owner.
+   - **Plan card after Finish setup** (`views/welcome.js`, route `plan-ready`): the pharmacy name in the header, then "Here's your pharmacy plan": services (count and names, or "None yet. Add them any time from More → Services."), procedures to draft (or copied drafts to adopt), and the S8 stocktake (next due date, or "Every 3 months. Add your last stocktake date on Today."). One primary button, Open Today. It replaces the old Finish setup toast.
+   - **Keyboard-safe buttons** (`keepButtonInView` in `welcome.js`, used by `services.js`; `styles.css`): focusing a box on a short screen scrolls just enough to show Continue / Next, never past the box's label under the header; inputs carry `scroll-margin`.
+   - Tests: `tests/onboarding-polish.js` (28 checks, in `test-all.sh`). `tests/helpers.js` `tap(p, 'Finish setup')` taps through the plan card; batch3's L-01 check reads the plan card instead of the toast; pharmledger and procedures-all loops tolerate a question that has already moved on.
 0. **Batch 3 (27 Nov, build `a78881bc7c`): done. Ready for the 2-week Galaxy Z Fold trial.**
    - **H-07 fold and unfold:** `app.js` reads every unsaved form field (text, date, select, radio, checkbox) before the fold/unfold redraw and puts it back afterwards with the cursor where it was (`typed`/`retype`), so folding never wipes a half-typed form. Row titles and subtitles use `overflow-wrap: break-word` (no mid-word breaks such as "administratio-n" in the ~300 px list pane; list-pane rows also get a little more room). On a hinged screen the Quarter Balancer stays 2 columns and the welcome screen and bottom sheet sit in the right segment. Reviews, Actions, Staff, Visit, Procedures and Meetings show the open pharmacy under the title when 2+ pharmacies are on the device.
    - **M-08 final colour and polish:** `--accent` and `--teal` are Deep Teal `#0f766e`, `--ocean` navy and `--tint` a navy tint; `a`/`a.btn` links use the tokens, never browser blue. Today's "Waiting · to confirm" chip wraps instead of being cut off at 344 px, and in the unfolded list pane the four filters sit 2 by 2. The record opened from Today is highlighted in Today's list. The Year plan's Align card says "the quarter shown above" only when the Quarter Balancer shows. Procedure sections, "Official source" and "Where it's used" have the same turning chevron as "Why?".
@@ -146,6 +151,8 @@ After deploying, an installed phone app picks up the new version when it's reope
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
+**Onboarding polish, build `f341207867`:** `test-all.sh` run once in full: 30 of 35 suites passed plus procgen; batch1, pharmledger, procedures-all (both variants), batch2a and batch3 failed because their tap-then-Next loops met auto-advance (a move onto the "Where you keep records" or done screen, a second Next swallowed, the old toast). Fixed in the app (last question waits for Finish; only one Next is swallowed) and in those tests; on the final build all of them plus batch1b (a one-off crash in the full run), setup-questions and onboarding-polish pass, and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`. Screenshots `95`–`99` in `app/handoff/`.
+
 **Batch 3, build `a78881bc7c`:** `test-all.sh` run once in full on the final build, no time limit hit: all 34 suites pass (batch3 included) plus Check later, and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`. Ready for the 2-week Fold trial.
 
 **Batch 2B, build `f43df8205e`:** `test-all.sh` run once in full (no time limit hit) on build `589458ee6a`: 32 of 33 suites passed, hardening included, plus Check later; pretrial failed 4 checks that expected an empty Evidence locations section (H-05 now fills it), and `check-procgen-all` showed vaccination and prescribing differing (the intended wording). Fixed with an updated pretrial check and verified-steps pairs; on the final build `f43df8205e` pretrial, batch2b, hardening, procedures-all (and Check later), batch2a and onboard all pass and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`.

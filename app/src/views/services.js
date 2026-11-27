@@ -10,6 +10,8 @@ import { uid } from '../util.js';
 import { catalog, applies, serviceName, suggestedNext, reviewById, s8Max, s8Overdue } from '../rules.js';
 import { today, addDays, fmt } from '../dates.js';
 import { note as log, newAction } from '../model.js';
+import { keepButtonInView } from './welcome.js';
+keepButtonInView();
 const NV = 'Needs verification';
 const procWord = t => String(t).replace(/\(Policies\)/g, '(Procedures)').replace(/\bin Policies\b/g, 'in Procedures');
 const ROLE_SHOW = v => v === 'Pharmacist in charge' ? 'The pharmacist on duty' : v; // owner decision: no pharmacist-in-charge role
@@ -174,7 +176,10 @@ const SETUP = {
     c.change(ph => { const s = ph.services[id]; s.answers = { ...s.answers, [f.key]: v }; if (s.setup === 'todo') s.setup = 'doing';
       if (k === 'routes') { const r = split(v); ph.flags = { ...ph.flags, house: r.includes('house'), routeA: r.includes('routeA'), routeB: r.includes('routeB') }; }
       syncVolume(ph, id); }, '', { redraw: !(typed || quiet) });
-    c.ui['ss:' + id] = idx; if (before !== v && !quiet && !typed) c.rerender(); } },
+    c.ui['ss:' + id] = idx; if (before !== v && !quiet && !typed) c.rerender();
+    // Onboarding polish: a single-choice answer that opens no box to type in moves on by itself after a short highlight,
+    // so one tap answers the question. Next and Previous stay for everything else and for going back.
+    if (!quiet && ev?.target?.name === 'v' && autoAdvances(id, f, k, v) && idx < fs.length - 1 && c.ui.returnTo?.id !== id) autoNext(c, id, idx); } },
   // Owner trial: Next or Previous saves whatever is typed in the box first, so a typed answer is never lost.
 
   forms: { fin: (c, f, el, r) => finishService(c, r.id, f), leadsave: (c, f) => leadSave(c, f, () => c.rerender()) },
@@ -188,7 +193,8 @@ const SETUP = {
     // Chaos test fixes: a second forward tap on Next within 400 ms, with no answer given in between, is ignored (10);
     // Previous is never blocked (hardening brief); and the answer and step are written
     // to storage straight away, so reloading right after Next loses nothing (1).
-    step: (c, d, el, r) => { const now = Date.now(), fwd = +d.s > (c.ui['ss:' + r.id] ?? -1); if (fwd && now - (c.ui.stepAt || 0) < 400 && (c.ui.answerAt || 0) < c.ui.stepAt) return; if (fwd) c.ui.stepAt = now;
+    // After an automatic move on, one Next tap within 900 ms with no new answer was meant for the question just answered.
+    step: (c, d, el, r) => { const now = Date.now(), fwd = +d.s > (c.ui['ss:' + r.id] ?? -1); clearTimeout(c.ui.autoT); if (fwd && now - (c.ui.stepAt || 0) < (c.ui.autoAt === c.ui.stepAt ? 900 : 400) && (c.ui.answerAt || 0) < c.ui.stepAt) { c.ui.autoAt = 0; return; } if (fwd) c.ui.stepAt = now;
       const form = document.querySelector('main form[data-form=next]'), inp = form?.querySelector('input[name=d]'); if (inp && inp.value.trim()) SETUP.changes.ans(c, form, r, { target: inp }, true);
       const s = Math.max(0, +d.s); c.ui['ss:' + r.id] = s; c.change(ph => { ph.services[r.id].pos = s; }); c.store.flush(); window.scrollTo(0, 0); },
     recnow: (c, d, el, r) => c.change(ph => { ph.services[r.id].recIntro = 'now'; }),
@@ -210,6 +216,19 @@ const SETUP = {
       c.back(); } },
 };
 register('service-setup', SETUP);
+// Single choice (and "Draft it for me" / "Check later") with nothing to type: moves on (the last question waits for Finish). "Describe" and "We have our own
+// procedure" open a box, so those wait for Next.
+function autoAdvances(id, f, k, v) {
+  if (!v || !(k === 'single' || k === 'role' || k === 'proc')) return false;
+  if (k === 'proc') return !v.startsWith('We have our own');
+  const m = RPH.qm.metaFor(id, f.key); return !(m.describe || ['Different local arrangement', 'Someone else']).some(o => v.startsWith(o));
+}
+function autoNext(c, id, at) {
+  clearTimeout(c.ui.autoT);
+  document.querySelector('main form[data-form=next] label.choice:has(input:checked)')?.classList.add('picked');
+  c.ui.autoT = setTimeout(() => { const r = c.route; if (r.name !== 'service-setup' || r.id !== id || (c.ui['ss:' + id] ?? -1) !== at) return;
+    SETUP.acts.step(c, { s: at + 1 }, null, r); c.ui.autoAt = c.ui.stepAt; }, 140);
+}
 function svcReviews(ph, id) { return catalog().filter(a => a.service === id); }
 function doneScreen(c, id, prog) {
   const p = serviceProgress(c.ph, id), probe = { ...c.ph, services: { ...c.ph.services, [id]: { ...c.ph.services[id], active: true } } };

@@ -69,9 +69,11 @@ const chevron = (p, sel) => p.evaluate(sel => { const s = document.querySelector
   // L-01: finishing setup with no services says where to add them
   await p.locator('input[name=name]').fill('Banksia Test Pharmacy'); await tap(p, 'Continue'); await p.waitForTimeout(200);
   await p.locator('input[name=owner0]').fill('Sam Example'); await tap(p, 'Continue'); await p.waitForTimeout(200);
-  await tap(p, 'Finish setup'); await p.waitForTimeout(600);
-  const toast = await p.evaluate(() => document.querySelector('.toast')?.innerText || '');
-  ok(/More → Services/.test(toast) && !/your services, from Today/.test(toast), 'L-01 setup with 0 services: the toast points to More → Services (“' + toast + '”)');
+  // Onboarding polish (27 Nov): the plan card after Finish setup now carries this line, in place of the toast.
+  await p.getByRole('button', { name: 'Finish setup', exact: true }).click(); await p.waitForTimeout(600);
+  const toast = await p.evaluate(() => document.querySelector('.plan-card')?.innerText || '');
+  ok(/More → Services/.test(toast) && !/your services, from Today/.test(toast), 'L-01 setup with 0 services: the plan card points to More → Services (“' + toast.replace(/\s+/g, ' ') + '”)');
+  await tap(p, 'Open Today'); await p.waitForTimeout(300);
 
   await b0.close(); }
   // Example pharmacy on the cover screen

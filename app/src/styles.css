@@ -415,3 +415,12 @@ details>summary{list-style:none}details>summary::-webkit-details-marker{display:
 @media screen and (min-width:700px){.pane-master .row{gap:8px;padding-right:8px}.pane-master .row-title{font-size:16px}.pane-master .row-main{min-width:min-content}}
 /* M-08: Today's filters in the ~300 px list pane sit 2 by 2 so no label is cut off */
 @media screen and (min-width:700px){.pane-master .filters{grid-template-columns:repeat(2,minmax(0,1fr))}.pane-master .filters button span{white-space:normal;line-height:1.15}}
+/* Onboarding polish (27 Nov): a single-choice tap shows its pick for ~140 ms before moving on (no motion beyond the
+   colour change); the plan card after Finish setup; a focused box keeps room below for the step's button. */
+.choice.picked{border-color:var(--primary);box-shadow:inset 0 0 0 2px var(--primary);background:var(--tint)}
+.plan-card{gap:12px}.plan-name{margin:0;font-size:19px;font-weight:600}
+.plan-list{margin:0;display:flex;flex-direction:column;gap:12px}
+.plan-row{display:flex;flex-direction:column;gap:2px;padding-top:12px;border-top:1px solid var(--line)}
+.plan-row dt{font-size:13px;font-weight:600;color:var(--muted)}.plan-row dd{margin:0;font-weight:400}
+.form .input,main .input{scroll-margin-top:72px;scroll-margin-bottom:96px}
+.screen:has(.input:focus) .body{padding-bottom:max(24px,env(keyboard-inset-height,0px))}

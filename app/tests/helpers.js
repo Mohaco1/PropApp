@@ -15,7 +15,9 @@ async function phone(opts = {}) {
 let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) fails++; };
 const done = async (b, errors) => { ok(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.slice(0, 3).join(' | ') : '')); await b.close(); console.log(fails ? fails + ' FAILED' : 'ALL PASS'); process.exit(fails ? 1 : 0); };
 // Tap a button by its exact name first (so 'Reviews' means the tab, not a line that mentions reviews), else by partial name.
-const tap = async (p, text, scope = 'body') => { const exact = p.locator(scope).getByRole('button', { name: text, exact: true }); if (await exact.count()) return exact.first().click(); return p.locator(scope).getByRole('button', { name: text }).first().click(); };
+// Onboarding polish: Step 3's Finish setup now shows the plan card first; suites that only need Today tap through it.
+const tap = async (p, text, scope = 'body') => { const exact = p.locator(scope).getByRole('button', { name: text, exact: true }); if (await exact.count()) { await exact.first().click(); if (text === 'Finish setup') await throughPlan(p); return; } return p.locator(scope).getByRole('button', { name: text }).first().click(); };
+const throughPlan = async p => { const b = p.getByRole('button', { name: 'Open Today', exact: true }); try { await b.waitFor({ timeout: 1500 }); } catch { return; } await b.click(); };
 const text = p => p.evaluate(() => document.body.innerText);
 // Tap a Copy button and return what reached the clipboard plus the confirmation shown.
 const copied = async (p, name, scope) => { const before = await p.evaluate(() => window.__clip.length); await tap(p, name, scope); await p.waitForFunction(n => window.__clip.length > n, before); await p.waitForTimeout(80); return { clip: await p.evaluate(() => window.__clip[window.__clip.length - 1]), toast: await p.evaluate(() => document.querySelector('.toast')?.innerText || '') }; };
