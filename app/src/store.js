@@ -51,7 +51,15 @@ export function merge3(b, m, t, at = {}) {
     const ided = xs => xs.every(x => plain(x) && x.id);
     if (ided(m) && ided(t) && (!Array.isArray(b) || ided(b))) { const B = new Map((b || []).map(x => [x.id, x])), M = new Map(m.map(x => [x.id, x])), T = new Map(t.map(x => [x.id, x]));
       const out = []; for (const id of new Set([...M.keys(), ...T.keys()])) { const r = merge3(B.get(id), M.get(id), T.get(id), at); if (r !== undefined) out.push(r); } return out; }
-    const out = [...m]; for (const x of t) if (!out.some(y => same(x, y)) && !(b || []).some(y => same(x, y))) out.push(x); return out;
+    // D3-E: other arrays (strings and the like) merge element by element against the base: an element either side
+    // removed stays removed (an unrelated addition on the other side doesn't bring it back), and each side's additions
+    // are kept. Kept base elements stay in base order, then the additions in a fixed order, so both devices get the
+    // same list whichever way round they merge.
+    const key = x => JSON.stringify(x), B = Array.isArray(b) ? b : [], Mk = new Set(m.map(key)), Tk = new Set(t.map(key)), Bk = new Set(B.map(key));
+    const out = [], seenK = new Set(), add = x => { const k = key(x); if (!seenK.has(k)) { seenK.add(k); out.push(x); } };
+    for (const x of B) if (Mk.has(key(x)) && Tk.has(key(x))) add(x);
+    const adds = [...m, ...t].filter(x => !Bk.has(key(x))).sort((x, y) => (key(x) < key(y) ? -1 : key(x) > key(y) ? 1 : 0));
+    for (const x of adds) add(x); return out;
   }
   if (plain(m) && plain(t)) { const nat = { m: m.updatedAt ?? at.m, t: t.updatedAt ?? at.t }, pb = plain(b) ? b : undefined;
     const out = {}; for (const k of new Set([...Object.keys(m), ...Object.keys(t)])) { const r = merge3(pb ? pb[k] : undefined, m[k], t[k], nat); if (r !== undefined) out[k] = r; }

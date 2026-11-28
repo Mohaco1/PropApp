@@ -87,6 +87,13 @@ const legacyPh = () => ({
   const hb = { history: [{ id: 'h1', what: 'x' }] };
   r = S.merge3(hb, { history: [...hb.history, { id: 'h2', what: 'mine' }] }, { history: [...hb.history, { id: 'h3', what: 'theirs' }] });
   ok(J(r.history.map(x => x.id)) === J(['h1', 'h2', 'h3']), '2. new history lines from both sides are kept, by id');
+  // D3-E: string arrays merge element by element against the base, in both device orders
+  const sb = { tags: ['a', 'b', 'c'] }, sRem = { tags: ['a', 'c'] }, sAdd = { tags: ['a', 'b', 'c', 'd'] };
+  const sx = S.merge3(sb, sRem, sAdd).tags, sy2 = S.merge3(sb, sAdd, sRem).tags;
+  ok(J(sx) === J(['a', 'c', 'd']) && J(sy2) === J(sx), '2. D3-E a remote removal is not brought back by an unrelated local addition, either device order (' + J(sx) + ' / ' + J(sy2) + ')');
+  const s2a = S.merge3(sb, { tags: ['b', 'c', 'x'] }, { tags: ['a', 'b', 'y'] }).tags, s2b = S.merge3(sb, { tags: ['a', 'b', 'y'] }, { tags: ['b', 'c', 'x'] }).tags;
+  ok(J(s2a) === J(['b', 'x', 'y']) && J(s2b) === J(s2a), '2. D3-E both sides removing and adding different elements converge (' + J(s2a) + ')');
+  ok(J(S.merge3(sb, { tags: ['a', 'b', 'c', 'd'] }, { tags: ['a', 'b', 'c', 'd'] }).tags) === J(['a', 'b', 'c', 'd']) && J(S.merge3(sb, { tags: ['a', 'b', 'c', 'd'] }, { tags: ['b', 'c', 'd'] }).tags) === J(['b', 'c', 'd']), '2. D3-E the same addition on both sides is kept once; one side removing and both adding the same element keeps it once');
   // D3-C edge cases (pure)
   const tA = S.merge3(live, { ...live, name: 'B' }, { ...live, name: 'C' }), tB = S.merge3(live, { ...live, name: 'C' }, { ...live, name: 'B' });
   ok(tA.name === tB.name && tA.name === 'C', '2. D3-C an equal-updatedAt scalar conflict resolves the same way on both devices');

@@ -3,6 +3,7 @@
 import { esc } from './util.js';
 import { copyText } from './clip.js';
 import * as store from './store.js';
+import { forgetAll } from './sync.js';
 import { deletable } from './views/settings.js';
 // C-05: Reset is for test copies only. It's blocked while any real pharmacy (not test or fictional, with records) is here.
 export const realPharmacies = () => { try { return store.dir().ids.map(id => store.pharmacy(id)).filter(p => p && !deletable(p) && !p.flags?.example && !/\bFictional\b/i.test(p.address || '')); } catch { return []; } };
@@ -32,8 +33,9 @@ export async function initUat(pageName) {
     dlg.querySelector('[data-clear]').onclick = async () => { if (!dlg.dataset.armClear) { dlg.dataset.armClear = '1'; draw(); return; } delete dlg.dataset.armClear;
       if (db) { for (const n of notes) if (n.id) { try { await db.collection('uatnotes').doc(n.id).delete(); } catch {} } } else { localStorage.removeItem(KEY); notes = []; } notes = db ? notes.filter(n => !n.id) : []; draw(); paint(); };
     const rb = dlg.querySelector('[data-reset]'); if (rb) rb.onclick = async () => { if (realPharmacies().length) { delete dlg.dataset.armReset; draw(); return; } if (!dlg.dataset.armReset) { dlg.dataset.armReset = '1'; draw(); return; }
+      try { forgetAll(); } catch {} // D3-E: the sign-in, the synced account and any unused sign-in link go too
       await new Promise(res => { try { const r = indexedDB.deleteDatabase('propapp'); r.onsuccess = r.onerror = r.onblocked = () => res(); } catch { res(); } });
-      for (const k of Object.keys(localStorage)) if (k.startsWith('propapp:') || k.startsWith('propapp-journal:') || k.startsWith('propapp-restored:')) localStorage.removeItem(k); location.reload(); };
+      for (const k of Object.keys(localStorage)) if (k.startsWith('propapp:') || k.startsWith('propapp-journal:') || k.startsWith('propapp-restored:') || k === 'propapp-auth-session' || k === 'propapp-sync-account') localStorage.removeItem(k); try { sessionStorage.removeItem('propapp-pending-magic'); } catch {} location.reload(); };
   };
   btn.onclick = () => { draw(); dlg.showModal(); };
   // Setup-question marks (UAT only): "Could be usual" / "Must always ask" / "No opinion", saved with the notes.

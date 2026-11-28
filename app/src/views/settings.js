@@ -60,7 +60,12 @@ register('backup', {
 // D3-C: sync across devices, in the installable app only. Calm and short: what it does, then one way to start.
 const SYNC_ERR = { offline: 'You’re offline. Try again when you’re back online.', busy: 'Too many links asked for just now. Wait a few minutes, then try again.', email: 'That email address wasn’t accepted. Check it and try again.', server: 'Couldn’t reach the sync service just now. Try again later.', 'too-big': 'A pharmacy is too large to sync. Your records are safe on this phone.', limit: 'This account has reached its limit of pharmacies. Your records are safe on this phone.' };
 function syncCard() { const st = sync.status();
-  if (st.signedIn) { const line = st.state === 'syncing' ? 'Syncing…' : st.state === 'offline' ? 'Offline. It syncs when you’re back online.' : st.state === 'error' ? 'Couldn’t sync just now. ' + (SYNC_ERR[st.error] || '') : st.lastSyncAt ? 'Up to date · last synced ' + fmt(day(st.lastSyncAt)) + '.' : 'Signed in. Not synced yet.';
+  // D3-E: "Up to date" only after a pass where the server acknowledged every pharmacy and saving here finished.
+  const nf = Object.keys(st.failed || {}).length, why = SYNC_ERR[st.error] || SYNC_ERR.server;
+  if (st.signedIn) { const line = st.state === 'syncing' ? 'Syncing…' : st.state === 'offline' ? 'Offline. It syncs when you’re back online.' : st.state === 'error' ? 'Couldn’t sync just now. ' + why
+      : st.state === 'partial' ? 'Synced ' + st.synced + ' of ' + st.total + ' pharmacies. ' + (nf === 1 ? '1 couldn’t sync: ' : nf + ' couldn’t sync: ') + why.charAt(0).toLowerCase() + why.slice(1)
+      : st.state === 'pending' ? 'Not up to date yet. ' + (st.waiting.length === 1 ? '1 pharmacy has' : st.waiting.length + ' pharmacies have') + ' changes waiting to sync; it tries again shortly.'
+      : st.state === 'synced' && st.lastSyncAt ? 'Up to date · last synced ' + fmt(day(st.lastSyncAt)) + '.' : st.lastSyncAt ? 'Last synced ' + fmt(day(st.lastSyncAt)) + '.' : 'Signed in. Not synced yet.';
     const other = sync.otherAccountCount();
     const otherNote = other ? h`${note((other === 1 ? '1 pharmacy on this phone was' : other + ' pharmacies on this phone were') + ' synced with a different email. ' + (other === 1 ? 'It stays here and isn’t synced' : 'They stay here and aren’t synced') + ' unless you add ' + (other === 1 ? 'it' : 'them') + ' to this account.', 'warn')}${btn(other === 1 ? 'Add it to this account' : 'Add them to this account', 'syncattach', { kind: 'link' })}` : '';
     return h`<div class="card" id="sync"><h2>Sync across devices</h2><p class="muted" role="status">${line}</p><p class="muted">Your other devices signed in with the same email see the same records.</p>${otherNote}

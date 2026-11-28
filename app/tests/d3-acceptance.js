@@ -14,6 +14,13 @@
 // F. (D3-D) A backup restored over a synced deletion (its updatedAt older than the deletion) is not deleted again by the
 //    other device that holds the older tombstone; the restore carries restoredAt and restoredOver.
 // G. (D3-D) An empty device signs in and finds the account's pharmacies (GET /v1/vault), and one created later elsewhere.
+// D3-E: A also checks the 2 s retry backoff and that same-origin /api/* and /v1/* GETs and pages (online and offline)
+//    always pass the offline worker; B adds distinct action-log lines and procedure versions on both devices and
+//    checks their exact ids and contents; D delivers late successful answers after Disconnect and after an account
+//    switch, runs the single-file checks on this run's own build and checks app/dist matches a fresh build.
+// H. (D3-E) A refused pharmacy (413) doesn't stop the others (partial status); three 409s in a row stay "Not up to date
+//    yet" until the server acks; a sign-in link is checked before the ordinary sync; Disconnect reaches other tabs; UAT
+//    Reset test data clears the sign-in, the synced account and a pending link.
 const esbuild = require('esbuild'); const path = require('path'); const fs = require('fs'); const os = require('os');
 const http = require('http'); const { execFileSync } = require('child_process');
 const { chromium } = require('playwright');
@@ -35,18 +42,32 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
   // ── servers: static app on one port, API on another (a different origin, as GitHub Pages and the API will be)
   const types = { '.html': 'text/html', '.js': 'text/javascript', '.webmanifest': 'application/manifest+json', '.png': 'image/png' };
   let PWA = '';
+  // D3-E: same-origin /api/* and /v1/* on the app's own host (a controlled stand-in): /…/ping answers with a counter,
+  // anything else there is a 404. The offline worker must pass every one of them straight through.
+  const hits = { api: 0, v1: 0 };
   const stat = http.createServer((q, r) => { let f = decodeURIComponent(q.url.split('?')[0]); if (f === '/') f = '/index.html';
+    const own = /^\/(api|v1)\//.exec(f); if (own) { if (f === '/' + own[1] + '/ping') { hits[own[1]]++; r.writeHead(200, { 'content-type': 'text/plain', 'cache-control': 'no-store' }); return r.end('pong-' + own[1] + '-' + hits[own[1]]); } r.writeHead(404, { 'content-type': 'text/plain' }); return r.end('no such ' + own[1] + ' path'); }
     const p = path.join(PWA, f); if (!PWA || !p.startsWith(PWA) || !fs.existsSync(p) || fs.statSync(p).isDirectory()) { r.writeHead(404); return r.end(); }
     r.writeHead(200, { 'content-type': types[path.extname(p)] || 'application/octet-stream', 'cache-control': 'no-cache' }); fs.createReadStream(p).pipe(r); });
   const SPORT = await listen(stat), SITE = 'http://127.0.0.1:' + SPORT, URL = SITE + '/';
-  let app = null; const log = [], held = [], holds = new Set(); let force503 = 0;
+  let app = null, APP_URL = '', racer = null; const log = [], held = [], holds = new Set(), force = [], late = new Set(), lateHeld = []; let force503 = 0;
   const api = http.createServer((req, res) => {
-    const pth = req.url.split('?')[0], entry = { method: req.method, path: pth, status: 0, aborted: false }; log.push(entry);
+    const pth = req.url.split('?')[0], entry = { method: req.method, path: pth, status: 0, aborted: false, t: Date.now() }; log.push(entry);
     res.on('finish', () => { entry.status = res.statusCode; }); res.on('close', () => { if (!res.writableEnded) entry.aborted = true; });
     if (req.method === 'POST' && pth === '/v1/auth/verify' && force503 > 0) { force503--; req.resume(); res.writeHead(503, { 'Access-Control-Allow-Origin': SITE, 'Content-Type': 'application/json', Vary: 'Origin' }); return res.end('{"error":"unavailable"}'); }
+    const cors = { 'Access-Control-Allow-Origin': SITE, 'Content-Type': 'application/json', Vary: 'Origin' };
+    // D3-E: a forced answer for one pharmacy (e.g. 413), and a "racing" other device that writes before each push.
+    const f = force.find(x => x.n > 0 && x.method === req.method && x.path === pth); if (f) { f.n--; req.resume(); res.writeHead(f.status, cors); return res.end(J(f.body || {})); }
+    if (racer && req.method === 'POST') racer(pth);
     if (req.method !== 'OPTIONS' && [...holds].some(h => pth.startsWith(h))) { held.push({ req, res, entry }); return; }
+    // D3-E: a late answer: the server answers now (successfully, for the session as it is now), the device gets it later.
+    if (req.method !== 'OPTIONS' && [...late].some(h => pth.startsWith(h))) { const chunks = []; req.on('data', c => chunks.push(c)); req.on('end', async () => {
+      const hd = {}; for (const k of ['authorization', 'if-none-match', 'content-type', 'origin']) if (req.headers[k]) hd[k] = req.headers[k];
+      const r2 = await fetch(APP_URL + req.url, { method: req.method, headers: hd, body: chunks.length ? Buffer.concat(chunks) : undefined });
+      lateHeld.push({ res, entry, status: r2.status, body: Buffer.from(await r2.arrayBuffer()), etag: r2.headers.get('etag') }); }); return; }
     app.server.emit('request', req, res);
   });
+  const releaseLate = () => { for (const h of lateHeld.splice(0)) { h.res.writeHead(h.status, { 'Access-Control-Allow-Origin': SITE, 'Content-Type': 'application/json', Vary: 'Origin', ...(h.etag ? { ETag: h.etag } : {}) }); h.res.end(h.status === 304 ? undefined : h.body); } };
   const APORT = await listen(api), API_ORIGIN = 'http://127.0.0.1:' + APORT;
   const release = () => { for (const h of held.splice(0)) if (!h.entry.aborted) app.server.emit('request', h.req, h.res); };
 
@@ -57,7 +78,7 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
   const idx = fs.readFileSync(path.join(PWA, 'index.html'), 'utf8');
   ok(idx.includes(`connect-src 'self' ${API_ORIGIN};`) && idx.includes(`window.PROPAPP_PWA=true;window.PROPAPP_API=${J(API_ORIGIN)};`), '0. the built app allows only its own origin and the API in connect-src and carries PROPAPP_API');
   ok(/connect-src 'none'/.test(fs.readFileSync(path.join(OUT, 'propapp-standalone.html'), 'utf8')) && !/PROPAPP_API=|PROPAPP_PWA=/.test(fs.readFileSync(path.join(OUT, 'propapp-standalone.html'), 'utf8')), '0. the single-file app keeps connect-src none and has no API origin');
-  ok(/\/\(\^\|\\\/\)v1\(\\\/\|\$\)\/\.test\(u\.pathname\)\) return;/.test(fs.readFileSync(path.join(PWA, 'sw.js'), 'utf8')), '0. the offline worker returns early for /v1/ paths (never answers or caches them)');
+  ok(fs.readFileSync(path.join(PWA, 'sw.js'), 'utf8').includes("/(^|\\/)(v1|api)(\\/|$)/.test(u.pathname)) return;"), '0. the offline worker returns early for /v1/ and /api/ paths (never answers or caches them)');
   let bad = 0; try { execFileSync(process.execPath, [path.join(APPDIR, 'tools/build.js')], { env: { ...process.env, PROPAPP_API_ORIGIN: 'http://api.example.com', PROPAPP_OUT_DIR: path.join(TMP, 'bad') }, stdio: 'pipe' }); } catch { bad = 1; }
   ok(bad === 1 && !fs.existsSync(path.join(TMP, 'bad')), '0. build refuses an API origin that is not https:// or http://127.0.0.1:<port>');
 
@@ -66,8 +87,11 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
   await esbuild.build({ entryPoints: [path.join(ROOT, 'phase-d3/server/src/app.ts')], bundle: true, platform: 'node', target: 'node22', format: 'esm', outfile: sbundle, logLevel: 'silent' });
   const A = await import('file://' + sbundle);
   const mailer = A.memoryMailer();
-  app = A.createServerApp({ dbPath: path.join(TMP, 'pl.db'), emailIndexKey: 'email-key-' + 'a'.repeat(40), logHmacKey: 'log-key-' + 'b'.repeat(40), extraOrigins: [SITE], mailer, logWrite: () => {}, appUrl: URL });
-  await app.listen(0, '127.0.0.1');
+  // D3-E: the server's clock runs ahead 16 minutes before each extra sign-in link this test asks for, so the
+  // per-address and per-IP link limits (3 and 10 per 15 minutes) don't refuse the later tests' links.
+  let skew = 0; const skip15 = () => { skew += 16 * 60000; };
+  app = A.createServerApp({ clock: () => Date.now() + skew, dbPath: path.join(TMP, 'pl.db'), emailIndexKey: 'email-key-' + 'a'.repeat(40), logHmacKey: 'log-key-' + 'b'.repeat(40), extraOrigins: [SITE], mailer, logWrite: () => {}, appUrl: URL });
+  APP_URL = 'http://127.0.0.1:' + (await app.listen(0, '127.0.0.1')).port;
   const linkFor = email => { const m = [...mailer.outbox].reverse().find(x => x.to === email.toLowerCase()); return m && (/#magic=(ml_[A-Za-z0-9_-]+)/.exec(m.text) || [])[1]; };
   const vault = (acc, id) => app.store.getVault(acc, id);
 
@@ -86,10 +110,13 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
     const ctx = await br.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, locale: 'en-AU', timezoneId: 'Australia/Sydney', serviceWorkers: sw ? 'allow' : 'block' });
     await ctx.addInitScript(() => { const ev = window.__ev = []; const rs = history.replaceState.bind(history); history.replaceState = function (...a) { ev.push({ k: 'scrub', url: String(a[2]), hash: location.hash }); return rs(...a); };
       const io = indexedDB.open.bind(indexedDB); indexedDB.open = function (...a) { ev.push({ k: 'idb', hash: location.hash }); return io(...a); };
-      addEventListener('securitypolicyviolation', e => console.error('CSP violation: ' + e.violatedDirective + ' ' + e.blockedURI)); });
+      addEventListener('securitypolicyviolation', e => console.error('CSP violation: ' + e.violatedDirective + ' ' + e.blockedURI));
+      // D3-E: with __keepLate set, a request is not cancelled by the app's abort, so a late answer still reaches the
+      // app and only its session and sequence checks can keep it out.
+      const f0 = window.fetch.bind(window); window.fetch = (u, init) => { if (window.__keepLate && init?.signal) { const { signal, ...rest } = init; init = rest; } return f0(u, init); }; });
     const p = await ctx.newPage(), failed = [];
     p.on('console', m => { if (m.type() !== 'error') return; const t = m.text(), u = m.location()?.url || '';
-      if (/^Failed to load resource: the server responded with a status of (409|503)/.test(t) && u.startsWith(API_ORIGIN)) allowed.push(name + ' ' + t.slice(60) + ' ' + u.slice(API_ORIGIN.length)); else errors.push(name + ': ' + t); });
+      if ((/^Failed to load resource: the server responded with a status of (409|413|503)/.test(t) && u.startsWith(API_ORIGIN)) || (/^Failed to load resource: (the server responded with a status of 404|net::ERR_INTERNET_DISCONNECTED)/.test(t) && /^\/(api|v1)\//.test(u.slice(SITE.length)) && u.startsWith(SITE))) allowed.push(name + ' ' + t.slice(60) + ' ' + u.slice(API_ORIGIN.length)); else errors.push(name + ': ' + t); });
     p.on('pageerror', e => errors.push(name + ': ' + e.message)); p.on('requestfailed', r => failed.push({ url: r.url(), method: r.method(), err: r.failure()?.errorText || '' }));
     await p.goto(URL); await p.waitForTimeout(400); return { name, ctx, p, failed };
   };
@@ -127,10 +154,26 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
   const sA = await until(() => session(a.p), 12000);
   const verifies = log.filter(x => x.path === '/v1/auth/verify' && x.method === 'POST');
   ok(sA && /^pl_sess_/.test(sA.sessionToken) && verifies.length === vBefore + 2 && verifies.at(-2).status === 503 && verifies.at(-1).status === 200, 'A. on reconnect it verified automatically: 503 kept the link, the retry got 200 (' + verifies.slice(vBefore).map(x => x.status).join(', ') + ')');
+  const gap = verifies.at(-1).t - verifies.at(-2).t;
+  ok(gap >= 1900 && gap < 3900, 'A. the retry after the 503 waited the first backoff step, about 2 s (' + gap + ' ms)');
   ok(await a.p.evaluate(() => sessionStorage.getItem('propapp-pending-magic')) === null && (await a.p.evaluate(() => location.hash)) === '', 'A. the link is cleared after 200');
   const reuse = await fetch(API_ORIGIN + '/v1/auth/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: J({ token: tokA }) });
   ok(reuse.status === 401, 'A. the used link no longer works (401)');
-  ok(!(await a.p.evaluate(async () => (await Promise.all((await caches.keys()).map(async k => (await (await caches.open(k)).keys()).map(r => r.url)))).flat().some(u => u.includes('/v1/')))), 'A. nothing from /v1/ is in the offline cache');
+  // D3-E: same-origin /api/* and /v1/* GETs go past the offline worker every time, online and offline.
+  const twice = await a.p.evaluate(async () => { const g = async u => (await (await fetch(u)).text()); return [await g('/api/ping'), await g('/api/ping'), await g('/v1/ping'), await g('/v1/ping')]; });
+  ok(J(twice) === J(['pong-api-1', 'pong-api-2', 'pong-v1-1', 'pong-v1-2']) && hits.api === 2 && hits.v1 === 2, 'A. same-origin GET /api/ping and /v1/ping reach the server every time through the worker (' + twice.join(', ') + ')');
+  const isShell = t => /propapp-build|<div id="app">/.test(t);
+  const nav = async u => { try { await a.p.goto(SITE + u); return await a.p.content(); } catch (e) { return 'ERR ' + e.message.split('\n')[0]; } };
+  const nApi = await nav('/api/missing'), nV1 = await nav('/v1/missing');
+  ok(/no such api path/.test(nApi) && /no such v1 path/.test(nV1) && !isShell(nApi) && !isShell(nV1), 'A. online, opening a missing /api/ or /v1/ page shows the server’s 404, never the cached app page');
+  await a.p.goto(URL); await a.p.waitForTimeout(400); await a.ctx.setOffline(true);
+  const offFetch = await a.p.evaluate(async () => { const out = []; for (const u of ['/api/ping', '/v1/ping']) { try { const r = await fetch(u); out.push('got ' + r.status + ' ' + (await r.text()).slice(0, 40)); } catch (e) { out.push('failed'); } } return out; });
+  ok(J(offFetch) === J(['failed', 'failed']), 'A. offline, GET /api/ping and /v1/ping fail as network errors instead of getting a cached answer (' + offFetch.join(', ') + ')');
+  const oApi = await nav('/api/ping'), oV1 = await nav('/v1/anything');
+  try { await a.p.goto(URL); } catch {} await a.p.waitForTimeout(600); const oApp = await a.p.content();
+  ok(!isShell(oApi) && !isShell(oV1) && isShell(oApp), 'A. offline, opening an /api/ or /v1/ page never gets the cached app page (the app itself still opens offline) [' + [oApi, oV1, oApp].map(x => x.slice(0, 70)).join(' | ') + ']');
+  await a.ctx.setOffline(false); await a.p.goto(URL); await a.p.waitForTimeout(300);
+  ok(!(await a.p.evaluate(async () => (await Promise.all((await caches.keys()).map(async k => (await (await caches.open(k)).keys()).map(r => r.url)))).flat().some(u => /\/(v1|api)\//.test(u)))), 'A. nothing from /v1/ or /api/ is in the offline cache');
   await a.ctx.close();
 
   // ══ Test B: two devices, one backup, divergent offline edits
@@ -151,6 +194,19 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
   await b1.ctx.setOffline(true); await b2.ctx.setOffline(true);
   await openMore(b1.p, /^Pharmacy details/); await b1.p.locator('input[name=address]').fill('1 Test Street, Testville (fictional)'); await tapB(b1.p, 'Save'); await b1.p.waitForTimeout(300);
   await openMore(b2.p, /^Pharmacy details/); await b2.p.locator('input[name=identifier]').fill('TEST-42'); await tapB(b2.p, 'Save'); await b2.p.waitForTimeout(300);
+  // D3-E: each device also adds its own action-log line (Waiting on someone) to the same action and its own procedure
+  // version (Edit › Save as new version) to the same procedure, offline.
+  const FRIDGE = Object.values(JSON.parse(fs.readFileSync(F1, 'utf8')).pharmacy.actions).find(x => /Fridge min\/max/.test(x.title)).id;
+  const addLog = async (p, asked) => { await tapB(p, 'Actions'); await p.waitForTimeout(250); await p.locator('.list .row', { hasText: 'Fridge min/max' }).first().click(); await p.waitForTimeout(300);
+    await tapB(p, 'Waiting on someone'); await p.waitForTimeout(200); await p.locator('textarea[name=asked]').fill(asked); await tapB(p, 'Save'); await p.waitForTimeout(300); };
+  const addVersion = async (p, line) => { await openMore(p, /^Procedures/); await p.locator('[data-id="otp"]').first().click(); await p.waitForTimeout(300); await tapB(p, 'Edit'); await p.waitForTimeout(300);
+    const ta = p.locator('textarea[name=body]'); await ta.fill((await ta.inputValue()) + '\n' + line); await tapB(p, 'Save as new version'); await p.waitForTimeout(300); };
+  await addLog(b1.p, 'Asked the relief pharmacist on device 1 (fictional)'); await addLog(b2.p, 'Asked the weekend assistant on device 2 (fictional)');
+  await addVersion(b1.p, 'Device 1 step (fictional).'); await addVersion(b2.p, 'Device 2 step (fictional).');
+  const baseF1 = JSON.parse(fs.readFileSync(F1, 'utf8')).pharmacy, baseLogIds = baseF1.actions[FRIDGE].log.map(l => l.id), baseVerIds = baseF1.procedures.find(x => x.service === 'otp').versions.map(v => v.id);
+  const newOf = async p => { const ph = (await saved(p))['propapp:ph:' + PH1]; return { log: ph.actions[FRIDGE].log.filter(l => !baseLogIds.includes(l.id)), ver: ph.procedures.find(x => x.service === 'otp').versions.filter(v => !baseVerIds.includes(v.id)), hist: ph.history.filter(h => !baseF1.history.some(b => b.id === h.id)).map(h => h.id) }; };
+  const n1 = await newOf(b1.p), n2 = await newOf(b2.p);
+  ok(n1.log.length === 1 && n2.log.length === 1 && n1.ver.length === 1 && n2.ver.length === 1 && n1.log[0].id !== n2.log[0].id && n1.ver[0].id !== n2.ver[0].id && /device 1/.test(n1.log[0].text) && /device 2/.test(n2.log[0].text) && /Device 1 step/.test(n1.ver[0].body) && /Device 2 step/.test(n2.ver[0].body), 'B. offline, each device added one distinct action-log line and one distinct procedure version (' + [n1.log[0]?.id, n2.log[0]?.id, n1.ver[0]?.id, n2.ver[0]?.id].map(x => String(x).slice(0, 8)).join(', ') + ')');
   await b1.p.waitForTimeout(1800);
   ok(vault(s1.accountId, PH1).rev === 1, 'B. offline edits on both devices sent nothing');
   await b1.ctx.setOffline(false);
@@ -168,9 +224,14 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
   ok(d1.address === '1 Test Street, Testville (fictional)' && d1.identifier === 'TEST-42', 'B. both offline edits survived the merge');
   const uniq = xs => new Set(xs).size === xs.length;
   const base = JSON.parse(fs.readFileSync(F1, 'utf8')).pharmacy;
-  ok(uniq(d1.history.map(h => h.id)) && d1.history.length === base.history.length + 2, 'B. history: every id once, both new lines kept (' + base.history.length + ' → ' + d1.history.length + ')');
+  ok(uniq(d1.history.map(h => h.id)) && J(d1.history.map(h => h.id).sort()) === J([...base.history.map(h => h.id), ...n1.hist, ...n2.hist].sort()), 'B. history: every id once, every new line from both devices kept (' + base.history.length + ' → ' + d1.history.length + ')');
   ok(Object.values(d1.actions).every(x => uniq((x.log || []).map(l => l.id))) && Object.keys(d1.actions).length === Object.keys(base.actions).length, 'B. no duplicate action or action.log ids');
   ok(d1.procedures.every(p => uniq(p.versions.map(v => v.id))) && uniq(d1.procedures.map(p => p.id)), 'B. no duplicate procedures or procedure versions');
+  const byId = xs => Object.fromEntries(xs.map(x => [x.id, canon(x)]));
+  const mLog = d1.actions[FRIDGE].log, mVer = d1.procedures.find(x => x.service === 'otp').versions;
+  ok(J(mLog.map(l => l.id).sort()) === J([...baseLogIds, n1.log[0].id, n2.log[0].id].sort()) && byId(mLog)[n1.log[0].id] === canon(n1.log[0]) && byId(mLog)[n2.log[0].id] === canon(n2.log[0]), 'B. the action log holds exactly the ' + baseLogIds.length + ' earlier lines plus both devices’ new lines, each unchanged (' + mLog.length + ')');
+  ok(J(mVer.map(v => v.id).sort()) === J([...baseVerIds, n1.ver[0].id, n2.ver[0].id].sort()) && byId(mVer)[n1.ver[0].id] === canon(n1.ver[0]) && byId(mVer)[n2.ver[0].id] === canon(n2.ver[0]), 'B. the OTP procedure holds exactly the earlier version plus both devices’ new versions, each unchanged (' + mVer.map(v => v.v).join(', ') + ')');
+  ok(canon(d2.actions[FRIDGE].log) === canon(mLog) && canon(d2.procedures.find(x => x.service === 'otp').versions) === canon(mVer), 'B. …in the same order on both devices');
 
   // ══ Test C: delete wins over the other device's stale offline edit
   await switchTo(b2.p, 'Second Test Pharmacy');
@@ -239,9 +300,39 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
   ok(await d.p.locator('form[data-form=synclink]').count() === 1 && /Sync across devices/.test(await d.p.evaluate(() => document.body.innerText)), 'D. Backup and devices offers the sign-in link again');
   const small = await d.p.evaluate(() => [...document.querySelectorAll('#sync button, #sync input')].filter(el => el.getBoundingClientRect().height < 44 || el.getBoundingClientRect().right > innerWidth + 0.5).length);
   ok(small === 0 && await d.p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'D. the sync section’s controls are 44 px or taller and nothing scrolls sideways');
+  // 4. D3-E: a late but successful answer, delivered after Disconnect and after an account switch, is never applied.
+  const signInLink = async (p, email) => { skip15(); const before = mailer.outbox.length;
+    await fetch(API_ORIGIN + '/v1/auth/magic-link', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: SITE }, body: J({ email }) });
+    await until(() => mailer.outbox.length > before); return linkFor(email); };
+  const verifyTok = async tok => (await fetch(API_ORIGIN + '/v1/auth/verify', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: SITE }, body: J({ token: tok }) })).json();
+  await d.p.goto('about:blank'); await d.p.goto(URL + '#magic=' + await signInLink(d.p, ED));
+  const sD2 = await until(() => session(d.p)); await until(async () => !log.some(x => !x.status && !x.aborted && (x.path.startsWith('/v1/sync/') || x.path === '/v1/vault')), 6000); await d.p.waitForTimeout(300);
+  const lateCase = async (label, interrupt) => {
+    const before = await saved(d.p), head = vault(sD2.accountId, PH1), revBefore = before['propapp:sync:' + PH1]?.rev;
+    // another device writes first, so the (late) answer carries new content the guards must keep out
+    app.store.putVault(sD2.accountId, PH1, head.rev, { ...head.pharmacy, name: 'Late answer ' + label + ' (fictional)', updatedAt: new Date().toISOString() }, null, null, Date.now());
+    await d.p.evaluate(() => { window.__keepLate = true; }); late.add('/v1/sync/' + PH1);
+    await openMore(d.p, /^Backup and devices/); await tapB(d.p, 'Sync now');
+    const lh = await until(() => lateHeld.length && lateHeld[0]);
+    const carried = lh && lh.status === 200 && /Late answer/.test(lh.body.toString());
+    await interrupt(); late.clear(); releaseLate();
+    await until(() => lh.entry.status === 200 && !lh.entry.aborted, 4000); await d.p.waitForTimeout(500);
+    const after = await saved(d.p);
+    await d.p.evaluate(() => { window.__keepLate = false; });
+    return { delivered: !!carried && lh.entry.status === 200 && !lh.entry.aborted, unchanged: canon(after['propapp:ph:' + PH1]) === canon(before['propapp:ph:' + PH1]) && (after['propapp:sync:' + PH1]?.rev) === revBefore && !/Late answer/.test(await d.p.evaluate(() => document.body.innerText)) };
+  };
+  const lc1 = await lateCase('after disconnect', async () => { await tapB(d.p, 'Disconnect'); await d.p.waitForTimeout(200); });
+  ok(lc1.delivered && lc1.unchanged, 'D. a successful GET /v1/sync answer that arrives after Disconnect is not applied (record, sync rev and screen unchanged)');
+  await d.p.goto('about:blank'); await d.p.goto(URL + '#magic=' + await signInLink(d.p, ED)); await until(() => session(d.p));
+  await until(async () => !log.some(x => !x.status && !x.aborted && (x.path.startsWith('/v1/sync/') || x.path === '/v1/vault')), 6000); await d.p.waitForTimeout(300);
+  const other = await verifyTok(await signInLink(d.p, 'owner.d2@example.com'));
+  const lc2 = await lateCase('after account switch', async () => { await d.p.evaluate(o => localStorage.setItem('propapp-auth-session', JSON.stringify({ sessionToken: o.sessionToken, accountId: o.accountId, expiresAt: o.expiresAt })), other); });
+  const sNow = await session(d.p);
+  ok(lc2.delivered && lc2.unchanged && sNow?.sessionToken === other.sessionToken, 'D. a successful answer for the earlier session that arrives after another account signed in is not applied, and the newer sign-in is kept');
+  await d.p.evaluate(() => localStorage.removeItem('propapp-auth-session'));
   await d.ctx.close();
 
-  const signInFresh = async (d, email) => { const before = mailer.outbox.length;
+  const signInFresh = async (d, email) => { skip15(); const before = mailer.outbox.length;
     await fetch(API_ORIGIN + '/v1/auth/magic-link', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: SITE }, body: J({ email }) });
     await until(() => mailer.outbox.length > before); await d.p.goto('about:blank'); await d.p.goto(URL + '#magic=' + linkFor(email)); return until(() => session(d.p)); };
   const idle = () => until(async () => !log.some(x => !x.status && !x.aborted && (x.path.startsWith('/v1/sync/') || x.path === '/v1/vault')), 6000);
@@ -317,16 +408,73 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
   ok(await until(async () => { const a = await saved(g.p); return a['propapp:ph:' + PH3]?.name === 'Third Test Pharmacy (fictional)' && a['propapp:dir'].ids.includes(PH3) && a['propapp:dir'].active === PH1; }, 8000), 'G. the next sync finds it too (listed; the open pharmacy stays open)');
   await g.ctx.close();
 
+  // ══ Test H (D3-E): one refused pharmacy doesn't stop the others; "Up to date" only once the server has acked;
+  //    a sign-in link settles before the ordinary sync; Disconnect reaches the other tab; UAT reset signs out.
+  const EH = 'owner.h@example.com', h = await device('H');
+  await restore(h.p, F1, true); await restore(h.p, F2, false);
+  const sH = await signIn(h, EH); await idle();
+  ok(!!sH && await until(() => vault(sH.accountId, PH1).rev === 1 && vault(sH.accountId, PH2).rev === 1, 8000), 'H. signed in and synced both pharmacies'); await idle();
+  const syncLine = () => h.p.evaluate(() => document.querySelector('#sync [role=status]')?.innerText || '');
+  const editBoth = async tag => { for (const nm of ['Banksia Test Pharmacy', 'Second Test Pharmacy']) { await switchTo(h.p, nm); await idle(); await openMore(h.p, /^Pharmacy details/); await h.p.locator('input[name=address]').fill(tag + ' ' + nm + ' (fictional)'); await tapB(h.p, 'Save'); await h.p.waitForTimeout(200); } };
+  force.push({ method: 'POST', path: '/v1/sync/' + PH1, status: 413, body: { error: 'too_large' }, n: 50 });
+  await editBoth('Partial'); await h.p.waitForTimeout(1800); await idle();
+  await openMore(h.p, /^Backup and devices/); await tapB(h.p, 'Sync now'); await idle(); await h.p.waitForTimeout(300);
+  const lineP = await syncLine();
+  ok(vault(sH.accountId, PH1).rev === 1 && vault(sH.accountId, PH2).rev === 2 && /^Partial/.test(vault(sH.accountId, PH2).pharmacy.address), 'H. the first pharmacy is refused (413) and the second still syncs (rev 2)');
+  ok(/^Synced 1 of 2 pharmacies\. 1 couldn’t sync: a pharmacy is too large to sync/.test(lineP) && !/Up to date/.test(lineP), 'H. Backup and devices shows a partial sync, not “Up to date” (“' + lineP + '”)');
+  await shot(h.p, 'd3e_sync_partial_390px.png');
+  force.length = 0; await tapB(h.p, 'Sync now'); await idle(); await h.p.waitForTimeout(300);
+  ok(vault(sH.accountId, PH1).rev === 2 && /Up to date/.test(await syncLine()), 'H. once the server takes it, both are synced and it says Up to date');
+  // three 409s in a row (another device keeps writing first): stays "Not up to date yet" until the server acks
+  let races = 0; racer = pth => { if (pth !== '/v1/sync/' + PH1 || races >= 3) return; races++; const v = vault(sH.accountId, PH1); app.store.putVault(sH.accountId, PH1, v.rev, { ...v.pharmacy, owner: 'Other device ' + races + ' (fictional)', updatedAt: new Date().toISOString() }, null, null, Date.now()); };
+  await switchTo(h.p, 'Banksia Test Pharmacy'); await idle(); await openMore(h.p, /^Pharmacy details/); await h.p.locator('input[name=address]').fill('Racing edit (fictional)'); await tapB(h.p, 'Save');
+  await openMore(h.p, /^Backup and devices/);
+  const linePend = await until(async () => { const l = await syncLine(); return races >= 3 && /Not up to date yet/.test(l) ? l : null; }, 8000);
+  ok(!!linePend && !/Up to date ·/.test(linePend) && (await saved(h.p))['propapp:ph:' + PH1].address === 'Racing edit (fictional)', 'H. after a third 409 in a row the pharmacy stays waiting (“' + linePend + '”), never “Up to date”');
+  racer = null;
+  ok(await until(async () => /Up to date/.test(await syncLine()) && vault(sH.accountId, PH1).pharmacy.address === 'Racing edit (fictional)', 12000), 'H. it tries again by itself and says Up to date once the server holds this phone’s copy');
+  // a sign-in link opened while already signed in: the ordinary sync waits, so it can't cut the link's check short
+  await idle(); holds.add('/v1/auth/verify');
+  const tokH2 = await signInLink(h.p, 'owner.h2@example.com'), t0 = Date.now();
+  await h.p.goto('about:blank'); await h.p.goto(URL + '#magic=' + tokH2);
+  const hv = await until(() => held.find(x => x.entry.path === '/v1/auth/verify' && x.entry.t >= t0));
+  await h.p.waitForTimeout(600);
+  const syncedMeanwhile = log.some(x => x.t >= t0 && (x.path === '/v1/vault' || x.path.startsWith('/v1/sync/')));
+  holds.delete('/v1/auth/verify'); release();
+  const sH2 = await until(async () => { const z = await session(h.p); return z && z.sessionToken !== sH.sessionToken ? z : null; }, 6000);
+  ok(!!hv && !syncedMeanwhile && hv.entry.status === 200 && !hv.entry.aborted && !!sH2 && sH2.accountId !== sH.accountId, 'H. with an earlier sign-in on the device, the new link is checked first (no sync meanwhile) and signs in (200, not aborted)');
+  // Disconnect in one tab reaches the other tab
+  const hTab = await h.ctx.newPage(); hTab.on('pageerror', e => errors.push('H tab 2: ' + e.message)); await hTab.goto(URL); await hTab.waitForTimeout(500);
+  await openMore(hTab, /^Backup and devices/); await openMore(h.p, /^Backup and devices/); await idle();
+  holds.add('/v1/vault'); await tapB(h.p, 'Sync now'); const hh = await until(() => held.find(x => x.entry.path === '/v1/vault' && !x.entry.aborted));
+  await tapB(hTab, 'Disconnect');
+  ok(!!hh && await until(() => hh.entry.aborted, 4000) && await until(() => h.p.evaluate(() => !!document.querySelector('form[data-form=synclink]')), 4000), 'H. Disconnect in another tab stops this tab’s sync and shows it signed out here too');
+  holds.clear(); release(); await hTab.close();
+  // UAT Reset test data clears the sign-in, the synced account and a pending link before it reloads
+  await h.p.goto('about:blank'); await h.p.goto(URL + '#magic=' + await signInLink(h.p, EH)); await until(() => session(h.p)); await idle();
+  await h.p.evaluate(() => sessionStorage.setItem('propapp-pending-magic', 'ml_not_a_real_link'));
+  await h.p.locator('#uat-btn').click(); await h.p.waitForTimeout(200);
+  const rb = h.p.locator('#uat-dlg [data-reset]'), hadReset = await rb.count();
+  if (hadReset) { await rb.click(); await h.p.waitForTimeout(150); await h.p.locator('#uat-dlg [data-reset]').click(); await h.p.waitForLoadState('load'); await h.p.waitForTimeout(800); }
+  const wiped = await h.p.evaluate(() => ({ s: localStorage.getItem('propapp-auth-session'), a: localStorage.getItem('propapp-sync-account'), m: sessionStorage.getItem('propapp-pending-magic'), ph: Object.keys(localStorage).filter(k => k.startsWith('propapp:ph:')).length }));
+  ok(hadReset === 1 && wiped.s === null && wiped.a === null && wiped.m === null && await h.p.getByRole('button', { name: 'Try example' }).count() === 1, 'H. UAT Reset test data signs out: no propapp-auth-session, propapp-sync-account or pending link, back at the welcome screen');
+  await h.ctx.close();
+
   // ── the single-file app: connect-src 'none' and no network at all
   const sf = await br.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, locale: 'en-AU', timezoneId: 'Australia/Sydney' });
   const sp = await sf.newPage(), reqs = []; sp.on('request', r => reqs.push(r.url())); sp.on('console', m => { if (m.type() === 'error') errors.push('standalone: ' + m.text()); }); sp.on('pageerror', e => errors.push('standalone: ' + e.message));
-  const STAND = path.join(APPDIR, 'dist/propapp-standalone.html');
+  const STAND = path.join(OUT, 'propapp-standalone.html'); // D3-E: the build made by this run
   await sp.goto('file://' + STAND); await sp.waitForTimeout(300);
   await tapB(sp, 'Try example'); await sp.waitForTimeout(1200);
   await openMore(sp, /^Backup and devices/);
   const csp = await sp.evaluate(() => document.querySelector('meta[http-equiv=Content-Security-Policy]')?.content || '');
-  ok(/connect-src 'none'/.test(csp) && await sp.evaluate(() => !window.PROPAPP_API && !window.PROPAPP_PWA && !document.getElementById('sync')), 'D. dist/propapp-standalone.html: connect-src none, no API origin, no sync section');
+  ok(/connect-src 'none'/.test(csp) && await sp.evaluate(() => !window.PROPAPP_API && !window.PROPAPP_PWA && !document.getElementById('sync')), 'D. the freshly built single-file app: connect-src none, no API origin, no sync section');
   ok(reqs.length > 0 && reqs.every(u => /^(file|data|blob):/.test(u)), 'D. the single-file app made zero network requests (' + reqs.length + ' file/data loads)');
+  // D3-E: the checked-in app/dist files are exactly what the build script makes now (UAT build, real API origin).
+  const PAR = path.join(TMP, 'parity'); const { PROPAPP_API_ORIGIN, ...env0 } = process.env;
+  execFileSync(process.execPath, [path.join(APPDIR, 'tools/build.js'), '--uat'], { env: { ...env0, PROPAPP_OUT_DIR: PAR }, stdio: 'pipe' });
+  const same = f => fs.readFileSync(path.join(PAR, f), 'utf8') === fs.readFileSync(path.join(APPDIR, 'dist', f), 'utf8');
+  ok(same('propapp-standalone.html') && same('propapp.html') && same('pwa/index.html') && same('pwa/sw.js'), 'D. checked-in app/dist (standalone, page, pwa/index.html, pwa/sw.js) matches a fresh --uat build of this source');
   const real = fs.readFileSync(path.join(APPDIR, 'dist/pwa/index.html'), 'utf8');
   ok(real.includes("connect-src 'self' https://api.pharmledger.com.au;") && real.includes('window.PROPAPP_API="https://api.pharmledger.com.au"'), 'D. the real dist/pwa build points at https://api.pharmledger.com.au only');
   await sf.close();

@@ -175,8 +175,8 @@ export async function start(el) {
   // D3-C: sign in with a pending link, and sync, at start and whenever the phone comes back online (installable app only).
   // The sync section of Backup and devices redraws when the sign-in or sync state changes.
   sync.watch(() => { if (S.ph && ctx.route.name === 'backup') { const keep = typed(); render(); retype(keep); } });
-  sync.verifyPendingMagic(reload); sync.syncAll(reload);
-  addEventListener('online', () => { sync.verifyPendingMagic(reload); sync.syncAll(reload); });
+  sync.resume(reload); // D3-E: a sign-in link waiting to be checked settles first, then the ordinary sync runs
+  addEventListener('online', () => sync.resume(reload));
   addEventListener('hashchange', () => { if (sync.captureMagicHash()) sync.verifyPendingMagic(reload); }); // a link opened in this same tab
   if (window.PROPAPP_UAT && sync.canNetwork()) window.pharmledgerTest = { topic }; // UAT build only: lets tests ask for a topic
 }
