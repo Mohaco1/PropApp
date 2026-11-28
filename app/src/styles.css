@@ -552,3 +552,25 @@ fieldset.review-question .chips{clear:both}
 .brief-line.bad .brief-date{color:var(--bad)}.brief-line.warn .brief-date{color:var(--warn)}
 .brief-line:active{background:#edf3f4}
 .brief-quiet{margin:0;min-height:44px;display:flex;align-items:center;padding:0 0 0 12px;color:#526575;font-size:15px}
+
+/* Counter Quick-Answer (28 Nov, owner brief). Swiss Clinical: no cards, one answer with a straight 3 px Navy bar,
+   its legal basis in Deep Teal, 44 px+ chips that wrap (never a sideways scroll at 344 px). */
+.barbtns{display:inline-flex;gap:0;margin-left:auto;flex:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.qa-form{display:flex;flex-direction:column;gap:4px}
+.qa-form .hint{margin-top:0}
+.qa-chips{display:flex;flex-wrap:wrap;gap:8px;min-width:0}
+.qa-chip{min-height:44px;max-width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:0;background:var(--surface);color:var(--fg);font:inherit;font-size:14px;font-weight:400;text-align:left;cursor:pointer;overflow-wrap:anywhere}
+.qa-chip.on{border-color:var(--navy);box-shadow:inset 3px 0 0 #0f766e;color:var(--navy);font-weight:600}
+.qa-chip:focus-visible{outline:3px solid #0f766e;outline-offset:2px}
+.qa-answer{margin:0;padding:4px 0 4px 16px;border-left:3px solid var(--navy);border-radius:0;background:none;box-shadow:none;display:flex;flex-direction:column;gap:8px;min-width:0}
+.qa-q{margin:0;font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--navy)}
+.qa-text{margin:0;font-size:16px;line-height:1.5;overflow-wrap:anywhere}
+.qa-cite{margin:0;font-size:14px;color:var(--muted);overflow-wrap:anywhere;display:flex;flex-wrap:wrap;align-items:center;column-gap:12px}
+.qa-law{color:#0f766e;font-weight:600}
+.qa-cite .linkbtn{display:inline-flex;min-height:44px}
+#qa-out:empty{display:none}
+.qa-go{align-self:flex-start;max-width:100%;border-radius:0}
+.qa-also{margin:0;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;color:var(--muted);font-size:14px}
+.qa-miss{padding:4px 0 4px 16px;border-left:3px solid #0f766e;display:flex;flex-direction:column;gap:4px}
+.qa-miss p{margin:0}

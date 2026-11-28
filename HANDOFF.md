@@ -11,8 +11,8 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Repo | `Mohaco1/PropApp`, branch `main` |
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
-| App build id | **`93a45a70b4`** (Stage 3G-B: four 3G-A CSS regressions and six 3E–3F logic bugs fixed, on top of Stage 3G-A) · **Stage 3G-B complete: `main` is frozen for the Galaxy Z Fold trial** |
-| Code commit | Stage 3G-B commit on `main` (code, docs/ and this file for build 93a45a70b4) |
+| App build id | **`cc1ba6a381`** (Stage 3H: Walk-In Briefing strip and Counter Quick-Answer merged onto Stage 3G-B, plus the inline error for a refused document link) |
+| Code commit | Stage 3H commit on `main` (code, docs/ and this file for build cc1ba6a381) |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -62,6 +62,7 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
   - obligations (legal obligations), contacts, incidents, locations, s8, history, search;
   - backup (backup, restore, install), pharmacies, allsites (2+ pharmacies), pack (inspector evidence pack, printable);
   - updates and lawsources/sources, onboard (per-service "Onboard me" guides).
+- **Today extras (Stage 3H):** the Walk-In Briefing strip under the date line (`briefing()` in `summary.js`); ask ("Quick answers", `views/ask.js` + `src/assistant.js`) from a header button on Today and the first row of More.
 - **Other:** welcome ("Centered Calm") and its 3 setup steps; visit (site visit); review/record (review forms, quick list); person/annual/leaving/locum (staff).
 
 ## 5. Commands (run from `app/`)
@@ -88,6 +89,10 @@ After deploying, an installed phone app picks up the new version when it's reope
 - Note: `tests/upgrade.js` opens a saved old build (07775c5947) from a fixture, so it still taps the old "Look around an example pharmacy (fictional)" label. Leave that label as it is.
 
 ## 7. What was done this week (newest first)
+0. **Stage 3H · Walk-In Briefing, Quick answers and the link-save fix on `main` (28 Nov, build `cc1ba6a381`): done.**
+   - Merged `feat/walk-in-briefing` (96b6598) and `feat/proprietor-assistant` (5f2e41d). Conflicts were additive only: both CSS blocks kept at the end of `styles.css`, both PROGRESS entries kept, `briefing` and `assistant` both in `test-all.sh`. `today.js` merged cleanly: the strip sits under the date line and the header carries Quick answers + Search (`.barbtns`).
+   - Brought over only the document-link fix from `phase-d3` (a3d06ee), no D3 sync work: a refused link in `docref` is an inline `.err` under Link (not a toast), so a Save within 800 ms after it isn't swallowed by the double-tap guard (`parity`).
+   - Checked at 344×882 and 840×900: no sideways scroll and nothing cut off on Today, Quick answers and More; no console errors. Targeted runs (briefing, assistant, parity, visual, foldable, stage3gb, gates) green, then `test-all.sh` once: 47 of 47.
 0. **Stage 3G-B · CSS regressions and P2 logic bugs (28 Nov, build `93a45a70b4`): done.**
    - CSS (Stage 3G-B block at the end of `styles.css`): `.row+.rowwrap` has no border-top, so every divider is 1 px; the legacy active-tile tint is scoped to `.filters:not(.today-index)`, so the open Waiting and All tabs stay transparent; unfolded, `.pane-master .row-right.row-date` has `min-width:min-content` so "Overdue" never crosses the Defer border; unfolded, both bars are 76 px with 4 px block padding on `.bar-title`, so the 2-pharmacy `.sw-pill` ring isn't clipped and the seam still meets at 0 px.
    - Takeover (`rules.js`): marking a takeover stores `inherited.at`; a B1 stock check dated the takeover day counts only if recorded at or after that time (`takeoverStockDone`), so the previous owner's same-day stocktake can't hide the s 111(3) inventory. Older takeovers without a time keep the earlier reading.
@@ -204,6 +209,8 @@ After deploying, an installed phone app picks up the new version when it's reope
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
+**Stage 3H, build `cc1ba6a381`:** `test-all.sh` run once in full on the `--uat` build: all 47 suites passed (briefing and assistant included), exit 0, and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`.
+
 **Stage 3G-B, build `93a45a70b4`:** `test-all.sh` run once in full on the `--uat` build: 43 of 44 suites passed (stage3gb included) plus Check later, and `check-procgen-all` shows all 17 identical. gates failed 2 checks (Bug 4, light and dark) that read contrast against the open All tile's own fill, which is now transparent by design; the check now reads the first painted background behind the tab, and gates re-run alone: all pass. `docs/` refreshed from `dist/pwa/`.
 
 **Stage 3G-A, build `5e52df28b2`:** `test-all.sh` run once in full on the `--uat` build: 42 of 43 suites passed plus Check later, and `check-procgen-all` shows all 17 identical. theme failed 2 checks that asserted the replaced look (tinted Overdue/This week chips, 22×2.5 gradient nav pill); both updated to the Stage 3G-A spec and theme re-run alone: all pass. `docs/` refreshed from `dist/pwa/`.

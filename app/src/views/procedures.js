@@ -142,6 +142,8 @@ register('docref', {
       ${field('Where it is kept or its reference', textInput('ref', d.ref || ''))}${field('Version (optional)', textInput('version', d.version || ''))}
       ${field('Kept by (optional)', textInput('owner', d.owner || ''))}${field('Review date (optional)', textInput('reviewDate', d.reviewDate || '', { type: 'date' }))}
       <div class="dock-inline">${btn('Save', null, { kind: 'primary', type: 'submit' })}</div></form>` }); },
-  forms: { save: (c, f, el, r) => { if (f.url?.trim() && !safeUrl(f.url)) { c.toast('Use a web link starting with https://'); return; }
+  forms: { save: (c, f, el, r) => { el.querySelector('.err')?.remove(); el.querySelector('input[name=url]')?.removeAttribute('aria-invalid');
+    // An inline error (not a toast) so the next Save isn't taken as a double tap by the 800 ms guard in app.js.
+    if (f.url?.trim() && !safeUrl(f.url)) { const u = el.querySelector('input[name=url]'); u?.insertAdjacentHTML('afterend', '<span class="err" role="alert">Use a web link starting with https://</span>'); u?.setAttribute('aria-invalid', 'true'); u?.focus(); return; }
     c.change(ph => { let d = ph.documents.find(x => x.id === r.id); if (!d) { d = { id: uid() }; ph.documents.push(d); } Object.assign(d, { title: f.title.trim(), url: f.url.trim(), ref: f.ref.trim(), version: f.version.trim(), owner: f.owner.trim(), reviewDate: f.reviewDate }); log(ph, 'Document reference saved · ' + d.title); }, 'Saved'); c.back(); } },
 });

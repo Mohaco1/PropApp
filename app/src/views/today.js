@@ -66,7 +66,8 @@ function brief(b) {
 }
 export function switcher(c) {
   const n = c.store.dir().ids.length;
-  return h`<button class="iconbtn" data-act="go" data-to="search" aria-label="Search">${icon('search')}</button>`;
+  // Counter Quick-Answer: a second header button, so Today's first screen is unchanged.
+  return h`<span class="barbtns"><button class="iconbtn" data-act="go" data-to="ask" aria-label="Quick answers">${icon('ask')}</button><button class="iconbtn" data-act="go" data-to="search" aria-label="Search">${icon('search')}</button></span>`;
 }
 register('today', {
   tab: 'today',
