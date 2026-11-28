@@ -790,4 +790,4 @@ Checked and already passing:
 
 ## Merge main (Stage 3H) into phase-d3 · 28 Nov 2026 · build f8194cba56 (UAT)
 - Merged origin/main 88c8574 (Walk-In Briefing, Counter Quick-Answer, Stage 3H) into phase-d3 a3d06ee. Conflicts: `test-all.sh` runs briefing and assistant before the three D3 suites; PROGRESS keeps both histories; `app/dist` rebuilt with `--uat`. The document-link fix was already on both sides and merged cleanly. All D3 sync, schema v2, server, SW and CSP work unchanged. `docs/` kept at phase-d3's version (main's docs refresh not brought in).
-- Targeted: briefing, assistant, parity, d3-server, d3a-schema, d3-acceptance green. Full test-all once: 49/49 plus Check later ALL PASS, procgen 17 identical.
+- Targeted: briefing, assistant, parity, d3-server, d3a-schema, d3-acceptance green. Full test-all once: 48/48 suites plus Check later ALL PASS, procgen 17 identical.
