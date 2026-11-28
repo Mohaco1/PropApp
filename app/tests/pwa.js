@@ -4,7 +4,7 @@ const { chromium } = require('playwright'); const http = require('http'); const 
 const { ok, tap, done } = require('./helpers.js');
 const DIR = path.resolve(__dirname, '../dist/pwa');
 let swOverride = null;
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.webmanifest': 'application/manifest+json', '.png': 'image/png' };
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml' };
 const server = http.createServer((q, r) => { let f = decodeURIComponent(q.url.split('?')[0]); if (f === '/') f = '/index.html';
   if (f === '/sw.js' && swOverride) { r.writeHead(200, { 'content-type': 'text/javascript', 'cache-control': 'no-cache' }); return r.end(swOverride); }
   const p = path.join(DIR, f); if (!p.startsWith(DIR) || !fs.existsSync(p)) { r.writeHead(404); return r.end(); }
@@ -15,8 +15,10 @@ const server = http.createServer((q, r) => { let f = decodeURIComponent(q.url.sp
   const p = await ctx.newPage(); const errors = []; p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); }); p.on('pageerror', e => errors.push(e.message));
   await p.goto(URL); await p.waitForTimeout(500);
   // manifest and icons
-  const man = await p.evaluate(async () => { const l = document.querySelector('link[rel=manifest]'); const m = await (await fetch(l.href)).json(); const icons = await Promise.all(m.icons.map(async i => (await fetch(i.src)).status)); return { m, icons, apple: (await fetch(document.querySelector('link[rel=apple-touch-icon]').href)).status }; });
-  ok(man.m.display === 'standalone' && man.m.start_url === './' && man.m.scope === './' && man.m.theme_color === '#0f2942' && man.icons.every(s => s === 200) && man.apple === 200, 'V3-01 manifest: standalone, relative start and scope, theme #005792, 192 and 512 icons and the Apple icon served');
+  const man = await p.evaluate(async () => { const l = document.querySelector('link[rel=manifest]'); const m = await (await fetch(l.href)).json(); const icons = await Promise.all(m.icons.map(async i => (await fetch(i.src)).status)); return { m, icons, apple: (await fetch(document.querySelector('link[rel=apple-touch-icon]').href)).status, favs: await Promise.all([...document.querySelectorAll('link[rel=icon]')].map(async l => (await fetch(l.href)).status)), title: document.title, appTitle: document.querySelector('meta[name=apple-mobile-web-app-title]').content }; });
+  ok(man.m.display === 'standalone' && man.m.start_url === './' && man.m.scope === './' && man.m.theme_color === '#0f2942' && man.icons.every(s => s === 200) && man.apple === 200, 'V3-01 manifest: standalone, relative start and scope, theme #0f2942, 192 and 512 icons and the Apple icon served');
+  ok(man.m.name === 'PharmLedger' && man.m.short_name === 'PharmLedger' && man.m.background_color === '#fafaf8' && man.title === 'PharmLedger' && man.appTitle === 'PharmLedger', 'PWA name: PharmLedger in the manifest, the page title and the Home Screen title; ivory background');
+  ok(['any', 'maskable'].every(pp => [192, 512].every(n => man.m.icons.some(i => i.purpose === pp && i.sizes === n + 'x' + n))) && man.m.icons.filter(i => i.purpose === 'maskable').every(i => /icon-maskable-/.test(i.src)) && man.favs.length === 2 && man.favs.every(s => s === 200), 'PWA icons: separate maskable icons (192, 512) with their own safe-zone files, SVG and 32 px favicons served');
   const sw = await p.evaluate(async () => { const r = await navigator.serviceWorker.ready; return { scope: r.scope, state: r.active?.state, csp: document.querySelector('meta[http-equiv=Content-Security-Policy]').content }; });
   ok(sw.state === 'activated' && /worker-src 'self'/.test(sw.csp) && /connect-src 'self'/.test(sw.csp), 'V3-01 the offline worker registers and activates under the CSP (worker-src and connect-src self only)');
   // records, then offline reload

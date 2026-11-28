@@ -5,7 +5,7 @@ const { chromium } = require('playwright'); const http = require('http'), fs = r
 const { ok, done } = require('./helpers.js');
 const OLD = fs.mkdtempSync(path.join(os.tmpdir(), 'sigil-old-')), NEW = path.resolve(__dirname, '../dist/pwa'), ROOT = path.resolve(__dirname, '../..');
 for (const f of ['index.html', 'manifest.webmanifest', 'sw.js', 'icon-180.png', 'icon-192.png', 'icon-512.png']) fs.writeFileSync(path.join(OLD, f), execFileSync('git', ['-C', ROOT, 'show', 'e7c88d2:docs/' + f], { maxBuffer: 64 * 1024 * 1024 }));
-let DIR = OLD; const T = { '.html': 'text/html', '.js': 'text/javascript', '.webmanifest': 'application/manifest+json', '.png': 'image/png' };
+let DIR = OLD; const T = { '.html': 'text/html', '.js': 'text/javascript', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml' };
 const srv = http.createServer((q, r) => { let u = decodeURIComponent(q.url.split('?')[0]); if (!u.startsWith('/PropApp/')) { r.writeHead(404); return r.end(); } u = u.slice(8); if (u === '/') u = '/index.html';
   const f = path.join(DIR, u); if (!fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'content-type': T[path.extname(f)] || 'application/octet-stream', 'cache-control': 'no-cache' }); fs.createReadStream(f).pipe(r); });
 const build = p => p.evaluate(() => document.querySelector('meta[name=propapp-build]')?.content);

@@ -3,7 +3,7 @@
 // are cache-first. Old shell caches (propapp-shell-*) are removed when a new version activates.
 const SHELL = 'propapp-shell-__BUILD__';
 const BUILD = '__BUILD__';
-const FILES = ['./manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
+const FILES = ['./manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-192.png', './icon-maskable-512.png', './apple-touch-icon.png', './favicon.svg', './favicon-32.png'];
 // Stage 3D: a page is stored as the shell only if it is this worker's own build (its propapp-build marker matches), so
 // an error page, a half-deployed copy or another build is never what opens offline.
 const marker = t => (/<meta name="propapp-build" content="([0-9a-f]+)"/.exec(t) || [])[1] || '';
