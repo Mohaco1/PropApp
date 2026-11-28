@@ -2,7 +2,7 @@
 import { register } from '../app.js';
 import { h, raw } from '../util.js';
 import { screen, row, btn, empty, icon } from '../ui.js';
-import { items, ranked, counts, sentence, inWeek } from '../summary.js';
+import { items, ranked, counts, sentence, inWeek, briefing } from '../summary.js';
 import { fmt, dueText, today, daysBetween, isDate, day } from '../dates.js';
 import { C } from '../content.js';
 import { undated } from './services.js';
@@ -57,9 +57,17 @@ function notice(c, list) {
     return h`<button class="siteline" data-act="go" data-to="allsites">${tot === 1 ? '1 overdue' : tot + ' overdue'} across your ${ids.length} pharmacies · see all</button>`; }
   return '';
 }
+// Walk-In Briefing: an open ruled strip of at most three lines (S8, one job, handover), or one quiet line. Read-only:
+// each line only opens the screen where the owner acts.
+function brief(b) {
+  const line = (x, act, data) => h`<button class="brief-line ${x.tone || ''}" data-act="${act}" ${raw(Object.entries(data).map(([k, v]) => `data-${k}="${String(v).replace(/"/g, '&quot;')}"`).join(' '))}><span class="brief-main"><span class="brief-title">${x.title}</span>${x.sub ? h`<span class="brief-sub">${x.sub}</span>` : ''}</span>${x.right ? h`<span class="brief-date">${x.right}</span>` : ''}</button>`;
+  const lines = [b.s8 && line(b.s8, 'open', { key: b.s8.key, slot: 's8' }), b.job && line(b.job, 'open', { key: b.job.key, slot: 'job' }), b.handover && line(b.handover, 'go', { to: 'visit-start', slot: 'handover' })].filter(Boolean);
+  return h`<section class="brief" aria-label="Walk-in briefing">${lines.length ? lines : h`<p class="brief-quiet" data-slot="quiet">${b.quiet.title}</p>`}</section>`;
+}
 export function switcher(c) {
   const n = c.store.dir().ids.length;
-  return h`<button class="iconbtn" data-act="go" data-to="search" aria-label="Search">${icon('search')}</button>`;
+  // Counter Quick-Answer: a second header button, so Today's first screen is unchanged.
+  return h`<span class="barbtns"><button class="iconbtn" data-act="go" data-to="ask" aria-label="Quick answers">${icon('ask')}</button><button class="iconbtn" data-act="go" data-to="search" aria-label="Search">${icon('search')}</button></span>`;
 }
 register('today', {
   tab: 'today',
@@ -67,10 +75,13 @@ register('today', {
     const all = items(c.ph, c.drafts), n = counts(all), f = c.ui.todayFilter || (n.overdue ? 'overdue' : 'all');
     const pick = f === 'all' ? all.filter(i => i.bucket !== 'tocheck') : f === 'week' ? all.filter(inWeek) : f === 'waiting' ? all.filter(i => i.waiting || i.bucket === 'tocheck') : f === 'nodate' ? all.filter(i => i.bucket === 'nodate') : all.filter(i => i.bucket === f);
     const cnt = { overdue: n.overdue, week: all.filter(inWeek).length, waiting: n.waiting + n.tocheck, all: n.all - n.tocheck };
-    const s = sentence(all, c.ph), s8first = s.s8;
+    const s = sentence(all, c.ph), b = briefing(c.ph, today());
+    // say it once: the strip carries the stocktake prompt and the first job, so the status line doesn't repeat them
+    const s8first = b.s8?.kind === 'missing' ? null : s.s8, startShown = s.start && [b.s8?.key, b.job?.key].includes(s.start.key);
     const list = ranked(pick);
     return screen({ title: 'Today', sub: c.ph.name, right: switcher(c), body: h`
-      <p class="status"><span class="date">${fmt(today(), { weekday: true })}</span><span class="${s.tone}">${s.text}</span>${s.start && s.tone !== 'ok' ? h` Start with <button class="inline-link" data-act="open" data-key="${s.start.key}">${s.start.title}</button>.` : ''}</p>
+      <p class="status"><span class="date">${fmt(today(), { weekday: true })}</span><span class="${s.tone}">${s.text}</span>${s.start && s.tone !== 'ok' && !startShown ? h` Start with <button class="inline-link" data-act="open" data-key="${s.start.key}">${s.start.title}</button>.` : ''}</p>
+      ${brief(b)}
       ${s8first ? h`<p class="s8first"><button class="inline-link" data-act="open" data-key="${s8first.key}">Add your last S8 stocktake date</button></p>` : ''}
       ${installLine(c)}${notice(c, all)}
       <div class="filters today-index" role="tablist">${FILTERS.map(([k, l, aria]) => h`<button role="tab" aria-selected="${String(k === f)}" class="${k === f ? 'on' : ''}${k === 'overdue' && cnt[k] > 0 ? ' has' : ''}" data-act="filter" data-f="${k}"${aria ? raw(` aria-label="${cnt[k]} ${aria}"`) : ''}><b>${cnt[k]}</b><span>${l}</span></button>`)}</div>

@@ -1,7 +1,7 @@
 // THE one place that decides what is due, overdue, started or undated. Every count on every screen comes from here
 // (design rule 8), so Today, Reviews, Actions, Calendar and Staff always agree.
-import { plan, reviewById, s8Limit, latestStockCheck } from './rules.js';
-import { today, addDays, addMonths, isDate, daysBetween, day, fmt } from './dates.js';
+import { plan, reviewById, s8Limit, s8Takeover, latestStockCheck } from './rules.js';
+import { today, addDays, addMonths, isDate, daysBetween, day, fmt, dueText } from './dates.js';
 import { requirements, credentialState } from './model.js';
 import { plural } from './util.js';
 export function bucket(date, t = today()) {
@@ -108,3 +108,68 @@ export { reviewById };
 // version in use, whichever is later.
 export function procReviewDue(p) { const ad = (p.versions || []).filter(v => v.status === 'Adopted').at(-1), rv = (p.reviews || []).at(-1)?.date || '';
   const base = [day(ad?.adoptedAt || ad?.at || p.versions?.at(-1)?.at || ''), day(rv)].filter(isDate).sort().at(-1); return base ? addMonths(base, 12) : ''; }
+// Walk-In Briefing (28 Nov, owner brief): at most three lines on top of Today for the moment the owner walks in.
+// Strictly read-only: it reads ph and never changes it, saves nothing and sends nothing.
+//   s8: the S8 inventory (s 111), from s8Limit() and s8Takeover() (never s8Max(), whose grace window would hide an
+//       overdue limit). A planned S8 review earlier than the limit is labelled as the owner's own plan, separately.
+//   job: the one other job that matters most, from items() so it agrees with every other count on Today.
+//   handover: the oldest visit answer still marked "Needs verification" at the latest visit that looked at it.
+//   quiet: one calm line, only when all three are empty.
+const BRIEF_CLEARS = new Set(['Checked', 'Issue', 'N/A']);
+// [rank, date] for one job or one part of a person's row, or null when it isn't worth a line today.
+function jobRank(x, t) {
+  const n = isDate(x.date) ? daysBetween(t, x.date) : null;
+  if (n !== null && n < 0) return [0, x.date];
+  if (n === 0) return [1, x.date];
+  // waiting on someone: a future check-back holds back any early nudge; once it arrives, check back
+  if (x.waiting && isDate(x.checkBack)) return x.checkBack <= t ? [2, x.checkBack] : null;
+  if (n !== null && n <= 7) return [3, x.date];
+  if (x.type === 'expiry' && n !== null && n >= 8 && n <= 30) return [4, x.date];
+  return null;
+}
+function rightFor(rank, date, x) {
+  if (rank === 2) return 'Check back today';
+  if (rank === 4 || (x.type === 'expiry' && rank === 3)) return 'Expires ' + fmt(date);
+  if (x.type === 'expiry' && rank === 0) return 'Expired ' + fmt(date);
+  return dueText(date);
+}
+export function briefing(ph, t = today()) {
+  const out = { s8: null, job: null, handover: null, quiet: null };
+  // ── S8
+  const since = ph.inherited?.since, take = s8Takeover(ph), last = latestStockCheck(ph);
+  const inv = take ? s8Limit({ ...ph, inherited: undefined }) : s8Limit(ph), soon = d => isDate(d) && daysBetween(t, d) <= 7;
+  const planned = ph.schedule?.B1 || '';
+  if (take && since <= t) out.s8 = { kind: 'takeover', title: 'S8 inventory after the takeover', sub: 'Make it in the drug register now · s 111(3)', date: since, right: dueText(since), tone: since < t ? 'bad' : 'warn' };
+  else if (soon(inv)) out.s8 = { kind: 'inventory', title: 'S8 stock check', sub: 'Inventory limit · 3 months after the count on ' + fmt(last), date: inv, right: dueText(inv), tone: inv < t ? 'bad' : inv === t ? 'warn' : '' };
+  else if (take && soon(since)) out.s8 = { kind: 'takeover-soon', title: 'S8 inventory on the takeover day', sub: 'Make it in the drug register that day · s 111(3)', date: since, right: dueText(since), tone: '' };
+  else if (!last && !take) out.s8 = { kind: 'missing', title: 'Add your last S8 stocktake date', sub: 'The 3-month limit counts from your last completed count', date: '', right: '', tone: '' };
+  else if (isDate(planned) && (!inv || planned < inv) && soon(planned)) out.s8 = { kind: 'planned', title: 'Planned S8 review', sub: 'Your own date · the inventory limit is ' + fmt(inv), date: planned, right: dueText(planned), tone: planned < t ? 'bad' : planned === t ? 'warn' : '' };
+  if (out.s8) out.s8.key = 'review/B1';
+  // ── one job
+  let best = null;
+  const consider = (it, x, partId) => { const r = jobRank(x, t); if (!r) return;
+    const c = { rank: r[0], date: r[1], id: it.key + '/' + partId, it, x };
+    if (!best || (c.rank - best.rank || c.date.localeCompare(best.date) || c.id.localeCompare(best.id)) < 0) best = c; };
+  for (const it of items(ph, {}, t)) {
+    if (it.key === 'review/B1' || it.bucket === 'tocheck') continue;
+    if (it.kind === 'person') { for (const pt of it.parts || []) consider(it, pt, pt.type + ':' + pt.id); continue; }
+    const cb = it.kind === 'action' ? ph.actions[it.ref]?.waiting?.checkBack || '' : '';
+    consider(it, { type: it.kind, date: it.date, waiting: !!it.waiting, checkBack: cb }, '');
+  }
+  if (best) { const { it, x, rank, date } = best;
+    const sub = it.kind !== 'person' ? (it.legal ? 'Required by law' : it.kind === 'action' ? (x.waiting ? 'Waiting on someone' : 'Action') : it.sub || '')
+      : x.type === 'expiry' ? x.title : x.type === 'annual' ? 'Annual check' : x.title;
+    out.job = { kind: it.kind, key: it.key, title: it.title, sub, date, right: rightFor(rank, date, x), tone: rank === 0 ? 'bad' : rank <= 2 ? 'warn' : '' }; }
+  // ── handover: walk the visits oldest first; a substantive answer clears an earlier "Needs verification"
+  const open = new Map();
+  const visits = (ph.records || []).filter(r => r.type === 'Q1' && isDate(r.date)).sort((a, b) => a.date.localeCompare(b.date) || String(a.at || '').localeCompare(String(b.at || '')));
+  for (const v of visits) for (const a of v.answers || []) {
+    if (!a?.item) continue;
+    if (BRIEF_CLEARS.has(a.answer)) open.delete(a.item);
+    else if (a.answer === 'Needs verification' && !open.has(a.item)) open.set(a.item, { item: a.item, title: a.text || a.item, since: v.date });
+  }
+  const carry = [...open.values()].sort((a, b) => a.since.localeCompare(b.since) || a.item.localeCompare(b.item));
+  if (carry.length) out.handover = { kind: 'handover', title: 'Still to verify · ' + carry[0].title, sub: 'From the ' + fmt(carry[0].since) + ' visit' + (carry.length > 1 ? ' · ' + (carry.length - 1) + ' more' : ''), date: carry[0].since, right: '', tone: '' };
+  if (!out.s8 && !out.job && !out.handover) out.quiet = { kind: 'quiet', title: 'A quiet day. Nothing needs you this week.' };
+  return out;
+}

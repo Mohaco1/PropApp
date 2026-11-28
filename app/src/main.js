@@ -8,6 +8,7 @@ import './views/reviews.js';
 import './views/meetings.js';
 import './views/staff.js';
 import './views/more.js';
+import './views/ask.js';
 import './views/services.js';
 import './views/procedures.js';
 import './views/law.js';
