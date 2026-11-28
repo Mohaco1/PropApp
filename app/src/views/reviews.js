@@ -111,7 +111,7 @@ register('review', {
     const prevRec = c.ph.records.filter(x => x.type === a.id).sort((x, y) => y.date.localeCompare(x.date))[0];
     const prevAns = prevRec?.answers?.find(x => x.text === q.text) || (prevRec?.answers?.length === total ? prevRec.answers[step] : null);
     return screen({ title: a.name, back: true, site: c.ph.name, saved: 'Saved', body: h`${prog}<p class="steps">Question ${step + 1} of ${total}</p>
-      <form class="form" data-form="q" data-change="q" data-input="qi"><p class="qtext">${q.text}</p>
+      <form class="form" data-form="q" data-change="q" data-input="qi" data-scope="${a.id}/${step}/${ans}"><p class="qtext">${q.text}</p>
         ${prevAns ? h`<p class="lasttime"><span class="eyebrow">Last time · ${fmt(prevRec.date)}</span> ${prevAns.answer}${prevAns.note ? ' · ' + prevAns.note : ''}${prevAns.ref ? ' · kept: ' + prevAns.ref : ''}</p>` : ''}
         ${choice('ans', q.options.map(o => ({ value: o.value, label: o.label || o.value })), ans, { issueValues: q.options.filter(o => o.issue).map(o => o.value) })}
         ${isIssue ? h`${field('What needs fixing?', textArea('issue', d.issues?.[step]?.text || '', { rows: 2 }))}${field('Fix by', textInput('due', d.issues?.[step]?.due || addDays(today(), 30), { type: 'date' }))}` : ''}

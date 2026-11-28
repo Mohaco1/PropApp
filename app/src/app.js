@@ -39,6 +39,11 @@ export const ctx = {
   back() { navigated(); S.toast = ''; fromMasterCut(); S.stack.pop(); render(true); const from = (S.stack.at(-1) || {}).from ?? (S.stack.length ? '' : S.tabFrom); if (!refocus(from)) focusTitle(); },
   tab(name) { navigated(); S.toast = ''; S.tab = name; S.stack = []; render(true); },
   // opts.redraw false: save without redrawing (a typed answer, so the button the owner is tapping isn't replaced mid-tap).
+  // Stage 3G-B: change one pharmacy by id. The open one goes through change(); another (the owner switched pharmacy
+  // while a share sheet was open) is edited in storage, so the result lands on the pharmacy it belongs to.
+  changeFor(id, fn, message) { if (S.ph?.id === id) return ctx.change(fn, message);
+    const cur = store.pharmacy(id); if (!cur) { if (message) ctx.toast(message); return false; } const next = clone(cur); if (fn(next) === false) return false;
+    store.savePharmacy(next); if (message) ctx.toast(message); return true; },
   change(fn, message, opts = {}) {
     const next = clone(S.ph); const r = fn(next); if (r === false) return false;
     S.ph = next; store.savePharmacy(next); disarm(); askToKeep(); if (message) ctx.toast(message); if (opts.redraw !== false) render(); return true;
@@ -113,7 +118,7 @@ function sheetKeys(e) { const sh = root.querySelector('.sheet'); if (!sh) return
 // H-07: folding or unfolding the phone redraws the screen (one pane or two). Anything typed or picked but not yet saved
 // is read off the form fields first and put back afterwards, with the cursor where it was, so a fold never wipes a form.
 function fieldKeys() { const seen = {}; return [...root.querySelectorAll('input,textarea,select')].filter(el => el.name && el.type !== 'file').map(el => {
-  const k = (el.closest('.pane-master') ? 'm' : 'd') + '|' + (el.form?.dataset.form || '') + '|' + el.name + '|' + (/^(radio|checkbox)$/.test(el.type) ? el.value : ''); seen[k] = (seen[k] || 0) + 1; return [k + '|' + seen[k], el]; }); }
+  const k = (el.closest('.pane-master') ? 'm' : 'd') + '|' + (el.form?.dataset.form || '') + '|' + (el.closest('[data-scope]')?.dataset.scope || '') + '|' + el.name + '|' + (/^(radio|checkbox)$/.test(el.type) ? el.value : ''); seen[k] = (seen[k] || 0) + 1; return [k + '|' + seen[k], el]; }); }
 function typed(only) { const out = new Map(); let focus = null; for (const [k, el] of fieldKeys()) { if (only && !only(el)) continue;
     if (el === document.activeElement) focus = { k, s: el.selectionStart, e: el.selectionEnd };
     if (/^(radio|checkbox)$/.test(el.type)) { if (el.checked !== el.defaultChecked) out.set(k, { checked: el.checked }); }

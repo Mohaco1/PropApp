@@ -247,7 +247,8 @@ a.linkbtn{text-decoration:none}
 #uat-btn{top:calc(10px + env(safe-area-inset-top,0px));bottom:auto;right:max(12px,env(safe-area-inset-right,0px));min-width:44px;min-height:44px;padding:0 10px;font-size:13px}
 #uat-btn.inbar{position:static;flex:none;z-index:auto}
 /* Bug 4 (F-LIVE-01): an active tile without its own tint (Waiting, All) uses the soft ocean tint, never the solid fill */
-.filters button.on:not([data-f=overdue]):not([data-f=week]){background:var(--tint)}
+/* Stage 3G-B: boxed filters only; the Today ruled index keeps an open Waiting or All tab transparent */
+.filters:not(.today-index) button.on:not([data-f=overdue]):not([data-f=week]){background:var(--tint)}
 .filters button.on b{color:var(--fg)}.filters button.on[data-f=overdue] b{color:var(--bad)}.filters button.on[data-f=week] b{color:var(--warn)}
 #sr .row-title{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .yp-legend .due{color:var(--accent)}.yearplan th:last-child,.yearplan td:last-child{padding-right:14px}
@@ -525,4 +526,15 @@ fieldset.review-question .chips{clear:both}
 @media screen and (min-width:700px){
   .pane-master .bar,.pane-detail .bar{height:64px;min-height:64px;flex-wrap:nowrap}
   .pane-master .bar-title,.pane-detail .bar-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+
+/* Stage 3G-B CSS regression fixes (28 Nov). */
+/* one 1 px divider between a plain row and a deferrable row: the row's own hairline is enough */
+.row+.rowwrap{border-top:0}
+@media screen and (min-width:700px){
+  /* the narrow list pane: the date column is never narrower than its longest word, so "Overdue" stays clear of Defer */
+  .pane-master .row-right.row-date{min-width:min-content}
+  /* both unfolded bars share one taller height, with room for the 2-pharmacy pill's 4 px ring, so the seam stays at 0 px */
+  .pane-master .bar,.pane-detail .bar{height:76px;min-height:76px}
+  .pane-master .bar-title,.pane-detail .bar-title{padding-block:4px}
 }

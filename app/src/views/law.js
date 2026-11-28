@@ -76,7 +76,7 @@ register('changes', {
     ${L.OWN.map(([t, xs]) => section(t, h`<div class="card"><ul class="plain">${xs.map(x => h`<li>${x}</li>`)}</ul></div>`))}
     ${btn('Changing how DAAs are packed?', 'go', { kind: 'link', data: { to: 'tellmeonce' } })}
     ${c.ph.inherited ? note('Marked as a newly bought pharmacy. Your next site visit asks you to confirm what the previous owner recorded.', 'ok') : btn('I’ve just bought this pharmacy', 'bought')}` }); },
-  acts: { bought: c => c.change(ph => { ph.inherited = { since: today() }; log(ph, 'Marked as a newly bought pharmacy'); }, 'Marked. Make an S8 inventory now (s 111(3)); it’s on Today. Your next visit asks you to confirm what the previous owner recorded.') },
+  acts: { bought: c => c.change(ph => { ph.inherited = { since: today(), at: new Date().toISOString() }; log(ph, 'Marked as a newly bought pharmacy'); }, 'Marked. Make an S8 inventory now (s 111(3)); it’s on Today. Your next visit asks you to confirm what the previous owner recorded.') },
 });
 
 // Incident steps (S4-04): the current app's "If something goes wrong" cards, word for word (uat/layers/inspection.js),

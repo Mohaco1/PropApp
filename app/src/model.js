@@ -23,7 +23,7 @@ export function newAction(ph, { title, due = '', source = null, person = '' }) {
 export function closeAction(ph, id, what, date = today()) {
   const a = ph.actions[id]; if (!a || a.status !== 'open') return;
   a.status = 'closed'; a.closed = { date, what, by: me(ph).name }; a.waiting = null;
-  a.log.push({ at: new Date().toISOString(), by: me(ph).name, kind: 'closed', text: 'Closed · ' + what }); note(ph, 'Action closed · ' + a.title);
+  a.log.push({ at: new Date().toISOString(), date, by: me(ph).name, kind: 'closed', text: 'Closed · ' + what }); note(ph, 'Action closed · ' + a.title);
 }
 export function reopenAction(ph, id, why) {
   const a = ph.actions[id]; if (!a || a.status === 'open') return;
