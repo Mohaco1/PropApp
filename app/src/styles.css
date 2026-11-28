@@ -538,3 +538,17 @@ fieldset.review-question .chips{clear:both}
   .pane-master .bar,.pane-detail .bar{height:76px;min-height:76px}
   .pane-master .bar-title,.pane-detail .bar-title{padding-block:4px}
 }
+
+/* Walk-In Briefing (28 Nov, owner brief): an open ruled strip, not a card. A straight 3 px Navy bar on the left,
+   1 px hairlines between lines, tabular dates on the right, every line a 44 px+ tap target. Overdue and due-today
+   lines take the urgency colours on their date only. Light only; muted text stays #526575. */
+.brief{margin:8px 0 12px;border-left:3px solid var(--navy,#0f2942);border-radius:0;background:none;box-shadow:none;min-width:0}
+.brief-line{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:8px 0 8px 12px;border:0;border-top:1px solid var(--line-solid,#E1E8EC);border-radius:0;background:none;color:var(--fg);font:inherit;text-align:left;cursor:pointer;min-width:0}
+.brief-line:first-child{border-top:0}
+.brief-main{display:flex;flex-direction:column;gap:2px;flex:1 1 auto;min-width:0}
+.brief-title{font-weight:600;font-size:15px;line-height:1.3;overflow-wrap:anywhere}
+.brief-sub{font-size:13px;line-height:1.3;color:#526575;overflow-wrap:anywhere}
+.brief-date{flex:none;font-size:14px;font-weight:600;color:var(--fg);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums lining-nums}
+.brief-line.bad .brief-date{color:var(--bad)}.brief-line.warn .brief-date{color:var(--warn)}
+.brief-line:active{background:#edf3f4}
+.brief-quiet{margin:0;min-height:44px;display:flex;align-items:center;padding:0 0 0 12px;color:#526575;font-size:15px}
