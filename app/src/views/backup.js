@@ -57,8 +57,10 @@ export function validate(b) {
 // A1: one backup action (Backup screen and the Today nudge). On phones that can, it opens the share sheet so the file
 // goes straight to iCloud Drive, Google Drive or email; otherwise it downloads.
 export async function backupNow(c) {
-  const ok = await saveFile(c.ph.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify(pharmacyBackup(c)), 'application/json');
-  if (ok) c.change(ph => { ph.settings.lastBackup = new Date().toISOString(); if (ph.flags) delete ph.flags.backupSnooze; }, 'Backup download requested');
+  // Stage 3G-B: the pharmacy is fixed before the share sheet opens; switching pharmacy while it is open still marks the
+  // one that was exported as backed up, never the one open when the share finishes.
+  const id = c.ph.id, ok = await saveFile(c.ph.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify(pharmacyBackup(c)), 'application/json');
+  if (ok) c.changeFor(id, ph => { ph.settings.lastBackup = new Date().toISOString(); if (ph.flags) delete ph.flags.backupSnooze; }, 'Backup download requested');
   else c.toast('The backup wasn’t saved (the download or share didn’t go through). Try again, or open the app in your phone’s browser.');
   return ok;
 }

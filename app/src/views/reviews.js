@@ -68,8 +68,8 @@ register('reviews', {
     return screen({ title: 'Reviews', site: c.ph.name, body: h`<p class="muted tabsub">Every check in your plan and when it’s next due. Today shows only what needs doing now.</p>
       <label class="search">${icon('search')}<input class="input" name="q" type="search" placeholder="Search reviews" value="${c.ui.revQ || ''}" data-input="q" autocomplete="off"></label>
       <div class="chips">${F.map(([k, l]) => h`<button class="chip ${k === f ? 'on' : ''}" data-act="f" data-f="${k}">${l} · ${n[k]}</button>`)}</div>
-      ${f === 'done' ? h`<div class="list">${doneList.length ? doneList.map(r => row({ title: r.extra ? 'Extra site visit' : reviewById(r.type)?.name || r.title, sub: r.by + (r.actionIds?.length ? ' · ' + r.actionIds.length + (r.actionIds.length === 1 ? ' action' : ' actions') : ''), right: fmt(r.date), act: 'rec', data: { id: r.id } })) : empty('Nothing recorded yet.')}</div>`
-        : h`<div class="list">${list.length ? list.map(x => row({ title: x.a.name, sub: x.b === 'inactive' ? 'Not in your plan · ' + x.ap.why : x.a.frequency, legal: !!x.a.legal, right: x.b === 'inactive' ? '' : x.started ? 'In progress' : x.a.event ? 'When needed' : dueText(x.date), tone: x.b === 'overdue' ? 'bad' : x.b === 'today' ? 'warn' : '', act: 'open', data: { id: x.a.id } })) : empty('Nothing here.')}</div>`}
+      ${f === 'done' ? h`<div class="list">${doneList.length ? doneList.map(r => row({ title: r.extra ? 'Extra site visit' : reviewById(r.type)?.name || r.title, sub: r.by + (r.actionIds?.length ? ' · ' + r.actionIds.length + (r.actionIds.length === 1 ? ' action' : ' actions') : ''), right: fmt(r.date), date: true, act: 'rec', data: { id: r.id } })) : empty('Nothing recorded yet.')}</div>`
+        : h`<div class="list">${list.length ? list.map(x => row({ title: x.a.name, sub: x.b === 'inactive' ? 'Not in your plan · ' + x.ap.why : x.a.frequency, legal: !!x.a.legal, right: x.b === 'inactive' ? '' : x.started ? 'In progress' : x.a.event ? 'When needed' : dueText(x.date), tone: x.b === 'overdue' ? 'bad' : x.b === 'today' ? 'warn' : '', date: true, act: 'open', data: { id: x.a.id } })) : empty('Nothing here.')}</div>`}
       <label class="tick"><input type="checkbox" data-change="inactive" ${inactive ? h`checked` : ''}><span>Include reviews not in your plan</span></label>` });
   },
   inputs: { q: (c, el) => { c.ui.revQ = el.value; c.rerender(); } },
@@ -103,7 +103,7 @@ register('review', {
     // pre-answered. An issue answer goes back to the step view at that question so the owner can say what needs fixing.
     if (d.list) { const left = qs.filter((q, i) => !d.answers[i]).length;
       return screen({ title: a.name, back: true, site: c.ph.name, saved: 'Saved', body: h`${prog}<p class="steps">${left ? (left === 1 ? '1 question left' : left + ' questions left') : 'All answered'} · tap one answer for each</p>
-        ${qs.map((q, i) => h`<div class="card qlist-item"><p class="qtext">${i + 1}. ${q.text}</p><div class="chips">${q.options.map(o => h`<button type="button" class="chip ${d.answers[i] === o.value ? 'on' : ''} ${o.issue ? 'issue' : ''}" data-act="qa" data-i="${i}" data-v="${o.value}" aria-pressed="${d.answers[i] === o.value}">${o.label || o.value}</button>`)}</div></div>`)}
+        ${qs.map((q, i) => h`<fieldset class="review-question qlist-item"><legend class="qtext">${i + 1}. ${q.text}</legend><div class="chips">${q.options.map(o => h`<button type="button" class="chip ${d.answers[i] === o.value ? 'on' : ''} ${o.issue ? 'issue' : ''}" data-act="qa" data-i="${i}" data-v="${o.value}" aria-pressed="${d.answers[i] === o.value}">${o.label || o.value}</button>`)}</div></fieldset>`)}
         <div class="btnrow">${btn('One at a time', 'qlist', { data: { on: '' } })}${btn('Finish', 'step', { kind: 'primary', data: { s: total }, disabled: left > 0 })}</div>` }); }
     const q = qs[step], ans = d.answers[step] || '', isIssue = q.options.find(o => o.value === ans)?.issue;
     // PharmLedger brief: the previous record's answer for this question, shown (never selected for the owner). Its note,
@@ -111,7 +111,7 @@ register('review', {
     const prevRec = c.ph.records.filter(x => x.type === a.id).sort((x, y) => y.date.localeCompare(x.date))[0];
     const prevAns = prevRec?.answers?.find(x => x.text === q.text) || (prevRec?.answers?.length === total ? prevRec.answers[step] : null);
     return screen({ title: a.name, back: true, site: c.ph.name, saved: 'Saved', body: h`${prog}<p class="steps">Question ${step + 1} of ${total}</p>
-      <form class="form" data-form="q" data-change="q" data-input="qi"><p class="qtext">${q.text}</p>
+      <form class="form" data-form="q" data-change="q" data-input="qi" data-scope="${a.id}/${step}/${ans}"><p class="qtext">${q.text}</p>
         ${prevAns ? h`<p class="lasttime"><span class="eyebrow">Last time · ${fmt(prevRec.date)}</span> ${prevAns.answer}${prevAns.note ? ' · ' + prevAns.note : ''}${prevAns.ref ? ' · kept: ' + prevAns.ref : ''}</p>` : ''}
         ${choice('ans', q.options.map(o => ({ value: o.value, label: o.label || o.value })), ans, { issueValues: q.options.filter(o => o.issue).map(o => o.value) })}
         ${isIssue ? h`${field('What needs fixing?', textArea('issue', d.issues?.[step]?.text || '', { rows: 2 }))}${field('Fix by', textInput('due', d.issues?.[step]?.due || addDays(today(), 30), { type: 'date' }))}` : ''}

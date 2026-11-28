@@ -1,4 +1,4 @@
-# PharmLedger: complete handoff (27 Nov 2026)
+# PharmLedger: complete handoff (28 Nov 2026)
 
 For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.md`** first: it holds the owner's standing rules and decisions, and they override anything here.
 
@@ -11,8 +11,8 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Repo | `Mohaco1/PropApp`, branch `main` |
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
-| App build id | **`61a4df8cc0`** (Stage 3F final NSW 2026 wording, 2 URL fixes and Swiss Clinical polish, on top of Stage 3E) · **Stage 3F complete: `main` is frozen for the Galaxy Z Fold trial** |
-| Code commit | Stage 3F commit on `main` (code, docs/ and this file for build 61a4df8cc0) |
+| App build id | **`93a45a70b4`** (Stage 3G-B: four 3G-A CSS regressions and six 3E–3F logic bugs fixed, on top of Stage 3G-A) · **Stage 3G-B complete: `main` is frozen for the Galaxy Z Fold trial** |
+| Code commit | Stage 3G-B commit on `main` (code, docs/ and this file for build 93a45a70b4) |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -83,11 +83,23 @@ After deploying, an installed phone app picks up the new version when it's reope
 - Screenshots go to `app/handoff/`, which is git-ignored.
 - **Suites:**
   - Original and wave suites: core, sprint1–5, screens, setup-questions, extras, polish, theme, content2, v3, pwa, wave1, wave2, gates, wave3.
-  - Briefs from this week: pretrial, sigil, batch1, batch1a, batch1b, batch2a, batch2b, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual, stage3a, stage3b, stage3c, stage3d, stage3e.
-- **Latest full run on build `2dec2b5fd2`:** see section 9.
+  - Briefs from this week: pretrial, sigil, batch1, batch1a, batch1b, batch2a, batch2b, chaos, hardening, upgrade, procedures-all (and `LATER=1`), onboard, pharmledger, foldable, visual, stage3a, stage3b, stage3c, stage3d, stage3e, stage3f, stage3gb.
+- **Latest full run on build `93a45a70b4`:** see section 9.
 - Note: `tests/upgrade.js` opens a saved old build (07775c5947) from a fixture, so it still taps the old "Look around an example pharmacy (fictional)" label. Leave that label as it is.
 
 ## 7. What was done this week (newest first)
+0. **Stage 3G-B · CSS regressions and P2 logic bugs (28 Nov, build `93a45a70b4`): done.**
+   - CSS (Stage 3G-B block at the end of `styles.css`): `.row+.rowwrap` has no border-top, so every divider is 1 px; the legacy active-tile tint is scoped to `.filters:not(.today-index)`, so the open Waiting and All tabs stay transparent; unfolded, `.pane-master .row-right.row-date` has `min-width:min-content` so "Overdue" never crosses the Defer border; unfolded, both bars are 76 px with 4 px block padding on `.bar-title`, so the 2-pharmacy `.sw-pill` ring isn't clipped and the seam still meets at 0 px.
+   - Takeover (`rules.js`): marking a takeover stores `inherited.at`; a B1 stock check dated the takeover day counts only if recorded at or after that time (`takeoverStockDone`), so the previous owner's same-day stocktake can't hide the s 111(3) inventory. Older takeovers without a time keep the earlier reading.
+   - Cross-tab: the review question form carries `data-scope="<review>/<step>/<answer>"`, and `fieldKeys` in `app.js` includes it, so a reload from another tab only puts unsaved text back into the same question.
+   - Backup: `backupNow` fixes the pharmacy id before the share sheet opens and saves through the new `ctx.changeFor(id, fn, msg)`; the Today calendar-file hint does the same.
+   - Procedures: "Using it" (Record that I reviewed it, local amendment) shows while a 1.1 draft sits over an adopted 1.0, and the review is recorded against the version in use; the printed adopted procedure has a print-only "Local amendment" block (`.procamend`).
+   - History CSV: `closeAction` stores the completion date on its log entry; the CSV close event's done date uses it (older entries fall back to the action's closed date), matching History.
+   - New `tests/stage3gb.js` (in `test-all.sh`). Screenshots `app/handoff/stage3gb_*.png`.
+0. **Stage 3G-A · Swiss Clinical CSS fixes and UI craft polish (27 Nov, build `5e52df28b2`): done.**
+   - Fixes: straight 3 px bars on `.lasttime`/`.whyask` (radius 0); `.ptable` headers and date cells (`td.pdate`) never wrap mid-word, only long URL/reference cells (`td.pref`) break anywhere; unfolded list and record bars share a 64 px height so the 2 px rule meets at the seam (840×900); `button.linkbtn` (Open all sections) has no browser chrome; no double divider under deferrable rows (`.list .rowwrap>.row::after` hidden).
+   - Craft: Today ruled index (`.filters.today-index`: 4 columns on one hairline, 19 px count over 13 px label, 3 px Navy underline on the open tab, Overdue numeral red only above 0, 2×2 in the unfolded list pane; visible "Waiting", accessible name "N Waiting or to confirm"); one right-aligned tabular date column (`row({ date: true })` → `.row-date`, min 6.4ch) on Today, Reviews and Actions; Reviews "Answer as a list" uses `<fieldset class="review-question">` with open hairlines; visit answers in a 2×2 grid of 96 px tiles (`choice(..., { grid: true })`); More uses `.directory-row` (32 px icon column, no chevrons); `#edf3f4` press surface; solid 24×3 Deep Teal nav marker (3×24 on the rail); fit-content 6 px toast; no sheet handle at 700 px+; unfolded list pane gets 12 px side padding, `row-main` min-width 0 and no chevrons (its date column wraps between words so title words never split).
+   - Tests: visual.js toast check and theme.js chip/nav checks updated to the new spec. Screenshots `app/handoff/stage3ga_*.png`.
 0. **Stage 3F · final NSW 2026 wording, 2 URL fixes and Swiss Clinical CSS polish (27 Nov, build `61a4df8cc0`): done. `main` is now frozen for the Galaxy Z Fold trial.**
 0. **Stage 3E · final pre-trial consolidation (27 Nov, build `2a07045bc2`): done.**
    - Cross-tab and arming: another tab switching pharmacy resets this tab to Today with no leftover screen state; a same-pharmacy reload keeps unsaved typing (procedure edits); Delete/Discard/Stop/Adopt arming clears on any navigation (Back included) and after a save.
@@ -185,13 +197,17 @@ After deploying, an installed phone app picks up the new version when it's reope
 8. **Procedures:** all 17 services can reach "nothing to confirm" through the screens (`tests/procedures-all.js`).
 
 ## 8. Open items and next work
-1. **2-week Galaxy Z Fold trial** (Stage 3F done; `main` complete and frozen for it): owner UAT of the current build on the phone, the cover screen and unfolded. Check the look, the welcome screen, the icon on the home screen, and the hinge spacing: real hinge segments can't be emulated in Playwright.
+1. **2-week Galaxy Z Fold trial** (Stage 3G-B done; `main` complete and frozen for it): owner UAT of the current build on the phone, the cover screen and unfolded. Check the look, the welcome screen, the icon on the home screen, and the hinge spacing: real hinge segments can't be emulated in Playwright.
 2. **Phase D3** (parked): a managed back end in Sydney with emailed-link sign-in, then the post-trial v4 in-app AI architecture.
 3. **Deferred by the owner:** push notifications, Monday plan.
 4. **Optional, ask the owner first:** rename the repo or Pages path from "PropApp". This changes the phone link and would need a reinstall.
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
+**Stage 3G-B, build `93a45a70b4`:** `test-all.sh` run once in full on the `--uat` build: 43 of 44 suites passed (stage3gb included) plus Check later, and `check-procgen-all` shows all 17 identical. gates failed 2 checks (Bug 4, light and dark) that read contrast against the open All tile's own fill, which is now transparent by design; the check now reads the first painted background behind the tab, and gates re-run alone: all pass. `docs/` refreshed from `dist/pwa/`.
+
+**Stage 3G-A, build `5e52df28b2`:** `test-all.sh` run once in full on the `--uat` build: 42 of 43 suites passed plus Check later, and `check-procgen-all` shows all 17 identical. theme failed 2 checks that asserted the replaced look (tinted Overdue/This week chips, 22×2.5 gradient nav pill); both updated to the Stage 3G-A spec and theme re-run alone: all pass. `docs/` refreshed from `dist/pwa/`.
+
 **Stage 3F, build `61a4df8cc0`:** `test-all.sh` run once in full on the `--uat` build: 42 of 43 suites passed (stage3f included) plus Check later, and `check-procgen-all` shows all 17 identical. stage3d failed 1 timing check (journal replay commit), unrelated to this stage's content and CSS; re-run alone: all pass. `docs/` refreshed from `dist/pwa/`. **Stage 3F complete: `main` frozen for the Z Fold trial.**
 
 **Stage 3E, build `2a07045bc2`:** `test-all.sh` run once in full: 39 of 42 suites passed (stage3e included) plus Check later, and `check-procgen-all` shows all 17 identical. setup-questions, onboarding-polish and batch1 failed on expectations of the old behaviour (Next skipping blank questions; the old Category 1 wording); those tests were updated and the 3 suites re-run green. `docs/` refreshed from `dist/pwa/`. **Stage 3E complete: `main` frozen for the Fold trial.**

@@ -49,7 +49,12 @@ export function latestStockCheck(ph) {
 // marked (More → Bought, selling or closing) and no completed stock check is dated on or after it, the S8 check is due
 // on the takeover date itself, not 3 months after the previous owner's last one. (Wording supplied by the owner's
 // 27 Nov brief; the Regulation page couldn't be read from here.)
-export const s8Takeover = ph => { const since = ph?.inherited?.since; return !!since && isDate(since) && !(latestStockCheck(ph) >= since); };
+// Stage 3G-B: a stock check dated the takeover day itself counts only when it was recorded after the takeover was
+// marked (inherited.at), so the previous owner's same-day stocktake never hides the new owner's s 111(3) inventory.
+// A takeover marked before 3G-B has no time and keeps the earlier same-day reading.
+export const takeoverStockDone = ph => { const { since, at } = ph?.inherited || {};
+  return (ph.records || []).some(r => r.type === 'B1' && isDate(r.fields?.stockDate) && !stockIncomplete(r) && (r.fields.stockDate > since || (r.fields.stockDate === since && (!at || !r.at || r.at >= at)))); };
+export const s8Takeover = ph => { const since = ph?.inherited?.since; return !!since && isDate(since) && !takeoverStockDone(ph); };
 export function s8Limit(ph) { if (s8Takeover(ph)) return ph.inherited.since; const d = latestStockCheck(ph); return d ? addMonths(d, 3) : ''; }
 // C-01: the latest date the next S8 inventory can be planned for. 3 months after the last completed stock check, or
 // 3 months from today when none is recorded yet. If that has already passed (overdue), a short planning window of

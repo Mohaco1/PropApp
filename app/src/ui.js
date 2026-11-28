@@ -60,10 +60,10 @@ export function screen({ title, sub = '', back = null, saved = '', body, primary
 }
 export const btn = (label, act, { kind = 'secondary', data = {}, type = 'button', disabled = false, cls = '' } = {}) =>
   h`<button type="${type}" class="btn ${kind} ${cls}" ${act ? raw(`data-act="${act}"`) : ''} ${raw(Object.entries(data).map(([k, v]) => `data-${k}="${String(v).replace(/"/g, '&quot;')}"`).join(' '))} ${disabled ? raw('disabled') : ''}>${label}</button>`;
-export const row = ({ title, sub = '', right = '', tone = '', act = '', data = {}, chev = true, legal = false, ic = '' }) =>
+export const row = ({ title, sub = '', right = '', tone = '', act = '', data = {}, chev = true, legal = false, ic = '', date = false }) =>
   h`<button class="row ${tone}${ic ? ' has-ic' : ''}" data-act="${act}" ${raw(Object.entries(data).map(([k, v]) => `data-${k}="${String(v).replace(/"/g, '&quot;')}"`).join(' '))}>
     ${ic || ''}<span class="row-main"><span class="row-title">${title}</span>${sub || legal ? h`<span class="row-sub">${legal ? h`<span class="law">Required by law</span> ` : ''}${sub}</span>` : ''}</span>
-    ${right ? h`<span class="row-right ${tone}">${right}</span>` : ''}${chev ? icon('chev', 'chev') : ''}</button>`;
+    ${right ? h`<span class="row-right ${tone}${date ? ' row-date' : ''}">${right}</span>` : ''}${chev ? icon('chev', 'chev') : ''}</button>`;
 export const section = (label, inner, extra = '') => h`<section class="sec"><div class="sec-head"><h2 class="sec-title">${label}</h2>${extra}</div>${inner}</section>`;
 export const empty = text => h`<p class="empty">${text}</p>`;
 export const note = (text, tone = 'info') => h`<p class="note ${tone}">${text}</p>`;
@@ -72,8 +72,8 @@ export function seg(name, options, value) {
   return h`<div class="seg" role="tablist">${options.map(([v, l]) => h`<button role="tab" aria-selected="${String(v === value)}" class="${v === value ? 'on' : ''}" data-act="seg" data-name="${name}" data-value="${v}">${l}</button>`)}</div>`;
 }
 // Big tap-to-choose answers (rule 5): one control per question.
-export function choice(name, options, value, { issueValues = [], inline = false } = {}) {
-  return h`<div class="choices${inline ? ' inline' : ''}">${options.map(o => { const v = typeof o === 'string' ? o : o.value, l = typeof o === 'string' ? o : o.label;
+export function choice(name, options, value, { issueValues = [], inline = false, grid = false } = {}) {
+  return h`<div class="choices${inline ? ' inline' : ''}${grid ? ' grid2' : ''}">${options.map(o => { const v = typeof o === 'string' ? o : o.value, l = typeof o === 'string' ? o : o.label;
     return h`<label class="choice${v === value ? ' on' : ''}${issueValues.includes(v) ? ' issue' : ''}"><input type="radio" name="${name}" value="${v}" ${v === value ? raw('checked') : ''}><span>${l}</span></label>`; })}</div>`;
 }
 export const field = (label, input, hint = '') => h`<label class="field"><span class="field-label">${label}</span>${input}${hint ? h`<span class="hint">${hint}</span>` : ''}</label>`;

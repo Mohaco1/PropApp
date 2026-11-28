@@ -23,16 +23,16 @@ const rgb = hex => 'rgb(' + hex.match(/\w\w/g).map(x => parseInt(x, 16)).join(',
   ok(await p.locator('.sw-pill').count() === 0, 'P-06 one pharmacy: the site switch pill is hidden');
   // 3. editorial date, tinted chips, tabular numbers
   const top = await p.evaluate(() => { const d = getComputedStyle(document.querySelector('.status .date')), o = document.querySelector('.filters [data-f=overdue]'), w = document.querySelector('.filters [data-f=week]');
-    return { w: d.fontWeight, ls: d.letterSpacing, size: d.fontSize, o: getComputedStyle(o).backgroundColor, wk: getComputedStyle(w).backgroundColor, num: getComputedStyle(document.querySelector('.filters')).fontVariantNumeric }; });
+    return { w: d.fontWeight, ls: d.letterSpacing, size: d.fontSize, o: getComputedStyle(o).backgroundColor, wk: getComputedStyle(w).backgroundColor, ob: getComputedStyle(o.querySelector('b')).color, has: o.classList.contains('has'), num: getComputedStyle(document.querySelector('.filters')).fontVariantNumeric }; });
   ok(top.w === '600' && top.ls !== 'normal', 'P-06 date header in 600 weight with tight letter-spacing (' + top.size + ', ' + top.ls + ')');
-  ok(top.o === rgb('FDF1F3') && top.wk === rgb('FEF6EB') && top.num === 'tabular-nums', 'P-06 Overdue and This week chips tinted; counts in tabular numbers');
+  ok(top.o === 'rgba(0, 0, 0, 0)' && top.wk === 'rgba(0, 0, 0, 0)' && top.has && top.ob === rgb('B81D3A') && top.num === 'tabular-nums', 'Stage 3G-A ruled Today index: no chip tints, the Overdue count in red only when above 0; counts in tabular numbers');
   // 4. rails only on overdue and due-soon rows
   const rails = await p.evaluate(() => [...document.querySelectorAll('.list .row')].map(r => ({ tone: r.classList.contains('bad') ? 'bad' : r.classList.contains('warn') ? 'warn' : '', rail: getComputedStyle(r, '::before').content !== 'none' ? getComputedStyle(r, '::before').backgroundColor : '' })));
   ok(rails.some(r => r.tone === 'bad') && rails.every(r => (r.tone === 'bad' ? r.rail === rgb('B81D3A') : r.tone === 'warn' ? r.rail === rgb('A84B00') : r.rail === '')), 'P-06 urgency rail only on overdue (#B81D3A) and due-soon (#A84B00) rows (' + rails.length + ' rows)');
   // 6. bottom bar indicator
   const nav = await p.evaluate(() => { const on = document.querySelector('.nav button.on'), i = getComputedStyle(on, '::before'), r = [...document.querySelectorAll('.nav button')].map(b => b.getBoundingClientRect());
-    return { w: i.width, h: i.height, stroke: getComputedStyle(on.querySelector('.ic')).strokeWidth, small: r.filter(x => x.width < 44 || x.height < 44).length, n: r.length }; });
-  ok(nav.n === 5 && nav.w === '22px' && nav.h === '2.5px' && nav.stroke === '1.85px' && nav.small === 0, 'P-06 5 tabs, 1.85 strokes, 22×2.5 gradient pill on the active tab, all ≥ 44 px');
+    return { w: i.width, h: i.height, bg: i.backgroundColor, stroke: getComputedStyle(on.querySelector('.ic')).strokeWidth, small: r.filter(x => x.width < 44 || x.height < 44).length, n: r.length }; });
+  ok(nav.n === 5 && nav.w === '24px' && nav.h === '3px' && nav.bg === rgb('0F766E') && nav.stroke === '1.85px' && nav.small === 0, 'Stage 3G-A 5 tabs, 1.85 strokes, a solid 24×3 Deep Teal marker on the active tab, all ≥ 44 px');
   // 5. no 700/800 weights anywhere on screen
   const heavy = await p.evaluate(() => [...document.querySelectorAll('body *')].filter(e => e.offsetParent && +getComputedStyle(e).fontWeight >= 700 && e.childNodes.length && [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())).map(e => e.className || e.tagName).slice(0, 4));
   ok(heavy.length === 0, 'P-06 no text heavier than 600 on Today' + (heavy.length ? ' (' + heavy.join(', ') + ')' : ''));
