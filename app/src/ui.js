@@ -20,6 +20,7 @@ const I = {
   box: '<rect x="4" y="7" width="16" height="13" rx="2"/><path d="M8 7V5h8v2"/>', lock: '<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
   visit: '<path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>', log: '<path d="M6 4h12v16H6z"/><path d="M9 8h6M9 12h6M9 16h4"/>',
   people: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/>', backup: '<path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/>',
+  ask: '<path d="M5 5h14v10H10l-4 4v-4H5z"/><path d="M10.2 8.6a1.9 1.9 0 0 1 3.6.8c0 1.3-1.8 1.5-1.8 2.6"/><path d="M12 13.4v.1"/>',
   bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>', check: '<path d="M5 12l4 4L19 6"/>',
 };
 // Visual Polish spec: one 1.8-stroke icon per service, shown on Service and Procedure list rows.
