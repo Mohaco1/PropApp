@@ -2,8 +2,8 @@
 // fictional example pharmacy; fails on any unexpected console error. Pure rules are also checked straight from the
 // source modules (bundled here), so Today, Calendar, the calendar file and History agree with what the screens show.
 // 1. Cross-tab and arming: another tab switching pharmacy starts this tab on Today; a same-pharmacy reload keeps an
-//    unsaved procedure edit; Back disarms a two-tap Stop/Delete; delete is only offered for real UAT/demo or empty
-//    pharmacies ("Equator" is not "UAT"); a Later DAA item settles when its action closes; Sources can re-raise.
+//    unsaved procedure edit; Back disarms a two-tap Stop/Delete; delete is offered for every pharmacy (was: only UAT/demo or empty
+//    pharmacies); a Later DAA item settles when its action closes; Sources can re-raise.
 // 2. Staff: role typed on a failed Add stays with that form; an abandoned annual check can't overwrite a newer issue;
 //    a blank last day is refused and a future one keeps the person current; role-qualified service checks.
 // 3. Services, procedures: answers land on the question shown (s.pos); Next waits for an answer or Check later;
@@ -261,7 +261,7 @@ async function modules() {
   ok(await p.locator(`[data-act=changed][data-k="${srcK}"]`).count() === 1, '1. after that re-check is closed, the same source can be raised again');
   await back(p); await back(p);
 
-  // ── 1d. Delete is offered only for UAT/demo or truly empty pharmacies; another tab switching pharmacy resets this one.
+  // ── 1d. Delete is offered for every pharmacy (28 Nov 2026, owner); another tab switching pharmacy resets this one.
   const dir = (await saved(p))['propapp:dir'], E1 = 'stage3e-equator', E2 = 'stage3e-blank', E3 = 'stage3e-uat';
   const blankPh = (id, name, extra = {}) => ({ id, schema: 1, name, address: '', region: '', identifier: '', proprietors: [{ id: 'o-' + id, name: 'Test Owner', primary: true }], recordingAs: 'o-' + id, services: {}, flags: {}, schedule: {}, records: [], actions: {}, staff: [], procedures: [], documents: [], log: [], history: [], obligations: {}, settings: { created: '2026-11-27T00:00:00Z', setupDone: true }, ...extra });
   await put(p, 'propapp:ph:' + E1, blankPh(E1, 'Equator Pharmacy', { log: [{ id: 'l1', date: '2026-11-20', what: 'Reported a recall (fictional)', by: 'Test Owner' }] }));
@@ -269,15 +269,16 @@ async function modules() {
   await put(p, 'propapp:dir', { ...dir, ids: [...dir.ids, E1, E2, E3] }); await p.reload(); await p.waitForTimeout(900);
   await more(p, 'Pharmacies on this device'); await tap(p, 'Archive or delete a pharmacy'); await p.waitForTimeout(300);
   const delFor = name => p.evaluate(n => { const r = [...document.querySelectorAll('.row.static')].find(x => x.querySelector('.row-title')?.innerText === n); return r ? [...r.querySelectorAll('button')].some(b => /Delete/.test(b.innerText)) : null; }, name);
-  ok(await delFor('Equator Pharmacy') === false && await delFor('Blank Street Pharmacy') === true && await delFor('Harbour UAT copy') === true, '1. Delete: not for “Equator Pharmacy” (has a log entry; “uat” inside a word isn’t UAT), yes for an empty one and a UAT copy');
+  ok(await delFor('Equator Pharmacy') === true && await delFor('Blank Street Pharmacy') === true && await delFor('Harbour UAT copy') === true, '1. Delete: offered for every pharmacy, including “Equator Pharmacy” with a log entry');
   await p.locator('.row.static', { hasText: 'Blank Street Pharmacy' }).getByRole('button', { name: 'Delete' }).click(); await p.waitForTimeout(300);
-  ok(/Tap again to delete for good/.test(await text(p)), '1. the first Delete tap arms it');
+  ok(await p.locator('.sheet').getByRole('button', { name: 'Delete permanently' }).isDisabled(), '1. the first Delete tap opens the DELETE confirmation');
+  await p.locator('.sheet input[name=deltype]').fill('DELETE');
   const p2 = await p.context().newPage(); await p2.goto(p.url()); await p2.waitForTimeout(1200);
   await tap(p2, 'More'); await p2.waitForTimeout(200); await p2.getByRole('button', { name: /^Pharmacies on this device/ }).first().click(); await p2.waitForTimeout(300);
   await p2.locator('[data-act=sw][data-id="' + E1 + '"]').click(); await p2.waitForTimeout(1500);
   await p.waitForTimeout(800);
   const t1 = await text(p);
-  ok(/Equator Pharmacy/.test(t1) && !/Tap again to delete for good/.test(t1) && await p.locator('[data-act=back]').count() === 0, '1. another tab switching to Equator brings this tab to Equator’s Today, with no screen or armed Delete left from Wattle Grove (' + await title(p) + ')');
+  ok(/Equator Pharmacy/.test(t1) && !/Delete permanently/.test(t1) && await p.locator('.sheet').count() === 0 && await p.locator('[data-act=back]').count() === 0, '1. another tab switching to Equator brings this tab to Equator’s Today, with no screen or DELETE confirmation left from Wattle Grove (' + await title(p) + ')');
   await p2.close();
   await shot(p, 'crosstab_switch_today_390px');
   await p.evaluate(() => {}); const dir2 = (await saved(p))['propapp:dir']; await put(p, 'propapp:dir', { ...dir2, active: PH, ids: dir2.ids.filter(x => ![E1, E2, E3].includes(x)) }); for (const k of [E1, E2, E3]) await put(p, 'propapp:ph:' + k, null);

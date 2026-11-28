@@ -239,9 +239,9 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
   await b2.ctx.setOffline(true);
   await openMore(b2.p, /^Pharmacy details/); await b2.p.locator('input[name=address]').fill('Stale offline edit (fictional)'); await tapB(b2.p, 'Save'); await b2.p.waitForTimeout(300);
   await openMore(b1.p, /^Pharmacies on this device/); await tapB(b1.p, 'Archive or delete a pharmacy'); await b1.p.waitForTimeout(200);
-  await tapB(b1.p, 'Delete'); await b1.p.waitForTimeout(150); await tapB(b1.p, 'Tap again to delete for good'); await b1.p.waitForTimeout(300);
+  await b1.p.locator('.row.static', { hasText: 'Second Test Pharmacy' }).getByRole('button', { name: 'Delete', exact: true }).click(); await b1.p.waitForTimeout(150); await b1.p.locator('.sheet input[name=deltype]').fill('DELETE'); await b1.p.locator('.sheet').getByRole('button', { name: 'Delete permanently' }).click(); await b1.p.waitForTimeout(300);
   const delAt = await until(() => vault(s1.accountId, PH2).deletedAt, 8000);
-  ok(!!delAt && vault(s1.accountId, PH2).rev === 2 && vault(s1.accountId, PH2).pharmacy === null, 'C. device 1 deletes it (two taps) and the tombstone reaches the server (rev 2)');
+  ok(!!delAt && vault(s1.accountId, PH2).rev === 2 && vault(s1.accountId, PH2).pharmacy === null, 'C. device 1 deletes it (typing DELETE) and the tombstone reaches the server (rev 2)');
   await b2.ctx.setOffline(false);
   const goneB2 = await until(async () => { const all = await saved(b2.p); return !all['propapp:ph:' + PH2] && all['propapp:tomb:' + PH2] ? all : null; }, 8000);
   ok(!!goneB2, 'C. device 2 back online: propapp:ph:<id> is removed');
@@ -338,7 +338,7 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
   const idle = () => until(async () => !log.some(x => !x.status && !x.aborted && (x.path.startsWith('/v1/sync/') || x.path === '/v1/vault')), 6000);
   const delOther = async (p, name) => { await openMore(p, /^Pharmacies on this device/); await tapB(p, 'Archive or delete a pharmacy'); await p.waitForTimeout(200);
     const rowEl = p.locator('.row.static', { hasText: name }); await rowEl.getByRole('button', { name: 'Delete', exact: true }).click(); await p.waitForTimeout(150);
-    await rowEl.getByRole('button', { name: 'Tap again to delete for good' }).click(); await p.waitForTimeout(400); };
+    await p.locator('.sheet input[name=deltype]').fill('DELETE'); await p.locator('.sheet').getByRole('button', { name: 'Delete permanently' }).click(); await p.waitForTimeout(400); };
 
   // ══ Test E: another account never gets the earlier account's records without an explicit step
   const e = await device('E'); const EE1 = 'owner.e1@example.com', EE2 = 'owner.e2@example.com';

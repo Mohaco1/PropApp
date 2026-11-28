@@ -26,7 +26,7 @@ export const register = (name, v) => { views[name] = v; };
 // C-02: screens can listen for navigation (a pending "choose the file again" restore is disarmed by it).
 // Stage 3E: a two-tap confirmation (Delete, Discard, Stop offering, the Adopt sheet) is disarmed by any navigation, Back
 // included, and by any successful save, so an old first tap can never confirm a later, different act.
-const ARMED = /^(delArmed|discardArmed|armed|stopArmed|ad:.*)$/;
+const ARMED = /^(delArmed|delTyped|discardArmed|armed|stopArmed|ad:.*)$/;
 const disarm = () => { for (const k of Object.keys(S.ui)) if (ARMED.test(k)) delete S.ui[k]; };
 const navigated = () => { nextScreen(); disarm(); try { window.dispatchEvent(new Event('pl:navigate')); } catch {} };
 // D3-C: every navigation, pharmacy switch and outside reload is a new screen. Anything a screen asked the network for

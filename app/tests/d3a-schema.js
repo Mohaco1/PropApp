@@ -230,14 +230,14 @@ const legacyPh = () => ({
   await pick(write('rpharmacy.json', E.backup));
   const wg = Object.values(await saved(p)).find(v => v && v.legacy && v.schema === 2);
   ok(wg && wg.history.length > 0 && wg.history.every(x => /^h:/.test(x.id)) && new Set(wg.procedures.map(x => x.id)).size === wg.procedures.length && wg.procedures.every(x => x.id === 'proc:' + x.service), '4. an R.Pharmacy (version 2) backup restores through importLegacy as schema 2');
-  // delete one in More › Pharmacies (two taps), after switching away from it
+  // delete one in More › Pharmacies (Delete, then type DELETE), one that isn't open
   await tap(p, 'More'); await p.getByRole('button', { name: /^Pharmacies on this device/ }).first().click(); await p.waitForTimeout(300);
   await tap(p, 'Archive or delete a pharmacy'); await p.waitForTimeout(200);
   const before4 = phKeys(await saved(p)).length;
-  await p.getByRole('button', { name: 'Delete', exact: true }).first().click(); await p.waitForTimeout(150);
-  await p.getByRole('button', { name: 'Tap again to delete for good' }).click(); await p.waitForTimeout(500);
+  await p.locator('.row.static').filter({ hasNotText: 'Open now' }).first().getByRole('button', { name: 'Delete', exact: true }).click(); await p.waitForTimeout(150);
+  await p.locator('.sheet input[name=deltype]').fill('DELETE'); await p.locator('.sheet').getByRole('button', { name: 'Delete permanently' }).click(); await p.waitForTimeout(500);
   all = await saved(p); const tk = Object.keys(all).filter(k => k.startsWith('propapp:tomb:'));
-  ok(phKeys(all).length === before4 - 1 && tk.length === 1 && all['propapp:dir'].ids.length === before4 - 1 && all['propapp:dir'].tombstones?.[tk[0].slice(13)], '4. Delete (two taps) leaves one fewer propapp:ph:* key and a propapp:tomb:<id> tombstone');
+  ok(phKeys(all).length === before4 - 1 && tk.length === 1 && all['propapp:dir'].ids.length === before4 - 1 && all['propapp:dir'].tombstones?.[tk[0].slice(13)], '4. Delete (typing DELETE) leaves one fewer propapp:ph:* key and a propapp:tomb:<id> tombstone');
   await p.reload(); await p.waitForTimeout(600);
   ok(phKeys(await saved(p)).length === before4 - 1, '4. after a reload the deleted pharmacy stays deleted');
   fs.rmSync(TMP, { recursive: true, force: true });

@@ -3,7 +3,7 @@
 import { isPWA, standalone, keptStatus } from '../pwa.js';
 import { register } from '../app.js';
 import { h, uid } from '../util.js';
-import { screen, btn, row, field, textInput, choice, note, why, empty, section, pill } from '../ui.js';
+import { screen, btn, row, field, textInput, choice, note, why, empty, section, pill, sheet } from '../ui.js';
 import { fmt, today, addDays, day } from '../dates.js';
 import { note as log, me, newAction } from '../model.js';
 import { pharmacyBackup, importBackup, openExample, backupNow, conflictTime } from './backup.js';
@@ -85,28 +85,46 @@ register('pharmacies', {
     add: c => { c.ui.setupStep = 1; c.ui.setup = null; c.store.setPref('setup-draft', undefined); c.go('welcome'); },
     unarch: (c, d) => { c.store.setArchived(d.id, false); c.rerender(); c.toast('Unarchived'); } },
 });
-// F-LIVE-07 (owner approved): archive a real pharmacy (records kept, can be undone); delete only a test or fictional
-// pharmacy, or one with nothing recorded, after a backup prompt and a second tap. The open pharmacy is never offered.
-// Stage 3E: "UAT" or "test" must be a word of its own (so "Equator Pharmacy" is never offered), and "nothing recorded"
-// also means no adopted procedure, document reference, evidence location or My log entry.
+// F-LIVE-07 (owner approved): archive a pharmacy (records kept, can be undone). 28 Nov 2026 (owner): any pharmacy can
+// be deleted, whatever it holds, archived or open now, once DELETE is typed in the confirm sheet. isDemo and deletable
+// stay for the UAT layer (realPharmacies), which treats test, fictional and empty pharmacies as not real.
+// Stage 3E: "UAT" or "test" must be a word of its own (so "Equator Pharmacy" is never treated as a test copy), and
+// "nothing recorded" also means no adopted procedure, document reference, evidence location or My log entry.
 export const isDemo = p => !!p.flags?.example || /\(fictional\)|\btest\b|\bUAT\b/i.test(p.name || '');
 export const deletable = p => isDemo(p) || (!p.records.length && !Object.keys(p.actions).length && !p.staff.length && !(p.procedures || []).some(x => (x.versions || []).some(v => v.status === 'Adopted'))
   && !(p.documents || []).length && !Object.values(p.obligations || {}).some(o => o && (o.where || o.date)) && !(p.log || []).length);
+const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+const typedDelete = v => String(v || '').trim().toUpperCase() === 'DELETE';
+// Every pharmacy on this device is listed: the open one first, then the others, then archived ones. Archive is offered
+// for the others only (archiving the open one would leave nothing open; an archived one is unarchived from Pharmacies).
+// Delete opens a sheet; "Delete permanently" stays disabled until DELETE is typed (any case). Deleting leaves the D3
+// tombstone (propapp:tomb:<id>, via removePharmacy). Deleting the open one opens the next active pharmacy, or the
+// welcome screen when none is left.
 register('phmanage', {
   tab: 'more',
-  // The only pharmacy on this device (the open one) is offered too, for Delete only (archiving it would leave nothing
-  // open); deleting it returns to the welcome screen.
-  render(c) { const d = c.store.dir(), solo = d.ids.length === 1 && d.ids[0] === c.ph.id, others = (solo ? [c.ph.id] : d.ids.filter(id => id !== c.ph.id && !(d.archived || []).includes(id))).map(id => c.store.pharmacy(id)).filter(Boolean);
-    return screen({ title: 'Archive or delete', back: true, body: h`<p class="muted">${solo ? 'This is the only pharmacy on this device. Delete removes it from this device for good and returns to the welcome screen, so it’s offered only for a test or fictional pharmacy, or one with nothing recorded.' : 'Archive keeps every record and hides the pharmacy from switching and counts; you can unarchive it from Pharmacies. Delete removes it from this device for good, so it’s offered only for test or fictional pharmacies, or ones with nothing recorded. To change the pharmacy that’s open now, switch to another first.'}</p>
-      ${others.length ? h`<div class="list">${others.map(p => h`<div class="row static"><span class="row-main"><span class="row-title">${p.name}</span><span class="row-sub">${p.records.length === 1 ? '1 record' : p.records.length + ' records'} · ${Object.keys(p.actions).length === 1 ? '1 action' : Object.keys(p.actions).length + ' actions'}</span>
-        ${solo && !deletable(p) ? h`<span class="row-sub">It has records, so it can’t be deleted here.</span>` : ''}
-        <span class="btnrow">${solo ? '' : btn('Archive', 'arch', { data: { id: p.id } })}${deletable(p) ? btn(c.ui.delArmed === p.id ? 'Tap again to delete for good' : 'Delete', 'del', { data: { id: p.id }, cls: c.ui.delArmed === p.id ? 'danger' : '' }) : ''}</span>
-        ${c.ui.delArmed === p.id ? h`<span class="note warn">This can’t be undone. Download a backup of it first if you might want it back.${btn('Download its backup', 'delbk', { kind: 'link', data: { id: p.id } })}</span>` : ''}</span></div>`)}</div>` : empty('No other pharmacies to archive or delete.')}` }); },
+  render(c) { const d = c.store.dir(), arch = d.archived || [], ids = [c.ph.id, ...d.ids.filter(id => id !== c.ph.id && !arch.includes(id)), ...d.ids.filter(id => id !== c.ph.id && arch.includes(id))];
+    const list = [...new Set(ids)].map(id => c.store.pharmacy(id)).filter(Boolean), target = list.find(p => p.id === c.ui.delArmed);
+    const status = p => p.id === c.ph.id ? 'Open now · ' : arch.includes(p.id) ? 'Archived · ' : '';
+    const next = target && target.id === c.ph.id ? c.store.pharmacy(d.ids.find(x => x !== target.id && !arch.includes(x))) : null;
+    const confirm = target ? sheet({ title: 'Delete ' + target.name + ' for good?', cancel: 'delcancel',
+      body: h`${note('This removes the pharmacy and all its records (' + plural(target.records.length, 'record') + ', ' + plural(Object.keys(target.actions).length, 'action') + ') from this device for good. It can’t be undone.' + (target.id === c.ph.id ? (next ? ' ' + next.name + ' opens next.' : ' You’ll go back to the welcome screen.') : ''), 'warn')}
+        ${btn('Download its backup first', 'delbk', { kind: 'link', data: { id: target.id } })}
+        <label class="field"><span class="field-label">Type DELETE to confirm</span><input class="input" name="deltype" data-input="deltype" value="${c.ui.delTyped || ''}" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false"></label>`,
+      primary: btn('Delete permanently', 'del', { kind: 'primary', cls: 'danger', data: { id: target.id }, disabled: !typedDelete(c.ui.delTyped) }) }) : '';
+    return screen({ title: 'Archive or delete', back: true, body: h`<p class="muted">Archive keeps every record and hides a pharmacy from switching and counts; unarchive it from Pharmacies. Delete removes a pharmacy and all its records from this device for good, after you type DELETE to confirm, so download its backup first if you might want it back.</p>
+      <div class="list">${list.map(p => h`<div class="row static"><span class="row-main"><span class="row-title">${p.name}</span><span class="row-sub">${status(p)}${plural(p.records.length, 'record')} · ${plural(Object.keys(p.actions).length, 'action')}</span>
+        <span class="btnrow">${p.id === c.ph.id || arch.includes(p.id) ? '' : btn('Archive', 'arch', { data: { id: p.id } })}${btn('Delete', 'delask', { cls: 'danger', data: { id: p.id } })}</span></span></div>`)}</div>${confirm}` }); },
+  inputs: { deltype: (c, el) => { c.ui.delTyped = el.value; const b = el.closest('.sheet')?.querySelector('[data-act=del]'); if (b) b.disabled = !typedDelete(el.value); } },
   acts: {
     arch: (c, d) => { c.store.setArchived(d.id, true); c.rerender(); c.toast('Archived. Records kept; unarchive it from Pharmacies.'); },
-    del: async (c, d) => { if (c.ui.delArmed !== d.id) { c.ui.delArmed = d.id; c.rerender(); return; } c.ui.delArmed = ''; const name = c.store.pharmacy(d.id)?.name, wasOpen = d.id === c.ph?.id; c.store.removePharmacy(d.id); await c.store.flush(); c.sync.schedule(() => c.rerender(), 0);
-      // The last pharmacy: removePharmacy left nothing open, so reload clears it and the app shows the welcome screen.
-      if (wasOpen) { for (const k of Object.keys(c.ui)) delete c.ui[k]; c.load(); c.tab('today'); } else c.rerender(); c.toast('Deleted ' + name + ' from this device'); },
+    delask: (c, d) => { c.ui.delArmed = d.id; c.ui.delTyped = ''; c.rerender(); },
+    delcancel: c => { delete c.ui.delArmed; delete c.ui.delTyped; c.rerender(); },
+    del: async (c, d) => { if (c.ui.delArmed !== d.id || !typedDelete(c.ui.delTyped) || !c.store.pharmacy(d.id)) return;
+      delete c.ui.delArmed; delete c.ui.delTyped; const name = c.store.pharmacy(d.id).name, wasOpen = d.id === c.ph?.id;
+      c.store.removePharmacy(d.id); await c.store.flush(); c.sync.schedule(() => c.rerender(), 0);
+      // The open one: removePharmacy made the next active pharmacy the open one (or none), so reload it from a clean slate.
+      if (wasOpen) { for (const k of Object.keys(c.ui)) delete c.ui[k]; c.load(); c.tab('today'); } else c.rerender();
+      const now = wasOpen && c.ph ? c.ph.name : ''; c.toast('Deleted ' + name + ' from this device' + (now ? '. ' + now + ' is open now.' : '')); },
     delbk: async (c, d) => { const p = c.store.pharmacy(d.id); const ok = await saveFile(p.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify({ app: 'PropApp', format: 1, exportedAt: new Date().toISOString(), pharmacy: p, drafts: c.store.drafts(d.id) }), 'application/json'); c.toast(ok ? 'Backup download requested' : 'The backup wasn’t saved. Try again before deleting.'); },
   },
 });
