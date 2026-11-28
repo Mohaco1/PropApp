@@ -574,3 +574,55 @@ fieldset.review-question .chips{clear:both}
 .qa-also{margin:0;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;color:var(--muted);font-size:14px}
 .qa-miss{padding:4px 0 4px 16px;border-left:3px solid #0f766e;display:flex;flex-direction:column;gap:4px}
 .qa-miss p{margin:0}
+
+/* Welcome: Option 1, Navy Split Editorial Cover (28 Nov, owner). A Midnight Navy hero with a 28 px ledger grid and a
+   3 px Deep Teal divider over a crisp white sheet (about 38/62 on phones); side by side 42/58 from 700 px. Light only,
+   weights 400/600, every tap target 44 px+. */
+.welcome.cover{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;padding:0;gap:0;background:#fff;justify-content:flex-start}
+.cv-hero{flex:none;min-height:38vh;min-height:38dvh;display:flex;flex-direction:column;justify-content:space-between;gap:20px;
+  padding:max(20px,env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) 24px max(20px,env(safe-area-inset-left,0px));
+  background-color:#0f2942;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:28px 28px;background-position:-1px -1px;
+  border-bottom:3px solid #0f766e;color:#fff}
+.cv-top{display:flex;align-items:center;gap:10px;min-width:0}
+.cover .wm-mark{width:36px;height:36px;margin:0;line-height:0;display:block;flex:none}.cover .wm-mark .logo{width:36px;height:36px;display:block}
+.cover .wm-mark .logo rect:first-child{stroke:none}
+.cv-name{font-size:18px;font-weight:600;letter-spacing:-.02em;color:#fff;white-space:nowrap}
+.cv-badge{margin-left:auto;flex:none;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.08em;line-height:1;color:#d5e3ec;border:1px solid rgba(255,255,255,.28);border-radius:4px;padding:6px 8px;white-space:nowrap}
+.cv-copy{display:flex;flex-direction:column;gap:10px}
+.cv-head{margin:0;font-size:27px;line-height:1.15;font-weight:600;letter-spacing:-.025em;color:#fff;max-width:18ch;text-wrap:balance}
+.cv-sub{margin:0;font-size:15px;line-height:1.45;color:#c9d6e0;max-width:40ch}
+.cv-sheet{flex:1 1 auto;display:flex;flex-direction:column;background:#fff;padding:8px max(20px,env(safe-area-inset-right,0px)) max(20px,env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px))}
+.cv-inner{width:100%;max-width:440px;margin:0 auto;display:flex;flex-direction:column;gap:20px;flex:1 1 auto}
+.cv-steps{list-style:none;margin:0;padding:0}
+.cv-steps li{display:flex;align-items:baseline;gap:14px;padding:12px 0;border-bottom:1px solid #dbe2e8}
+.cv-steps li:last-child{border-bottom:0}
+.cv-n{flex:none;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:13px;font-weight:600;color:#0f766e;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.cv-step{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cv-t{font-size:16px;font-weight:600;color:#0f2942;line-height:1.3}
+.cv-s{font-size:14px;color:#526575;line-height:1.3}
+.cv-dock{display:flex;flex-direction:column;gap:12px;margin-top:auto}
+.cv-dock .btn.big{width:100%;min-height:48px;border-radius:8px}
+.cv-dock .btn.primary{background:#0f2942;border-color:#0f2942;color:#fff}
+.cv-dock .btn.cv-signin,.cv-form .btn.secondary{background:#fff;border:1px solid #0f2942;color:#0f2942}
+.cv-sync{display:flex;flex-direction:column;gap:8px}.cv-sync .note{margin:0}
+.cv-form{gap:8px}.cv-row{display:flex;flex-direction:column;gap:4px}.cv-row .btn.link{align-self:center;min-height:44px}
+.cv-links{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;color:#526575}
+.cv-links .linkbtn,.cv-links .btn.link{min-height:44px;display:inline-flex;align-items:center;padding:0 8px;font-size:15px;color:#0f766e}
+@media screen and (max-width:360px){.cv-head{font-size:25px}.cv-hero{gap:16px}.cv-name{font-size:17px}.cv-badge{letter-spacing:.04em;padding:6px}}
+@media screen and (min-width:700px){
+  .welcome.cover{flex-direction:row;height:100vh;height:100dvh;min-height:0}
+  .cv-hero{flex:0 0 42%;min-width:0;min-height:0;border-bottom:0;border-right:3px solid #0f766e;padding:32px}
+  .cv-head{font-size:32px}.cv-top{flex-wrap:wrap;row-gap:12px}
+  .cv-sheet{flex:1 1 58%;min-width:0;overflow-y:auto;justify-content:center;padding:32px 40px}
+  .cv-inner{flex:none;gap:28px}.cv-dock{margin-top:0}
+}
+/* H-07: on a hinged screen the navy hero fills the left segment and the sheet the right one, never across the fold */
+@media screen and (min-width:700px) and (horizontal-viewport-segments:2){
+  .welcome.cover{width:auto;margin-left:0}
+  .cover .cv-hero{flex:0 0 calc(env(viewport-segment-width 0 0) - 3px)}
+  .cover .cv-sheet{margin-left:calc(env(viewport-segment-left 1 0) - env(viewport-segment-width 0 0))}
+}
+/* UAT build only: the floating UAT button never covers the cover's badge */
+body:has(#uat-btn) .cv-top{padding-right:52px;flex-wrap:wrap;row-gap:12px}
+@media screen and (min-width:700px){body:has(#uat-btn) .cv-top{padding-right:0}}
+body:has(#uat-btn) .cv-badge{margin-left:0}

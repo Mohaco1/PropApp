@@ -41,7 +41,7 @@ const shot = (p, n) => p.screenshot({ path: path.join(SHOTS, 'stage3f_' + n + '.
 
   // ── 3. The look, by real taps on the example pharmacy.
   const { b, p, errors } = await phone({ time: '2026-11-27T10:00:00+11:00', scale: 2 });
-  ok(await p.locator('.welcome.calm .calm-name', { hasText: 'PharmLedger' }).count() === 1 && await p.locator('.welcome.calm .btn.primary').count() === 1, '3. welcome stays Centered Calm (one primary button)');
+  ok(await p.locator('.welcome.cover .cv-name', { hasText: 'PharmLedger' }).count() === 1 && await p.locator('.welcome.cover .btn.primary').count() === 1, '3. welcome is the Navy Split cover (one primary button)');
   await shot(p, 'welcome_390px');
   await tap(p, 'Try example'); await p.waitForTimeout(800);
   await p.waitForFunction(() => !document.querySelector('.toast'), null, { timeout: 6000 });

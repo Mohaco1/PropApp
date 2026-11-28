@@ -1,7 +1,9 @@
-// Welcome (owner's note): wordmark, one line, one button. Setup is 3 short steps; services are set up afterwards.
+// Welcome (owner, 28 Nov): Navy Split Editorial Cover. Setup is 3 short steps; services are set up afterwards.
 import { register } from '../app.js';
 import { h } from '../util.js';
 import { screen, btn, field, textInput, note, icon, logo } from '../ui.js';
+import * as sync from '../sync.js';
+import { SYNC_ERR } from './settings.js';
 import { emptyPharmacy, note as log } from '../model.js';
 import { C } from '../content.js';
 import { uid } from '../util.js';
@@ -15,16 +17,8 @@ register('welcome', {
   render(c) {
     if (c.ui.setupStep === undefined) { const saved = c.store.getPref('setup-draft'); if (saved) { c.ui.setup = saved.setup; c.ui.setupStep = saved.step; } }
     const step = c.ui.setupStep || 0;
-    // Final Welcome spec (26 Nov): "Centered Calm", one centred 340 px stack on phones and unfolded screens.
-    if (step === 0) return h`<div class="welcome calm"><div class="calm-stack">
-      <span class="wm-mark" aria-hidden="true">${logo(56)}</span>
-      <h1 class="calm-name">PharmLedger</h1>
-      <p class="calm-line">For the owner’s side of the counter.</p>
-      ${btn('Set up your pharmacy', 'start-setup', { kind: 'primary', cls: 'big' })}
-      <div class="calm-links">
-        <label class="linkbtn">Restore backup<input type="file" accept="application/json,.json" data-change="restore" class="vh-file"></label>
-        ${window.PROPAPP_EXAMPLE ? h`<span aria-hidden="true">·</span>${btn('Try example', 'example', { kind: 'link' })}` : ''}
-      </div>${!c.ph && c.store.activeIds().some(id => c.store.pharmacy(id)) ? (() => { const p = c.store.pharmacy(c.store.activeIds().find(id => c.store.pharmacy(id))); return h`<div class="calm-links">${btn('Back to ' + p.name, 'backto', { kind: 'link', data: { id: p.id } })}</div>`; })() : ''}</div></div>`;
+    // Option 1, Navy Split Editorial Cover (28 Nov, owner): a navy hero over a white sheet on phones, side by side from 700 px.
+    if (step === 0) return cover(c);
     const d = c.ui.setup || (c.ui.setup = { name: '', address: '', owners: [''], services: [] });
     const head = h`<p class="steps">Step ${step} of 3</p>`;
     if (step === 1) return screen({ title: 'Your pharmacy', back: true, body: h`${head}
@@ -44,7 +38,10 @@ register('welcome', {
     // PharmLedger brief: copy setup from another pharmacy (services, their setup answers, procedures as drafts, quarter rhythm).
     copyfrom: (c, d) => { const s = c.ui.setup, src = d.id ? c.store.pharmacy(d.id) : null; s.copyFrom = src ? src.id : '';
       if (src) s.services = Object.entries(src.services).filter(([, v]) => v.active).map(([k]) => k); c.rerender(); },
-    'start-setup': c => { c.ui.setupStep = 1; c.rerender(); },
+    'start-setup': c => { c.ui.setupStep = 1; c.ui.signin = false; c.rerender(); },
+    // D3: sign in on a fresh device. Installable app only (the single-file app never shows it, so it makes no network calls).
+    'signin-open': c => { if (!sync.canNetwork()) return; c.ui.signin = true; c.rerender(); document.querySelector('form[data-form=welcomelink] input[name=email]')?.focus(); },
+    'signin-close': c => { c.ui.signin = false; c.rerender(); },
     // C-03: Back from Step 1 while a pharmacy is open (Set up another pharmacy) returns to it, with the setup cleared.
     back: c => { if (c.ph && (c.ui.setupStep || 1) <= 1) { c.ui.setupStep = undefined; c.ui.setup = null; c.store.setPref('setup-draft', undefined); c.store.flush(); if (c.route.name === 'welcome') c.back(); else c.rerender(); return; }
       c.ui.setupStep = Math.max(0, (c.ui.setupStep || 1) - 1); c.rerender(); },
@@ -54,6 +51,9 @@ register('welcome', {
   },
   changes: { restore: (c, el) => importBackup(c, el.files[0], el) },
   forms: {
+    welcomelink: async (c, f) => { if (!sync.canNetwork()) return; const email = String(f.email || '').trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { const inp = document.querySelector('form[data-form=welcomelink] input[name=email]'); if (inp && !inp.parentNode.querySelector('.err')) inp.insertAdjacentHTML('afterend', '<span class="err" role="alert">Enter your email address.</span>'); inp?.setAttribute('aria-invalid', 'true'); inp?.focus(); return; }
+      await sync.requestMagicLink(email); c.rerender(); },
     // Chaos test fix 3: a name of only spaces is rejected with a message (it used to crash Finish setup).
     s1: (c, f) => { if (!f.name.trim()) { c.ui.setupErr = 'name'; c.rerender(); return; } c.ui.setupErr = ''; Object.assign(c.ui.setup, { name: f.name.trim(), address: f.address.trim() }); c.ui.setupStep = 2; keep(c); c.rerender(); },
     s2: (c, f) => { const owners = Object.keys(f).filter(k => k.startsWith('owner')).map(k => f[k].trim()).filter(Boolean); if (!owners.length) { c.ui.setupErr = 'owner'; c.rerender(); return; } c.ui.setupErr = ''; c.ui.setup.owners = owners; c.ui.setupStep = 3; keep(c); c.rerender(); },
@@ -69,6 +69,40 @@ register('welcome', {
     },
   },
 });
+const STEPS = [['01', 'Add your pharmacy', 'takes 30 sec'], ['02', 'Tick services you offer', 'S8, DAA, Vacc, OTP'], ['03', 'Open Today', 'obligations & SOPs ready']];
+function cover(c) {
+  const first = !c.ph && c.store.activeIds().map(id => c.store.pharmacy(id)).find(Boolean);
+  return h`<div class="welcome cover">
+    <section class="cv-hero" aria-label="PharmLedger">
+      <div class="cv-top"><span class="wm-mark" aria-hidden="true">${logo(36)}</span><span class="cv-name">PharmLedger</span><span class="cv-badge">NSW · NOV 2026</span></div>
+      <div class="cv-copy"><h1 class="cv-head">Built for the owner’s side of the counter.</h1>
+      <p class="cv-sub">S8 stocktakes, SOPs, staff credentials, and inspection records—organised on your phone in 5 minutes a week.</p></div>
+    </section>
+    <section class="cv-sheet"><div class="cv-inner">
+      <ol class="cv-steps">${STEPS.map(([n, t, s]) => h`<li><span class="cv-n" aria-hidden="true">${n}</span><span class="cv-step"><span class="cv-t">${t}</span><span class="cv-s">${s}</span></span></li>`)}</ol>
+      <div class="cv-dock">
+        ${btn('Set up your pharmacy', 'start-setup', { kind: 'primary', cls: 'big' })}
+        ${sync.canNetwork() ? signIn(c) : ''}
+        <div class="cv-links">${window.PROPAPP_EXAMPLE ? h`${btn('Try example', 'example', { kind: 'link' })}<span aria-hidden="true">·</span>` : ''}<label class="linkbtn">Restore backup<input type="file" accept="application/json,.json" data-change="restore" class="vh-file"></label></div>
+        ${first ? h`<div class="cv-links">${btn('Back to ' + first.name, 'backto', { kind: 'link', data: { id: first.id } })}</div>` : ''}
+      </div>
+    </div></section></div>`;
+}
+// The sign-in step on Welcome: the same emailed link as More › Backup and devices. Once it is tapped, the account's
+// pharmacies come down and the app opens the first one by itself.
+function signIn(c) {
+  const st = sync.status();
+  const msg = st.signedIn ? note(st.state === 'syncing' ? 'Signed in. Bringing your pharmacies onto this device…' : st.state === 'error' || st.state === 'partial' ? 'Signed in, but your pharmacies couldn’t come across just now. Try again shortly.' : 'Signed in. No pharmacies on this account yet: set one up and it syncs.', st.state === 'error' || st.state === 'partial' ? 'warn' : 'ok')
+    : st.pending ? note(st.state === 'signing-in' ? 'Signing you in…' : 'Signing you in when you’re back online.', 'ok')
+    : st.state === 'link-sent' ? note('Check your email on this phone and tap the link. It works once, for 15 minutes.', 'ok')
+    : st.state === 'link-failed' ? note('That sign-in link was already used or has expired. Ask for a new one.', 'warn')
+    : st.state === 'link-error' ? note(SYNC_ERR[st.error] || SYNC_ERR.server, 'warn') : '';
+  if (st.signedIn || st.pending) return h`<div class="cv-sync" role="status">${msg}</div>`;
+  if (!c.ui.signin && st.state !== 'link-sent' && st.state !== 'link-failed' && st.state !== 'link-error') return btn('Sign in to sync existing device', 'signin-open', { cls: 'big cv-signin' });
+  return h`<div class="cv-sync"><div role="status">${msg}</div>
+    <form class="form cv-form" data-form="welcomelink" novalidate>${field('Email you use on your other device', textInput('email', '', { type: 'email', placeholder: 'name@example.com' }))}
+    <div class="cv-row">${btn(st.state === 'link-sent' ? 'Send another link' : 'Email me a sign-in link', null, { type: 'submit', cls: 'big' })}${btn('Cancel', 'signin-close', { kind: 'link' })}</div></form></div>`;
+}
 // Onboarding polish: one calm card straight after Finish setup, then Today. Counts come from the pharmacy itself.
 register('plan-ready', {
   noNav: true,

@@ -145,7 +145,7 @@ function run(e, type, el, r, v) {
   // Hardening brief: a second tap on the same final button (a form submit or a primary button) within 800 ms is ignored,
   // so Save review, Save visit, Save action and Close action can't record twice.
   if (type === 'submit' || el.classList?.contains('primary')) { const key = (r.name || '') + '|' + (r.id || '') + '|' + (type === 'submit' ? 'f:' + el.dataset.form : 'a:' + el.dataset.act), now = Date.now();
-    if (lastFinal.key === key && now - lastFinal.at < 800 && el.dataset.act !== 'step' && !document.querySelector('main .err')) { if (type === 'submit') e.preventDefault(); return; } lastFinal = { key, at: now }; }
+    if (lastFinal.key === key && now - lastFinal.at < 800 && el.dataset.act !== 'step' && !document.querySelector('main .err, .welcome .err')) { if (type === 'submit') e.preventDefault(); return; } lastFinal = { key, at: now }; }
   if (type === 'submit') { e.preventDefault(); const fn = v.forms?.[el.dataset.form] || common.forms[el.dataset.form]; fn?.(ctx, Object.fromEntries(new FormData(el)), el, r, e); return; }
   const act = el.dataset.act; const fn = v.acts?.[act] || common.acts[act]; if (!fn) return;
   if (el.tagName === 'A') e.preventDefault();
@@ -179,7 +179,8 @@ export async function start(el) {
   render();
   // D3-C: sign in with a pending link, and sync, at start and whenever the phone comes back online (installable app only).
   // The sync section of Backup and devices redraws when the sign-in or sync state changes.
-  sync.watch(() => { if (S.ph && ctx.route.name === 'backup') { const keep = typed(); render(); retype(keep); } });
+  // The Welcome cover's sign-in (no pharmacy open yet, step 0) redraws too, keeping the email typed.
+  sync.watch(() => { if ((S.ph && ctx.route.name === 'backup') || (!S.ph && !S.ui.setupStep)) { const keep = typed(); render(); retype(keep); } });
   sync.resume(reload); // D3-E: a sign-in link waiting to be checked settles first, then the ordinary sync runs
   addEventListener('online', () => sync.resume(reload));
   addEventListener('hashchange', () => { if (sync.captureMagicHash()) sync.verifyPendingMagic(reload); }); // a link opened in this same tab

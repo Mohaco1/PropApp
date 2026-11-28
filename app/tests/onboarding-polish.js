@@ -14,8 +14,30 @@ async function setup(p, services) {
 const later = async p => { const f = 'form[data-form=next]'; const on = await p.evaluate(f => { const F = document.querySelector(f); if (!F) return true; return [...F.querySelectorAll('input')].some(i => /radio|checkbox/.test(i.type) ? i.checked : i.value.trim()); }, f); if (on) return false;
   const nv = p.locator(f + ' input[name=nv]'); if (await nv.count()) { await nv.check({ force: true }); await p.waitForTimeout(300); return false; }
   const r = p.locator(f + ' input[value="Needs verification"]'); if (await r.count()) { await r.check({ force: true }); await p.waitForTimeout(500); return true; } return false; };
+// Welcome: Navy Split Editorial Cover (28 Nov, owner) at the Z Fold cover (344×882) and unfolded (840×900) sizes.
+const path = require('path'), fs = require('fs'); const OUT = path.resolve(__dirname, '../handoff'); fs.mkdirSync(OUT, { recursive: true });
+async function cover(size, name) {
+  const { b, p, errors } = await phone({ time: '2026-11-28T10:00:00+11:00', viewport: size, scale: 2 });
+  const m = await p.evaluate(() => { const vw = innerWidth, vh = innerHeight, hero = document.querySelector('.cv-hero'), sheet = document.querySelector('.cv-sheet'), hr = hero.getBoundingClientRect(), cs = getComputedStyle(hero);
+    const out = [...document.querySelectorAll('.welcome *')].filter(e => { const r = e.getBoundingClientRect(), pr = e.parentElement.getBoundingClientRect(); return r.width && (r.right > vw + .5 || r.left < -.5 || r.right > pr.right + .5 || r.bottom > Math.max(vh, document.documentElement.scrollHeight) + .5); }).map(e => e.className || e.tagName);
+    const taps = [...document.querySelectorAll('.welcome button, .welcome label.linkbtn')].map(e => e.getBoundingClientRect()).every(r => r.height >= 44 && r.width >= 44);
+    return { sx: document.documentElement.scrollWidth > vw, sy: document.documentElement.scrollHeight > vh, out, taps, frac: (vw >= 700 ? hr.width / vw : hr.height / vh), bg: cs.backgroundColor, grid: /linear-gradient/.test(cs.backgroundImage) && /^28px 28px(, 28px 28px)?$/.test(cs.backgroundSize),
+      div: vw >= 700 ? cs.borderRightWidth + ' ' + cs.borderRightColor : cs.borderBottomWidth + ' ' + cs.borderBottomColor, side: vw >= 700 ? hr.right <= sheet.getBoundingClientRect().left + .5 : hr.bottom <= sheet.getBoundingClientRect().top + .5,
+      steps: [...document.querySelectorAll('.cv-steps li')].map(li => li.innerText.replace(/\s+/g, ' ').trim()), num: getComputedStyle(document.querySelector('.cv-n')).color, mono: /mono/i.test(getComputedStyle(document.querySelector('.cv-n')).fontFamily + getComputedStyle(document.querySelector('.cv-badge')).fontFamily),
+      prim: [...document.querySelectorAll('.welcome .btn.primary')].map(x => x.textContent.trim()), text: document.body.innerText }; });
+  const wide = size.width >= 700;
+  ok(!m.sx && !m.sy && !m.out.length && m.taps, name + ': nothing clipped, no sideways or downward scroll, every tap target 44 px+' + (m.out.length ? ' (' + m.out.join(', ') + ')' : ''));
+  ok(m.bg === 'rgb(15, 41, 66)' && m.grid && m.div === '3px rgb(15, 118, 110)' && m.side && Math.abs(m.frac - (wide ? .42 : .38)) < .03, name + ': navy hero with the 28 px ledger grid and a 3 px Deep Teal ' + (wide ? 'right' : 'bottom') + ' divider, about ' + (wide ? '42% wide' : '38% high') + ' (' + Math.round(m.frac * 100) + '%' + (m.bg === 'rgb(15, 41, 66)' && m.grid && m.div === '3px rgb(15, 118, 110)' && m.side ? '' : ' ' + m.bg + ' ' + m.grid + ' ' + m.div + ' ' + m.side) + ')');
+  ok(/PharmLedger/.test(m.text) && /NSW · NOV 2026/.test(m.text) && /Built for the owner’s side of the counter\./.test(m.text) && /S8 stocktakes, SOPs, staff credentials, and inspection records—organised on your phone in 5 minutes a week\./.test(m.text), name + ': wordmark, badge, headline and subhead');
+  ok(m.steps.join('|') === '01 Add your pharmacy takes 30 sec|02 Tick services you offer S8, DAA, Vacc, OTP|03 Open Today obligations & SOPs ready' && m.num === 'rgb(15, 118, 110)' && m.mono, name + ': 01–03 timeline with monospace Deep Teal numbers');
+  ok(m.prim.join() === 'Set up your pharmacy' && await p.getByRole('button', { name: 'Sign in to sync existing device' }).count() === 0 && await p.getByRole('button', { name: 'Try example' }).count() === 1 && /Restore backup/.test(m.text), name + ': one primary button; the single-file app has no sign-in button (no network); Try example · Restore backup');
+  ok(!/\bPIC\b|pharmacist in charge|responsible person|score|risk rating/i.test(m.text), name + ': no banned terms and no compliance score');
+  await p.screenshot({ path: path.join(OUT, 'welcome_cover_' + size.width + 'x' + size.height + '.png') });
+  await b.close(); return errors;
+}
 (async () => {
-  const { b, p, errors } = await phone({ time: '2026-11-27T10:00:00+11:00' });
+  const coverErrors = [...await cover({ width: 344, height: 882 }, 'Cover 344×882'), ...await cover({ width: 840, height: 900 }, 'Unfolded 840×900')];
+  const { b, p, errors } = await phone({ time: '2026-11-27T10:00:00+11:00' }); errors.push(...coverErrors);
   await setup(p, ['Dose administration aids', 'Home delivery']);
   // Plan reveal
   let t = await text(p);

@@ -58,7 +58,7 @@ register('backup', {
   changes: { restore: (c, el) => importBackup(c, el.files[0], el) },
 });
 // D3-C: sync across devices, in the installable app only. Calm and short: what it does, then one way to start.
-const SYNC_ERR = { offline: 'You’re offline. Try again when you’re back online.', busy: 'Too many links asked for just now. Wait a few minutes, then try again.', email: 'That email address wasn’t accepted. Check it and try again.', server: 'Couldn’t reach the sync service just now. Try again later.', 'too-big': 'A pharmacy is too large to sync. Your records are safe on this phone.', limit: 'This account has reached its limit of pharmacies. Your records are safe on this phone.' };
+export const SYNC_ERR = { offline: 'You’re offline. Try again when you’re back online.', busy: 'Too many links asked for just now. Wait a few minutes, then try again.', email: 'That email address wasn’t accepted. Check it and try again.', server: 'Couldn’t reach the sync service just now. Try again later.', 'too-big': 'A pharmacy is too large to sync. Your records are safe on this phone.', limit: 'This account has reached its limit of pharmacies. Your records are safe on this phone.' };
 function syncCard() { const st = sync.status();
   // D3-E: "Up to date" only after a pass where the server acknowledged every pharmacy and saving here finished.
   const nf = Object.keys(st.failed || {}).length, why = SYNC_ERR[st.error] || SYNC_ERR.server;

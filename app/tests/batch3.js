@@ -52,15 +52,16 @@ const chevron = (p, sel) => p.evaluate(sel => { const s = document.querySelector
 
     // H-07: the hinge rules (the test browser can't emulate two screen segments, so the stylesheet is checked)
     const hinge = await p.evaluate(() => { const out = []; for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.media && /horizontal-viewport-segments/.test(r.media.mediaText)) out.push(r.cssText); return out.join('\n'); });
-    ok(/\.qgrid\s*\{[^}]*repeat\(2/.test(hinge) && /\.welcome\.calm\s*\{[^}]*viewport-segment-width 1 0/.test(hinge) && /\.sheet-wrap\s*\{[^}]*viewport-segment-left 1 0/.test(hinge), 'H-07 on a hinged screen: Quarter Balancer 2 columns, welcome and bottom sheet inside one segment (stylesheet rules present)');
+    ok(/\.qgrid\s*\{[^}]*repeat\(2/.test(hinge) && /\.cover \.cv-hero\s*\{[^}]*viewport-segment-width 0 0/.test(hinge) && /\.sheet-wrap\s*\{[^}]*viewport-segment-left 1 0/.test(hinge), 'H-07 on a hinged screen: Quarter Balancer 2 columns, welcome hero in the left segment, bottom sheet inside one segment (stylesheet rules present)');
     await b.close(); errors.forEach(e => console.log('console: ' + e)); if (errors.length) ok(false, 'no console errors (unfolded)'); }
 
   // ── 344 px cover screen and 390 px phone
   { const { b: b0, p, errors: errors0 } = await phone({ time: TIME, viewport: { width: 344, height: 882 }, scale: 2 }); global.E0 = errors0;
   // L-01: the welcome logo box is exactly the 56 px logo and sits centred
-  const wm = await p.evaluate(() => { const m = document.querySelector('.wm-mark').getBoundingClientRect(), l = document.querySelector('.wm-mark .logo').getBoundingClientRect(), s = document.querySelector('.calm-stack').getBoundingClientRect();
-    return { w: m.width, h: m.height, same: Math.abs(l.left - m.left) < 1 && Math.abs(l.top - m.top) < 1 && Math.abs(l.width - m.width) < 1 && Math.abs(l.height - m.height) < 1, centred: Math.abs((m.left + m.right) / 2 - (s.left + s.right) / 2) < 1 }; });
-  ok(wm.w === 56 && wm.h === 56 && wm.same && wm.centred, 'L-01 welcome .wm-mark is 56×56, the logo fills it exactly, centred (' + wm.w + '×' + wm.h + ')');
+  // Welcome cover (28 Nov): the logo tile is the logo's own 36 px and sits in the hero's top row, vertically centred
+  const wm = await p.evaluate(() => { const m = document.querySelector('.wm-mark').getBoundingClientRect(), l = document.querySelector('.wm-mark .logo').getBoundingClientRect(), s = document.querySelector('.cv-name').getBoundingClientRect();
+    return { w: m.width, h: m.height, same: Math.abs(l.left - m.left) < 1 && Math.abs(l.top - m.top) < 1 && Math.abs(l.width - m.width) < 1 && Math.abs(l.height - m.height) < 1, centred: Math.abs((m.top + m.bottom) / 2 - (s.top + s.bottom) / 2) < 1.5 }; });
+  ok(wm.w === 36 && wm.h === 36 && wm.same && wm.centred, 'L-01 welcome .wm-mark is 36×36, the logo fills it exactly, level with the wordmark (' + wm.w + '×' + wm.h + ')');
   await p.screenshot({ path: SHOT('welcome_344px') });
   // L-01: the testing hint shows only in the UAT build
   await tap(p, 'Set up your pharmacy'); await p.waitForTimeout(200);

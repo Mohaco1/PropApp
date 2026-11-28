@@ -395,7 +395,16 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
   // ══ Test G: an empty device finds the account's pharmacies, and one created later on another device
   const g = await device('G');
   ok(await g.p.getByRole('button', { name: 'Try example' }).count() === 1 && !Object.keys(await saved(g.p)).some(k => k.startsWith('propapp:ph:')), 'G. a fresh device starts empty, on the welcome screen');
-  const sG = await signInFresh(g, EB);
+  // Welcome cover (28 Nov): the fresh device signs in from the Welcome screen's own button, with real taps.
+  await g.p.screenshot({ path: path.join(SHOTS, 'welcome_cover_pwa_390px.png') });
+  await tapB(g.p, 'Sign in to sync existing device'); await g.p.waitForTimeout(150);
+  await tapB(g.p, 'Email me a sign-in link'); await g.p.waitForTimeout(150);
+  ok(/Enter your email address\./.test(await g.p.locator('.welcome').innerText()) && await g.p.evaluate(() => document.activeElement?.name === 'email'), 'G. Welcome sign-in: an empty email gets an inline “Enter your email address.”');
+  { skip15(); const before = mailer.outbox.length; await g.p.locator('form[data-form=welcomelink] input[name=email]').fill(EB); await tapB(g.p, 'Email me a sign-in link');
+    ok(!!await until(() => mailer.outbox.length > before) && !!await until(() => g.p.evaluate(() => /Check your email on this phone/.test(document.querySelector('.welcome')?.innerText || ''))), 'G. Welcome sign-in emails a link (POST /v1/auth/magic-link) and says to check email on this phone');
+    await g.p.screenshot({ path: path.join(SHOTS, 'welcome_cover_linksent_390px.png') });
+    await g.p.goto('about:blank'); await g.p.goto(URL + '#magic=' + linkFor(EB)); }
+  const sG = await until(() => session(g.p));
   ok(sG && sG.accountId === s1.accountId, 'G. it signs in to the account from test B');
   const gAll = await until(async () => { const a = await saved(g.p); return a['propapp:ph:' + PH1] && a['propapp:dir']?.active === PH1 ? a : null; }, 8000);
   ok(!!gAll && canon(noRev(gAll['propapp:ph:' + PH1])) === canon(noRev(vault(s1.accountId, PH1).pharmacy)) && gAll['propapp:sync:' + PH1]?.rev === vault(s1.accountId, PH1).rev && gAll['propapp:sync:' + PH1]?.account === s1.accountId, 'G. GET /v1/vault found the pharmacy: the device holds the server copy, at its rev, bound to this account');

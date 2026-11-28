@@ -6,7 +6,7 @@ const TMP = path.join(require('os').tmpdir(), 'sigil-test'); fs.mkdirSync(TMP, {
   const { b, p, errors } = await phone({ time: '2026-11-25T10:00:00+11:00', scale: 2, clip: true });
   // 1. Rebrand
   let t = await text(p);
-  ok(await p.title() === 'PharmLedger' && /PharmLedger/.test(t) && /For the owner’s side of the counter\./.test(t) && !/R\.Pharmacy/.test(t), 'PharmLedger: title, wordmark and tagline on Welcome; no R.Pharmacy');
+  ok(await p.title() === 'PharmLedger' && /PharmLedger/.test(t) && /Built for the owner’s side of the counter\./.test(t) && !/R\.Pharmacy/.test(t), 'PharmLedger: title, wordmark and tagline on Welcome; no R.Pharmacy');
   await p.screenshot({ path: path.join(OUT, '30_sigil_welcome_390px.png') });
   const man = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../dist/pwa/manifest.webmanifest'), 'utf8'));
   ok(man.name === 'PharmLedger' && man.short_name === 'PharmLedger', 'PharmLedger: installable-app name and short name');
