@@ -4,7 +4,7 @@ const esbuild = require('esbuild'); const fs = require('fs'); const path = requi
 const ROOT = path.resolve(__dirname, '..');
 // D3-C: the sync API origin built into the installable app only (never into the single-file app). An https origin, or a
 // local test server on 127.0.0.1. PROPAPP_OUT_DIR builds somewhere other than app/dist (the acceptance test uses it).
-const API_ORIGIN = process.env.PROPAPP_API_ORIGIN || 'https://api.pharmledger.com.au';
+const API_ORIGIN = process.env.PROPAPP_API_ORIGIN || 'https://pharmledger-sync.fly.dev';
 if (!/^https:\/\/[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+(:\d{1,5})?$/i.test(API_ORIGIN) && !/^http:\/\/127\.0\.0\.1:\d{1,5}$/.test(API_ORIGIN)) { console.error('PROPAPP_API_ORIGIN must be https://<host> or http://127.0.0.1:<port>, not ' + API_ORIGIN); process.exit(1); }
 const OUT = process.env.PROPAPP_OUT_DIR ? path.resolve(process.env.PROPAPP_OUT_DIR) : path.join(ROOT, 'dist');
 (async () => {

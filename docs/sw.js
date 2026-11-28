@@ -1,8 +1,8 @@
 // R.Pharmacy offline worker (V3-01). It caches the app shell only. It never reads, clears or migrates saved records
 // (IndexedDB and localStorage belong to the app). The page is network-first so updates arrive; icons and the manifest
 // are cache-first. Old shell caches (propapp-shell-*) are removed when a new version activates.
-const SHELL = 'propapp-shell-93a45a70b4';
-const BUILD = '93a45a70b4';
+const SHELL = 'propapp-shell-cea65d9b1f';
+const BUILD = 'cea65d9b1f';
 const FILES = ['./manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 // Stage 3D: a page is stored as the shell only if it is this worker's own build (its propapp-build marker matches), so
 // an error page, a half-deployed copy or another build is never what opens offline.
@@ -14,7 +14,9 @@ self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Pr
 // The page asks which build this worker serves, so a tab running an older build can reload when this one takes over.
 self.addEventListener('message', e => { if (e.data === 'propapp-build') e.ports[0]?.postMessage(BUILD); });
 self.addEventListener('fetch', e => {
-  const r = e.request; if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
+  // D3-C: the sync and sign-in API (/v1/…) is never answered or cached here, even when it shares this origin (a test host).
+  // D3-E: nor is anything under /api/, so a request or a page opened there (online or offline) never gets the app page.
+  const r = e.request, u = new URL(r.url); if (r.method !== 'GET' || u.origin !== location.origin || /(^|\/)(v1|api)(\/|$)/.test(u.pathname)) return;
   if (r.mode === 'navigate') {
     // R11/F-V3-05: only the app page itself refreshes the cached shell, only from a good response of this build, and
     // the worker stays alive until the copy is stored. Stage 3D: a server error (503 and the like) opens the cached

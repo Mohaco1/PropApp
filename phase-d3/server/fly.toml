@@ -1,4 +1,4 @@
-# PharmLedger sync back end. Not deployed: deploying needs the owner's go-ahead (CLAUDE.md, D3).
+# PharmLedger sync back end. Live on https://pharmledger-sync.fly.dev (owner deployed, 28 Nov 2026). Redeploying needs the owner's go-ahead (CLAUDE.md, D3).
 app = "pharmledger-sync"
 primary_region = "syd"
 kill_signal = "SIGTERM"

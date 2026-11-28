@@ -11,8 +11,9 @@ For Codex, Gemini or a new Claude session picking this up cold. Read **`CLAUDE.m
 | Repo | `Mohaco1/PropApp`, branch `main` |
 | Live | https://mohaco1.github.io/PropApp/ (GitHub Pages, served from `docs/`) |
 | Preview artifact | https://claude.ai/artifact/5fKsJBkM1Jq35fGrAjqqq6 (single-file build, `app/dist/propapp.html`) |
-| App build id | **`cc1ba6a381`** (Stage 3H: Walk-In Briefing strip and Counter Quick-Answer merged onto Stage 3G-B, plus the inline error for a refused document link) |
-| Code commit | Stage 3H commit on `main` (code, docs/ and this file for build cc1ba6a381) |
+| App build id | **`cea65d9b1f`** (`docs/`, production build; the `--uat` build in `app/dist` is `75411fb62e`). Stage D3 live: Phase D3 sync merged onto Stage 3H |
+| Sync server | **Phase D3 live** on https://pharmledger-sync.fly.dev (Fly.io, Sydney `syd`; code in `phase-d3/server/`). CORS allows https://mohaco1.github.io only |
+| Code commit | Stage D3 live commit on `main` (code, docs/ and this file for build cea65d9b1f) |
 | Build log | `app/PROGRESS.md` (every build, newest at the bottom) |
 | Reference app | `uat/` (v41.1) stays untouched until the rebuild matches it (`uat/FEATURE-INVENTORY.md`) |
 
@@ -203,12 +204,14 @@ After deploying, an installed phone app picks up the new version when it's reope
 
 ## 8. Open items and next work
 1. **2-week Galaxy Z Fold trial** (Stage 3G-B done; `main` complete and frozen for it): owner UAT of the current build on the phone, the cover screen and unfolded. Check the look, the welcome screen, the icon on the home screen, and the hinge spacing: real hinge segments can't be emulated in Playwright.
-2. **Phase D3** (parked): a managed back end in Sydney with emailed-link sign-in, then the post-trial v4 in-app AI architecture.
+2. **Phase D3: live** on https://pharmledger-sync.fly.dev (merged onto `main` 28 Nov 2026). Sync works only in the installable app when signed in; signed out, and in the single-file app (`connect-src 'none'`), it stays fully offline. Next: the post-trial v4 in-app AI architecture.
 3. **Deferred by the owner:** push notifications, Monday plan.
 4. **Optional, ask the owner first:** rename the repo or Pages path from "PropApp". This changes the phone link and would need a reinstall.
 5. **Rebuild parity:** keep checking `uat/FEATURE-INVENTORY.md` before the old app in `uat/` can be retired.
 
 ## 9. Final state of this handoff
+**Stage D3 live, build `cea65d9b1f` (docs/) / `75411fb62e` (`--uat`):** `phase-d3` (4759c20) merged onto `main` (fast-forward; `docs/` rebuilt from a production build). `PROPAPP_API_ORIGIN` defaults to https://pharmledger-sync.fly.dev, so the installable app's CSP is `connect-src 'self' https://pharmledger-sync.fly.dev`; the single-file app keeps `connect-src 'none'`. `test-all.sh` run once in full on the `--uat` build: all 48 suites plus Check later passed, exit 0, procgen 17 identical. `/v1/healthz` could not be checked from the cloud session (proxy blocks fly.dev).
+
 **Stage 3H, build `cc1ba6a381`:** `test-all.sh` run once in full on the `--uat` build: all 47 suites passed (briefing and assistant included), exit 0, and `check-procgen-all` shows all 17 identical. `docs/` refreshed from `dist/pwa/`.
 
 **Stage 3G-B, build `93a45a70b4`:** `test-all.sh` run once in full on the `--uat` build: 43 of 44 suites passed (stage3gb included) plus Check later, and `check-procgen-all` shows all 17 identical. gates failed 2 checks (Bug 4, light and dark) that read contrast against the open All tile's own fill, which is now transparent by design; the check now reads the first painted background behind the tab, and gates re-run alone: all pass. `docs/` refreshed from `dist/pwa/`.

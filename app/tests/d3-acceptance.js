@@ -476,7 +476,7 @@ const listen = srv => new Promise(res => srv.listen(0, '127.0.0.1', () => res(sr
   const same = f => fs.readFileSync(path.join(PAR, f), 'utf8') === fs.readFileSync(path.join(APPDIR, 'dist', f), 'utf8');
   ok(same('propapp-standalone.html') && same('propapp.html') && same('pwa/index.html') && same('pwa/sw.js'), 'D. checked-in app/dist (standalone, page, pwa/index.html, pwa/sw.js) matches a fresh --uat build of this source');
   const real = fs.readFileSync(path.join(APPDIR, 'dist/pwa/index.html'), 'utf8');
-  ok(real.includes("connect-src 'self' https://api.pharmledger.com.au;") && real.includes('window.PROPAPP_API="https://api.pharmledger.com.au"'), 'D. the real dist/pwa build points at https://api.pharmledger.com.au only');
+  ok(real.includes("connect-src 'self' https://pharmledger-sync.fly.dev;") && real.includes('window.PROPAPP_API="https://pharmledger-sync.fly.dev"'), 'D. the real dist/pwa build points at https://pharmledger-sync.fly.dev only');
   await sf.close();
 
   ok(errors.length === 0, 'no console or CSP errors' + (errors.length ? ': ' + errors.slice(0, 4).join(' | ') : '') + ' (expected API answers Chrome noted: ' + allowed.length + ')');
