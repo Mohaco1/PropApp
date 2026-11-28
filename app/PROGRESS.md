@@ -796,3 +796,9 @@ Checked and already passing:
 - Merged `origin/phase-d3` (4759c20) into `main` (88c8574): a fast-forward. phase-d3's older `docs/` replaced by a fresh production build of `dist/pwa/`.
 - `tools/build.js` defaults `PROPAPP_API_ORIGIN` to https://pharmledger-sync.fly.dev (PWA CSP `connect-src 'self' https://pharmledger-sync.fly.dev`; standalone stays `connect-src 'none'`). `d3-acceptance` checks the new origin. Server CORS allowlist (https://mohaco1.github.io) matches the Pages origin. No screens changed, so no new screenshots.
 - Targeted: d3-acceptance, d3-server, stage3gb, briefing, assistant, gates green. Full test-all once: 48/48 suites plus Check later ALL PASS, procgen 17 identical. `/v1/healthz` not reachable from the cloud session (proxy 403).
+
+## Delete the last pharmacy · 28 Nov 2026 · build 696933e9c1 (docs/, production) / 8a24c0bfb5 (UAT)
+- More › Pharmacies always shows "Archive or delete a pharmacy", even with one pharmacy. With only one, it's offered for Delete only (no Archive), under the same rules (test, fictional or nothing recorded) and the same two taps.
+- Deleting it keeps the D3 tombstone (`propapp:tomb:<id>` and the directory entry), clears the open pharmacy and screen state, and returns to the welcome screen.
+- New `tests/delete-last.js` (in test-all): sole-pharmacy delete, tombstone, welcome, reload, set up again. Screenshots `handoff/60_delete_last_armed_390px.png`, `61_delete_last_welcome_390px.png`.
+- Targeted: stage3d, stage3e, d3a-schema, d3-acceptance, gates green. Full test-all once: 49/49 suites plus Check later ALL PASS, procgen 17 identical. docs/ rebuilt with sync origin https://pharmledger-sync.fly.dev unchanged.

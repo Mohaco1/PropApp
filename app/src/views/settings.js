@@ -79,7 +79,7 @@ register('pharmacies', {
     const line = id => { const p = c.store.pharmacy(id); if (!p) return ''; const n = counts(items(p, c.store.drafts(id))).overdue; return row({ title: p.name, sub: (n ? n + ' overdue' : 'Nothing overdue') + (p.address ? ' · ' + p.address : ''), right: id === c.ph.id ? 'Open now' : 'Switch', tone: id === c.ph.id ? 'ok' : '', act: 'sw', data: { id } }); };
     return screen({ title: 'Pharmacies', back: true, body: h`${act.length > 1 ? h`<div class="list">${row({ title: 'All pharmacies', sub: 'Overdue and this week, side by side', act: 'go', data: { to: 'allsites' } })}</div>` : ''}<div class="list">${act.map(line)}</div>
       ${btn('Set up another pharmacy', 'add')}${window.PROPAPP_EXAMPLE ? btn('Open the example pharmacy (fictional)', 'ex', { kind: 'link' }) : ''}
-      ${d.ids.length > 1 ? btn('Archive or delete a pharmacy', 'go', { kind: 'link', data: { to: 'phmanage' } }) : ''}
+      ${d.ids.length ? btn('Archive or delete a pharmacy', 'go', { kind: 'link', data: { to: 'phmanage' } }) : ''}
       ${arch.length ? section('Archived · ' + arch.length, h`<div class="list">${arch.map(id => { const p = c.store.pharmacy(id); return p ? row({ title: p.name, sub: 'Records kept · hidden from switching and counts', right: 'Unarchive', act: 'unarch', data: { id } }) : ''; })}</div>`) : ''}` }); },
   acts: { sw: (c, d) => c.open(d.id), ex: c => openExample(c), // C-03: the open pharmacy stays open until Step 3 creates the new one, so Back always has somewhere to go.
     add: c => { c.ui.setupStep = 1; c.ui.setup = null; c.store.setPref('setup-draft', undefined); c.go('welcome'); },
@@ -94,14 +94,19 @@ export const deletable = p => isDemo(p) || (!p.records.length && !Object.keys(p.
   && !(p.documents || []).length && !Object.values(p.obligations || {}).some(o => o && (o.where || o.date)) && !(p.log || []).length);
 register('phmanage', {
   tab: 'more',
-  render(c) { const d = c.store.dir(), others = d.ids.filter(id => id !== c.ph.id && !(d.archived || []).includes(id)).map(id => c.store.pharmacy(id)).filter(Boolean);
-    return screen({ title: 'Archive or delete', back: true, body: h`<p class="muted">Archive keeps every record and hides the pharmacy from switching and counts; you can unarchive it from Pharmacies. Delete removes it from this device for good, so it’s offered only for test or fictional pharmacies, or ones with nothing recorded. To change the pharmacy that’s open now, switch to another first.</p>
+  // The only pharmacy on this device (the open one) is offered too, for Delete only (archiving it would leave nothing
+  // open); deleting it returns to the welcome screen.
+  render(c) { const d = c.store.dir(), solo = d.ids.length === 1 && d.ids[0] === c.ph.id, others = (solo ? [c.ph.id] : d.ids.filter(id => id !== c.ph.id && !(d.archived || []).includes(id))).map(id => c.store.pharmacy(id)).filter(Boolean);
+    return screen({ title: 'Archive or delete', back: true, body: h`<p class="muted">${solo ? 'This is the only pharmacy on this device. Delete removes it from this device for good and returns to the welcome screen, so it’s offered only for a test or fictional pharmacy, or one with nothing recorded.' : 'Archive keeps every record and hides the pharmacy from switching and counts; you can unarchive it from Pharmacies. Delete removes it from this device for good, so it’s offered only for test or fictional pharmacies, or ones with nothing recorded. To change the pharmacy that’s open now, switch to another first.'}</p>
       ${others.length ? h`<div class="list">${others.map(p => h`<div class="row static"><span class="row-main"><span class="row-title">${p.name}</span><span class="row-sub">${p.records.length === 1 ? '1 record' : p.records.length + ' records'} · ${Object.keys(p.actions).length === 1 ? '1 action' : Object.keys(p.actions).length + ' actions'}</span>
-        <span class="btnrow">${btn('Archive', 'arch', { data: { id: p.id } })}${deletable(p) ? btn(c.ui.delArmed === p.id ? 'Tap again to delete for good' : 'Delete', 'del', { data: { id: p.id }, cls: c.ui.delArmed === p.id ? 'danger' : '' }) : ''}</span>
+        ${solo && !deletable(p) ? h`<span class="row-sub">It has records, so it can’t be deleted here.</span>` : ''}
+        <span class="btnrow">${solo ? '' : btn('Archive', 'arch', { data: { id: p.id } })}${deletable(p) ? btn(c.ui.delArmed === p.id ? 'Tap again to delete for good' : 'Delete', 'del', { data: { id: p.id }, cls: c.ui.delArmed === p.id ? 'danger' : '' }) : ''}</span>
         ${c.ui.delArmed === p.id ? h`<span class="note warn">This can’t be undone. Download a backup of it first if you might want it back.${btn('Download its backup', 'delbk', { kind: 'link', data: { id: p.id } })}</span>` : ''}</span></div>`)}</div>` : empty('No other pharmacies to archive or delete.')}` }); },
   acts: {
     arch: (c, d) => { c.store.setArchived(d.id, true); c.rerender(); c.toast('Archived. Records kept; unarchive it from Pharmacies.'); },
-    del: async (c, d) => { if (c.ui.delArmed !== d.id) { c.ui.delArmed = d.id; c.rerender(); return; } c.ui.delArmed = ''; const name = c.store.pharmacy(d.id)?.name; c.store.removePharmacy(d.id); await c.store.flush(); c.sync.schedule(() => c.rerender(), 0); c.rerender(); c.toast('Deleted ' + name + ' from this device'); },
+    del: async (c, d) => { if (c.ui.delArmed !== d.id) { c.ui.delArmed = d.id; c.rerender(); return; } c.ui.delArmed = ''; const name = c.store.pharmacy(d.id)?.name, wasOpen = d.id === c.ph?.id; c.store.removePharmacy(d.id); await c.store.flush(); c.sync.schedule(() => c.rerender(), 0);
+      // The last pharmacy: removePharmacy left nothing open, so reload clears it and the app shows the welcome screen.
+      if (wasOpen) { for (const k of Object.keys(c.ui)) delete c.ui[k]; c.load(); c.tab('today'); } else c.rerender(); c.toast('Deleted ' + name + ' from this device'); },
     delbk: async (c, d) => { const p = c.store.pharmacy(d.id); const ok = await saveFile(p.name.replace(/\W+/g, '-') + '-backup-' + today() + '.json', JSON.stringify({ app: 'PropApp', format: 1, exportedAt: new Date().toISOString(), pharmacy: p, drafts: c.store.drafts(d.id) }), 'application/json'); c.toast(ok ? 'Backup download requested' : 'The backup wasn’t saved. Try again before deleting.'); },
   },
 });
